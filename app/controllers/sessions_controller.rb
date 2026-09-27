@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  layout "marketing"
+
   skip_before_action :require_login, only: %i[new create]
   skip_before_action :set_current_tenant, only: %i[new create]
 

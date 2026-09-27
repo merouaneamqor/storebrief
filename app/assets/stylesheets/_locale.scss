@@ -1,0 +1,27 @@
+.locale-form { margin: 0; }
+
+.locale-select {
+  font-family: "DM Sans", "Noto Sans Arabic", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--ink);
+  background-color: white;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  min-height: 36px;
+  padding: 0.35rem 1.7rem 0.35rem 0.75rem;
+  cursor: pointer;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 14px) calc(50% - 1px), calc(100% - 9px) calc(50% - 1px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+body.rtl .locale-select,
+body.marketing.rtl .locale-select {
+  padding: 0.35rem 0.75rem 0.35rem 1.7rem;
+  background-position: 14px calc(50% - 1px), 9px calc(50% - 1px);
+}

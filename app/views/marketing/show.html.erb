@@ -1,112 +1,120 @@
 <% content_for :title, "#{t('landing.hero.brand')} — #{t('landing.hero.title')}" %>
 
 <section class="m-hero">
-  <div class="m-hero__content">
-    <p class="m-eyebrow animate-in"><%= t("landing.hero.brand") %></p>
-    <h1 class="animate-in animate-in--delay-1"><%= t("landing.hero.title") %></h1>
-    <p class="m-lede animate-in animate-in--delay-2"><%= t("landing.hero.lede") %></p>
-    <div class="m-hero__actions animate-in animate-in--delay-3">
+  <div class="m-hero__copy">
+    <p class="m-kicker"><%= t("landing.hero.kicker") %></p>
+    <h1><%= t("landing.hero.title") %></h1>
+    <p class="m-lede"><%= t("landing.hero.lede") %></p>
+    <div class="m-hero__actions">
       <a href="#demo" class="m-btn"><%= t("landing.hero.demo") %></a>
       <a href="#how" class="m-btn m-btn--ghost"><%= t("landing.hero.explore") %></a>
     </div>
+    <ul class="m-proof">
+      <li><%= t("landing.proof.a") %></li>
+      <li><%= t("landing.proof.b") %></li>
+      <li><%= t("landing.proof.c") %></li>
+      <li><%= t("landing.proof.d") %></li>
+    </ul>
   </div>
 
-  <div class="m-hero__visual animate-in animate-in--delay-2" aria-hidden="true">
-    <div class="product-stage">
-      <div class="product-panel product-panel--hq">
-        <div class="product-panel__bar">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <em>HQ</em>
+  <div class="m-stage" aria-hidden="true">
+    <div class="m-window m-window--hq">
+      <header>
+        <span class="m-dots"><i></i><i></i><i></i></span>
+        <strong><%= t("landing.hero.hq") %></strong>
+        <em><%= t("landing.hero.live") %></em>
+      </header>
+      <div class="m-window__body">
+        <div class="m-kpis">
+          <div><b>24</b><span><%= t("landing.hero.kpi_stores") %></span></div>
+          <div><b>18</b><span><%= t("landing.hero.kpi_done") %></span></div>
+          <div><b>6</b><span><%= t("landing.hero.kpi_wait") %></span></div>
         </div>
-        <div class="product-panel__body">
-          <div class="hq-row"><span></span><b></b></div>
-          <div class="hq-row"><span></span><b class="short"></b></div>
-          <div class="hq-stats">
-            <i></i><i></i><i></i>
-          </div>
-          <div class="hq-list">
-            <div></div><div></div><div></div>
-          </div>
-        </div>
+        <ul class="m-rows">
+          <li><span></span><em>72%</em></li>
+          <li><span class="mid"></span><em>54%</em></li>
+          <li><span class="short"></span><em>31%</em></li>
+        </ul>
       </div>
-      <div class="product-panel product-panel--store">
-        <div class="product-panel__bar">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <em>Store</em>
-        </div>
-        <div class="product-panel__body">
-          <div class="task is-done"><i></i><span></span></div>
-          <div class="task"><i></i><span></span></div>
-          <div class="task"><i></i><span class="short"></span></div>
-        </div>
+    </div>
+    <div class="m-window m-window--store">
+      <header>
+        <span class="m-dots"><i></i><i></i><i></i></span>
+        <strong><%= t("landing.hero.store") %></strong>
+      </header>
+      <div class="m-window__body">
+        <div class="m-task done"><i></i><span></span></div>
+        <div class="m-task"><i></i><span></span></div>
+        <div class="m-task"><i></i><span class="short"></span></div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="m-section m-trust" id="solutions">
-  <div class="m-narrow">
+<section class="m-band" id="solutions">
+  <div class="m-wrap m-band__inner">
     <h2><%= t("landing.trust.title") %></h2>
-    <p class="m-lede"><%= t("landing.trust.body") %></p>
+    <p><%= t("landing.trust.body") %></p>
   </div>
 </section>
 
-<section class="m-section">
-  <h2 class="m-center"><%= t("landing.problems.title") %></h2>
-  <div class="m-problems">
-    <article>
+<section class="m-wrap m-block">
+  <header class="m-block__head">
+    <h2><%= t("landing.problems.title") %></h2>
+  </header>
+  <div class="m-cards">
+    <article class="m-card">
+      <span class="m-index">01</span>
       <h3><%= t("landing.problems.p1_title") %></h3>
       <p><%= t("landing.problems.p1_body") %></p>
     </article>
-    <article>
+    <article class="m-card">
+      <span class="m-index">02</span>
       <h3><%= t("landing.problems.p2_title") %></h3>
       <p><%= t("landing.problems.p2_body") %></p>
     </article>
-    <article>
+    <article class="m-card">
+      <span class="m-index">03</span>
       <h3><%= t("landing.problems.p3_title") %></h3>
       <p><%= t("landing.problems.p3_body") %></p>
     </article>
   </div>
 </section>
 
-<section class="m-section m-walk" id="how">
-  <h2 class="m-center"><%= t("landing.walkthrough.title") %></h2>
-  <ol class="m-steps">
+<section class="m-wrap m-block" id="how">
+  <header class="m-block__head">
+    <h2><%= t("landing.walkthrough.title") %></h2>
+  </header>
+  <ol class="m-flow">
     <li>
-      <span class="m-step-num">1</span>
-      <div>
-        <h3><%= t("landing.walkthrough.step1") %></h3>
-        <p><%= t("landing.walkthrough.step1_body") %></p>
-      </div>
+      <span>1</span>
+      <h3><%= t("landing.walkthrough.step1") %></h3>
+      <p><%= t("landing.walkthrough.step1_body") %></p>
     </li>
     <li>
-      <span class="m-step-num">2</span>
-      <div>
-        <h3><%= t("landing.walkthrough.step2") %></h3>
-        <p><%= t("landing.walkthrough.step2_body") %></p>
-      </div>
+      <span>2</span>
+      <h3><%= t("landing.walkthrough.step2") %></h3>
+      <p><%= t("landing.walkthrough.step2_body") %></p>
     </li>
     <li>
-      <span class="m-step-num">3</span>
-      <div>
-        <h3><%= t("landing.walkthrough.step3") %></h3>
-        <p><%= t("landing.walkthrough.step3_body") %></p>
-      </div>
+      <span>3</span>
+      <h3><%= t("landing.walkthrough.step3") %></h3>
+      <p><%= t("landing.walkthrough.step3_body") %></p>
     </li>
     <li>
-      <span class="m-step-num">4</span>
-      <div>
-        <h3><%= t("landing.walkthrough.step4") %></h3>
-        <p><%= t("landing.walkthrough.step4_body") %></p>
-      </div>
+      <span>4</span>
+      <h3><%= t("landing.walkthrough.step4") %></h3>
+      <p><%= t("landing.walkthrough.step4_body") %></p>
     </li>
   </ol>
 </section>
 
-<section class="m-section">
-  <h2 class="m-center"><%= t("landing.features.title") %></h2>
-  <div class="m-features">
-    <div>
+<section class="m-wrap m-block">
+  <header class="m-block__head">
+    <h2><%= t("landing.features.title") %></h2>
+  </header>
+  <div class="m-split">
+    <div class="m-panel">
       <p class="m-tag m-tag--live"><%= t("landing.features.available") %></p>
       <ul>
         <li><%= t("landing.features.f1") %></li>
@@ -117,7 +125,7 @@
         <li><%= t("landing.features.f6") %></li>
       </ul>
     </div>
-    <div>
+    <div class="m-panel m-panel--quiet">
       <p class="m-tag m-tag--soon"><%= t("landing.features.planned") %></p>
       <ul>
         <li><%= t("landing.features.f7") %></li>
@@ -127,56 +135,69 @@
   </div>
 </section>
 
-<section class="m-section m-roles">
-  <h2 class="m-center"><%= t("landing.roles.title") %></h2>
-  <div class="m-roles__grid">
-    <article>
+<section class="m-wrap m-block">
+  <header class="m-block__head">
+    <h2><%= t("landing.roles.title") %></h2>
+  </header>
+  <div class="m-cards">
+    <article class="m-card m-card--role">
       <h3><%= t("landing.roles.hq_title") %></h3>
       <p><%= t("landing.roles.hq_body") %></p>
     </article>
-    <article>
+    <article class="m-card m-card--role">
       <h3><%= t("landing.roles.region_title") %></h3>
       <p><%= t("landing.roles.region_body") %></p>
     </article>
-    <article>
+    <article class="m-card m-card--role">
       <h3><%= t("landing.roles.store_title") %></h3>
       <p><%= t("landing.roles.store_body") %></p>
     </article>
   </div>
 </section>
 
-<section class="m-section m-demo" id="demo">
-  <div class="m-demo__inner">
-    <div>
+<section class="m-wrap m-block" id="demo">
+  <div class="m-convert">
+    <div class="m-convert__copy">
       <h2><%= t("landing.demo.title") %></h2>
-      <p class="m-lede"><%= t("landing.demo.lede") %></p>
+      <p><%= t("landing.demo.lede") %></p>
+      <ul>
+        <li><%= t("landing.demo.point1") %></li>
+        <li><%= t("landing.demo.point2") %></li>
+        <li><%= t("landing.demo.point3") %></li>
+      </ul>
     </div>
     <%= form_with model: @demo_request, url: demo_requests_path, class: "m-form", local: true do |f| %>
-      <label>
-        <%= t("landing.demo.name") %>
-        <%= f.text_field :name, required: true, autocomplete: "name" %>
-      </label>
-      <label>
-        <%= t("landing.demo.company") %>
-        <%= f.text_field :company, required: true, autocomplete: "organization" %>
-      </label>
-      <label>
-        <%= t("landing.demo.email") %>
-        <%= f.email_field :email, autocomplete: "email" %>
-      </label>
-      <label>
-        <%= t("landing.demo.phone") %>
-        <%= f.telephone_field :phone, autocomplete: "tel" %>
-      </label>
+      <div class="m-form__row">
+        <label>
+          <%= t("landing.demo.name") %>
+          <%= f.text_field :name, required: true, autocomplete: "name" %>
+        </label>
+        <label>
+          <%= t("landing.demo.company") %>
+          <%= f.text_field :company, required: true, autocomplete: "organization" %>
+        </label>
+      </div>
+      <div class="m-form__row">
+        <label>
+          <%= t("landing.demo.email") %>
+          <%= f.email_field :email, autocomplete: "email" %>
+        </label>
+        <label>
+          <%= t("landing.demo.phone") %>
+          <%= f.telephone_field :phone, autocomplete: "tel" %>
+        </label>
+      </div>
       <p class="m-hint"><%= t("landing.demo.contact_hint") %></p>
-      <label>
-        <%= t("landing.demo.stores") %>
-        <%= f.number_field :store_count, min: 1, step: 1 %>
-      </label>
-      <label>
-        <%= t("landing.demo.language") %>
-        <%= f.select :preferred_locale, [["Français", "fr"], ["العربية", "ar"]] %>
-      </label>
+      <div class="m-form__row">
+        <label>
+          <%= t("landing.demo.stores") %>
+          <%= f.number_field :store_count, min: 1, step: 1 %>
+        </label>
+        <label>
+          <%= t("landing.demo.language") %>
+          <%= f.select :preferred_locale, User::LOCALES.map { |code| [t("locales.#{code}"), code] } %>
+        </label>
+      </div>
       <button type="submit" class="m-btn m-btn--block"><%= t("landing.demo.submit") %></button>
     <% end %>
   </div>

@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  LOCALES = %w[fr ar].freeze
+  LOCALES = %w[fr en es ar].freeze
 
   has_secure_password
 

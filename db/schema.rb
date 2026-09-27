@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_09_27_150001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_27_133417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -197,6 +197,23 @@ ActiveRecord::Schema[8.1].define(version: 2025_09_27_150001) do
     t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "brand_color"
+    t.string "secondary_color", default: "#1e4b7a", null: false
+    t.string "primary_deep_color", default: "#084c3f", null: false
+    t.string "primary_soft_color", default: "#d7efe7", null: false
+    t.string "secondary_soft_color", default: "#e0ecf8", null: false
+    t.string "text_color", default: "#102033", null: false
+    t.string "text_muted_color", default: "#5c6d7c", null: false
+    t.string "bg_color", default: "#f4f1ea", null: false
+    t.string "bg_deep_color", default: "#efeae2", null: false
+    t.string "surface_color", default: "#fffcf7", null: false
+    t.string "line_color", default: "#ddd6cb", null: false
+    t.string "sidebar_color", default: "#0f172a", null: false
+    t.string "sidebar_text_color", default: "#e2e8f0", null: false
+    t.string "warn_color", default: "#9a3412", null: false
+    t.string "warn_soft_color", default: "#ffedd5", null: false
+    t.string "brand_name"
+    t.string "tagline"
     t.index ["slug"], name: "index_tenants_on_slug", unique: true
   end
 

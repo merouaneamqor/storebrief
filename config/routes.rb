@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  ActiveAdmin.routes(self)
   get "up" => "rails/health#show", as: :rails_health_check
 
   get  "login",  to: "sessions#new"
@@ -26,18 +27,18 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :checklists, only: %i[index show] do
-    member do
-      post :send_checklist
-    end
-  end
-
   namespace :checklists do
     resources :deliveries, only: %i[index show], controller: "/checklist_deliveries" do
       member do
         post :submit_item
         post :complete
       end
+    end
+  end
+
+  resources :checklists, only: %i[index show] do
+    member do
+      post :send_checklist
     end
   end
 

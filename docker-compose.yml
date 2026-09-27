@@ -23,7 +23,7 @@ services:
 
   web:
     build: .
-    command: bash -c "bundle install && ./bin/rails db:prepare && ./bin/rails db:seed && ./bin/rails server -b 0.0.0.0 -p 3000"
+    command: bash -c "bundle install && bundle exec rails active_admin:bundle_js && bundle exec rails dartsass:build && (bundle exec rails dartsass:watch &) && ./bin/rails db:prepare && ./bin/rails db:seed && ./bin/rails server -b 0.0.0.0 -p 3000"
     volumes:
       - .:/rails
       - bundle_cache:/usr/local/bundle
@@ -34,6 +34,13 @@ services:
       DATABASE_URL: postgres://store_brief:store_brief@db:5432/store_brief_development
       SMTP_ADDRESS: mail
       SMTP_PORT: 1025
+      ACTIVE_STORAGE_SERVICE: ${ACTIVE_STORAGE_SERVICE:-local}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-eu-west-3}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
+      AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT:-}
+      AWS_S3_FORCE_PATH_STYLE: ${AWS_S3_FORCE_PATH_STYLE:-}
     depends_on:
       db:
         condition: service_healthy

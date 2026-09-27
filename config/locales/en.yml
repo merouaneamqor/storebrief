@@ -1,31 +1,252 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  auth:
+    please_sign_in: "Please sign in."
+    hq_required: "Head-office access required."
+    sign_in: "Sign in"
+    sign_out: "Sign out"
+    tenant_slug: "Brand ID"
+    email: "Email"
+    password: "Password"
+    signed_in: "Signed in to %{tenant}."
+    signed_out: "Signed out."
+    invalid: "Brand, email, or password is invalid."
+    demo_title: "Demo accounts"
+    demo_password: "Password: password"
+    demo_hq: "Head office"
+    demo_store: "Store"
+  nav:
+    dashboard: "Dashboard"
+    org_units: "Units"
+    briefs: "Briefs"
+    compose: "Write"
+    templates: "Templates"
+    checklists: "Checklists"
+    inbox: "Inbox"
+    admin: "Admin"
+  dashboard:
+    title: "Dashboard"
+    hq_lede: "Overview for %{tenant}. Write briefs and follow the stores."
+    store_lede: "Inbox for %{store}."
+    regions: "Regions"
+    stores: "Stores"
+    sent_briefs: "Briefs sent"
+    recent_briefs: "Recent briefs"
+    recent_checklists: "Recent checklists"
+    no_briefs: "No briefs. %{link}."
+    compose_one: "Write one"
+    open_inbox: "Open the inbox"
+    empty_inbox: "No briefs for this store."
+  org_units:
+    title: "Organization units"
+    lede: "Region → area → store for %{tenant}."
+    empty: "No units for this brand."
+  communications:
+    title: "Briefs"
+    lede: "Communications for %{tenant}."
+    compose: "Write a brief"
+    empty: "No briefs."
+    new_title: "Write a brief"
+    new_lede: "Send a note or a task to the stores of %{tenant}."
+    title_fr: "Title (FR)"
+    title_ar: "Title (AR)"
+    body_fr: "Message (FR)"
+    body_ar: "Message (AR)"
+    format: "Format"
+    targets: "Recipients"
+    targets_help: "Select regions and/or stores."
+    save_draft: "Save draft"
+    send: "Send"
+    sent: "Brief sent to the stores."
+    draft_saved: "Draft saved."
+    already_sent: "Already sent."
+    send_draft: "Send the draft"
+    delivery: "Delivery"
+    of_complete: "%{done} of %{total} stores done · %{pending} waiting"
+    notifications: "WhatsApp notifications (preview)"
+    back: "← Briefs"
+  checklists:
+    title: "Checklists"
+    lede: "Store checks for %{tenant}."
+    empty: "No checklists."
+    new_from_template: "From a template"
+    sent: "Checklist sent."
+    draft_saved: "Draft saved."
+    delivery: "Delivery"
+    fill: "Fill in the checklist"
+    sync_pending: "Offline — changes queued"
+    sync_ok: "Synced"
+    mark_done: "Confirm item"
+    complete: "Finish the checklist"
+    completed: "Checklist finished."
+    requires_photo: "Photo required"
+    photo: "Photo"
+    notes: "Notes"
+    back: "← Checklists"
+    store_inbox: "My checklists"
+  templates:
+    title: "Store templates"
+    lede: "Ready-to-use templates for %{tenant}."
+    use: "Use"
+    empty: "No templates."
+    categories:
+      opening: "Opening"
+      closing: "Closing"
+      cleanliness: "Cleanliness"
+      safety: "Safety"
+      promotions: "Promotions"
+      equipment: "Equipment"
+      store_visit: "Store visit"
+  inbox:
+    title: "Inbox"
+    lede: "Briefs for %{store}."
+    empty: "Inbox is empty."
+    mark_complete: "Mark the task done"
+    mark_read: "Mark as read"
+    task_done: "Task done."
+    marked_read: "Marked as read."
+    back: "← Inbox"
+  errors:
+    select_targets: "Select at least one store or region"
+    no_store: "No store is linked to this account."
+  common:
+    news: "Note"
+    task: "Task"
+    draft: "Draft"
+    sent: "Sent"
+    pending: "Waiting"
+    completed: "Done"
+    read: "Read"
+    filter: "Filter…"
+    all: "All"
+    region: "Region"
+    store: "Store"
+    by: "by"
+    done: "done"
+  activerecord:
+    errors:
+      models:
+        demo_request:
+          attributes:
+            base:
+              contact_required: "Add a work email or a phone number."
+  locales:
+    fr: "Français"
+    en: "English"
+    es: "Español"
+    ar: "العربية"
+    label: "Language"
+  landing:
+    nav:
+      solutions: "The problem"
+      how: "The path"
+      resources: "Who it's for"
+      demo: "Book a demo"
+      sign_in: "Sign in"
+      explore: "See the path"
+    hero:
+      brand: "StoreBrief"
+      kicker: "Multi-store retail · Morocco"
+      title: "Every store knows what to do."
+      lede: "You send the instruction once. The team gets it in their language, finishes it on the phone, and you see the photo — store by store."
+      demo: "Book a demo"
+      explore: "See the path"
+      hq: "Head office"
+      store: "Store"
+      live: "Right now"
+      kpi_stores: "stores tracked"
+      kpi_done: "on track"
+      kpi_wait: "to follow up"
+    proof:
+      a: "Français, English, Español, العربية"
+      b: "Built for the phone"
+      c: "The photo is the proof"
+      d: "It holds without a network"
+    trust:
+      title: "Head office decides. The store executes. You see both."
+      body: "StoreBrief is for networks with regions, standards, and too many messages lost between the two. We show it on your own instructions."
+    problems:
+      title: "What still happens in too many networks"
+      p1_title: "The instruction goes out. You don't know who saw it."
+      p1_body: "Groups, email, regional messages: the news moves. The Marrakech store does not always have the same version as Tangier."
+      p2_title: "The standard depends on who is on shift."
+      p2_body: "Opening, window, promo, cleanliness. Without a simple list and a photo, you find the gap too late."
+      p3_title: "You manage by phone, store after store."
+      p3_body: "Managers chase. Head office waits. Nobody shares the same list of what is done and what is left."
+    walkthrough:
+      title: "From the instruction to the proof, the same day"
+      step1: "You say what matters"
+      step1_body: "A note or a task, in the team's language, for one store, a city, or a region."
+      step2: "The store has a clear list"
+      step2_body: "Opening, closing, promo, visit: the template is ready. The team checks and photographs."
+      step3: "The work happens on site"
+      step3_body: "On the phone. If the network drops, the checklist still finishes and comes back when it returns."
+      step4: "You see who finished"
+      step4_body: "Head office and the region see the stores on track, and the ones to call this morning."
+    features:
+      title: "What your teams gain"
+      available: "From the first week"
+      planned: "Later, when you want to go further"
+      f1: "Everyone works in their language, with no manual."
+      f2: "Today's task fits on a phone, even when the network is weak."
+      f3: "The store sends the photo. You see whether the window, the promo, or the standard is in place."
+      f4: "You speak to one store, one city, or a whole region. Not the entire network at once."
+      f5: "The checklist finishes in the store, even offline, and comes up when the network returns."
+      f6: "A short message tells the team a task is waiting, with the link to do it in StoreBrief."
+      f7: "Different instructions by region, with photo follow-up down to the last store."
+      f8: "Short training for new joiners and new procedures, with who finished."
+    roles:
+      title: "Each role gets what they need"
+      hq_title: "Leadership and head office"
+      hq_body: "One instruction for the stores that need it, and proof the standard is held."
+      region_title: "Regional managers"
+      region_body: "You know which stores finished, and which to call before noon."
+      store_title: "Store teams"
+      store_body: "The day's priorities, in their language, without hunting through a group chat."
+    demo:
+      title: "See it on your network"
+      lede: "Tell us how many stores you have. We walk the path in the language you choose, on your instructions."
+      point1: "Your instructions, in each team's language"
+      point2: "The photo checklist, on the store phone"
+      point3: "The follow-up: on track, waiting, to call"
+      name: "Name"
+      company: "Brand"
+      email: "Work email"
+      phone: "Phone"
+      stores: "Number of stores"
+      language: "Demo language"
+      submit: "I want to see a demo"
+      success: "Thank you. We'll come back to schedule the demo."
+      contact_hint: "An email or a phone number is enough for us to call you."
+    footer:
+      tagline: "Head office sends. The store executes. You see the proof."
+      strategy: "90-day marketing strategy (Morocco)"
+      strategy_lede: "For brands with a head office, regions, and standards to hold every day."
+    resources:
+      title: "You will recognize your network."
+      lede: "A head office, regions, standards to hold every morning. And instructions that still get lost in group chats."
+      fits_title: "Four networks. The same day."
+      fit1_kicker: "Grocery"
+      fit1_title: "Opening is done. You see it."
+      fit1_body: "Promo, cleanliness, shelf: the photo comes back before the manager has to call."
+      fit2_kicker: "Fashion and beauty"
+      fit2_title: "The window is in place, or you know before noon."
+      fit2_body: "The campaign and the display, store by store. The photo ends the debate."
+      fit3_kicker: "Restaurants"
+      fit3_title: "The procedure holds, even without wifi."
+      fit3_body: "Opening and closing finish on the store phone, then come back as soon as the network returns."
+      fit4_kicker: "Franchise"
+      fit4_title: "The same instruction, from Tangier to Lagouira."
+      fit4_body: "The whole territory, one instruction. You see who followed, from north to south."
+      demo_title: "In the demo, we replay your morning."
+      demo_lede: "An instruction you already send, in the store's language, through to the photo."
+      d1: "You send"
+      d1_body: "A real instruction, for a region, in that team's language."
+      d2: "The store answers"
+      d2_body: "The team checks it on the phone and attaches the photo."
+      d3: "You see who to follow up"
+      d3_body: "On track, waiting, to call. The same list for head office and the region."
+      close_title: "Thirty minutes. Your instructions. Their language."
+      close_body: "Tell us how many stores you have. We show the path on your network."
+      strategy_title: "Where StoreBrief changes the day"
+      strategy_intro: "If your instructions travel through group chats, and you find out too late what was not done, this is for you."
+      cta: "Book a demo"

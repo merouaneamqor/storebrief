@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   helper_method :current_user, :current_tenant, :hq_user?, :rtl?
 
-  before_action :require_login
+  before_action :require_login, unless: :active_admin_controller?
   before_action :set_current_tenant
   before_action :set_locale
 
@@ -23,6 +23,10 @@ class ApplicationController < ActionController::Base
     I18n.locale.to_s == "ar"
   end
 
+  def active_admin_controller?
+    is_a?(ActiveAdmin::BaseController)
+  end
+
   def require_login
     return if current_user
 
@@ -37,6 +41,11 @@ class ApplicationController < ActionController::Base
   end
 
   def set_locale
+    if active_admin_controller?
+      I18n.locale = :en
+      return
+    end
+
     locale = session[:locale].presence || current_user&.locale || "fr"
     locale = "fr" unless User::LOCALES.include?(locale.to_s)
     I18n.locale = locale
@@ -46,6 +55,16 @@ class ApplicationController < ActionController::Base
     return if hq_user?
 
     redirect_to app_root_path, alert: t("auth.hq_required")
+  end
+
+  def authenticate_hq_admin!
+    return if current_user&.hq?
+
+    if current_user
+      redirect_to app_root_path, alert: t("auth.hq_required")
+    else
+      redirect_to login_path, alert: I18n.t("auth.please_sign_in", locale: session[:locale].presence || :fr)
+    end
   end
 
   def tenant_scope

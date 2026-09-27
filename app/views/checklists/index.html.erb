@@ -1,8 +1,12 @@
 <% content_for :title, "#{t('checklists.title')} · StoreBrief" %>
 
-<h1><%= t("checklists.title") %></h1>
-<p class="lede"><%= t("checklists.lede", tenant: current_tenant.name) %></p>
-<p><%= link_to t("checklists.new_from_template"), templates_path, class: "btn" %></p>
+<div class="page-head">
+  <div>
+    <h1><%= t("checklists.title") %></h1>
+    <p class="lede" style="margin-bottom:0;"><%= t("checklists.lede", tenant: current_tenant.name) %></p>
+  </div>
+  <%= link_to t("checklists.new_from_template"), templates_path, class: "btn" %>
+</div>
 
 <section class="panel">
   <% if @checklists.any? %>

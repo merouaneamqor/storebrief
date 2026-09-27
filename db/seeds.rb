@@ -113,8 +113,33 @@ def seed_templates!(tenant)
   end
 end
 
-def build_tenant!(name:, slug:, password:, with_whatsapp: false)
-  tenant = Tenant.create!(name: name, slug: slug)
+def attach_brand_assets!(tenant, slug:)
+  dir = Rails.root.join("db/seeds/brand")
+  {
+    logo: "#{slug}-logo.svg",
+    logo_mark: "#{slug}-mark.svg",
+    favicon: "#{slug}-favicon.svg"
+  }.each do |name, filename|
+    path = dir.join(filename)
+    next unless path.exist?
+
+    tenant.public_send(name).attach(
+      io: File.open(path),
+      filename: filename,
+      content_type: "image/svg+xml"
+    )
+  end
+end
+
+def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, with_whatsapp: false)
+  tenant = Tenant.create!(
+    name: name,
+    slug: slug,
+    brand_name: brand_name,
+    tagline: tagline,
+    **Tenant.default_palette(**palette)
+  )
+  attach_brand_assets!(tenant, slug: slug)
 
   casablanca = tenant.org_units.create!(name: "Région Casablanca-Settat", unit_type: "region")
   rabat = tenant.org_units.create!(name: "Région Rabat-Salé", unit_type: "region")
@@ -179,7 +204,82 @@ def build_tenant!(name:, slug:, password:, with_whatsapp: false)
   tenant
 end
 
-build_tenant!(name: "Atlas Retail Maroc", slug: "atlas", password: password, with_whatsapp: true)
-build_tenant!(name: "Contoso Shops", slug: "contoso", password: password, with_whatsapp: false)
+build_tenant!(
+  name: "Atlas Retail Maroc",
+  slug: "atlas",
+  password: password,
+  brand_name: "Atlas",
+  tagline: "Retail briefs for every store",
+  with_whatsapp: true,
+  palette: {
+    brand_color: "#166534",
+    primary_deep_color: "#14532d",
+    primary_soft_color: "#dcfce7",
+    secondary_color: "#ca8a04",
+    secondary_soft_color: "#fef9c3",
+    text_color: "#1c1917",
+    text_muted_color: "#57534e",
+    bg_color: "#f5f5f4",
+    bg_deep_color: "#e7e5e4",
+    surface_color: "#ffffff",
+    line_color: "#d6d3d1",
+    sidebar_color: "#052e16",
+    sidebar_text_color: "#dcfce7",
+    warn_color: "#9a3412",
+    warn_soft_color: "#ffedd5"
+  }
+)
+build_tenant!(
+  name: "Contoso Shops",
+  slug: "contoso",
+  password: password,
+  brand_name: "Contoso",
+  tagline: "One brief. Every shop.",
+  with_whatsapp: false,
+  palette: {
+    brand_color: "#1d4ed8",
+    primary_deep_color: "#1e3a8a",
+    primary_soft_color: "#dbeafe",
+    secondary_color: "#b45309",
+    secondary_soft_color: "#fef3c7",
+    text_color: "#0f172a",
+    text_muted_color: "#64748b",
+    bg_color: "#f8fafc",
+    bg_deep_color: "#e2e8f0",
+    surface_color: "#ffffff",
+    line_color: "#cbd5e1",
+    sidebar_color: "#172554",
+    sidebar_text_color: "#dbeafe",
+    warn_color: "#9a3412",
+    warn_soft_color: "#ffedd5"
+  }
+)
+build_tenant!(
+  name: "Casablanca Pâtisserie",
+  slug: "casa-patisserie",
+  password: password,
+  brand_name: "Casa Pâtisserie",
+  tagline: "Fraîcheur du jour, magasin par magasin",
+  with_whatsapp: true,
+  palette: {
+    brand_color: "#4a2c2a",
+    primary_deep_color: "#2a1816",
+    primary_soft_color: "#fce7e7",
+    secondary_color: "#c45c6a",
+    secondary_soft_color: "#fce7f0",
+    text_color: "#1c1412",
+    text_muted_color: "#6b534e",
+    bg_color: "#faf7f5",
+    bg_deep_color: "#f0e8e4",
+    surface_color: "#fffbfa",
+    line_color: "#e8d9d4",
+    sidebar_color: "#2a1816",
+    sidebar_text_color: "#fce7e7",
+    warn_color: "#9a3412",
+    warn_soft_color: "#ffedd5"
+  }
+)
 
-puts "Seeded atlas + contoso (password: password). Store atlas user has WhatsApp stub phone."
+puts "Seeded atlas + contoso + casa-patisserie (password: password)."
+puts "  HQ: hq@atlas.test | hq@contoso.test | hq@casa-patisserie.test"
+puts "  Store: store@atlas.test | store@contoso.test | store@casa-patisserie.test"

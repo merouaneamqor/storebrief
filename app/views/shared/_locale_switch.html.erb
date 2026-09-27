@@ -1,0 +1,7 @@
+<%= form_with url: locale_path, method: :patch, class: "locale-form", data: { turbo: false } do %>
+  <%= select_tag :locale,
+        options_for_select(User::LOCALES.map { |code| [t("locales.#{code}"), code] }, I18n.locale.to_s),
+        class: "locale-select",
+        aria: { label: t("locales.label") },
+        onchange: "this.form.requestSubmit()" %>
+<% end %>

@@ -1,0 +1,88 @@
+# Formats and calendar names used by ActiveAdmin and Rails date helpers.
+en:
+  date:
+    formats:
+      default: "%Y-%m-%d"
+      long: "%B %d, %Y"
+      short: "%b %d"
+    day_names: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+    abbr_day_names: [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+    month_names: [~, January, February, March, April, May, June, July, August, September, October, November, December]
+    abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    order:
+      - :year
+      - :month
+      - :day
+  time:
+    formats:
+      default: "%a, %d %b %Y %H:%M:%S %z"
+      long: "%B %d, %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: am
+    pm: pm
+
+fr:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      long: "%d %B %Y"
+      short: "%d %b"
+    day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]
+    abbr_day_names: [dim, lun, mar, mer, jeu, ven, sam]
+    month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
+    abbr_month_names: [~, jan., fév., mar., avr., mai, juin, juil., août, sept., oct., nov., déc.]
+    order:
+      - :day
+      - :month
+      - :year
+  time:
+    formats:
+      default: "%d %B %Y %H:%M"
+      long: "%d %B %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: am
+    pm: pm
+
+es:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      long: "%d de %B de %Y"
+      short: "%d %b"
+    day_names: [domingo, lunes, martes, miércoles, jueves, viernes, sábado]
+    abbr_day_names: [dom, lun, mar, mié, jue, vie, sáb]
+    month_names: [~, enero, febrero, marzo, abril, mayo, junio, julio, agosto, septiembre, octubre, noviembre, diciembre]
+    abbr_month_names: [~, ene, feb, mar, abr, may, jun, jul, ago, sep, oct, nov, dic]
+    order:
+      - :day
+      - :month
+      - :year
+  time:
+    formats:
+      default: "%d de %B de %Y %H:%M"
+      long: "%d de %B de %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: am
+    pm: pm
+
+ar:
+  date:
+    formats:
+      default: "%Y-%m-%d"
+      long: "%d %B %Y"
+      short: "%d %b"
+    day_names: [الأحد, الإثنين, الثلاثاء, الأربعاء, الخميس, الجمعة, السبت]
+    abbr_day_names: [أحد, إثن, ثلا, أربع, خمي, جمع, سبت]
+    month_names: [~, يناير, فبراير, مارس, أبريل, مايو, يونيو, يوليو, أغسطس, سبتمبر, أكتوبر, نوفمبر, ديسمبر]
+    abbr_month_names: [~, يناير, فبراير, مارس, أبريل, مايو, يونيو, يوليو, أغسطس, سبتمبر, أكتوبر, نوفمبر, ديسمبر]
+    order:
+      - :year
+      - :month
+      - :day
+  time:
+    formats:
+      default: "%d %B %Y %H:%M"
+      long: "%d %B %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: ص
+    pm: م

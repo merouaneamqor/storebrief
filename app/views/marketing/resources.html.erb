@@ -1,33 +1,63 @@
 <% content_for :title, "#{t('landing.resources.title')} · StoreBrief" %>
 
-<section class="m-section">
-  <div class="m-narrow">
+<section class="m-section m-page">
+  <header class="m-page__head">
+    <p class="m-kicker"><%= t("landing.nav.resources") %></p>
     <h1><%= t("landing.resources.title") %></h1>
-    <p class="m-lede"><%= t("landing.footer.strategy_lede") %></p>
+    <p class="m-lede"><%= t("landing.resources.lede") %></p>
+  </header>
+
+  <h2><%= t("landing.resources.fits_title") %></h2>
+  <div class="m-cards m-cards--2">
+    <article class="m-card">
+      <span class="m-eyebrow"><%= t("landing.resources.fit1_kicker") %></span>
+      <h3><%= t("landing.resources.fit1_title") %></h3>
+      <p><%= t("landing.resources.fit1_body") %></p>
+    </article>
+    <article class="m-card">
+      <span class="m-eyebrow"><%= t("landing.resources.fit2_kicker") %></span>
+      <h3><%= t("landing.resources.fit2_title") %></h3>
+      <p><%= t("landing.resources.fit2_body") %></p>
+    </article>
+    <article class="m-card">
+      <span class="m-eyebrow"><%= t("landing.resources.fit3_kicker") %></span>
+      <h3><%= t("landing.resources.fit3_title") %></h3>
+      <p><%= t("landing.resources.fit3_body") %></p>
+    </article>
+    <article class="m-card">
+      <span class="m-eyebrow"><%= t("landing.resources.fit4_kicker") %></span>
+      <h3><%= t("landing.resources.fit4_title") %></h3>
+      <p><%= t("landing.resources.fit4_body") %></p>
+    </article>
   </div>
 
-  <article class="m-resource-card">
-    <h2><%= t("landing.resources.strategy_title") %></h2>
-    <p class="m-lede"><%= t("landing.resources.strategy_intro") %></p>
+  <header class="m-page__head m-page__head--later">
+    <h2><%= t("landing.resources.demo_title") %></h2>
+    <p class="m-lede"><%= t("landing.resources.demo_lede") %></p>
+  </header>
+  <ol class="m-flow m-flow--3">
+    <li>
+      <span>1</span>
+      <h3><%= t("landing.resources.d1") %></h3>
+      <p><%= t("landing.resources.d1_body") %></p>
+    </li>
+    <li>
+      <span>2</span>
+      <h3><%= t("landing.resources.d2") %></h3>
+      <p><%= t("landing.resources.d2_body") %></p>
+    </li>
+    <li>
+      <span>3</span>
+      <h3><%= t("landing.resources.d3") %></h3>
+      <p><%= t("landing.resources.d3_body") %></p>
+    </li>
+  </ol>
 
-    <h3><%= t("landing.resources.pillars_title") %></h3>
-    <ul class="m-resource-list">
-      <li><%= t("landing.resources.pillar1") %></li>
-      <li><%= t("landing.resources.pillar2") %></li>
-      <li><%= t("landing.resources.pillar3") %></li>
-      <li><%= t("landing.resources.pillar4") %></li>
-    </ul>
-
-    <h3><%= t("landing.resources.phases_title") %></h3>
-    <ol class="m-resource-list m-resource-list--ordered">
-      <li><%= t("landing.resources.phase1") %></li>
-      <li><%= t("landing.resources.phase2") %></li>
-      <li><%= t("landing.resources.phase3") %></li>
-    </ol>
-
-    <div class="m-hero__actions" style="margin-top:1.5rem;">
-      <%= link_to t("landing.resources.download"), marketing_strategy_path, class: "m-btn" %>
-      <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--ghost"><%= t("landing.resources.cta") %></a>
+  <div class="m-convert m-convert--solo">
+    <div>
+      <h2><%= t("landing.resources.close_title") %></h2>
+      <p><%= t("landing.resources.close_body") %></p>
+      <a href="<%= root_path(anchor: 'demo') %>" class="m-btn"><%= t("landing.resources.cta") %></a>
     </div>
-  </article>
+  </div>
 </section>

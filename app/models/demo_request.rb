@@ -1,5 +1,5 @@
 class DemoRequest < ApplicationRecord
-  LOCALES = %w[fr ar].freeze
+  LOCALES = %w[fr en es ar].freeze
 
   validates :name, :company, presence: true
   validates :preferred_locale, inclusion: { in: LOCALES }
