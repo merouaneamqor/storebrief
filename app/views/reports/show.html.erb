@@ -49,6 +49,7 @@
 <section class="panel">
   <h2><%= t("reports.by_store") %></h2>
   <% if @store_rows.any? %>
+    <div class="table-scroll">
     <table class="report-table">
       <thead>
         <tr>
@@ -75,6 +76,7 @@
         <% end %>
       </tbody>
     </table>
+    </div>
   <% else %>
     <p class="empty"><%= t("reports.no_stores") %></p>
   <% end %>

@@ -17,16 +17,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <%= javascript_importmap_tags %>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
   </head>
 
   <body class="app-body <%= 'rtl' if rtl? %>"
-        <% if current_tenant %>style="<%= current_tenant.brand_style_attribute %>"<% end %>
-        x-data="{ navOpen: false, ...offlineSync() }" x-init="init()">
+        <% if current_tenant %>style="<%= current_tenant.brand_style_attribute %>"<% end %>>
     <% if current_user %>
-      <div class="app-shell" :class="{ 'is-nav-open': navOpen }">
-        <aside class="app-sidebar">
+      <div class="app-shell">
+        <input type="checkbox" id="app-nav-toggle" class="app-nav-toggle" autocomplete="off" aria-label="<%= t('nav.menu') %>">
+        <aside class="app-sidebar" id="app-sidebar">
           <div class="app-sidebar__brand">
             <a href="<%= app_root_path %>" class="app-logo">
               <% if current_tenant.logo.attached? %>
@@ -62,17 +62,19 @@
             <% end %>
           </nav>
 
-          <div class="app-sidebar__foot">
-            <span class="sync-chip" x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
-                  :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"></span>
+          <div class="app-sidebar__foot" x-data="offlineSync()" x-init="init()">
+            <span class="sync-chip sync-chip--ok"
+                  x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
+                  :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"><%= t("checklists.sync_ok") %></span>
           </div>
         </aside>
 
         <div class="app-frame">
           <header class="app-topbar">
-            <button type="button" class="app-menu-btn" @click="navOpen = !navOpen" :aria-expanded="navOpen" aria-label="Menu">
+            <label for="app-nav-toggle" class="app-menu-btn">
               <span></span><span></span><span></span>
-            </button>
+              <span class="visually-hidden"><%= t("nav.menu") %></span>
+            </label>
             <div class="app-topbar__spacer"></div>
             <%= render "shared/locale_switch" %>
             <%= button_to t("auth.sign_out"), logout_path, method: :delete, class: "app-signout" %>
@@ -89,7 +91,7 @@
           </main>
         </div>
 
-        <div class="app-backdrop" @click="navOpen = false" x-show="navOpen" x-cloak></div>
+        <label for="app-nav-toggle" class="app-backdrop" aria-hidden="true"></label>
       </div>
     <% else %>
       <main class="app-content app-content--alone">

@@ -15,6 +15,10 @@ Rails.application.configure do
   # Enable server timing.
   config.server_timing = true
 
+  # Set ASSUME_SSL=1 when a tunnel terminates HTTPS in front of this server,
+  # so login forms accept the https origin.
+  config.assume_ssl = ENV["ASSUME_SSL"] == "1"
+
   # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
   # Run rails dev:cache to toggle Action Controller caching.
   if Rails.root.join("tmp/caching-dev.txt").exist?

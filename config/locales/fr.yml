@@ -15,6 +15,7 @@ fr:
     demo_hq: "Siège"
     demo_store: "Magasin"
   nav:
+    menu: "Menu"
     dashboard: "Tableau de bord"
     org_units: "Unités"
     briefs: "Briefs"
