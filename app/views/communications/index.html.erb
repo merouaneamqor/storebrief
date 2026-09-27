@@ -22,8 +22,7 @@
             </div>
           </div>
           <% if brief.sent? %>
-            <% stats = brief.completion_stats %>
-            <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> <%= t("common.done") %></span>
+            <%= render "shared/progress", stats: brief.completion_stats %>
           <% end %>
         </li>
       <% end %>

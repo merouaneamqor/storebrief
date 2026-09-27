@@ -1,14 +1,14 @@
-# StorIQ Morocco: 90-Day Marketing Strategy
+# StoreBrief Morocco: 90-Day Marketing Strategy
 
-**Purpose:** Validate demand and win the first Moroccan retail customers for StorIQ with a focused, proof-led go-to-market plan.
+**Purpose:** Validate demand and win the first Moroccan retail customers for StoreBrief with a focused, proof-led go-to-market plan.
 
-**Product note:** This repository prototypes the product as **StoreBrief**. Marketing and sales materials may use StorIQ or StoreBrief once branding is confirmed; capability claims below should be verified against the live demo and plan/tenant availability.
+**Product note:** The product is **StoreBrief**. Capability claims below should be verified against the live demo and plan/tenant availability.
 
 **Planning horizon:** First 90 days after launch preparation. Targets below are proposed working targets, not forecasts or existing results.
 
 ## 1. Strategic recommendation
 
-Position StorIQ as the operating platform that helps multi-store retailers turn head-office instructions into consistent store execution, with clear follow-up and evidence across locations.
+Position StoreBrief as the operating platform that helps multi-store retailers turn head-office instructions into consistent store execution, with clear follow-up and evidence across locations.
 
 Start with organized retailers and franchise networks that already have multiple stores, regional managers, and repeatable operating standards. Do not initially target every independent neighborhood shop: the product described in the repository is strongest in communications, campaigns, forms, checklists, org-unit management, and reporting, rather than point-of-sale or accounting.
 
@@ -50,7 +50,7 @@ These categories are candidate segments, not confirmed prospects. Retail groups 
 
 ### Positioning statement
 
-**For retail groups managing many locations, StorIQ brings store communications, tasks, checklists, campaigns, and reporting into one operational workflow—so teams can see what was assigned, what was completed, and where follow-up is needed.**
+**For retail groups managing many locations, StoreBrief brings store communications, tasks, checklists, campaigns, and reporting into one operational workflow—so teams can see what was assigned, what was completed, and where follow-up is needed.**
 
 ### Core promise
 
@@ -84,7 +84,7 @@ Before broad promotion:
 - Test forms, photo uploads, and synchronization on common mobile devices and inconsistent connections.
 - Verify the actual language options, offline limits, permissions, data hosting, and security answers with product and technical teams.
 - Treat WhatsApp alerts as a possible integration or follow-up channel, not an existing product feature unless confirmed.
-- Do not position StorIQ as a POS, payments, inventory, or accounting product unless those functions are demonstrably available.
+- Do not position StoreBrief as a POS, payments, inventory, or accounting product unless those functions are demonstrably available.
 
 ANRT provides Moroccan ICT indicators in French, Arabic, and English, supporting a deliberate multilingual approach; it does not by itself establish which language each retail workforce prefers. Confirm language needs in interviews. [ANRT: Morocco ICT Data](https://www.anrt.ma/observatoires/morocco-ict-data)
 
@@ -109,7 +109,7 @@ Use Casablanca and Rabat as initial meeting hubs, while including groups with br
 
 ### B. Partnerships and industry access
 
-Explore introductions, workshops, or event participation through relevant retail associations, Chambers of Commerce, Industry and Services, and the Moroccan Retail Tech Builder ecosystem. The Ministry publicly describes collaboration with chambers and MRTB in commerce digitalization; this is a channel to investigate, not an existing StorIQ partnership. [Ministry: Digitalisation du Commerce](https://www.mcinet.gov.ma/fr/content/commerce-interieur/digitalisation-du-commerce)
+Explore introductions, workshops, or event participation through relevant retail associations, Chambers of Commerce, Industry and Services, and the Moroccan Retail Tech Builder ecosystem. The Ministry publicly describes collaboration with chambers and MRTB in commerce digitalization; this is a channel to investigate, not an existing StoreBrief partnership. [Ministry: Digitalisation du Commerce](https://www.mcinet.gov.ma/fr/content/commerce-interieur/digitalisation-du-commerce)
 
 ### C. Localized digital presence
 
@@ -217,4 +217,4 @@ Keep paid spend limited until message-to-meeting conversion is demonstrated. Set
 - [Moroccan Ministry of Industry and Trade — Commerce Maroc 2030 forum](https://www.mcinet.gov.ma/en/node/9364)
 - [ANRT — Morocco ICT Data](https://www.anrt.ma/observatoires/morocco-ict-data)
 - [LabelVie Group — Our brands](https://labelvie.ma/en/our-business/our-brands/)
-- StorIQ / StoreBrief project README and development guidance, for the app capability summary.
+- StoreBrief project README and development guidance, for the app capability summary.

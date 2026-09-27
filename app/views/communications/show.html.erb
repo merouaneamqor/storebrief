@@ -15,7 +15,7 @@
 <% if @communication.sent? %>
   <section class="panel">
     <h2><%= t("communications.delivery") %></h2>
-    <p class="meta"><%= t("communications.of_complete", done: @stats[:done], total: @stats[:total], pending: @stats[:pending]) %></p>
+    <%= render "shared/progress", stats: @stats %>
     <ul class="list">
       <% @deliveries.each do |delivery| %>
         <li>

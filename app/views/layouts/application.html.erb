@@ -52,6 +52,7 @@
               <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
               <%= link_to t("nav.briefs"), communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" %>
               <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
+              <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
               <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
               <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
               <%= link_to t("nav.compose"), new_communication_path, class: "app-nav-link app-nav-link--cta" %>

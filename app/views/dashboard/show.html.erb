@@ -30,8 +30,7 @@
               </div>
             </div>
             <% if brief.sent? %>
-              <% stats = brief.completion_stats %>
-              <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> <%= t("common.done") %></span>
+              <%= render "shared/progress", stats: brief.completion_stats %>
             <% end %>
           </li>
         <% end %>
@@ -51,6 +50,9 @@
               <%= link_to checklist.title, checklist %>
               <div class="meta"><%= localized_badge(checklist.status) %></div>
             </div>
+            <% if checklist.sent? %>
+              <%= render "shared/progress", stats: checklist.completion_stats %>
+            <% end %>
           </li>
         <% end %>
       </ul>

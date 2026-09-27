@@ -55,10 +55,17 @@ class Communication < ApplicationRecord
   def completion_stats
     total = deliveries.count
     done = deliveries.where(status: %w[completed read]).count
-    { total: total, done: done, pending: total - done }
+    pending = total - done
+    { total: total, done: done, pending: pending, percent: percent_of(done, total) }
   end
 
   private
+
+  def percent_of(done, total)
+    return 0 if total.zero?
+
+    ((done.to_f / total) * 100).round
+  end
 
   def resolve_store_ids(org_unit_ids)
     units = tenant.org_units.where(id: org_unit_ids)

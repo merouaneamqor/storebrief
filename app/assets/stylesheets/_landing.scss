@@ -417,6 +417,65 @@ body.rtl .m-kicker {
 
 .m-page__head--later h2 { margin-top: 0; }
 
+.m-prospects {
+  counter-reset: prospect;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.m-prospects li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.75rem;
+  row-gap: 0.2rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0.95rem 1rem;
+}
+
+.m-prospects li::before {
+  counter-increment: prospect;
+  content: counter(prospect);
+  grid-row: 1 / span 2;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.m-prospects--plain { counter-reset: none; }
+
+.m-prospects--plain li::before { content: none; }
+
+.m-prospects strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.m-prospects span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.m-prospects__label {
+  margin: 1.6rem 0 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.m-prospects__close {
+  margin: 1.25rem 0 0;
+  max-width: 42rem;
+  line-height: 1.55;
+}
+
 .m-page h2 {
   font-family: var(--display);
   font-size: clamp(1.6rem, 3vw, 2.2rem);
@@ -478,7 +537,8 @@ body.marketing.rtl .m-eyebrow {
   .m-flow,
   .m-flow--3,
   .m-split,
-  .m-convert {
+  .m-convert,
+  .m-prospects {
     grid-template-columns: 1fr;
   }
 

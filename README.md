@@ -39,7 +39,8 @@ Password for all accounts: `password`
 
 ## Morocco GTM
 
-90-day marketing strategy (StorIQ Morocco): [`docs/morocco-90-day-marketing-strategy.md`](docs/morocco-90-day-marketing-strategy.md)  
+90-day marketing strategy (StoreBrief, Morocco): [`docs/morocco-90-day-marketing-strategy.md`](docs/morocco-90-day-marketing-strategy.md)  
+Ideal customers: [`docs/ideal-customers.md`](docs/ideal-customers.md)  
 Public summary: [http://localhost:3001/resources](http://localhost:3001/resources)
 
 ## Features

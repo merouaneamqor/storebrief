@@ -18,8 +18,7 @@
             <div class="meta"><%= localized_badge(checklist.status) %></div>
           </div>
           <% if checklist.sent? %>
-            <% stats = checklist.completion_stats %>
-            <span class="meta"><%= stats[:done] %>/<%= stats[:total] %></span>
+            <%= render "shared/progress", stats: checklist.completion_stats %>
           <% end %>
         </li>
       <% end %>

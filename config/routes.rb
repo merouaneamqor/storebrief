@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   get "resources", to: "marketing#resources"
   get "resources/90-day-strategy", to: "marketing#strategy", as: :marketing_strategy
   get "app", to: "dashboard#show", as: :app_root
+  get "reports", to: "reports#show"
 
   resources :org_units, only: :index
   resources :communications, only: %i[index show new create] do
