@@ -1,0 +1,66 @@
+<% content_for :title, "Dashboard · StoreBrief" %>
+
+<h1>Dashboard</h1>
+<p class="lede">
+  <% if hq_user? %>
+    Overview for <%= current_tenant.name %>. Compose briefs and track store delivery.
+  <% else %>
+    Your store inbox for <%= current_user.store_org_unit&.name || "your location" %>.
+  <% end %>
+</p>
+
+<% if hq_user? %>
+  <div class="stats">
+    <div class="stat"><strong><%= @region_count %></strong><span>Regions</span></div>
+    <div class="stat"><strong><%= @store_count %></strong><span>Stores</span></div>
+    <div class="stat"><strong><%= @sent_count %></strong><span>Sent briefs</span></div>
+  </div>
+
+  <section class="panel">
+    <h2>Recent briefs</h2>
+    <% if @communications.any? %>
+      <ul class="list">
+        <% @communications.each do |brief| %>
+          <li>
+            <div>
+              <%= link_to brief.title, brief %>
+              <div class="meta">
+                <span class="badge badge--<%= brief.format %>"><%= brief.format %></span>
+                <span class="badge badge--<%= brief.status %>"><%= brief.status %></span>
+                · <%= brief.created_at.strftime("%d %b %Y") %>
+              </div>
+            </div>
+            <% if brief.sent? %>
+              <% stats = brief.completion_stats %>
+              <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> done</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="empty">No briefs yet. <%= link_to "Compose one", new_communication_path %>.</p>
+    <% end %>
+  </section>
+<% else %>
+  <section class="panel">
+    <h2>Inbox</h2>
+    <% if @deliveries.any? %>
+      <ul class="list">
+        <% @deliveries.each do |delivery| %>
+          <li>
+            <div>
+              <%= link_to delivery.communication.title, inbox_path(delivery) %>
+              <div class="meta">
+                <span class="badge badge--<%= delivery.communication.format %>"><%= delivery.communication.format %></span>
+                <span class="badge badge--<%= delivery.status %>"><%= delivery.status %></span>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+      <p><%= link_to "Open full inbox", inbox_index_path %></p>
+    <% else %>
+      <p class="empty">No briefs yet for this store.</p>
+    <% end %>
+  </section>
+<% end %>

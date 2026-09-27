@@ -1,0 +1,45 @@
+<% content_for :title, "Org units · StoreBrief" %>
+
+<h1>Org units</h1>
+<p class="lede">Region → area → store hierarchy for <%= current_tenant.name %>.</p>
+
+<section class="panel">
+  <% if @roots.any? %>
+    <ul class="tree">
+      <% @roots.each do |region| %>
+        <li>
+          <div class="tree-item">
+            <span class="tree-type"><%= region.unit_type %></span>
+            <strong><%= region.name %></strong>
+          </div>
+          <% if region.children.any? %>
+            <ul>
+              <% region.children.each do |area| %>
+                <li>
+                  <div class="tree-item">
+                    <span class="tree-type"><%= area.unit_type %></span>
+                    <%= area.name %>
+                  </div>
+                  <% if area.children.any? %>
+                    <ul>
+                      <% area.children.each do |store| %>
+                        <li>
+                          <div class="tree-item">
+                            <span class="tree-type"><%= store.unit_type %></span>
+                            <%= store.name %>
+                          </div>
+                        </li>
+                      <% end %>
+                    </ul>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty">No org units seeded for this tenant.</p>
+  <% end %>
+</section>

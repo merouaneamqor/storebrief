@@ -1,0 +1,34 @@
+<% content_for :title, "Briefs · StoreBrief" %>
+
+<div style="display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+  <div>
+    <h1>Briefs</h1>
+    <p class="lede" style="margin-bottom:0;">All communications for <%= current_tenant.name %>.</p>
+  </div>
+  <%= link_to "Compose brief", new_communication_path, class: "btn" %>
+</div>
+
+<section class="panel">
+  <% if @communications.any? %>
+    <ul class="list">
+      <% @communications.each do |brief| %>
+        <li>
+          <div>
+            <%= link_to brief.title, brief %>
+            <div class="meta">
+              <span class="badge badge--<%= brief.format %>"><%= brief.format %></span>
+              <span class="badge badge--<%= brief.status %>"><%= brief.status %></span>
+              · <%= brief.author.name %> · <%= brief.created_at.strftime("%d %b %Y") %>
+            </div>
+          </div>
+          <% if brief.sent? %>
+            <% stats = brief.completion_stats %>
+            <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> done</span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty">No briefs yet.</p>
+  <% end %>
+</section>

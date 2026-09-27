@@ -1,0 +1,25 @@
+<% content_for :title, "Inbox · StoreBrief" %>
+
+<h1>Inbox</h1>
+<p class="lede">Briefs for <%= @store.name %>.</p>
+
+<section class="panel">
+  <% if @deliveries.any? %>
+    <ul class="list">
+      <% @deliveries.each do |delivery| %>
+        <li>
+          <div>
+            <%= link_to delivery.communication.title, inbox_path(delivery) %>
+            <div class="meta">
+              <span class="badge badge--<%= delivery.communication.format %>"><%= delivery.communication.format %></span>
+              <span class="badge badge--<%= delivery.status %>"><%= delivery.status %></span>
+              · <%= delivery.communication.created_at.strftime("%d %b %Y") %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty">Nothing in your inbox.</p>
+  <% end %>
+</section>

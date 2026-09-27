@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for?(:title) ? yield(:title) : "StoreBrief" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <% if current_user %>
+      <header class="topbar">
+        <div class="topbar__brand">
+          <a href="<%= root_path %>" class="brand">StoreBrief</a>
+          <span class="tenant-chip"><%= current_tenant.name %></span>
+        </div>
+        <nav class="topbar__nav">
+          <%= link_to "Dashboard", root_path %>
+          <% if hq_user? %>
+            <%= link_to "Org units", org_units_path %>
+            <%= link_to "Briefs", communications_path %>
+            <%= link_to "Compose", new_communication_path, class: "nav-cta" %>
+          <% else %>
+            <%= link_to "Inbox", inbox_index_path %>
+          <% end %>
+          <%= button_to "Sign out", logout_path, method: :delete, class: "linkish" %>
+        </nav>
+      </header>
+    <% end %>
+
+    <main class="<%= current_user ? 'page' : 'auth-page' %>">
+      <% if flash[:notice] %>
+        <p class="flash flash--notice"><%= flash[:notice] %></p>
+      <% end %>
+      <% if flash[:alert] %>
+        <p class="flash flash--alert"><%= flash[:alert] %></p>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: store_brief
+      POSTGRES_PASSWORD: store_brief
+      POSTGRES_DB: store_brief_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U store_brief -d store_brief_development"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mail:
+    image: schickling/mailcatcher
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+  web:
+    build: .
+    command: bash -c "bundle install && ./bin/rails db:prepare && ./bin/rails db:seed && ./bin/rails server -b 0.0.0.0 -p 3000"
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3001:3000"
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://store_brief:store_brief@db:5432/store_brief_development
+      SMTP_ADDRESS: mail
+      SMTP_PORT: 1025
+    depends_on:
+      db:
+        condition: service_healthy
+      mail:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  bundle_cache:

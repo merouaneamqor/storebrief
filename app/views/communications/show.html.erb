@@ -1,0 +1,60 @@
+<% content_for :title, "#{@communication.title} · StoreBrief" %>
+
+<p class="meta"><%= link_to "← Briefs", communications_path %></p>
+<h1><%= @communication.title %></h1>
+<p class="lede">
+  <span class="badge badge--<%= @communication.format %>"><%= @communication.format %></span>
+  <span class="badge badge--<%= @communication.status %>"><%= @communication.status %></span>
+  · by <%= @communication.author.name %>
+  · <%= @communication.created_at.strftime("%d %b %Y %H:%M") %>
+</p>
+
+<section class="panel">
+  <div class="prose"><%= @communication.body %></div>
+</section>
+
+<% if @communication.sent? %>
+  <section class="panel">
+    <h2>Delivery</h2>
+    <p class="meta"><%= @stats[:done] %> of <%= @stats[:total] %> stores complete · <%= @stats[:pending] %> pending</p>
+    <ul class="list">
+      <% @deliveries.each do |delivery| %>
+        <li>
+          <span><%= delivery.org_unit.name %></span>
+          <span class="badge badge--<%= delivery.status %>"><%= delivery.status %></span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% else %>
+  <% target_units = current_tenant.org_units.where(unit_type: %w[region store]).order(:unit_type, :name) %>
+  <section class="panel" x-data="{ filter: '', type: 'all' }">
+    <h2>Send draft</h2>
+    <p class="lede">Choose regions (all child stores) or individual stores.</p>
+    <%= form_with url: send_brief_communication_path(@communication), method: :post, local: true do %>
+      <div class="filter-row">
+        <input type="text" placeholder="Filter targets…" x-model="filter">
+        <select x-model="type">
+          <option value="all">All</option>
+          <option value="region">Regions</option>
+          <option value="store">Stores</option>
+        </select>
+      </div>
+      <div class="target-list">
+        <% target_units.each do |unit| %>
+          <label
+            x-show="(type === 'all' || type === '<%= unit.unit_type %>') && '<%= j unit.name.downcase %>'.includes(filter.toLowerCase())"
+            x-cloak>
+            <input type="checkbox" name="org_unit_ids[]" value="<%= unit.id %>">
+            <span class="badge"><%= unit.unit_type %></span>
+            <%= unit.name %>
+          </label>
+        <% end %>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit">Send brief</button>
+      </div>
+    <% end %>
+  </section>
+  <style>[x-cloak]{display:none!important;}</style>
+<% end %>
