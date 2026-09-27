@@ -7,31 +7,10 @@
     <p class="m-lede"><%= t("landing.resources.lede") %></p>
   </header>
 
-  <%= render "marketing/prospects" %>
-
   <h2><%= t("landing.resources.fits_title") %></h2>
-  <div class="m-cards m-cards--2">
-    <article class="m-card">
-      <span class="m-eyebrow"><%= t("landing.resources.fit1_kicker") %></span>
-      <h3><%= t("landing.resources.fit1_title") %></h3>
-      <p><%= t("landing.resources.fit1_body") %></p>
-    </article>
-    <article class="m-card">
-      <span class="m-eyebrow"><%= t("landing.resources.fit2_kicker") %></span>
-      <h3><%= t("landing.resources.fit2_title") %></h3>
-      <p><%= t("landing.resources.fit2_body") %></p>
-    </article>
-    <article class="m-card">
-      <span class="m-eyebrow"><%= t("landing.resources.fit3_kicker") %></span>
-      <h3><%= t("landing.resources.fit3_title") %></h3>
-      <p><%= t("landing.resources.fit3_body") %></p>
-    </article>
-    <article class="m-card">
-      <span class="m-eyebrow"><%= t("landing.resources.fit4_kicker") %></span>
-      <h3><%= t("landing.resources.fit4_title") %></h3>
-      <p><%= t("landing.resources.fit4_body") %></p>
-    </article>
-  </div>
+  <%= render "marketing/fits" %>
+
+  <%= render "marketing/prospects" %>
 
   <header class="m-page__head m-page__head--later">
     <h2><%= t("landing.resources.demo_title") %></h2>

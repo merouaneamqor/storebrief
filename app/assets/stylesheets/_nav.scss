@@ -73,6 +73,8 @@
   white-space: nowrap;
 }
 
+.m-nav__demo-short { display: none; }
+
 .m-link {
   color: var(--muted) !important;
   font-weight: 550;
@@ -118,8 +120,6 @@
 }
 
 @media (max-width: 1020px) {
-  .m-nav__demo { display: none; }
-
   .m-nav__toggle { display: inline-block; }
 
   .m-nav__links {
@@ -135,4 +135,9 @@
   }
 
   .m-nav__links.is-open { display: flex; }
+}
+
+@media (max-width: 720px) {
+  .m-nav__demo-full { display: none; }
+  .m-nav__demo-short { display: inline; }
 }

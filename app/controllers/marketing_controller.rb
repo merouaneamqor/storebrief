@@ -19,7 +19,6 @@ class MarketingController < ApplicationController
       DemoRequestMailer.received(@demo_request).deliver_now
       redirect_to root_path(anchor: "demo"), notice: t("landing.demo.success")
     else
-      flash.now[:alert] = @demo_request.errors.full_messages.to_sentence
       render :show, status: :unprocessable_entity
     end
   end
