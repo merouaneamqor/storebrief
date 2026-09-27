@@ -3,7 +3,7 @@ class SessionsController < ApplicationController
   skip_before_action :set_current_tenant, only: %i[new create]
 
   def new
-    redirect_to root_path if current_user
+    redirect_to app_root_path if current_user
   end
 
   def create
@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
       reset_session
       session[:user_id] = user.id
       session[:locale] = user.locale
-      redirect_to root_path, notice: t("auth.signed_in", tenant: user.tenant.name)
+      redirect_to app_root_path, notice: t("auth.signed_in", tenant: user.tenant.name)
     else
       flash.now[:alert] = t("auth.invalid")
       render :new, status: :unprocessable_entity

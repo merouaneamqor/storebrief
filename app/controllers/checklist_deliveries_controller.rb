@@ -44,7 +44,7 @@ class ChecklistDeliveriesController < ApplicationController
     @store = current_user.store_org_unit
     return if @store
 
-    redirect_to root_path, alert: t("errors.no_store")
+    redirect_to app_root_path, alert: t("errors.no_store")
   end
 
   def set_delivery

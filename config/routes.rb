@@ -7,7 +7,11 @@ Rails.application.routes.draw do
 
   patch "locale", to: "locales#update"
 
-  root "dashboard#show"
+  root "marketing#show"
+  post "demo_requests", to: "marketing#create_demo"
+  get "resources", to: "marketing#resources"
+  get "resources/90-day-strategy", to: "marketing#strategy", as: :marketing_strategy
+  get "app", to: "dashboard#show", as: :app_root
 
   resources :org_units, only: :index
   resources :communications, only: %i[index show new create] do

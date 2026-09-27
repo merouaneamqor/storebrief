@@ -45,7 +45,7 @@ class ApplicationController < ActionController::Base
   def require_hq
     return if hq_user?
 
-    redirect_to root_path, alert: t("auth.hq_required")
+    redirect_to app_root_path, alert: t("auth.hq_required")
   end
 
   def tenant_scope

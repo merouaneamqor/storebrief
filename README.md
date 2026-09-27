@@ -14,7 +14,8 @@ Multi-tenant Rails prototype for sending **news** and **task** briefs to stores 
 docker compose up --build
 ```
 
-App: [http://localhost:3001](http://localhost:3001)  
+Marketing landing (FR/AR): [http://localhost:3001](http://localhost:3001)  
+Signed-in app: [http://localhost:3001/app](http://localhost:3001/app) · Login: [http://localhost:3001/login](http://localhost:3001/login)  
 Mailcatcher: [http://localhost:1080](http://localhost:1080)
 
 ## Demo logins
@@ -36,8 +37,14 @@ Password for all accounts: `password`
 5. Simulate offline: DevTools → Offline → complete an item → go online → sync chip clears queued work
 6. Sign in as Contoso HQ → confirm Atlas data is not visible
 
+## Morocco GTM
+
+90-day marketing strategy (StorIQ Morocco): [`docs/morocco-90-day-marketing-strategy.md`](docs/morocco-90-day-marketing-strategy.md)  
+Public summary: [http://localhost:3001/resources](http://localhost:3001/resources)
+
 ## Features
 
+- Public Morocco landing page (demo request form, FR/AR RTL, product walkthrough)
 - Tenant isolation
 - Org hierarchy + communications (bilingual FR/AR fields)
 - Checklist templates (opening, closing, cleanliness, safety, promotions, equipment, store visit)

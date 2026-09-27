@@ -21,13 +21,13 @@
     <% if current_user %>
       <header class="topbar">
         <div class="topbar__brand">
-          <a href="<%= root_path %>" class="brand">StoreBrief</a>
+          <a href="<%= app_root_path %>" class="brand">StoreBrief</a>
           <span class="tenant-chip"><%= current_tenant.name %></span>
           <span class="sync-chip" x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
                 :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"></span>
         </div>
         <nav class="topbar__nav">
-          <%= link_to t("nav.dashboard"), root_path %>
+          <%= link_to t("nav.dashboard"), app_root_path %>
           <% if hq_user? %>
             <%= link_to t("nav.org_units"), org_units_path %>
             <%= link_to t("nav.briefs"), communications_path %>
