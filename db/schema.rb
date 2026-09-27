@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_27_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_27_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,6 +112,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_200000) do
     t.index ["tenant_id"], name: "index_checklists_on_tenant_id"
   end
 
+  create_table "communication_questions", force: :cascade do |t|
+    t.bigint "communication_id", null: false
+    t.integer "position", default: 0, null: false
+    t.string "question_type", default: "short_text", null: false
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.boolean "required", default: false, null: false
+    t.jsonb "options", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["communication_id", "position"], name: "index_communication_questions_on_communication_id_and_position"
+    t.index ["communication_id"], name: "index_communication_questions_on_communication_id"
+  end
+
   create_table "communications", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.bigint "author_id", null: false
@@ -138,6 +152,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_200000) do
     t.index ["communication_id", "org_unit_id"], name: "index_deliveries_on_communication_id_and_org_unit_id", unique: true
     t.index ["communication_id"], name: "index_deliveries_on_communication_id"
     t.index ["org_unit_id"], name: "index_deliveries_on_org_unit_id"
+  end
+
+  create_table "delivery_answers", force: :cascade do |t|
+    t.bigint "delivery_id", null: false
+    t.bigint "communication_question_id", null: false
+    t.jsonb "value", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["communication_question_id"], name: "index_delivery_answers_on_communication_question_id"
+    t.index ["delivery_id", "communication_question_id"], name: "index_delivery_answers_on_delivery_and_question", unique: true
+    t.index ["delivery_id"], name: "index_delivery_answers_on_delivery_id"
   end
 
   create_table "demo_requests", force: :cascade do |t|
@@ -243,10 +268,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_200000) do
   add_foreign_key "checklists", "checklist_templates"
   add_foreign_key "checklists", "tenants"
   add_foreign_key "checklists", "users", column: "author_id"
+  add_foreign_key "communication_questions", "communications"
   add_foreign_key "communications", "tenants"
   add_foreign_key "communications", "users", column: "author_id"
   add_foreign_key "deliveries", "communications"
   add_foreign_key "deliveries", "org_units"
+  add_foreign_key "delivery_answers", "communication_questions"
+  add_foreign_key "delivery_answers", "deliveries"
   add_foreign_key "memberships", "org_units"
   add_foreign_key "memberships", "users"
   add_foreign_key "notification_logs", "tenants"

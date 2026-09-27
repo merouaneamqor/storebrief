@@ -9,8 +9,12 @@ class Communication < ApplicationRecord
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
+  has_many :communication_questions, -> { ordered }, dependent: :destroy, inverse_of: :communication
 
-  validates :title_fr, :body_fr, presence: true
+  accepts_nested_attributes_for :communication_questions, allow_destroy: true, reject_if: :reject_blank_question?
+
+  validates :title_fr, presence: true
+  validates :body_fr, presence: true, unless: :questions_present?
   validates :format, inclusion: { in: FORMATS }
   validates :status, inclusion: { in: STATUSES }
 
@@ -35,9 +39,13 @@ class Communication < ApplicationRecord
     status == "draft"
   end
 
+  def questions?
+    communication_questions.any?
+  end
+
   def send_to!(org_unit_ids)
     store_ids = resolve_store_ids(org_unit_ids)
-    raise ArgumentError, "Select at least one store or region" if store_ids.empty?
+    raise ArgumentError, I18n.t("errors.select_targets") if store_ids.empty?
 
     transaction do
       update!(status: "sent")
@@ -60,6 +68,14 @@ class Communication < ApplicationRecord
   end
 
   private
+
+  def questions_present?
+    communication_questions.reject(&:marked_for_destruction?).any? { |question| question.title_fr.present? }
+  end
+
+  def reject_blank_question?(attrs)
+    attrs["title_fr"].blank? && attrs["title_ar"].blank? && ActiveModel::Type::Boolean.new.cast(attrs["_destroy"]).blank?
+  end
 
   def percent_of(done, total)
     return 0 if total.zero?

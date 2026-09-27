@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   get "reports", to: "reports#show"
 
   resources :org_units, only: :index
-  resources :communications, only: %i[index show new create] do
+  resources :communications, only: %i[index show new create edit update] do
     member do
       post :send_brief
     end

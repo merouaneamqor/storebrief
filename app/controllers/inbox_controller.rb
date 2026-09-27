@@ -9,29 +9,38 @@ class InboxController < ApplicationController
   end
 
   def show
-    @delivery = Delivery.joins(:communication)
-                        .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
-                        .includes(:communication)
-                        .find(params[:id])
+    @delivery = find_delivery
     @communication = @delivery.communication
+    @questions = @communication.communication_questions
+    @answers = @delivery.delivery_answers.index_by(&:communication_question_id)
   end
 
   def complete
-    @delivery = Delivery.joins(:communication)
-                        .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
-                        .includes(:communication)
-                        .find(params[:id])
+    @delivery = find_delivery
 
-    if @delivery.communication.task?
-      @delivery.complete!
-      redirect_to inbox_path(@delivery), notice: t("inbox.task_done")
-    else
-      @delivery.mark_read!
-      redirect_to inbox_path(@delivery), notice: t("inbox.marked_read")
+    begin
+      @delivery.save_answers!(params[:answers]) if @delivery.communication.questions?
+      if @delivery.communication.task?
+        @delivery.complete!
+        redirect_to inbox_path(@delivery), notice: t("inbox.task_done")
+      else
+        @delivery.mark_read!
+        redirect_to inbox_path(@delivery), notice: t("inbox.marked_read")
+      end
+    rescue ArgumentError, ActiveRecord::RecordInvalid => e
+      message = e.is_a?(ArgumentError) ? e.message : t("inbox.answers_required")
+      redirect_to inbox_path(@delivery), alert: message
     end
   end
 
   private
+
+  def find_delivery
+    Delivery.joins(:communication)
+            .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
+            .includes(:communication, :delivery_answers, communication: :communication_questions)
+            .find(params[:id])
+  end
 
   def set_store
     @store = current_user.store_org_unit

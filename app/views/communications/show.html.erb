@@ -8,9 +8,35 @@
   · <%= t("common.by") %> <%= @communication.author.name %>
 </p>
 
-<section class="panel">
-  <div class="prose"><%= @communication.body %></div>
-</section>
+<% if @communication.body.present? %>
+  <section class="panel">
+    <div class="prose"><%= @communication.body %></div>
+  </section>
+<% end %>
+
+<% if @communication.questions? %>
+  <section class="panel">
+    <h2><%= t("communications.questions") %></h2>
+    <ol class="brief-question-list">
+      <% @communication.communication_questions.each do |question| %>
+        <li>
+          <strong>
+            <%= question.title %>
+            <% if question.required? %><span class="brief-required-mark">*</span><% end %>
+          </strong>
+          <div class="meta"><%= t("communications.question_types.#{question.question_type}") %></div>
+          <% if question.choice? %>
+            <ul class="brief-preview__choices">
+              <% question.option_labels.each do |label| %>
+                <li><%= label %></li>
+              <% end %>
+            </ul>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+<% end %>
 
 <% if @communication.sent? %>
   <section class="panel">
@@ -19,7 +45,19 @@
     <ul class="list">
       <% @deliveries.each do |delivery| %>
         <li>
-          <span><%= delivery.org_unit.name %></span>
+          <div>
+            <span><%= delivery.org_unit.name %></span>
+            <% if @communication.questions? && delivery.delivery_answers.any? %>
+              <div class="meta brief-answers">
+                <% delivery.delivery_answers.sort_by { |answer| answer.communication_question.position }.each do |answer| %>
+                  <div>
+                    <strong><%= answer.communication_question.title %></strong>
+                    <%= answer.display_value.presence || "—" %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
           <%= localized_badge(delivery.status) %>
         </li>
       <% end %>
@@ -40,32 +78,17 @@
     </section>
   <% end %>
 <% else %>
+  <p class="actions" style="margin-bottom:1rem;">
+    <%= link_to t("communications.edit"), edit_communication_path(@communication), class: "btn btn--ghost" %>
+  </p>
   <% target_units = current_tenant.org_units.where(unit_type: %w[region store]).order(:unit_type, :name) %>
-  <section class="panel" x-data="{ filter: '', type: 'all' }">
+  <div class="brief-form">
     <h2><%= t("communications.send_draft") %></h2>
     <%= form_with url: send_brief_communication_path(@communication), method: :post, local: true do %>
-      <div class="filter-row">
-        <input type="text" placeholder="<%= t('common.filter') %>" x-model="filter">
-        <select x-model="type">
-          <option value="all"><%= t("common.all") %></option>
-          <option value="region"><%= t("common.region") %></option>
-          <option value="store"><%= t("common.store") %></option>
-        </select>
-      </div>
-      <div class="target-list">
-        <% target_units.each do |unit| %>
-          <label
-            x-show="(type === 'all' || type === '<%= unit.unit_type %>') && '<%= j unit.name.downcase %>'.includes(filter.toLowerCase())"
-            x-cloak>
-            <input type="checkbox" name="org_unit_ids[]" value="<%= unit.id %>">
-            <span class="badge"><%= unit.unit_type %></span>
-            <%= unit.name %>
-          </label>
-        <% end %>
-      </div>
-      <div class="actions">
+      <%= render "targets", units: target_units, selected_ids: [] %>
+      <div class="brief-actions">
         <button class="btn" type="submit"><%= t("communications.send") %></button>
       </div>
     <% end %>
-  </section>
+  </div>
 <% end %>

@@ -1005,3 +1005,463 @@
 
   .table-scroll .report-table { min-width: 32rem; }
 }
+
+.app-content .brief-form {
+  max-width: 720px;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.app-content .brief-form form,
+.app-content .brief-stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.app-content .brief-card {
+  position: relative;
+  background: var(--surface, white);
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.2rem 1.25rem 1.25rem;
+  border-inline-start: 6px solid transparent;
+}
+
+.app-content .brief-card.is-active {
+  border-inline-start-color: var(--accent, #0c6b58);
+  box-shadow: 0 1px 2px rgba(16, 32, 51, 0.06), 0 8px 24px rgba(16, 32, 51, 0.06);
+}
+
+.app-content .brief-card--title {
+  border-top: 8px solid var(--accent, #0c6b58);
+  padding-top: 1.35rem;
+}
+
+.app-content .brief-form .brief-title,
+.app-content .brief-form .brief-subtitle,
+.app-content .brief-form .brief-description,
+.app-content .brief-form .brief-field,
+.app-content .brief-form .brief-search,
+.app-content .brief-form .brief-type {
+  width: 100%;
+  font-family: inherit;
+  color: var(--ink, #102033);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: none;
+  outline: none;
+}
+
+.app-content .brief-form .brief-title {
+  min-height: 0;
+  padding: 0.15rem 0.2rem;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.app-content .brief-form .brief-subtitle {
+  min-height: 0;
+  margin-top: 0.35rem;
+  padding: 0.15rem 0.2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--muted, #5c6d7c);
+}
+
+.app-content .brief-form .brief-description {
+  min-height: 4.5rem;
+  margin-top: 0.85rem;
+  padding: 0.15rem 0.2rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.app-content .brief-form .brief-field {
+  min-height: 6.5rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--line, #e2e8f0);
+  background: white;
+  resize: vertical;
+}
+
+.app-content .brief-form .brief-title:focus,
+.app-content .brief-form .brief-subtitle:focus,
+.app-content .brief-form .brief-description:focus,
+.app-content .brief-form .brief-field:focus,
+.app-content .brief-form .brief-search:focus,
+.app-content .brief-form .brief-type:focus {
+  outline: none;
+  border-color: var(--accent, #0c6b58);
+  box-shadow: none;
+}
+
+.app-content .brief-form .brief-title::placeholder,
+.app-content .brief-form .brief-subtitle::placeholder,
+.app-content .brief-form .brief-description::placeholder {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.app-content .brief-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.app-content .brief-form .brief-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 52px;
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  background: white;
+  font-size: 0.95rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.app-content .brief-form .brief-choice.is-selected {
+  border-color: var(--accent, #0c6b58);
+  background: var(--accent-soft, #d7efe7);
+}
+
+.app-content .brief-form .brief-choice input {
+  accent-color: var(--accent, #0c6b58);
+}
+
+.app-content .brief-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.75rem 0 0.15rem;
+}
+
+.app-content .brief-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+  background: var(--accent-soft, #d7efe7);
+  color: var(--accent-deep, #084c3f);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.app-content .brief-target-tools {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.app-content .brief-form .brief-search,
+.app-content .brief-form .brief-type {
+  min-height: 42px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line, #e2e8f0);
+  background: white;
+}
+
+.app-content .brief-form .brief-search { flex: 1; }
+.app-content .brief-form .brief-type { width: auto; flex: 0 0 9.5rem; }
+
+.app-content .brief-target-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+
+.app-content .brief-count {
+  margin: 0;
+  margin-inline-end: auto;
+  color: var(--muted, #5c6d7c);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.app-content .brief-target-actions .btn {
+  min-height: 34px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.app-content .brief-targets {
+  display: grid;
+  gap: 0.1rem;
+  max-height: 280px;
+  margin-top: 0.65rem;
+  overflow: auto;
+}
+
+.app-content .brief-form .brief-target {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 40px;
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.app-content .brief-form .brief-target input {
+  accent-color: var(--accent, #0c6b58);
+}
+
+.app-content .brief-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.app-content .brief-preview {
+  background: var(--surface, white);
+  border: 1px solid var(--line, #e2e8f0);
+  border-top: 8px solid var(--accent, #0c6b58);
+  border-radius: 12px;
+  padding: 1.35rem 1.25rem 1.2rem;
+}
+
+.app-content .brief-preview .lede { margin-bottom: 0.85rem; }
+
+.app-content .brief-preview__alt {
+  color: var(--muted, #5c6d7c);
+  margin-top: 0.35rem;
+}
+
+.app-content .brief-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.app-content .brief-toolbar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  background: var(--surface, white);
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 12px;
+}
+
+.app-content .brief-toolbar__btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  background: white;
+  color: var(--ink, #102033);
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-content .brief-toolbar__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.app-content .brief-toolbar__btn:hover:not(:disabled) {
+  border-color: var(--accent, #0c6b58);
+  color: var(--accent, #0c6b58);
+}
+
+.app-content .brief-question__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.app-content .brief-question__type {
+  flex: 1 1 12rem;
+  margin: 0;
+}
+
+.app-content .brief-question__type select {
+  width: 100%;
+  min-height: 40px;
+}
+
+.app-content .brief-required {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.app-content .brief-form .brief-question__title,
+.app-content .brief-form .brief-question__subtitle {
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0.25rem 0.2rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-content .brief-form .brief-question__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.app-content .brief-form .brief-question__subtitle {
+  margin-top: 0.25rem;
+  color: var(--muted, #5c6d7c);
+  font-weight: 600;
+}
+
+.app-content .brief-options {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.app-content .brief-option {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.app-content .brief-option__mark {
+  color: var(--muted, #5c6d7c);
+  width: 1.2rem;
+  text-align: center;
+}
+
+.app-content .brief-option input {
+  min-height: 38px;
+}
+
+.app-content .brief-option .btn {
+  min-height: 34px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.78rem;
+}
+
+.app-content .brief-answer-hint {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px dotted var(--line, #e2e8f0);
+}
+
+.app-content .brief-required-mark {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.app-content .brief-preview__questions {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.app-content .brief-preview__question {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line, #e2e8f0);
+}
+
+.app-content .brief-preview__question h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.app-content .brief-preview__choices {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.app-content .brief-preview__choices li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.app-content .brief-question-list {
+  margin: 0;
+  padding-inline-start: 1.2rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.app-content .brief-answers {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+}
+
+.app-content .brief-answer-form .brief-answer-field {
+  margin-bottom: 1rem;
+}
+
+.app-content .brief-answer-form label {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.app-content .brief-answer-choices {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.app-content .brief-answer-choices .brief-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 42px;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  background: white;
+  font-weight: 550;
+}
+
+@media (max-width: 640px) {
+  .app-content .brief-choices,
+  .app-content .brief-target-tools { grid-template-columns: 1fr; display: grid; }
+  .app-content .brief-form .brief-type { width: 100%; flex-basis: auto; }
+  .app-content .brief-form .brief-title { font-size: 1.45rem; }
+  .app-content .brief-actions .btn,
+  .app-content .brief-actions input[type="submit"],
+  .app-content .brief-actions button { flex: 1 1 auto; }
+  .app-content .brief-layout { grid-template-columns: 1fr; }
+  .app-content .brief-toolbar {
+    position: static;
+    grid-auto-flow: column;
+    justify-content: start;
+  }
+  .app-content .brief-option {
+    grid-template-columns: auto 1fr;
+  }
+  .app-content .brief-option .btn {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

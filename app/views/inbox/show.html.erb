@@ -7,17 +7,77 @@
   <%= localized_badge(@delivery.status) %>
 </p>
 
-<section class="panel">
-  <div class="prose"><%= @communication.body %></div>
-</section>
+<% if @communication.body.present? %>
+  <section class="panel">
+    <div class="prose"><%= @communication.body %></div>
+  </section>
+<% end %>
 
 <% if @delivery.pending? %>
-  <div class="actions">
-    <%= button_to(
-          @communication.task? ? t("inbox.mark_complete") : t("inbox.mark_read"),
-          complete_inbox_path(@delivery),
-          method: :post,
-          class: "btn"
-        ) %>
-  </div>
+  <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, class: "brief-answer-form" do %>
+    <% if @questions.any? %>
+      <section class="panel">
+        <h2><%= t("inbox.answer_title") %></h2>
+        <% @questions.each do |question| %>
+          <% answer = @answers[question.id] %>
+          <div class="brief-answer-field">
+            <label>
+              <span>
+                <%= question.title %>
+                <% if question.required? %><span class="brief-required-mark">*</span><% end %>
+              </span>
+              <% case question.question_type %>
+              <% when "long_text" %>
+                <textarea name="answers[<%= question.id %>][text]" rows="3" <%= "required" if question.required? %>><%= answer&.text_value %></textarea>
+              <% when "single_choice" %>
+                <div class="brief-answer-choices">
+                  <% question.option_labels.each do |label| %>
+                    <label class="brief-choice">
+                      <input type="radio" name="answers[<%= question.id %>][text]" value="<%= label %>" <%= "checked" if answer&.text_value == label %> <%= "required" if question.required? %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              <% when "dropdown" %>
+                <select name="answers[<%= question.id %>][text]" <%= "required" if question.required? %>>
+                  <option value=""><%= t("communications.choose_option") %></option>
+                  <% question.option_labels.each do |label| %>
+                    <option value="<%= label %>" <%= "selected" if answer&.text_value == label %>><%= label %></option>
+                  <% end %>
+                </select>
+              <% when "multi_choice" %>
+                <div class="brief-answer-choices">
+                  <% question.option_labels.each do |label| %>
+                    <label class="brief-choice">
+                      <input type="checkbox" name="answers[<%= question.id %>][choices][]" value="<%= label %>" <%= "checked" if answer&.list_value.include?(label) %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              <% else %>
+                <input type="text" name="answers[<%= question.id %>][text]" value="<%= answer&.text_value %>" <%= "required" if question.required? %>>
+              <% end %>
+            </label>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+
+    <div class="actions">
+      <button type="submit" class="btn">
+        <%= @communication.task? ? t("inbox.mark_complete") : t("inbox.mark_read") %>
+      </button>
+    </div>
+  <% end %>
+<% elsif @questions.any? %>
+  <section class="panel">
+    <h2><%= t("inbox.your_answers") %></h2>
+    <% @questions.each do |question| %>
+      <% answer = @answers[question.id] %>
+      <div class="brief-answer-field">
+        <strong><%= question.title %></strong>
+        <div class="meta"><%= answer&.display_value.presence || "—" %></div>
+      </div>
+    <% end %>
+  </section>
 <% end %>
