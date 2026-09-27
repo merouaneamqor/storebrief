@@ -9,10 +9,14 @@
     </div>
 
     <%= form_with url: login_path, method: :post, class: "m-form", local: true do %>
-      <label>
-        <%= t("auth.tenant_slug") %>
-        <input type="text" name="tenant_slug" value="<%= params[:tenant_slug] || 'atlas' %>" required autocomplete="organization">
-      </label>
+      <% if host_tenant? %>
+        <p class="m-kicker"><%= current_tenant.name %></p>
+      <% else %>
+        <label>
+          <%= t("auth.tenant_slug") %>
+          <input type="text" name="tenant_slug" value="<%= params[:tenant_slug] || 'atlas' %>" required autocomplete="organization">
+        </label>
+      <% end %>
       <label>
         <%= t("auth.email") %>
         <input type="email" name="email" value="<%= params[:email] %>" required autocomplete="username">
@@ -23,18 +27,20 @@
       </label>
       <button class="m-btn m-btn--block" type="submit"><%= t("auth.sign_in") %></button>
 
-      <div class="m-demo">
-        <strong><%= t("auth.demo_title") %></strong>
-        <p><%= t("auth.demo_password") %></p>
-        <p><strong>Atlas Retail Maroc</strong> — <code>atlas</code><br>
-          <%= t("auth.demo_hq") %>: <code>hq@atlas.test</code><br>
-          <%= t("auth.demo_store") %>: <code>store@atlas.test</code></p>
-        <p><strong>Contoso Shops</strong> — <code>contoso</code><br>
-          <%= t("auth.demo_hq") %>: <code>hq@contoso.test</code></p>
-        <p><strong>Casablanca Pâtisserie</strong> — <code>casa-patisserie</code><br>
-          <%= t("auth.demo_hq") %>: <code>hq@casa-patisserie.test</code><br>
-          <%= t("auth.demo_store") %>: <code>store@casa-patisserie.test</code></p>
-      </div>
+      <% if apex_request? %>
+        <div class="m-demo">
+          <strong><%= t("auth.demo_title") %></strong>
+          <p><%= t("auth.demo_password") %></p>
+          <p><strong>Atlas Retail Maroc</strong> — <code>atlas</code><br>
+            <%= t("auth.demo_hq") %>: <code>hq@atlas.test</code><br>
+            <%= t("auth.demo_store") %>: <code>store@atlas.test</code></p>
+          <p><strong>Contoso Shops</strong> — <code>contoso</code><br>
+            <%= t("auth.demo_hq") %>: <code>hq@contoso.test</code></p>
+          <p><strong>Casablanca Pâtisserie</strong> — <code>casa-patisserie</code><br>
+            <%= t("auth.demo_hq") %>: <code>hq@casa-patisserie.test</code><br>
+            <%= t("auth.demo_store") %>: <code>store@casa-patisserie.test</code></p>
+        </div>
+      <% end %>
     <% end %>
   </div>
 </section>

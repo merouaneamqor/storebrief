@@ -1,6 +1,7 @@
 class MarketingController < ApplicationController
   skip_before_action :require_login
-  skip_before_action :set_current_tenant
+  skip_before_action :bind_session_tenant
+  before_action :redirect_tenant_host
   layout "marketing"
 
   def show
@@ -32,5 +33,11 @@ class MarketingController < ApplicationController
 
   def demo_request_params
     params.require(:demo_request).permit(:name, :company, :email, :phone, :store_count, :preferred_locale)
+  end
+
+  def redirect_tenant_host
+    return unless host_tenant?
+
+    redirect_to(current_user ? app_root_path : login_path)
   end
 end

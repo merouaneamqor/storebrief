@@ -41,6 +41,8 @@ services:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
       AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT:-}
       AWS_S3_FORCE_PATH_STYLE: ${AWS_S3_FORCE_PATH_STYLE:-}
+      APP_HOST: ${APP_HOST:-localhost}
+      APP_TLD_LENGTH: ${APP_TLD_LENGTH:-0}
     depends_on:
       db:
         condition: service_healthy
