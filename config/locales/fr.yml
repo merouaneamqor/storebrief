@@ -240,8 +240,6 @@ fr:
       contact_hint: "Un e-mail ou un téléphone suffit pour qu’on vous rappelle."
     footer:
       tagline: "Le siège envoie. Le magasin exécute. Vous voyez la preuve."
-      strategy: "Stratégie marketing 90 jours (Maroc)"
-      strategy_lede: "Pour les enseignes qui ont un siège, des régions, et des standards à tenir chaque jour."
     resources:
       title: "Vous reconnaissez votre réseau."
       lede: "Un siège, des régions, des standards à tenir chaque matin. Et des consignes qui se perdent encore dans les groupes."
@@ -268,8 +266,6 @@ fr:
       d3_body: "Au vert, en attente, à appeler. La même liste pour le siège et la région."
       close_title: "Trente minutes. Vos consignes. Leur langue."
       close_body: "Dites-nous combien de magasins vous avez. On vous montre le parcours sur votre réseau."
-      strategy_title: "Là où StoreBrief change la journée"
-      strategy_intro: "Si vos consignes passent par des groupes, et que vous découvrez trop tard ce qui n’a pas été fait, c’est pour vous."
       cta: "Réserver une démo"
     prospects:
       title: "Le meilleur accord"

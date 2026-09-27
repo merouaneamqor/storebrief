@@ -506,8 +506,7 @@ body.marketing.rtl .m-eyebrow {
 
 .m-convert--solo .m-btn { margin-top: 1.15rem; }
 
-.m-resource-card,
-.m-strategy-doc {
+.m-resource-card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -520,14 +519,6 @@ body.marketing.rtl .m-eyebrow {
   margin: 0.7rem 0 1.2rem;
   padding-inline-start: 1.15rem;
   color: var(--muted);
-  line-height: 1.55;
-}
-
-.m-strategy-pre {
-  margin: 0;
-  white-space: pre-wrap;
-  font-family: var(--font);
-  font-size: 0.92rem;
   line-height: 1.55;
 }
 

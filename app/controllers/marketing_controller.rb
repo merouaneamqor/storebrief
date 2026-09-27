@@ -12,11 +12,6 @@ class MarketingController < ApplicationController
   def resources
   end
 
-  def strategy
-    path = Rails.root.join("docs/morocco-90-day-marketing-strategy.md")
-    @strategy_markdown = File.read(path)
-  end
-
   def create_demo
     @demo_request = DemoRequest.new(demo_request_params)
 

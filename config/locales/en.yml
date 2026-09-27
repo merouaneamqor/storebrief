@@ -240,8 +240,6 @@ en:
       contact_hint: "An email or a phone number is enough for us to call you."
     footer:
       tagline: "Head office sends. The store executes. You see the proof."
-      strategy: "90-day marketing strategy (Morocco)"
-      strategy_lede: "For brands with a head office, regions, and standards to hold every day."
     resources:
       title: "You will recognize your network."
       lede: "A head office, regions, standards to hold every morning. And instructions that still get lost in group chats."
@@ -268,8 +266,6 @@ en:
       d3_body: "On track, waiting, to call. The same list for head office and the region."
       close_title: "Thirty minutes. Your instructions. Their language."
       close_body: "Tell us how many stores you have. We show the path on your network."
-      strategy_title: "Where StoreBrief changes the day"
-      strategy_intro: "If your instructions travel through group chats, and you find out too late what was not done, this is for you."
       cta: "Book a demo"
     prospects:
       title: "The best fit"

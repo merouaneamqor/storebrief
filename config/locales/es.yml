@@ -240,8 +240,6 @@ es:
       contact_hint: "Un correo o un teléfono basta para que le llamemos."
     footer:
       tagline: "La sede envía. La tienda ejecuta. Usted ve la prueba."
-      strategy: "Estrategia de marketing de 90 días (Marruecos)"
-      strategy_lede: "Para enseñas con sede, regiones y estándares que cumplir cada día."
     resources:
       title: "Reconocerá su red."
       lede: "Una sede, regiones, estándares que cumplir cada mañana. Y consignas que todavía se pierden en los grupos."
@@ -268,8 +266,6 @@ es:
       d3_body: "Al día, en espera, por llamar. La misma lista para la sede y la región."
       close_title: "Treinta minutos. Sus consignas. Su idioma."
       close_body: "Díganos cuántas tiendas tiene. Le mostramos el recorrido en su red."
-      strategy_title: "Donde StoreBrief cambia el día"
-      strategy_intro: "Si sus consignas van por grupos, y descubre tarde lo que no se hizo, esto es para usted."
       cta: "Reservar una demo"
     prospects:
       title: "El mejor encaje"

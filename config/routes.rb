@@ -11,7 +11,6 @@ Rails.application.routes.draw do
   root "marketing#show"
   post "demo_requests", to: "marketing#create_demo"
   get "resources", to: "marketing#resources"
-  get "resources/90-day-strategy", to: "marketing#strategy", as: :marketing_strategy
   get "app", to: "dashboard#show", as: :app_root
   get "reports", to: "reports#show"
 
