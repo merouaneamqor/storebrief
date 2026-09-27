@@ -1,33 +1,37 @@
-<% content_for :title, "Sign in · StoreBrief" %>
+<% content_for :title, "#{t('auth.sign_in')} · StoreBrief" %>
 
 <div class="auth-shell">
   <span class="brand">StoreBrief</span>
-  <p class="lede">Brief stores across your retail hierarchy — news and tasks, tenant by tenant.</p>
+  <p class="lede">Briefs et checklists magasins — FR / عربي</p>
+
+  <div class="locale-switch" style="margin-bottom:1rem;">
+    <%= button_to "FR", locale_path(locale: "fr"), method: :patch, class: "locale-btn #{'is-active' if I18n.locale.to_s == 'fr'}" %>
+    <%= button_to "عربي", locale_path(locale: "ar"), method: :patch, class: "locale-btn #{'is-active' if I18n.locale.to_s == 'ar'}" %>
+  </div>
 
   <%= form_with url: login_path, method: :post, class: "form-stack", local: true do %>
     <label>
-      Tenant slug
-      <input type="text" name="tenant_slug" value="<%= params[:tenant_slug] || 'northwind' %>" required autocomplete="organization">
+      <%= t("auth.tenant_slug") %>
+      <input type="text" name="tenant_slug" value="<%= params[:tenant_slug] || 'atlas' %>" required autocomplete="organization">
     </label>
     <label>
-      Email
+      <%= t("auth.email") %>
       <input type="email" name="email" value="<%= params[:email] %>" required autocomplete="username">
     </label>
     <label>
-      Password
+      <%= t("auth.password") %>
       <input type="password" name="password" required autocomplete="current-password">
     </label>
     <div class="actions">
-      <button class="btn" type="submit">Sign in</button>
+      <button class="btn" type="submit"><%= t("auth.sign_in") %></button>
     </div>
   <% end %>
 
   <div class="hint">
-    <p><strong>Northwind Retail</strong> — slug <code>northwind</code><br>
-      HQ: <code>hq@northwind.test</code> / <code>password</code><br>
-      Store: <code>store@northwind.test</code> / <code>password</code></p>
+    <p><strong>Atlas Retail Maroc</strong> — slug <code>atlas</code><br>
+      HQ: <code>hq@atlas.test</code> / <code>password</code><br>
+      Magasin: <code>store@atlas.test</code> / <code>password</code></p>
     <p><strong>Contoso Shops</strong> — slug <code>contoso</code><br>
-      HQ: <code>hq@contoso.test</code> / <code>password</code><br>
-      Store: <code>store@contoso.test</code> / <code>password</code></p>
+      HQ: <code>hq@contoso.test</code> / <code>password</code></p>
   </div>
 </div>

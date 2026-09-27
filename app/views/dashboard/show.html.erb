@@ -1,23 +1,23 @@
-<% content_for :title, "Dashboard · StoreBrief" %>
+<% content_for :title, "#{t('dashboard.title')} · StoreBrief" %>
 
-<h1>Dashboard</h1>
+<h1><%= t("dashboard.title") %></h1>
 <p class="lede">
   <% if hq_user? %>
-    Overview for <%= current_tenant.name %>. Compose briefs and track store delivery.
+    <%= t("dashboard.hq_lede", tenant: current_tenant.name) %>
   <% else %>
-    Your store inbox for <%= current_user.store_org_unit&.name || "your location" %>.
+    <%= t("dashboard.store_lede", store: current_user.store_org_unit&.name || "—") %>
   <% end %>
 </p>
 
 <% if hq_user? %>
   <div class="stats">
-    <div class="stat"><strong><%= @region_count %></strong><span>Regions</span></div>
-    <div class="stat"><strong><%= @store_count %></strong><span>Stores</span></div>
-    <div class="stat"><strong><%= @sent_count %></strong><span>Sent briefs</span></div>
+    <div class="stat"><strong><%= @region_count %></strong><span><%= t("dashboard.regions") %></span></div>
+    <div class="stat"><strong><%= @store_count %></strong><span><%= t("dashboard.stores") %></span></div>
+    <div class="stat"><strong><%= @sent_count %></strong><span><%= t("dashboard.sent_briefs") %></span></div>
   </div>
 
   <section class="panel">
-    <h2>Recent briefs</h2>
+    <h2><%= t("dashboard.recent_briefs") %></h2>
     <% if @communications.any? %>
       <ul class="list">
         <% @communications.each do |brief| %>
@@ -25,25 +25,42 @@
             <div>
               <%= link_to brief.title, brief %>
               <div class="meta">
-                <span class="badge badge--<%= brief.format %>"><%= brief.format %></span>
-                <span class="badge badge--<%= brief.status %>"><%= brief.status %></span>
-                · <%= brief.created_at.strftime("%d %b %Y") %>
+                <%= localized_badge(brief.format) %>
+                <%= localized_badge(brief.status) %>
               </div>
             </div>
             <% if brief.sent? %>
               <% stats = brief.completion_stats %>
-              <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> done</span>
+              <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> <%= t("common.done") %></span>
             <% end %>
           </li>
         <% end %>
       </ul>
     <% else %>
-      <p class="empty">No briefs yet. <%= link_to "Compose one", new_communication_path %>.</p>
+      <p class="empty"><%= t("dashboard.no_briefs", link: link_to(t("dashboard.compose_one"), new_communication_path)).html_safe %></p>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <h2><%= t("dashboard.recent_checklists") %></h2>
+    <% if @checklists.any? %>
+      <ul class="list">
+        <% @checklists.each do |checklist| %>
+          <li>
+            <div>
+              <%= link_to checklist.title, checklist %>
+              <div class="meta"><%= localized_badge(checklist.status) %></div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="empty"><%= link_to t("nav.templates"), templates_path %></p>
     <% end %>
   </section>
 <% else %>
   <section class="panel">
-    <h2>Inbox</h2>
+    <h2><%= t("nav.inbox") %></h2>
     <% if @deliveries.any? %>
       <ul class="list">
         <% @deliveries.each do |delivery| %>
@@ -51,16 +68,34 @@
             <div>
               <%= link_to delivery.communication.title, inbox_path(delivery) %>
               <div class="meta">
-                <span class="badge badge--<%= delivery.communication.format %>"><%= delivery.communication.format %></span>
-                <span class="badge badge--<%= delivery.status %>"><%= delivery.status %></span>
+                <%= localized_badge(delivery.communication.format) %>
+                <%= localized_badge(delivery.status) %>
               </div>
             </div>
           </li>
         <% end %>
       </ul>
-      <p><%= link_to "Open full inbox", inbox_index_path %></p>
+      <p><%= link_to t("dashboard.open_inbox"), inbox_index_path %></p>
     <% else %>
-      <p class="empty">No briefs yet for this store.</p>
+      <p class="empty"><%= t("dashboard.empty_inbox") %></p>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <h2><%= t("checklists.store_inbox") %></h2>
+    <% if @checklist_deliveries.any? %>
+      <ul class="list">
+        <% @checklist_deliveries.each do |delivery| %>
+          <li>
+            <div>
+              <%= link_to delivery.checklist.title, checklists_delivery_path(delivery) %>
+              <div class="meta"><%= localized_badge(delivery.status) %></div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="empty"><%= t("checklists.empty") %></p>
     <% end %>
   </section>
 <% end %>

@@ -9,6 +9,7 @@ class CommunicationsController < ApplicationController
   def show
     @stats = @communication.completion_stats
     @deliveries = @communication.deliveries.includes(:org_unit).order(:id)
+    @notifications = @communication.notification_logs.includes(:user).order(created_at: :desc)
   end
 
   def new
@@ -21,11 +22,11 @@ class CommunicationsController < ApplicationController
     @communication.author = current_user
     @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
 
-    if params[:commit] == "Send"
+    if params[:commit] == "send"
       if @communication.save
         begin
           @communication.send_to!(params[:org_unit_ids])
-          redirect_to @communication, notice: "Brief sent to stores."
+          redirect_to @communication, notice: t("communications.sent")
         rescue ArgumentError => e
           @communication.destroy
           @communication = tenant_scope.communications.new(communication_params)
@@ -38,7 +39,7 @@ class CommunicationsController < ApplicationController
     else
       @communication.status = "draft"
       if @communication.save
-        redirect_to @communication, notice: "Draft saved."
+        redirect_to @communication, notice: t("communications.draft_saved")
       else
         render :new, status: :unprocessable_entity
       end
@@ -47,13 +48,13 @@ class CommunicationsController < ApplicationController
 
   def send_brief
     if @communication.sent?
-      redirect_to @communication, alert: "Already sent."
+      redirect_to @communication, alert: t("communications.already_sent")
       return
     end
 
     begin
       @communication.send_to!(params[:org_unit_ids].presence || @communication.deliveries.pluck(:org_unit_id))
-      redirect_to @communication, notice: "Brief sent to stores."
+      redirect_to @communication, notice: t("communications.sent")
     rescue ArgumentError => e
       redirect_to @communication, alert: e.message
     end
@@ -66,6 +67,6 @@ class CommunicationsController < ApplicationController
   end
 
   def communication_params
-    params.require(:communication).permit(:title, :body, :format)
+    params.require(:communication).permit(:title_fr, :title_ar, :body_fr, :body_ar, :format)
   end
 end

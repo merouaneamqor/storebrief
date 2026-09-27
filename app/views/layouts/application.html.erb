@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>" dir="<%= rtl? ? 'rtl' : 'ltr' %>">
   <head>
     <title><%= content_for?(:title) ? yield(:title) : "StoreBrief" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,29 +11,38 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="<%= 'rtl' if rtl? %>" x-data="offlineSync()" x-init="init()">
     <% if current_user %>
       <header class="topbar">
         <div class="topbar__brand">
           <a href="<%= root_path %>" class="brand">StoreBrief</a>
           <span class="tenant-chip"><%= current_tenant.name %></span>
+          <span class="sync-chip" x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
+                :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"></span>
         </div>
         <nav class="topbar__nav">
-          <%= link_to "Dashboard", root_path %>
+          <%= link_to t("nav.dashboard"), root_path %>
           <% if hq_user? %>
-            <%= link_to "Org units", org_units_path %>
-            <%= link_to "Briefs", communications_path %>
-            <%= link_to "Compose", new_communication_path, class: "nav-cta" %>
+            <%= link_to t("nav.org_units"), org_units_path %>
+            <%= link_to t("nav.briefs"), communications_path %>
+            <%= link_to t("nav.checklists"), checklists_path %>
+            <%= link_to t("nav.templates"), templates_path %>
+            <%= link_to t("nav.compose"), new_communication_path, class: "nav-cta" %>
           <% else %>
-            <%= link_to "Inbox", inbox_index_path %>
+            <%= link_to t("nav.inbox"), inbox_index_path %>
+            <%= link_to t("checklists.store_inbox"), checklists_deliveries_path %>
           <% end %>
-          <%= button_to "Sign out", logout_path, method: :delete, class: "linkish" %>
+          <div class="locale-switch">
+            <%= button_to "FR", locale_path(locale: "fr"), method: :patch, class: "locale-btn #{'is-active' if I18n.locale.to_s == 'fr'}" %>
+            <%= button_to "عربي", locale_path(locale: "ar"), method: :patch, class: "locale-btn #{'is-active' if I18n.locale.to_s == 'ar'}" %>
+          </div>
+          <%= button_to t("auth.sign_out"), logout_path, method: :delete, class: "linkish" %>
         </nav>
       </header>
     <% end %>

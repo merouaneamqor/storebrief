@@ -1,40 +1,44 @@
-<% content_for :title, "Compose · StoreBrief" %>
+<% content_for :title, "#{t('communications.new_title')} · StoreBrief" %>
 
-<h1>Compose brief</h1>
-<p class="lede">Send news or a task to selected stores in <%= current_tenant.name %>.</p>
+<h1><%= t("communications.new_title") %></h1>
+<p class="lede"><%= t("communications.new_lede", tenant: current_tenant.name) %></p>
 
 <section class="panel" x-data="{ filter: '', type: 'all' }">
   <%= form_with model: @communication, class: "form-stack", local: true do |f| %>
     <% if @communication.errors.any? %>
-      <div class="flash flash--alert">
-        <%= @communication.errors.full_messages.to_sentence %>
-      </div>
+      <div class="flash flash--alert"><%= @communication.errors.full_messages.to_sentence %></div>
     <% end %>
 
     <label>
-      Title
-      <%= f.text_field :title, required: true %>
+      <%= t("communications.title_fr") %>
+      <%= f.text_field :title_fr, required: true %>
     </label>
-
     <label>
-      Format
-      <%= f.select :format, Communication::FORMATS.map { |fmt| [fmt.titleize, fmt] } %>
+      <%= t("communications.title_ar") %>
+      <%= f.text_field :title_ar %>
     </label>
-
     <label>
-      Body
-      <%= f.text_area :body, required: true %>
+      <%= t("communications.format") %>
+      <%= f.select :format, Communication::FORMATS.map { |fmt| [t("common.#{fmt}"), fmt] } %>
+    </label>
+    <label>
+      <%= t("communications.body_fr") %>
+      <%= f.text_area :body_fr, required: true %>
+    </label>
+    <label>
+      <%= t("communications.body_ar") %>
+      <%= f.text_area :body_ar %>
     </label>
 
     <div>
-      <strong>Targets</strong>
-      <p class="meta">Select regions and/or stores. Regions expand to all descendant stores.</p>
+      <strong><%= t("communications.targets") %></strong>
+      <p class="meta"><%= t("communications.targets_help") %></p>
       <div class="filter-row">
-        <input type="text" placeholder="Filter targets…" x-model="filter">
+        <input type="text" placeholder="<%= t('common.filter') %>" x-model="filter">
         <select x-model="type">
-          <option value="all">All</option>
-          <option value="region">Regions</option>
-          <option value="store">Stores</option>
+          <option value="all"><%= t("common.all") %></option>
+          <option value="region"><%= t("common.region") %></option>
+          <option value="store"><%= t("common.store") %></option>
         </select>
       </div>
       <div class="target-list">
@@ -51,10 +55,8 @@
     </div>
 
     <div class="actions">
-      <%= f.submit "Save draft", class: "btn btn--ghost", name: "commit", value: "Save draft" %>
-      <%= f.submit "Send", class: "btn", name: "commit", value: "Send" %>
+      <%= f.submit t("communications.save_draft"), class: "btn btn--ghost", name: "commit", value: "draft" %>
+      <%= f.submit t("communications.send"), class: "btn", name: "commit", value: "send" %>
     </div>
   <% end %>
 </section>
-
-<style>[x-cloak]{display:none!important;}</style>

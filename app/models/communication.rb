@@ -1,4 +1,6 @@
 class Communication < ApplicationRecord
+  include Bilingual
+
   FORMATS = %w[news task].freeze
   STATUSES = %w[draft sent].freeze
 
@@ -6,10 +8,13 @@ class Communication < ApplicationRecord
   belongs_to :author, class_name: "User"
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
+  has_many :notification_logs, as: :notifiable, dependent: :destroy
 
-  validates :title, :body, presence: true
+  validates :title_fr, :body_fr, presence: true
   validates :format, inclusion: { in: FORMATS }
   validates :status, inclusion: { in: STATUSES }
+
+  bilingual_fields :title, :body
 
   scope :sent, -> { where(status: "sent") }
   scope :drafts, -> { where(status: "draft") }
@@ -42,6 +47,9 @@ class Communication < ApplicationRecord
         end
       end
     end
+
+    WhatsappNotifier.notify_communication!(self) if task?
+    self
   end
 
   def completion_stats

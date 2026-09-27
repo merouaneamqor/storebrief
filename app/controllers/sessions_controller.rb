@@ -13,15 +13,16 @@ class SessionsController < ApplicationController
     if user&.authenticate(params[:password])
       reset_session
       session[:user_id] = user.id
-      redirect_to root_path, notice: "Signed in to #{user.tenant.name}."
+      session[:locale] = user.locale
+      redirect_to root_path, notice: t("auth.signed_in", tenant: user.tenant.name)
     else
-      flash.now[:alert] = "Invalid tenant, email, or password."
+      flash.now[:alert] = t("auth.invalid")
       render :new, status: :unprocessable_entity
     end
   end
 
   def destroy
     reset_session
-    redirect_to login_path, notice: "Signed out."
+    redirect_to login_path, notice: t("auth.signed_out")
   end
 end

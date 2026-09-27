@@ -1,0 +1,20 @@
+<% content_for :title, "#{t('templates.title')} · StoreBrief" %>
+
+<h1><%= t("templates.title") %></h1>
+<p class="lede"><%= t("templates.lede", tenant: current_tenant.name) %></p>
+
+<% if @templates.any? %>
+  <div class="template-grid">
+    <% @templates.each do |template| %>
+      <div class="template-card">
+        <span class="badge"><%= t("templates.categories.#{template.category}") %></span>
+        <h3><%= template.title %></h3>
+        <p class="meta"><%= template.description %></p>
+        <p class="meta"><%= template.item_defs.size %> items</p>
+        <%= button_to t("templates.use"), use_template_path(template), method: :post, class: "btn" %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="empty"><%= t("templates.empty") %></p>
+<% end %>

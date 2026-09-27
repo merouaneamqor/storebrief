@@ -1,12 +1,12 @@
 # StoreBrief
 
-Multi-tenant Rails prototype for sending **news** and **task** briefs to stores across a region → area → store hierarchy.
+Multi-tenant Rails prototype for sending **news** and **task** briefs to stores across a region → area → store hierarchy — with a **Morocco first release**: French/Arabic (+ RTL), offline checklists, WhatsApp task alerts (stub), and bilingual store templates.
 
 ## Stack
 
-- Rails 8 + PostgreSQL
+- Rails 8 + PostgreSQL + Active Storage
 - Docker Compose (`web`, `db`, Mailcatcher)
-- Hotwire + Alpine.js
+- Hotwire + Alpine.js + IndexedDB offline queue
 
 ## Quick start
 
@@ -17,28 +17,32 @@ docker compose up --build
 App: [http://localhost:3001](http://localhost:3001)  
 Mailcatcher: [http://localhost:1080](http://localhost:1080)
 
-On boot the web service prepares the database and loads seeds.
-
 ## Demo logins
 
 Password for all accounts: `password`
 
-| Tenant | Slug | Role | Email |
-|--------|------|------|-------|
-| Northwind Retail | `northwind` | HQ | `hq@northwind.test` |
-| Northwind Retail | `northwind` | Store | `store@northwind.test` |
-| Contoso Shops | `contoso` | HQ | `hq@contoso.test` |
-| Contoso Shops | `contoso` | Store | `store@contoso.test` |
+| Tenant | Slug | Role | Email | Locale |
+|--------|------|------|-------|--------|
+| Atlas Retail Maroc | `atlas` | HQ | `hq@atlas.test` | FR |
+| Atlas Retail Maroc | `atlas` | Store | `store@atlas.test` | AR (+ WhatsApp stub) |
+| Contoso Shops | `contoso` | HQ | `hq@contoso.test` | FR |
 
-Sign in with **tenant slug + email + password**. Data is isolated per tenant — Contoso HQ cannot see Northwind briefs.
+## Morocco first-release demo
 
-## Demo flows
+1. Sign in as Atlas HQ → toggle **FR / عربي** (RTL flips for Arabic)
+2. Open **Modèles / القوالب** → use **Ouverture / الافتتاح** → send to a region/store
+3. On the checklist show page, see **WhatsApp stub** notifications for the store user
+4. Sign in as store (`store@atlas.test`) → **Mes checklists** → fill items (photo compressed client-side)
+5. Simulate offline: DevTools → Offline → complete an item → go online → sync chip clears queued work
+6. Sign in as Contoso HQ → confirm Atlas data is not visible
 
-1. Sign in as Northwind HQ → dashboard, org tree, recent briefs
-2. Compose a brief → choose news/task → select region or stores → Send
-3. Sign in as Northwind store → inbox → mark news read / task complete
-4. Back as HQ → open the brief → see delivery completion counts
-5. Sign in as Contoso HQ → confirm Northwind data is not visible
+## Features
+
+- Tenant isolation
+- Org hierarchy + communications (bilingual FR/AR fields)
+- Checklist templates (opening, closing, cleanliness, safety, promotions, equipment, store visit)
+- Offline checklist responses via IndexedDB → `POST /sync/checklist_responses`
+- WhatsAppNotifier stub → `notification_logs`
 
 ## Local env
 

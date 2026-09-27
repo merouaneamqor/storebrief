@@ -1,0 +1,26 @@
+<% content_for :title, "#{t('checklists.title')} · StoreBrief" %>
+
+<h1><%= t("checklists.title") %></h1>
+<p class="lede"><%= t("checklists.lede", tenant: current_tenant.name) %></p>
+<p><%= link_to t("checklists.new_from_template"), templates_path, class: "btn" %></p>
+
+<section class="panel">
+  <% if @checklists.any? %>
+    <ul class="list">
+      <% @checklists.each do |checklist| %>
+        <li>
+          <div>
+            <%= link_to checklist.title, checklist %>
+            <div class="meta"><%= localized_badge(checklist.status) %></div>
+          </div>
+          <% if checklist.sent? %>
+            <% stats = checklist.completion_stats %>
+            <span class="meta"><%= stats[:done] %>/<%= stats[:total] %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty"><%= t("checklists.empty") %></p>
+  <% end %>
+</section>

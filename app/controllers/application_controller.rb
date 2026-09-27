@@ -1,8 +1,9 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_user, :current_tenant, :hq_user?
+  helper_method :current_user, :current_tenant, :hq_user?, :rtl?
 
   before_action :require_login
   before_action :set_current_tenant
+  before_action :set_locale
 
   private
 
@@ -18,10 +19,14 @@ class ApplicationController < ActionController::Base
     current_user&.hq?
   end
 
+  def rtl?
+    I18n.locale.to_s == "ar"
+  end
+
   def require_login
     return if current_user
 
-    redirect_to login_path, alert: "Please sign in to continue."
+    redirect_to login_path, alert: I18n.t("auth.please_sign_in", locale: session[:locale].presence || :fr)
   end
 
   def set_current_tenant
@@ -31,10 +36,16 @@ class ApplicationController < ActionController::Base
     Current.tenant = current_user.tenant
   end
 
+  def set_locale
+    locale = session[:locale].presence || current_user&.locale || "fr"
+    locale = "fr" unless User::LOCALES.include?(locale.to_s)
+    I18n.locale = locale
+  end
+
   def require_hq
     return if hq_user?
 
-    redirect_to root_path, alert: "HQ access required."
+    redirect_to root_path, alert: t("auth.hq_required")
   end
 
   def tenant_scope

@@ -1,11 +1,10 @@
 <% content_for :title, "#{@communication.title} · Inbox" %>
 
-<p class="meta"><%= link_to "← Inbox", inbox_index_path %></p>
+<p class="meta"><%= link_to t("inbox.back"), inbox_index_path %></p>
 <h1><%= @communication.title %></h1>
 <p class="lede">
-  <span class="badge badge--<%= @communication.format %>"><%= @communication.format %></span>
-  <span class="badge badge--<%= @delivery.status %>"><%= @delivery.status %></span>
-  · <%= @communication.created_at.strftime("%d %b %Y") %>
+  <%= localized_badge(@communication.format) %>
+  <%= localized_badge(@delivery.status) %>
 </p>
 
 <section class="panel">
@@ -15,7 +14,7 @@
 <% if @delivery.pending? %>
   <div class="actions">
     <%= button_to(
-          @communication.task? ? "Mark task complete" : "Mark as read",
+          @communication.task? ? t("inbox.mark_complete") : t("inbox.mark_read"),
           complete_inbox_path(@delivery),
           method: :post,
           class: "btn"

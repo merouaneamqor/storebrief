@@ -24,10 +24,10 @@ class InboxController < ApplicationController
 
     if @delivery.communication.task?
       @delivery.complete!
-      redirect_to inbox_path(@delivery), notice: "Task marked complete."
+      redirect_to inbox_path(@delivery), notice: t("inbox.task_done")
     else
       @delivery.mark_read!
-      redirect_to inbox_path(@delivery), notice: "Marked as read."
+      redirect_to inbox_path(@delivery), notice: t("inbox.marked_read")
     end
   end
 
@@ -37,6 +37,6 @@ class InboxController < ApplicationController
     @store = current_user.store_org_unit
     return if @store
 
-    redirect_to root_path, alert: "No store membership found."
+    redirect_to root_path, alert: t("errors.no_store")
   end
 end

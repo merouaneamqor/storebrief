@@ -1,11 +1,11 @@
-<% content_for :title, "Briefs · StoreBrief" %>
+<% content_for :title, "#{t('communications.title')} · StoreBrief" %>
 
 <div style="display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
   <div>
-    <h1>Briefs</h1>
-    <p class="lede" style="margin-bottom:0;">All communications for <%= current_tenant.name %>.</p>
+    <h1><%= t("communications.title") %></h1>
+    <p class="lede" style="margin-bottom:0;"><%= t("communications.lede", tenant: current_tenant.name) %></p>
   </div>
-  <%= link_to "Compose brief", new_communication_path, class: "btn" %>
+  <%= link_to t("communications.compose"), new_communication_path, class: "btn" %>
 </div>
 
 <section class="panel">
@@ -16,19 +16,19 @@
           <div>
             <%= link_to brief.title, brief %>
             <div class="meta">
-              <span class="badge badge--<%= brief.format %>"><%= brief.format %></span>
-              <span class="badge badge--<%= brief.status %>"><%= brief.status %></span>
-              · <%= brief.author.name %> · <%= brief.created_at.strftime("%d %b %Y") %>
+              <%= localized_badge(brief.format) %>
+              <%= localized_badge(brief.status) %>
+              · <%= t("common.by") %> <%= brief.author.name %>
             </div>
           </div>
           <% if brief.sent? %>
             <% stats = brief.completion_stats %>
-            <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> done</span>
+            <span class="meta"><%= stats[:done] %>/<%= stats[:total] %> <%= t("common.done") %></span>
           <% end %>
         </li>
       <% end %>
     </ul>
   <% else %>
-    <p class="empty">No briefs yet.</p>
+    <p class="empty"><%= t("communications.empty") %></p>
   <% end %>
 </section>
