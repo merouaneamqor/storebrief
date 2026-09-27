@@ -9,8 +9,11 @@ class User < ApplicationRecord
   has_many :authored_communications, class_name: "Communication", foreign_key: :author_id, dependent: :restrict_with_exception, inverse_of: :author
   has_many :notification_logs, dependent: :nullify
 
+  scope :super_admins, -> { where(super_admin: true) }
+
   validates :name, presence: true
   validates :email, presence: true, uniqueness: { scope: :tenant_id }
+  validates :email, uniqueness: { conditions: -> { super_admins } }, if: :super_admin?
   validates :locale, inclusion: { in: LOCALES }
 
   def hq?

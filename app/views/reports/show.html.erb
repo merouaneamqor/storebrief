@@ -6,67 +6,116 @@
 <h1><%= t("reports.title") %></h1>
 <p class="lede"><%= t("reports.lede", tenant: current_tenant.name) %></p>
 
+<aside class="report-insight report-insight--<%= @report.insight[:tone] %>">
+  <p><%= report_insight_text(@report.insight) %></p>
+</aside>
+
 <div class="stats stats--4">
   <div class="stat stat--warn">
-    <strong><%= @summary[:behind] %></strong>
+    <strong><%= @report.summary[:behind] %></strong>
     <span><%= t("reports.stores_behind") %></span>
   </div>
   <div class="stat stat--ok">
-    <strong><%= @summary[:clear] %></strong>
+    <strong><%= @report.summary[:clear] %></strong>
     <span><%= t("reports.stores_clear") %></span>
   </div>
   <div class="stat">
-    <strong><%= @summary[:brief_percent] %>%</strong>
+    <strong><%= @report.summary[:brief_percent] %>%</strong>
     <span><%= t("reports.brief_rate") %></span>
-    <div class="progress" role="progressbar" aria-valuenow="<%= @summary[:brief_percent] %>" aria-valuemin="0" aria-valuemax="100">
-      <span class="progress__bar" style="width: <%= @summary[:brief_percent] %>%"></span>
+    <div class="progress" role="progressbar" aria-valuenow="<%= @report.summary[:brief_percent] %>" aria-valuemin="0" aria-valuemax="100">
+      <span class="progress__bar" style="width: <%= @report.summary[:brief_percent] %>%"></span>
     </div>
   </div>
   <div class="stat">
-    <strong><%= @summary[:checklist_percent] %>%</strong>
+    <strong><%= @report.summary[:checklist_percent] %>%</strong>
     <span><%= t("reports.checklist_rate") %></span>
-    <div class="progress" role="progressbar" aria-valuenow="<%= @summary[:checklist_percent] %>" aria-valuemin="0" aria-valuemax="100">
-      <span class="progress__bar progress__bar--secondary" style="width: <%= @summary[:checklist_percent] %>%"></span>
+    <div class="progress" role="progressbar" aria-valuenow="<%= @report.summary[:checklist_percent] %>" aria-valuemin="0" aria-valuemax="100">
+      <span class="progress__bar progress__bar--secondary" style="width: <%= @report.summary[:checklist_percent] %>%"></span>
     </div>
   </div>
 </div>
 
-<section class="report-charts panel"
-         data-controller="reports-charts"
-         data-reports-charts-stores-value="<%= [@summary[:clear], @summary[:behind]].to_json %>"
-         data-reports-charts-workload-value="<%= { names: @store_rows.map { |row| row[:store].name }, briefs: @store_rows.map { |row| row[:briefs] }, checks: @store_rows.map { |row| row[:checks] } }.to_json %>"
-         data-reports-charts-labels-value="<%= { clear: t('reports.stores_clear'), behind: t('reports.stores_behind'), briefs: t('reports.open_briefs'), checks: t('reports.open_checklists') }.to_json %>">
-  <div class="report-chart report-chart--donut">
-    <h2><%= t("reports.stores_split") %></h2>
-    <canvas data-reports-charts-target="stores"></canvas>
-  </div>
-  <div class="report-chart">
-    <h2><%= t("reports.workload") %></h2>
-    <canvas data-reports-charts-target="workload"></canvas>
-  </div>
-</section>
+<% if @report.open_items? %>
+  <section class="panel report-age">
+    <h2><%= t("reports.age_title") %></h2>
+    <div class="report-age__grid">
+      <% @report.age_buckets.each do |bucket| %>
+        <div class="report-age__item report-age__item--<%= bucket[:tone] %>">
+          <div class="report-age__label">
+            <span><%= t("reports.#{bucket[:key]}") %></span>
+            <strong><%= bucket[:count] %></strong>
+          </div>
+          <div class="progress" role="progressbar" aria-valuenow="<%= bucket[:percent] %>" aria-valuemin="0" aria-valuemax="100">
+            <span class="progress__bar" style="width: <%= bucket[:percent] %>%"></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% end %>
 
-<section class="panel">
+<% if @report.summary[:stores].positive? %>
+  <section class="report-charts panel"
+           data-controller="reports-charts"
+           data-reports-charts-stores-value="<%= [@report.summary[:clear], @report.summary[:behind]].to_json %>"
+           data-reports-charts-workload-value="<%= @report.chart_workload.to_json %>"
+           data-reports-charts-labels-value="<%= { clear: t('reports.stores_clear'), behind: t('reports.stores_behind'), briefs: t('reports.open_briefs'), checks: t('reports.open_checklists') }.to_json %>">
+    <div class="report-chart report-chart--donut">
+      <h2><%= t("reports.stores_split") %></h2>
+      <canvas data-reports-charts-target="stores"></canvas>
+    </div>
+    <div class="report-chart">
+      <h2><%= t("reports.workload") %></h2>
+      <% if @report.chart_workload[:names].any? %>
+        <canvas data-reports-charts-target="workload"></canvas>
+      <% else %>
+        <p class="empty"><%= t("reports.workload_empty") %></p>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<section class="panel" data-controller="reports-filter">
   <h2><%= t("reports.by_store") %></h2>
-  <% if @store_rows.any? %>
+  <% if @report.store_rows.any? %>
+    <div class="report-toolbar">
+      <label class="report-search">
+        <span class="visually-hidden"><%= t("reports.search") %></span>
+        <input type="search" placeholder="<%= t("reports.search") %>" data-reports-filter-target="query" data-action="input->reports-filter#apply">
+      </label>
+      <div class="report-chips" role="group" aria-label="<%= t("reports.status") %>">
+        <button type="button" class="report-chip is-active" aria-pressed="true" data-filter="all" data-reports-filter-target="chip" data-action="reports-filter#setFilter"><%= t("reports.filter_all") %></button>
+        <button type="button" class="report-chip" aria-pressed="false" data-filter="behind" data-reports-filter-target="chip" data-action="reports-filter#setFilter"><%= t("reports.filter_behind") %> <span class="report-chip__count"><%= @report.summary[:behind] %></span></button>
+        <button type="button" class="report-chip" aria-pressed="false" data-filter="clear" data-reports-filter-target="chip" data-action="reports-filter#setFilter"><%= t("reports.filter_clear") %> <span class="report-chip__count"><%= @report.summary[:clear] %></span></button>
+      </div>
+    </div>
     <div class="table-scroll">
     <table class="report-table">
       <thead>
         <tr>
           <th><%= t("common.store") %></th>
+          <th><%= t("reports.region") %></th>
           <th class="num"><%= t("reports.open_briefs") %></th>
           <th class="num"><%= t("reports.open_checklists") %></th>
+          <th><%= t("reports.oldest") %></th>
           <th><%= t("reports.status") %></th>
         </tr>
       </thead>
       <tbody>
-        <% @store_rows.each do |row| %>
-          <tr class="<%= "is-behind" if row[:pending].positive? %>">
+        <% @report.store_rows.each do |row| %>
+          <tr class="<%= "is-behind" if row[:pending].positive? %> <%= "is-stale" if row[:stale] %> <%= "is-priority" if row[:priority] %>"
+              data-reports-filter-target="row"
+              data-state="<%= row[:pending].positive? ? "behind" : "clear" %>"
+              data-search="<%= "#{row[:store].name} #{row[:place]&.name}".downcase %>">
             <td><%= row[:store].name %></td>
+            <td><%= row[:place]&.name || "—" %></td>
             <td class="num"><%= row[:briefs] %></td>
             <td class="num"><%= row[:checks] %></td>
+            <td><%= row[:oldest_at] ? time_ago_in_words(row[:oldest_at]) : "—" %></td>
             <td>
-              <% if row[:pending].zero? %>
+              <% if row[:priority] %>
+                <span class="badge badge--task"><%= t("reports.focus") %></span>
+              <% elsif row[:pending].zero? %>
                 <span class="badge badge--completed"><%= t("reports.clear") %></span>
               <% else %>
                 <span class="badge badge--pending"><%= t("reports.behind", count: row[:pending]) %></span>
@@ -77,23 +126,54 @@
       </tbody>
     </table>
     </div>
+    <p class="empty" data-reports-filter-target="empty" hidden><%= t("reports.no_match") %></p>
   <% else %>
     <p class="empty"><%= t("reports.no_stores") %></p>
   <% end %>
 </section>
 
+<% if @report.regions.any? %>
+  <section class="panel">
+    <h2><%= t("reports.by_region") %></h2>
+    <div class="table-scroll">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th><%= t("reports.region") %></th>
+          <th class="num"><%= t("dashboard.stores") %></th>
+          <th><%= t("reports.status") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @report.regions.each do |region| %>
+          <tr class="<%= "is-behind" if region[:behind].positive? %>">
+            <td><%= region[:name] %></td>
+            <td class="num"><%= region[:stores] %></td>
+            <td><%= t("reports.region_line", behind: region[:behind], pending: region[:pending]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    </div>
+  </section>
+<% end %>
+
 <div class="report-split">
 <section class="panel">
   <h2><%= t("reports.oldest_briefs") %></h2>
-  <% if @open_briefs.any? %>
+  <% if @report.open_briefs.any? %>
     <ul class="list">
-      <% @open_briefs.each do |delivery| %>
+      <% @report.open_briefs.each do |delivery| %>
         <li>
           <div>
             <%= link_to delivery.communication.title, delivery.communication %>
-            <div class="meta"><%= delivery.org_unit.name %> · <%= l(delivery.created_at, format: :short) %></div>
+            <div class="meta"><%= delivery.org_unit.name %> · <%= time_ago_in_words(delivery.created_at) %></div>
           </div>
-          <%= localized_badge(delivery.status) %>
+          <% if delivery.created_at <= Reports::Snapshot::STALE_AFTER.ago %>
+            <span class="badge badge--task"><%= t("reports.age_stale") %></span>
+          <% else %>
+            <%= localized_badge(delivery.status) %>
+          <% end %>
         </li>
       <% end %>
     </ul>
@@ -104,15 +184,19 @@
 
 <section class="panel">
   <h2><%= t("reports.oldest_checklists") %></h2>
-  <% if @open_checklists.any? %>
+  <% if @report.open_checklists.any? %>
     <ul class="list">
-      <% @open_checklists.each do |delivery| %>
+      <% @report.open_checklists.each do |delivery| %>
         <li>
           <div>
             <%= link_to delivery.checklist.title, delivery.checklist %>
-            <div class="meta"><%= delivery.org_unit.name %> · <%= l(delivery.created_at, format: :short) %></div>
+            <div class="meta"><%= delivery.org_unit.name %> · <%= time_ago_in_words(delivery.created_at) %></div>
           </div>
-          <%= localized_badge(delivery.status) %>
+          <% if delivery.created_at <= Reports::Snapshot::STALE_AFTER.ago %>
+            <span class="badge badge--task"><%= t("reports.age_stale") %></span>
+          <% else %>
+            <%= localized_badge(delivery.status) %>
+          <% end %>
         </li>
       <% end %>
     </ul>

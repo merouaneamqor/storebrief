@@ -7,11 +7,11 @@ ActiveAdmin.register ChecklistTemplate do
 
   controller do
     def scoped_collection
-      super.where(tenant_id: current_user.tenant_id)
+      super.where(tenant_id: acting_tenant.id)
     end
 
     def build_new_resource
-      super.tap { |r| r.tenant = current_user.tenant }
+      super.tap { |r| r.tenant = acting_tenant }
     end
 
     def create

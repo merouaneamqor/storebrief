@@ -14,7 +14,8 @@
       <% else %>
         <label>
           <%= t("auth.tenant_slug") %>
-          <input type="text" name="tenant_slug" value="<%= params[:tenant_slug] || 'atlas' %>" required autocomplete="organization">
+          <input type="text" name="tenant_slug" value="<%= params[:tenant_slug] %>" placeholder="atlas" autocomplete="organization">
+          <span class="m-hint"><%= t("auth.tenant_optional") %></span>
         </label>
       <% end %>
       <label>
@@ -39,6 +40,9 @@
           <p><strong>Casablanca Pâtisserie</strong> — <code>casa-patisserie</code><br>
             <%= t("auth.demo_hq") %>: <code>hq@casa-patisserie.test</code><br>
             <%= t("auth.demo_store") %>: <code>store@casa-patisserie.test</code></p>
+          <p><strong><%= t("auth.demo_super") %></strong><br>
+            <%= t("auth.email") %>: <code>admin@storebrief.test</code><br>
+            <%= t("auth.tenant_optional") %></p>
         </div>
       <% end %>
     <% end %>

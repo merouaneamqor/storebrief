@@ -3,7 +3,7 @@
 # HQ can edit their own brand only — no create/destroy (no new tenants).
 ActiveAdmin.register Tenant do
   menu priority: 9, label: "Brand"
-  actions :show, :edit, :update
+  actions :index, :show, :edit, :update
 
   permit_params(
     :brand_name, :tagline,
@@ -14,16 +14,30 @@ ActiveAdmin.register Tenant do
 
   controller do
     def scoped_collection
-      super.where(id: current_user.tenant_id)
+      return super if current_user.super_admin?
+
+      super.where(id: acting_tenant.id)
     end
 
     def find_resource
-      current_user.tenant
+      return super if current_user.super_admin?
+
+      acting_tenant
     end
 
     def index
-      redirect_to admin_tenant_path(current_user.tenant)
+      return super if current_user.super_admin?
+
+      redirect_to admin_tenant_path(acting_tenant)
     end
+  end
+
+  index do
+    id_column
+    column :name
+    column :slug
+    column :brand_name
+    actions
   end
 
   form html: { multipart: true } do |f|

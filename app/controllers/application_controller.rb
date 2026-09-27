@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   RESERVED_SUBDOMAINS = %w[www admin mail api].freeze
 
-  helper_method :current_user, :current_tenant, :hq_user?, :rtl?, :apex_request?, :host_tenant?
+  helper_method :current_user, :current_tenant, :acting_tenant, :hq_user?, :super_admin?, :rtl?, :apex_request?, :host_tenant?
 
   before_action :redirect_www
   before_action :set_tenant_from_host
@@ -19,8 +19,16 @@ class ApplicationController < ActionController::Base
     Current.tenant
   end
 
+  def acting_tenant
+    Current.tenant
+  end
+
   def hq_user?
-    current_user&.hq?
+    super_admin? || current_user&.hq?
+  end
+
+  def super_admin?
+    current_user&.super_admin?
   end
 
   def rtl?
@@ -80,6 +88,12 @@ class ApplicationController < ActionController::Base
   def bind_session_tenant
     return unless current_user
 
+    if current_user.super_admin?
+      Current.user = current_user
+      Current.tenant = resolve_acting_tenant
+      return
+    end
+
     if host_tenant? && current_user.tenant_id != Current.tenant.id
       reset_session
       redirect_to login_path, alert: I18n.t("auth.please_sign_in", locale: session[:locale].presence || :fr)
@@ -88,6 +102,13 @@ class ApplicationController < ActionController::Base
 
     Current.user = current_user
     Current.tenant ||= current_user.tenant
+  end
+
+  def resolve_acting_tenant
+    tenant = Tenant.find_by(id: session[:acting_tenant_id]) if session[:acting_tenant_id].present?
+    tenant ||= host_tenant? ? Current.tenant : current_user.tenant
+    session[:acting_tenant_id] = tenant.id
+    tenant
   end
 
   def set_locale
@@ -108,13 +129,19 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_hq_admin!
-    return if current_user&.hq?
+    return if current_user&.hq? || current_user&.super_admin?
 
     if current_user
       redirect_to app_root_path, alert: t("auth.hq_required")
     else
       redirect_to login_path, alert: I18n.t("auth.please_sign_in", locale: session[:locale].presence || :fr)
     end
+  end
+
+  def require_super_admin
+    return if super_admin?
+
+    redirect_to app_root_path, alert: t("auth.super_admin_required")
   end
 
   def tenant_scope

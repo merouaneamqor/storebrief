@@ -7,12 +7,12 @@ ActiveAdmin.register Communication do
 
   controller do
     def scoped_collection
-      super.where(tenant_id: current_user.tenant_id)
+      super.where(tenant_id: acting_tenant.id)
     end
 
     def build_new_resource
       super.tap do |r|
-        r.tenant = current_user.tenant
+        r.tenant = acting_tenant
         r.author ||= current_user
       end
     end
@@ -36,7 +36,7 @@ ActiveAdmin.register Communication do
 
   form do |f|
     f.inputs do
-      f.input :author, as: :select, collection: current_user.tenant.users.order(:name)
+      f.input :author, as: :select, collection: acting_tenant.users.order(:name)
       f.input :format, as: :select, collection: Communication::FORMATS
       f.input :status, as: :select, collection: Communication::STATUSES
       f.input :title_fr

@@ -3,8 +3,8 @@
 ActiveAdmin.register_page "Dashboard" do
   menu priority: 1, label: proc { I18n.t("active_admin.dashboard") }
 
-  content title: proc { "HQ · #{current_user.tenant.name}" } do
-    tenant = current_user.tenant
+  content title: proc { "HQ · #{acting_tenant.name}" } do
+    tenant = acting_tenant
 
     columns do
       column do

@@ -43,11 +43,26 @@
             <% if current_tenant.tagline.present? %>
               <p class="app-sidebar__tagline"><%= current_tenant.tagline %></p>
             <% end %>
-            <p class="app-sidebar__tenant"><%= current_tenant.name %></p>
+            <% if super_admin? %>
+              <%= form_with url: switch_tenants_path, method: :post, class: "tenant-switch" do %>
+                <label>
+                  <%= t("tenants.switcher_label") %>
+                  <%= select_tag :tenant_id,
+                        options_from_collection_for_select(Tenant.order(:name), :id, :name, current_tenant.id),
+                        aria: { label: t("tenants.switcher_label") } %>
+                </label>
+                <button type="submit" class="tenant-switch__btn"><%= t("tenants.switch") %></button>
+              <% end %>
+            <% else %>
+              <p class="app-sidebar__tenant"><%= current_tenant.name %></p>
+            <% end %>
           </div>
 
           <nav class="app-sidebar__nav">
             <%= link_to t("nav.dashboard"), app_root_path, class: "app-nav-link #{'is-active' if current_page?(app_root_path)}" %>
+            <% if super_admin? %>
+              <%= link_to t("nav.tenants"), tenants_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/tenants')}" %>
+            <% end %>
             <% if hq_user? %>
               <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
               <%= link_to t("nav.briefs"), communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" %>

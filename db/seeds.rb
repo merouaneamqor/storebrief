@@ -280,6 +280,17 @@ build_tenant!(
   }
 )
 
+atlas = Tenant.find_by!(slug: "atlas")
+atlas.users.create!(
+  name: "Platform Admin",
+  email: "admin@storebrief.test",
+  password: password,
+  password_confirmation: password,
+  locale: "en",
+  super_admin: true
+)
+
 puts "Seeded atlas + contoso + casa-patisserie (password: password)."
 puts "  HQ: hq@atlas.test | hq@contoso.test | hq@casa-patisserie.test"
 puts "  Store: store@atlas.test | store@contoso.test | store@casa-patisserie.test"
+puts "  Platform admin (all brands): admin@storebrief.test"

@@ -6,7 +6,7 @@ ActiveAdmin.register NotificationLog do
 
   controller do
     def scoped_collection
-      super.where(tenant_id: current_user.tenant_id)
+      super.where(tenant_id: acting_tenant.id)
     end
   end
 

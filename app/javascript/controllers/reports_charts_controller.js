@@ -17,8 +17,10 @@ export default class extends Controller {
     window.Chart.defaults.font.family = getComputedStyle(document.body).fontFamily
     window.Chart.defaults.color = cssVar("--muted", "#57534e")
 
-    this.charts = [
-      new window.Chart(this.storesTarget, {
+    this.charts = []
+
+    if (this.hasStoresTarget) {
+      this.charts.push(new window.Chart(this.storesTarget, {
         type: "doughnut",
         data: {
           labels: [ this.labelsValue.clear, this.labelsValue.behind ],
@@ -34,8 +36,12 @@ export default class extends Controller {
           cutout: "68%",
           plugins: { legend: legend }
         }
-      }),
-      new window.Chart(this.workloadTarget, {
+      }))
+    }
+
+    const names = this.workloadValue.names || []
+    if (this.hasWorkloadTarget && names.length) {
+      this.charts.push(new window.Chart(this.workloadTarget, {
         type: "bar",
         data: {
           labels: this.workloadValue.names,
@@ -53,8 +59,8 @@ export default class extends Controller {
           },
           plugins: { legend: legend }
         }
-      })
-    ]
+      }))
+    }
   }
 
   disconnect() {
