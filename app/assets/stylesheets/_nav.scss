@@ -118,7 +118,10 @@
 }
 
 @media (max-width: 1020px) {
-  .m-nav__demo { display: none; }
+  // Must out-rank `.m-btn { display: inline-flex }`, which buttons.scss emits
+  // later in the compiled bundle; otherwise the demo button never hides and
+  // pushes the menu toggle off-screen on phones.
+  .m-nav__tools .m-nav__demo { display: none; }
 
   .m-nav__toggle { display: inline-block; }
 

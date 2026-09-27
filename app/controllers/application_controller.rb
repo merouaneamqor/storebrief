@@ -96,6 +96,8 @@ class ApplicationController < ActionController::Base
       return
     end
 
+    session[:locale] = params[:locale] if User::LOCALES.include?(params[:locale].to_s)
+
     locale = session[:locale].presence || current_user&.locale || "fr"
     locale = "fr" unless User::LOCALES.include?(locale.to_s)
     I18n.locale = locale

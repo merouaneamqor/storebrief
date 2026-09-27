@@ -8,6 +8,15 @@
 
 .page .flash { margin: 0 0 1rem; }
 
+// Keep marketing flashes visible even when the page opens on an anchor
+// (e.g. the demo-form success redirect to /#demo lands far below the fold).
+.m-flash {
+  position: sticky;
+  top: calc(var(--nav) + 10px);
+  z-index: 25;
+  box-shadow: var(--shadow);
+}
+
 .m-flash--notice,
 .flash--notice {
   background: var(--accent-soft);
