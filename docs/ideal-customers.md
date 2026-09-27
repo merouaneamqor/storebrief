@@ -2,7 +2,7 @@
 
 StoreBrief is likely the best fit for retailers with **multiple branches, repeatable store procedures, and a head-office or regional operations team**.
 
-The same list is on the homepage and on [Who it's for](http://localhost:3001/resources).
+The homepage shows four morning scenarios. The full format list is on [Who it's for](http://localhost:3001/resources).
 
 ## Strongest prospects
 

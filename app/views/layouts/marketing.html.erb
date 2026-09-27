@@ -22,14 +22,17 @@
           <%= t("landing.hero.brand") %>
         </a>
         <nav class="m-nav__links" :class="{ 'is-open': open }">
-          <a href="<%= root_path %>#solutions" @click="open = false"><%= t("landing.nav.solutions") %></a>
+          <a href="<%= root_path %>#problems" @click="open = false"><%= t("landing.nav.solutions") %></a>
           <a href="<%= root_path %>#how" @click="open = false"><%= t("landing.nav.how") %></a>
           <%= link_to t("landing.nav.resources"), resources_path %>
           <%= link_to t("landing.nav.sign_in"), login_path, class: "m-link m-nav__signin" %>
         </nav>
         <div class="m-nav__tools">
           <%= render "shared/locale_switch" %>
-          <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small m-nav__demo"><%= t("landing.nav.demo") %></a>
+          <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small m-nav__demo">
+            <span class="m-nav__demo-full"><%= t("landing.nav.demo") %></span>
+            <span class="m-nav__demo-short"><%= t("landing.nav.demo_short") %></span>
+          </a>
           <button type="button" class="m-nav__toggle" @click="open = !open" :aria-expanded="open" aria-label="Menu">
             <span></span><span></span>
           </button>

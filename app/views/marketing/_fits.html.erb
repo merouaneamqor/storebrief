@@ -1,0 +1,9 @@
+<div class="m-cards m-cards--2">
+  <% (1..4).each do |n| %>
+    <article class="m-card">
+      <span class="m-eyebrow"><%= t("landing.resources.fit#{n}_kicker") %></span>
+      <h3><%= t("landing.resources.fit#{n}_title") %></h3>
+      <p><%= t("landing.resources.fit#{n}_body") %></p>
+    </article>
+  <% end %>
+</div>
