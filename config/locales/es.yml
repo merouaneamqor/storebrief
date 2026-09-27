@@ -15,6 +15,7 @@ es:
     demo_hq: "Sede"
     demo_store: "Tienda"
   nav:
+    menu: "Menú"
     dashboard: "Panel"
     org_units: "Unidades"
     briefs: "Consignas"

@@ -15,6 +15,7 @@ ar:
     demo_hq: "المقر"
     demo_store: "المتجر"
   nav:
+    menu: "القائمة"
     dashboard: "لوحة القيادة"
     org_units: "الوحدات"
     briefs: "الرسائل"
