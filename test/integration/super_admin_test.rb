@@ -58,6 +58,39 @@ class SuperAdminTest < ActionDispatch::IntegrationTest
     assert_match contoso.name, response.body
   end
 
+  test "platform admin can list and update demo requests" do
+    tenant = create_tenant("Admin Demos", "admin-demos")
+    admin = tenant.users.create!(
+      name: "Platform Admin",
+      email: "admin@demos.test",
+      password: "password",
+      password_confirmation: "password",
+      locale: "fr",
+      super_admin: true
+    )
+    lead = DemoRequest.create!(
+      name: "Fatima",
+      company: "Marjan Retail",
+      email: "fatima@marjan.test",
+      phone: "+212600000000",
+      store_count: 12,
+      preferred_locale: "fr"
+    )
+
+    post login_path, params: { email: admin.email, password: "password" }
+    follow_redirect!
+
+    get demo_requests_path
+    assert_response :success
+    assert_match "Marjan Retail", response.body
+    assert_match "Fatima", response.body
+    assert_select "a.app-nav-link", text: I18n.t("nav.demo_requests", locale: :fr)
+
+    patch demo_request_path(lead), params: { status: "contacted" }
+    assert_redirected_to demo_requests_path
+    assert_equal "contacted", lead.reload.status
+  end
+
   test "a store user cannot list or switch brands" do
     tenant = create_tenant("Atlas Locked", "atlas-locked")
     other = create_tenant("Other Locked", "other-locked")
@@ -82,6 +115,9 @@ class SuperAdminTest < ActionDispatch::IntegrationTest
     assert_select "p.lede", text: /#{Regexp.escape(store.name)}/
     assert_select "select#tenant_id", count: 0
     assert_select "a", text: other.name, count: 0
+
+    get demo_requests_path
+    assert_redirected_to app_root_path
   end
 
   private

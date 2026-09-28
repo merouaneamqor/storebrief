@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       post :switch
     end
   end
+  resources :demo_requests, only: %i[index update]
   get "reports", to: "reports#show"
 
   resources :org_units, only: :index

@@ -32,6 +32,7 @@ ar:
     admin: "الإدارة"
     reports: "المتابعة"
     tenants: "العلامات"
+    demo_requests: "العروض"
   tenants:
     title: "كل العلامات"
     lede: "كل العلامات على المنصة. افتح واحدة لرؤية متاجرها ورسائلها ومتابعتها."
@@ -43,6 +44,19 @@ ar:
     stores: "المتاجر"
     users: "المستخدمون"
     briefs: "الرسائل المرسلة"
+  demo_requests:
+    title: "طلبات العرض"
+    lede: "الطلبات الواردة من صفحة StoreBrief."
+    empty: "لا توجد طلبات عرض بعد."
+    stores:
+      one: "متجر واحد"
+      other: "%{count} متاجر"
+    updated: "تم تحديث طلب العرض."
+    mark_as: "تعيين كـ %{status}"
+    statuses:
+      new: "جديد"
+      contacted: "تم التواصل"
+      closed: "مغلق"
   reports:
     title: "المتابعة"
     lede: "ما يحتاج متابعة لدى %{tenant}."

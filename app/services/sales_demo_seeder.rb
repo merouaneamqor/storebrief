@@ -7,6 +7,7 @@ class SalesDemoSeeder
   PASSWORD = "demo2026"
   HQ_EMAIL = "hq@nour.test"
   STORE_EMAIL = "store@nour.test"
+  ADMIN_EMAIL = "admin@storebrief.test"
 
   TEMPLATE_DEFS = [
     {
@@ -256,7 +257,17 @@ class SalesDemoSeeder
     )
     anfa.memberships.create!(org_unit: units[:stores].second, role: "store")
 
-    { hq: hq, store: store, anfa: anfa }
+    User.super_admins.where(email: ADMIN_EMAIL).find_each(&:destroy)
+    admin = tenant.users.create!(
+      name: "StoreBrief Admin",
+      email: ADMIN_EMAIL,
+      password: password,
+      password_confirmation: password,
+      locale: "fr",
+      super_admin: true
+    )
+
+    { hq: hq, store: store, anfa: anfa, admin: admin }
   end
 
   def seed_templates!(tenant)

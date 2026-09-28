@@ -32,6 +32,7 @@ en:
     admin: "Admin"
     reports: "Reports"
     tenants: "Brands"
+    demo_requests: "Demos"
   tenants:
     title: "All brands"
     lede: "Every brand on the platform. Open one to see its stores, briefs, and reports."
@@ -43,6 +44,19 @@ en:
     stores: "Stores"
     users: "Users"
     briefs: "Briefs sent"
+  demo_requests:
+    title: "Demo requests"
+    lede: "Leads from the StoreBrief landing page."
+    empty: "No demo requests yet."
+    stores:
+      one: "%{count} store"
+      other: "%{count} stores"
+    updated: "Demo request updated."
+    mark_as: "Mark as %{status}"
+    statuses:
+      new: "New"
+      contacted: "Contacted"
+      closed: "Closed"
   reports:
     title: "Reports"
     lede: "What needs a follow-up at %{tenant}."

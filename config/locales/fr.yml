@@ -32,6 +32,7 @@ fr:
     admin: "Admin"
     reports: "Suivi"
     tenants: "Enseignes"
+    demo_requests: "Démos"
   tenants:
     title: "Toutes les enseignes"
     lede: "Toutes les enseignes de la plateforme. Ouvrez-en une pour voir ses magasins, briefs et suivi."
@@ -43,6 +44,19 @@ fr:
     stores: "Magasins"
     users: "Utilisateurs"
     briefs: "Briefs envoyés"
+  demo_requests:
+    title: "Demandes de démo"
+    lede: "Leads reçus depuis la page d’accueil StoreBrief."
+    empty: "Aucune demande de démo pour le moment."
+    stores:
+      one: "%{count} magasin"
+      other: "%{count} magasins"
+    updated: "Demande de démo mise à jour."
+    mark_as: "Marquer %{status}"
+    statuses:
+      new: "Nouveau"
+      contacted: "Contacté"
+      closed: "Clos"
   reports:
     title: "Suivi"
     lede: "Ce qui demande un suivi chez %{tenant}."

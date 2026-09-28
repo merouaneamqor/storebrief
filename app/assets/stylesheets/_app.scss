@@ -674,6 +674,14 @@
 
 .list li:last-child { border-bottom: 0; }
 
+.list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
 .list a {
   color: #0f172a;
   font-weight: 650;

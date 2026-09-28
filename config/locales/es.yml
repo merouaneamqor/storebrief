@@ -32,6 +32,7 @@ es:
     admin: "Admin"
     reports: "Seguimiento"
     tenants: "Enseñas"
+    demo_requests: "Demos"
   tenants:
     title: "Todas las enseñas"
     lede: "Todas las enseñas de la plataforma. Abra una para ver sus tiendas, consignas e informes."
@@ -43,6 +44,19 @@ es:
     stores: "Tiendas"
     users: "Usuarios"
     briefs: "Consignas enviadas"
+  demo_requests:
+    title: "Solicitudes de demo"
+    lede: "Leads recibidos desde la landing de StoreBrief."
+    empty: "Aún no hay solicitudes de demo."
+    stores:
+      one: "%{count} tienda"
+      other: "%{count} tiendas"
+    updated: "Solicitud de demo actualizada."
+    mark_as: "Marcar como %{status}"
+    statuses:
+      new: "Nueva"
+      contacted: "Contactada"
+      closed: "Cerrada"
   reports:
     title: "Seguimiento"
     lede: "Qué hay que seguir en %{tenant}."

@@ -8,5 +8,6 @@ namespace :sales_demo do
     puts "  Password: #{SalesDemoSeeder::PASSWORD}"
     puts "  HQ:      #{SalesDemoSeeder::HQ_EMAIL}"
     puts "  Store:   #{SalesDemoSeeder::STORE_EMAIL}"
+    puts "  Admin:   #{SalesDemoSeeder::ADMIN_EMAIL} (leave brand blank at login)"
   end
 end

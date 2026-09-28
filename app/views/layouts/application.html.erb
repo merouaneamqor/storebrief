@@ -62,6 +62,7 @@
             <%= link_to t("nav.dashboard"), app_root_path, class: "app-nav-link #{'is-active' if current_page?(app_root_path)}" %>
             <% if super_admin? %>
               <%= link_to t("nav.tenants"), tenants_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/tenants')}" %>
+              <%= link_to t("nav.demo_requests"), demo_requests_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/demo_requests')}" %>
             <% end %>
             <% if hq_user? %>
               <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
