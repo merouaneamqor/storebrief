@@ -15,6 +15,9 @@ es:
     demo_hq: "Sede"
     demo_store: "Tienda"
     demo_super: "Admin de plataforma"
+    sales_demo_title: "Cuenta demo"
+    sales_demo_label: "demo comercial"
+    sales_demo_password: "Contraseña: demo2026"
     tenant_optional: "Deje el identificador vacío para entrar como admin de plataforma."
     super_admin_required: "Se requiere acceso de administrador de plataforma."
   nav:

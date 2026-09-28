@@ -296,3 +296,5 @@ puts "Seeded atlas + contoso + casa-patisserie (password: password)."
 puts "  HQ: hq@atlas.test | hq@contoso.test | hq@casa-patisserie.test"
 puts "  Store: store@atlas.test | store@contoso.test | store@casa-patisserie.test"
 puts "  Platform admin (all brands): admin@storebrief.test"
+
+load Rails.root.join("db/seeds/sales_demo.rb")

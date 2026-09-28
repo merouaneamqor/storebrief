@@ -15,6 +15,11 @@ if [ "${1}" = "./bin/rails" ] && [ "${2}" = "server" ]; then
   fi
 
   ./bin/rails db:prepare
+
+  if [ "${SEED_SALES_DEMO:-}" = "1" ]; then
+    echo "Seeding sales demo tenant..."
+    ./bin/rails sales_demo:seed
+  fi
 fi
 
 exec "${@}"

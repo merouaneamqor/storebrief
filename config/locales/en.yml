@@ -15,6 +15,9 @@ en:
     demo_hq: "Head office"
     demo_store: "Store"
     demo_super: "Platform admin"
+    sales_demo_title: "Demo account"
+    sales_demo_label: "sales demo"
+    sales_demo_password: "Password: demo2026"
     tenant_optional: "Leave the brand ID blank to sign in as a platform admin."
     super_admin_required: "Platform admin access required."
   nav:
