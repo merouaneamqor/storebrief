@@ -468,6 +468,54 @@ body.marketing.rtl .m-stage__caption {
   max-width: 12em;
 }
 
+.m-login--tenant {
+  background: var(--sidebar-bg, var(--ink));
+}
+
+.m-login__brand-name {
+  font-family: var(--display);
+  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0 0 0.65rem;
+  color: white;
+  max-width: 10em;
+}
+
+.m-login__tagline {
+  margin: 0 0 0.85rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: color-mix(in srgb, white 88%, var(--accent-soft));
+}
+
+.m-login--tenant .m-login__copy .m-kicker {
+  color: color-mix(in srgb, var(--accent-soft) 80%, white);
+}
+
+.m-login--tenant .m-login__copy > p:not(.m-kicker):not(.m-login__tagline) {
+  color: color-mix(in srgb, white 72%, var(--sidebar-text, #c9d4de));
+  max-width: 28em;
+}
+
+body.tenant-branded {
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, color-mix(in srgb, var(--accent-soft) 55%, transparent), transparent 55%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+}
+
+body.tenant-branded .m-nav {
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.m-footer__powered {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
 .m-convert p,
 .m-convert li { color: #c9d4de; }
 

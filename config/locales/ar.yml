@@ -30,6 +30,8 @@ ar:
     sso_unknown_tenant: "علامة غير معروفة لـ SSO."
     use_password_instead: "تسجيل الدخول بكلمة المرور"
     feature_disabled: "هذه الميزة غير مفعّلة لعلامتك."
+    tenant_lede: "سجّل الدخول لإدارة الرسائل وقوائم التحقق ومتاجرك."
+    powered_by: "مدعوم من StoreBrief"
   nav:
     menu: "القائمة"
     dashboard: "لوحة القيادة"

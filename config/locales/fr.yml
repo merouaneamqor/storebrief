@@ -30,6 +30,8 @@ fr:
     sso_unknown_tenant: "Enseigne inconnue pour le SSO."
     use_password_instead: "Connexion par mot de passe"
     feature_disabled: "Cette fonctionnalité n'est pas activée pour votre enseigne."
+    tenant_lede: "Connectez-vous pour gérer les briefs, checklists et magasins."
+    powered_by: "Propulsé par StoreBrief"
   nav:
     menu: "Menu"
     dashboard: "Tableau de bord"

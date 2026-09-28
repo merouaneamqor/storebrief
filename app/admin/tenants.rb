@@ -146,6 +146,11 @@ ActiveAdmin.register Tenant do
 
     if current_user.super_admin?
       f.inputs "Features" do
+        para do
+          text_node "Or manage all brands from "
+          text_node link_to("Feature flags", admin_feature_flags_path)
+          text_node "."
+        end
         Tenant::FEATURE_FLAGS.each do |key, meta|
           f.input :"feature_#{key}", as: :boolean, label: meta[:label], hint: meta[:hint]
         end

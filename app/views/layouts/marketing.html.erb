@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>" dir="<%= rtl? ? 'rtl' : 'ltr' %>">
   <head>
-    <title><%= content_for?(:title) ? yield(:title) : "StoreBrief" %></title>
+    <% brand = host_tenant? ? current_tenant : nil %>
+    <title><%= content_for?(:title) ? yield(:title) : (brand&.display_brand_name || "StoreBrief") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="<%= t('landing.hero.lede') %>">
+    <meta name="description" content="<%= brand&.tagline.presence || t('landing.hero.lede') %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <link rel="icon" href="/icon.png" type="image/png">
+    <% if brand&.favicon&.attached? %>
+      <link rel="icon" href="<%= url_for(brand.favicon) %>" type="<%= brand.favicon.content_type %>">
+    <% else %>
+      <link rel="icon" href="/icon.png" type="image/png">
+    <% end %>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,560;9..144,700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
@@ -14,29 +19,48 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="marketing <%= 'rtl' if rtl? %>">
+  <body class="marketing <%= 'rtl' if rtl? %> <%= 'tenant-branded' if brand %>"
+        <% if brand %>style="<%= brand.brand_style_attribute %>"<% end %>>
     <header class="m-nav" x-data="{ open: false }">
       <div class="m-nav__inner">
-        <a href="<%= root_path %>" class="m-brand">
-          <span class="m-mark" aria-hidden="true"></span>
-          <%= t("landing.hero.brand") %>
+        <a href="<%= brand ? login_path : root_path %>" class="m-brand">
+          <% if brand %>
+            <% if brand.logo_mark.attached? %>
+              <%= image_tag brand.logo_mark, class: "m-brand__mark-img", alt: "" %>
+            <% elsif brand.logo.attached? %>
+              <%= image_tag brand.logo, class: "m-brand__logo", alt: "" %>
+            <% else %>
+              <span class="m-mark m-mark--tenant" aria-hidden="true"></span>
+            <% end %>
+            <span class="m-brand__name"><%= brand.display_brand_name %></span>
+          <% else %>
+            <span class="m-mark" aria-hidden="true"></span>
+            <%= t("landing.hero.brand") %>
+          <% end %>
         </a>
-        <nav class="m-nav__links" :class="{ 'is-open': open }">
-          <a href="<%= root_path %>#problems" @click="open = false"><%= t("landing.nav.solutions") %></a>
-          <a href="<%= root_path %>#how" @click="open = false"><%= t("landing.nav.how") %></a>
-          <%= link_to t("landing.nav.resources"), resources_path %>
-          <%= link_to t("landing.nav.sign_in"), login_path, class: "m-link m-nav__signin" %>
-        </nav>
-        <div class="m-nav__tools">
-          <%= render "shared/locale_switch" %>
-          <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small m-nav__demo">
-            <span class="m-nav__demo-full"><%= t("landing.nav.demo") %></span>
-            <span class="m-nav__demo-short"><%= t("landing.nav.demo_short") %></span>
-          </a>
-          <button type="button" class="m-nav__toggle" @click="open = !open" :aria-expanded="open" aria-label="Menu">
-            <span></span><span></span>
-          </button>
-        </div>
+
+        <% if brand %>
+          <div class="m-nav__tools">
+            <%= render "shared/locale_switch" %>
+          </div>
+        <% else %>
+          <nav class="m-nav__links" :class="{ 'is-open': open }">
+            <a href="<%= root_path %>#problems" @click="open = false"><%= t("landing.nav.solutions") %></a>
+            <a href="<%= root_path %>#how" @click="open = false"><%= t("landing.nav.how") %></a>
+            <%= link_to t("landing.nav.resources"), resources_path %>
+            <%= link_to t("landing.nav.sign_in"), login_path, class: "m-link m-nav__signin" %>
+          </nav>
+          <div class="m-nav__tools">
+            <%= render "shared/locale_switch" %>
+            <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small m-nav__demo">
+              <span class="m-nav__demo-full"><%= t("landing.nav.demo") %></span>
+              <span class="m-nav__demo-short"><%= t("landing.nav.demo_short") %></span>
+            </a>
+            <button type="button" class="m-nav__toggle" @click="open = !open" :aria-expanded="open" aria-label="Menu">
+              <span></span><span></span>
+            </button>
+          </div>
+        <% end %>
       </div>
     </header>
 
@@ -51,16 +75,33 @@
 
     <footer class="m-footer">
       <div class="m-footer__inner">
-        <div>
-          <a href="<%= root_path %>" class="m-brand"><span class="m-mark" aria-hidden="true"></span><%= t("landing.hero.brand") %></a>
-          <p><%= t("landing.footer.tagline") %></p>
-        </div>
-        <nav class="m-footer__links">
-          <a href="<%= root_path %>#how"><%= t("landing.nav.how") %></a>
-          <%= link_to t("landing.nav.resources"), resources_path %>
-          <%= link_to t("landing.nav.sign_in"), login_path %>
-        </nav>
-        <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small"><%= t("landing.nav.demo") %></a>
+        <% if brand %>
+          <div>
+            <a href="<%= login_path %>" class="m-brand">
+              <% if brand.logo_mark.attached? %>
+                <%= image_tag brand.logo_mark, class: "m-brand__mark-img", alt: "" %>
+              <% else %>
+                <span class="m-mark m-mark--tenant" aria-hidden="true"></span>
+              <% end %>
+              <span class="m-brand__name"><%= brand.display_brand_name %></span>
+            </a>
+            <% if brand.tagline.present? %>
+              <p><%= brand.tagline %></p>
+            <% end %>
+          </div>
+          <p class="m-footer__powered"><%= t("auth.powered_by") %></p>
+        <% else %>
+          <div>
+            <a href="<%= root_path %>" class="m-brand"><span class="m-mark" aria-hidden="true"></span><%= t("landing.hero.brand") %></a>
+            <p><%= t("landing.footer.tagline") %></p>
+          </div>
+          <nav class="m-footer__links">
+            <a href="<%= root_path %>#how"><%= t("landing.nav.how") %></a>
+            <%= link_to t("landing.nav.resources"), resources_path %>
+            <%= link_to t("landing.nav.sign_in"), login_path %>
+          </nav>
+          <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small"><%= t("landing.nav.demo") %></a>
+        <% end %>
       </div>
     </footer>
   </body>

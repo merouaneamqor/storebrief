@@ -30,6 +30,8 @@ en:
     sso_unknown_tenant: "Unknown brand for SSO."
     use_password_instead: "Use password sign-in"
     feature_disabled: "This feature is not enabled for your brand."
+    tenant_lede: "Sign in to manage briefs, checklists, and your stores."
+    powered_by: "Powered by StoreBrief"
   nav:
     menu: "Menu"
     dashboard: "Dashboard"

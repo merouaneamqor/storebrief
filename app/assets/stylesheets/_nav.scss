@@ -27,6 +27,26 @@
   color: var(--ink);
 }
 
+.m-brand__logo {
+  display: block;
+  height: 2rem;
+  width: auto;
+  max-width: 11rem;
+  object-fit: contain;
+}
+
+.m-brand__mark-img {
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.m-brand__name {
+  color: var(--accent-deep, var(--ink));
+}
+
 .m-mark {
   width: 1.35rem;
   height: 1.35rem;
@@ -34,6 +54,13 @@
   background: url("/storebrief-mark.svg") center / contain no-repeat;
   border-radius: 0;
   box-shadow: none;
+}
+
+.m-mark--tenant {
+  background: var(--accent);
+  mask: none;
+  border-radius: 6px;
+  opacity: 0.95;
 }
 
 .m-nav__tools {

@@ -47,7 +47,7 @@ Public summary: [http://localhost:3001/resources](http://localhost:3001/resource
 
 - Public Morocco landing page (demo request form, FR/AR RTL, product walkthrough)
 - Tenant isolation
-- Per-tenant feature flags + SAML SSO (configure in Admin → Brand as platform admin)
+- Per-tenant feature flags + SAML SSO (Admin → **Feature flags**, or Brand → Features / SSO)
 - Org hierarchy + communications (bilingual FR/AR fields)
 - Checklist templates (opening, closing, cleanliness, safety, promotions, equipment, store visit)
 - Offline checklist responses via IndexedDB → `POST /sync/checklist_responses`
@@ -55,10 +55,10 @@ Public summary: [http://localhost:3001/resources](http://localhost:3001/resource
 
 ## SAML SSO (per brand)
 
-Each tenant can use its own IdP. Platform admins configure this under **Admin → Brand**:
+Each tenant can use its own IdP. Platform admins configure this under **Admin → Feature flags** (enable **SAML SSO**) and **Admin → Brand → SSO (SAML)**:
 
-1. **Features** → enable **SAML SSO**
-2. **SSO (SAML)** → IdP entity ID, SSO URL, signing cert, optional enforce
+1. **Feature flags** → enable **SAML SSO** for the brand
+2. **Brand → SSO (SAML)** → IdP entity ID, SSO URL, signing cert, optional enforce
 
 Register these SP URLs with the IdP (replace `{slug}` and host):
 

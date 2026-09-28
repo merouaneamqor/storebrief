@@ -30,6 +30,8 @@ es:
     sso_unknown_tenant: "Enseña desconocida para SSO."
     use_password_instead: "Entrar con contraseña"
     feature_disabled: "Esta función no está activada para su enseña."
+    tenant_lede: "Inicie sesión para gestionar consignas, checklists y tiendas."
+    powered_by: "Con tecnología de StoreBrief"
   nav:
     menu: "Menú"
     dashboard: "Panel"

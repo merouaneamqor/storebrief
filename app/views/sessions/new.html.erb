@@ -1,19 +1,31 @@
-<% content_for :title, "#{t('auth.sign_in')} · StoreBrief" %>
+<% brand = host_tenant? ? current_tenant : nil %>
+<% content_for :title, brand ? "#{t('auth.sign_in')} · #{brand.display_brand_name}" : "#{t('auth.sign_in')} · StoreBrief" %>
 
 <% show_sso = host_tenant? && @login_tenant&.saml_sso_enabled? %>
 <% sso_enforced = show_sso && @login_tenant.saml_sso_enforced? %>
 
 <section class="m-section">
-  <div class="m-convert m-login">
-    <div>
-      <p class="m-kicker"><%= t("landing.nav.sign_in") %></p>
-      <h1><%= t("landing.hero.title") %></h1>
-      <p><%= t("landing.hero.lede") %></p>
+  <div class="m-convert m-login<%= ' m-login--tenant' if brand %>">
+    <div class="m-login__copy">
+      <% if brand %>
+        <p class="m-kicker"><%= t("auth.sign_in") %></p>
+        <h1 class="m-login__brand-name"><%= brand.display_brand_name %></h1>
+        <% if brand.tagline.present? %>
+          <p class="m-login__tagline"><%= brand.tagline %></p>
+        <% end %>
+        <p><%= t("auth.tenant_lede") %></p>
+      <% else %>
+        <p class="m-kicker"><%= t("landing.nav.sign_in") %></p>
+        <h1><%= t("landing.hero.title") %></h1>
+        <p><%= t("landing.hero.lede") %></p>
+      <% end %>
     </div>
 
     <div class="m-form" id="login-panel">
-      <% if host_tenant? %>
-        <p class="m-kicker"><%= current_tenant.name %></p>
+      <% if brand && !sso_enforced %>
+        <%# brand already shown in hero; keep form focused on fields %>
+      <% elsif brand && sso_enforced %>
+        <p class="m-kicker"><%= brand.display_brand_name %></p>
       <% end %>
 
       <% if sso_enforced %>
