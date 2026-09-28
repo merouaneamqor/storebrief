@@ -28,12 +28,12 @@
 }
 
 .m-mark {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  background: var(--accent);
-  box-shadow: 6px 6px 0 var(--ink);
+  width: 1.35rem;
+  height: 1.35rem;
   flex-shrink: 0;
+  background: url("/storebrief-mark.svg") center / contain no-repeat;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .m-nav__tools {

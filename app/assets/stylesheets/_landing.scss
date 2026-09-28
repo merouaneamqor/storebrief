@@ -49,6 +49,17 @@ body.rtl .m-kicker {
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--accent-deep);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.m-hero__brand::before {
+  content: "";
+  width: 0.72em;
+  height: 0.72em;
+  flex-shrink: 0;
+  background: url("/storebrief-mark.svg") center / contain no-repeat;
 }
 
 .m-hero h1,

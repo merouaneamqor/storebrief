@@ -1,3 +1,7 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="StoreBrief">
+  <rect width="512" height="512" rx="112" fill="#102033"/>
+  <g transform="translate(256 256) rotate(-22) translate(-256 -256)">
+    <rect x="148" y="168" width="168" height="148" rx="28" fill="#0c6b58"/>
+    <rect x="210" y="210" width="168" height="148" rx="28" fill="#ffffff"/>
+  </g>
 </svg>

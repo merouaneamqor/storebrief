@@ -82,12 +82,12 @@
 }
 
 .app-logo__mark {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  background: var(--accent, #14b8a6);
-  box-shadow: 5px 5px 0 #64748b;
+  width: 1.35rem;
+  height: 1.35rem;
   flex-shrink: 0;
+  background: url("/storebrief-mark-on-dark.svg") center / contain no-repeat;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .app-logo__name {
