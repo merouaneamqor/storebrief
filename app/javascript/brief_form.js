@@ -197,7 +197,10 @@ document.addEventListener("alpine:init", () => {
     focused: false,
 
     init() {
-      this.units = JSON.parse(this.$el.dataset.units || "[]")
+      this.units = JSON.parse(this.$el.dataset.units || "[]").map((unit) => ({
+        ...unit,
+        id: String(unit.id)
+      }))
       this.selected = JSON.parse(this.$el.dataset.selected || "[]").map(String)
       this.countTemplate = this.$el.dataset.countLabel || "%{count}"
     },
@@ -219,15 +222,12 @@ document.addEventListener("alpine:init", () => {
       return this.countTemplate.replace("%{count}", String(this.selected.length))
     },
 
-    includes(id) {
-      return this.selected.includes(id)
-    },
-
     toggle(id) {
-      if (this.selected.includes(id)) {
-        this.selected = this.selected.filter((item) => item !== id)
+      const key = String(id)
+      if (this.selected.includes(key)) {
+        this.selected = this.selected.filter((item) => item !== key)
       } else {
-        this.selected = this.selected.concat([id])
+        this.selected = this.selected.concat([key])
       }
     },
 

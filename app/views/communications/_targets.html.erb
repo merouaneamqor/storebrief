@@ -44,7 +44,7 @@
   <div class="brief-targets">
     <template x-for="unit in visible" :key="unit.id">
       <label class="brief-target">
-        <input type="checkbox" :checked="includes(unit.id)" @click.prevent="toggle(unit.id)">
+        <input type="checkbox" :value="unit.id" x-model="selected">
         <span class="badge" x-text="unit.typeLabel"></span>
         <span x-text="unit.name"></span>
       </label>
