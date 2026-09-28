@@ -14,7 +14,7 @@
 <% end %>
 
 <% if @delivery.pending? %>
-  <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, class: "brief-answer-form" do %>
+  <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, multipart: true, class: "brief-answer-form" do %>
     <% if @questions.any? %>
       <section class="panel">
         <h2><%= t("inbox.answer_title") %></h2>
@@ -27,6 +27,11 @@
                 <% if question.required? %><span class="brief-required-mark">*</span><% end %>
               </span>
               <% case question.question_type %>
+              <% when "image" %>
+                <% if answer&.image&.attached? %>
+                  <%= image_tag answer.image, class: "thumb" %>
+                <% end %>
+                <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
               <% when "long_text" %>
                 <textarea name="answers[<%= question.id %>][text]" rows="3" <%= "required" if question.required? %>><%= answer&.text_value %></textarea>
               <% when "single_choice" %>
@@ -76,7 +81,11 @@
       <% answer = @answers[question.id] %>
       <div class="brief-answer-field">
         <strong><%= question.title %></strong>
-        <div class="meta"><%= answer&.display_value.presence || "—" %></div>
+        <% if question.image? && answer&.image&.attached? %>
+          <%= image_tag answer.image, class: "thumb" %>
+        <% else %>
+          <div class="meta"><%= answer&.display_value.presence || "—" %></div>
+        <% end %>
       </div>
     <% end %>
   </section>

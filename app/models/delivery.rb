@@ -30,19 +30,22 @@ class Delivery < ApplicationRecord
   end
 
   def save_answers!(raw_answers)
-    payload_map = if raw_answers.respond_to?(:to_unsafe_h)
-      raw_answers.to_unsafe_h
-    else
-      raw_answers.to_h
-    end
+    return if raw_answers.blank?
+
     questions = communication.communication_questions.index_by(&:id)
     transaction do
-      payload_map.each do |question_id, payload|
+      raw_answers.each do |question_id, payload|
         question = questions[question_id.to_i]
         next unless question
 
         answer = delivery_answers.find_or_initialize_by(communication_question: question)
-        answer.value = normalize_answer_value(question, payload)
+        if question.image?
+          file = extract_uploaded_file(payload)
+          answer.image.attach(file) if file.present?
+          answer.value = { "attached" => answer.image.attached? }
+        else
+          answer.value = normalize_answer_value(question, payload)
+        end
         answer.save!
       end
     end
@@ -63,6 +66,21 @@ class Delivery < ApplicationRecord
     return if required_answers_complete?
 
     raise ArgumentError, I18n.t("inbox.answers_required")
+  end
+
+  def extract_uploaded_file(payload)
+    return payload if file_upload?(payload)
+
+    payload = payload.to_unsafe_h if payload.respond_to?(:to_unsafe_h)
+    payload = payload.to_h if payload.respond_to?(:to_h)
+    return nil unless payload.is_a?(Hash)
+
+    file = payload["image"].presence || payload[:image].presence || payload["file"].presence || payload[:file]
+    file_upload?(file) ? file : nil
+  end
+
+  def file_upload?(value)
+    value.respond_to?(:tempfile) || value.respond_to?(:path) && value.respond_to?(:original_filename)
   end
 
   def normalize_answer_value(question, payload)

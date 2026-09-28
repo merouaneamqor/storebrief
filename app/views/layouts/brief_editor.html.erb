@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>" dir="<%= rtl? ? 'rtl' : 'ltr' %>">
+  <head>
+    <title><%= content_for?(:title) ? yield(:title) : (current_tenant&.display_brand_name || "StoreBrief") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <% if current_tenant&.favicon&.attached? %>
+      <link rel="icon" href="<%= url_for(current_tenant.favicon) %>" type="<%= current_tenant.favicon.content_type %>">
+    <% else %>
+      <link rel="icon" href="/icon.png" type="image/png">
+      <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <% end %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  </head>
+
+  <body class="app-body brief-editor-body <%= 'rtl' if rtl? %>"
+        <% if current_tenant %>style="<%= current_tenant.brand_style_attribute %>"<% end %>>
+    <% if flash[:notice] %>
+      <p class="flash flash--notice brief-editor-flash"><%= flash[:notice] %></p>
+    <% end %>
+    <% if flash[:alert] %>
+      <p class="flash flash--alert brief-editor-flash"><%= flash[:alert] %></p>
+    <% end %>
+    <%= yield %>
+  </body>
+</html>

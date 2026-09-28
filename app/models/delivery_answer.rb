@@ -1,6 +1,7 @@
 class DeliveryAnswer < ApplicationRecord
   belongs_to :delivery
   belongs_to :communication_question
+  has_one_attached :image
 
   validates :communication_question_id, uniqueness: { scope: :delivery_id }
   validate :question_belongs_to_brief
@@ -29,7 +30,9 @@ class DeliveryAnswer < ApplicationRecord
   end
 
   def filled?
-    if communication_question.question_type == "multi_choice"
+    if communication_question.image?
+      image.attached?
+    elsif communication_question.question_type == "multi_choice"
       list_value.any?(&:present?)
     else
       text_value.present? || list_value.any?(&:present?)
@@ -37,7 +40,9 @@ class DeliveryAnswer < ApplicationRecord
   end
 
   def display_value(locale: I18n.locale)
-    if communication_question.question_type == "multi_choice"
+    if communication_question.image?
+      image.attached? ? image.filename.to_s : ""
+    elsif communication_question.question_type == "multi_choice"
       list_value.join(", ")
     else
       text_value.to_s

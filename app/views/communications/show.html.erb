@@ -38,57 +38,45 @@
   </section>
 <% end %>
 
-<% if @communication.sent? %>
-  <section class="panel">
-    <h2><%= t("communications.delivery") %></h2>
-    <%= render "shared/progress", stats: @stats %>
-    <ul class="list">
-      <% @deliveries.each do |delivery| %>
-        <li>
-          <div>
-            <span><%= delivery.org_unit.name %></span>
-            <% if @communication.questions? && delivery.delivery_answers.any? %>
-              <div class="meta brief-answers">
-                <% delivery.delivery_answers.sort_by { |answer| answer.communication_question.position }.each do |answer| %>
-                  <div>
-                    <strong><%= answer.communication_question.title %></strong>
+<section class="panel">
+  <h2><%= t("communications.delivery") %></h2>
+  <%= render "shared/progress", stats: @stats %>
+  <ul class="list">
+    <% @deliveries.each do |delivery| %>
+      <li>
+        <div>
+          <span><%= delivery.org_unit.name %></span>
+          <% if @communication.questions? && delivery.delivery_answers.any? %>
+            <div class="meta brief-answers">
+              <% delivery.delivery_answers.sort_by { |answer| answer.communication_question.position }.each do |answer| %>
+                <div>
+                  <strong><%= answer.communication_question.title %></strong>
+                  <% if answer.communication_question.image? && answer.image.attached? %>
+                    <%= image_tag answer.image, class: "thumb" %>
+                  <% else %>
                     <%= answer.display_value.presence || "—" %>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-          <%= localized_badge(delivery.status) %>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <%= localized_badge(delivery.status) %>
+      </li>
+    <% end %>
+  </ul>
+</section>
+
+<% if @notifications.any? %>
+  <section class="panel">
+    <h2><%= t("communications.notifications") %></h2>
+    <ul class="notif-list">
+      <% @notifications.each do |log| %>
+        <li>
+          <strong><%= log.phone %></strong> · <%= log.user&.name %> · <%= log.status %>
+          <pre><%= log.message %></pre>
         </li>
       <% end %>
     </ul>
   </section>
-
-  <% if @notifications.any? %>
-    <section class="panel">
-      <h2><%= t("communications.notifications") %></h2>
-      <ul class="notif-list">
-        <% @notifications.each do |log| %>
-          <li>
-            <strong><%= log.phone %></strong> · <%= log.user&.name %> · <%= log.status %>
-            <pre><%= log.message %></pre>
-          </li>
-        <% end %>
-      </ul>
-    </section>
-  <% end %>
-<% else %>
-  <p class="actions" style="margin-bottom:1rem;">
-    <%= link_to t("communications.edit"), edit_communication_path(@communication), class: "btn btn--ghost" %>
-  </p>
-  <% target_units = current_tenant.org_units.where(unit_type: %w[region store]).order(:unit_type, :name) %>
-  <div class="brief-form">
-    <h2><%= t("communications.send_draft") %></h2>
-    <%= form_with url: send_brief_communication_path(@communication), method: :post, local: true do %>
-      <%= render "targets", units: target_units, selected_ids: [] %>
-      <div class="brief-actions">
-        <button class="btn" type="submit"><%= t("communications.send") %></button>
-      </div>
-    <% end %>
-  </div>
 <% end %>

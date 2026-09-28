@@ -24,7 +24,10 @@ class BriefComposeTest < ActionDispatch::IntegrationTest
     assert_select ".brief-form"
     assert_select ".brief-card--title"
     assert_select "[data-controller]", count: 0
+    assert_select ".brief-topbar"
+    assert_select ".brief-toolbar"
     assert_select "button", text: I18n.t("communications.preview", locale: :en)
+    assert_select "button", text: I18n.t("communications.settings", locale: :en)
     assert_select "button", text: I18n.t("communications.save_draft", locale: :en)
     assert_select "button", text: I18n.t("communications.send", locale: :en)
     assert_select ".brief-count"
@@ -45,11 +48,16 @@ class BriefComposeTest < ActionDispatch::IntegrationTest
 
     brief = tenant.communications.order(:id).last
     assert_equal "draft", brief.status
-    assert_redirected_to communication_path(brief)
+    assert_redirected_to edit_communication_path(brief)
     follow_redirect!
     assert_select ".brief-form"
-    assert_select "h2", text: I18n.t("communications.send_draft", locale: :en)
+    assert_select ".brief-topbar"
+    assert_select ".brief-settings"
+    assert_select "button", text: I18n.t("communications.settings", locale: :en)
     assert_select "input.brief-search"
+
+    get communication_path(brief)
+    assert_redirected_to edit_communication_path(brief)
   end
 
   test "sending a brief from the form still delivers to the selected store" do

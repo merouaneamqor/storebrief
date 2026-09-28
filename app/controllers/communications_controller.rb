@@ -1,4 +1,6 @@
 class CommunicationsController < ApplicationController
+  layout :communications_layout
+
   before_action :require_hq
   before_action :set_communication, only: %i[show edit update send_brief]
   before_action :load_target_units, only: %i[new create edit update]
@@ -8,8 +10,13 @@ class CommunicationsController < ApplicationController
   end
 
   def show
+    if @communication.draft?
+      redirect_to edit_communication_path(@communication)
+      return
+    end
+
     @stats = @communication.completion_stats
-    @deliveries = @communication.deliveries.includes(:org_unit, delivery_answers: :communication_question).order(:id)
+    @deliveries = @communication.deliveries.includes(:org_unit, delivery_answers: [:communication_question, { image_attachment: :blob }]).order(:id)
     @notifications = @communication.notification_logs.includes(:user).order(created_at: :desc)
   end
 
@@ -55,6 +62,10 @@ class CommunicationsController < ApplicationController
 
   private
 
+  def communications_layout
+    %w[new create edit update].include?(action_name) ? "brief_editor" : "application"
+  end
+
   def set_communication
     @communication = tenant_scope.communications.includes(:communication_questions).find(params[:id])
   end
@@ -77,7 +88,7 @@ class CommunicationsController < ApplicationController
           render failure_template, status: :unprocessable_entity
         end
       else
-        redirect_to @communication, notice: t("communications.draft_saved")
+        redirect_to edit_communication_path(@communication), notice: t("communications.draft_saved")
       end
     else
       render failure_template, status: :unprocessable_entity

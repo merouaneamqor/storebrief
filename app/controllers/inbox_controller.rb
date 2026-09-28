@@ -38,7 +38,7 @@ class InboxController < ApplicationController
   def find_delivery
     Delivery.joins(:communication)
             .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
-            .includes(:communication, :delivery_answers, communication: :communication_questions)
+            .includes(:communication, { delivery_answers: { image_attachment: :blob } }, communication: :communication_questions)
             .find(params[:id])
   end
 

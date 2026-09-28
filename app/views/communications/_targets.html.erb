@@ -1,14 +1,16 @@
 <% selected_ids = local_assigns.fetch(:selected_ids, []) %>
+<% embedded = local_assigns.fetch(:embedded, false) %>
 <% payload = units.map { |unit| { id: unit.id.to_s, name: unit.name, type: unit.unit_type, typeLabel: t("common.#{unit.unit_type}") } } %>
-<section class="brief-card"
-         :class="{ 'is-active': focused }"
-         @focusin="focused = true"
-         @focusout="if (!$event.relatedTarget || !$el.contains($event.relatedTarget)) focused = false"
+<section class="<%= embedded ? 'brief-targets-block' : 'brief-card' %>"
          x-data="briefTargets()"
          data-units="<%= h(payload.to_json) %>"
          data-selected="<%= h(selected_ids.map(&:to_s).to_json) %>"
          data-count-label="<%= t('communications.selected_count', count: '%{count}') %>">
-  <h2><%= t("communications.targets") %></h2>
+  <% unless embedded %>
+    <h2><%= t("communications.targets") %></h2>
+  <% else %>
+    <h3><%= t("communications.targets") %></h3>
+  <% end %>
   <p class="meta"><%= t("communications.targets_help") %></p>
 
   <template x-for="id in selected" :key="'picked-' + id">

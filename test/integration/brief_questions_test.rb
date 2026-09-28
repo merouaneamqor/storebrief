@@ -112,6 +112,45 @@ class BriefQuestionsTest < ActionDispatch::IntegrationTest
     assert_not question.valid?
   end
 
+  test "a store can complete an image question with a photo" do
+    tenant, region, store, hq = setup_brand("atlas-photo")
+    store_user = tenant.users.create!(
+      name: "Store",
+      email: "store@atlas-photo.test",
+      password: "password",
+      password_confirmation: "password",
+      locale: "en"
+    )
+    store_user.memberships.create!(org_unit: store, role: "store")
+
+    brief = tenant.communications.create!(
+      author: hq,
+      title_fr: "Window photo",
+      body_fr: "Send the window.",
+      format: "task",
+      status: "draft"
+    )
+    question = brief.communication_questions.create!(
+      position: 0,
+      question_type: "image",
+      title_fr: "Window photo",
+      required: true
+    )
+    brief.send_to!([ store.id ])
+    delivery = brief.deliveries.first
+
+    sign_in(store_user, tenant)
+
+    photo = fixture_file_upload("window.jpg", "image/jpeg")
+    post complete_inbox_path(delivery), params: {
+      answers: { question.id.to_s => { image: photo } }
+    }
+    assert_redirected_to inbox_path(delivery)
+    assert_equal "completed", delivery.reload.status
+    answer = delivery.delivery_answers.first
+    assert answer.image.attached?
+  end
+
   private
 
   def sign_in(user, tenant)

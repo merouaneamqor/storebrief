@@ -1,6 +1,7 @@
 document.addEventListener("alpine:init", () => {
   window.Alpine.data("briefForm", () => ({
     preview: false,
+    settingsOpen: false,
     active: "title",
     titleFr: "",
     titleAr: "",
@@ -12,6 +13,7 @@ document.addEventListener("alpine:init", () => {
     questions: [],
     activeQuestion: null,
     typeLabels: {},
+    dragClientId: null,
 
     init() {
       this.titleFr = this.$el.dataset.titleFr || ""
@@ -31,6 +33,10 @@ document.addEventListener("alpine:init", () => {
 
     get visibleQuestions() {
       return this.questions.filter((question) => !question._destroy)
+    },
+
+    get headerTitle() {
+      return this.titleFr.trim() || this.$el.dataset.untitled || "Untitled"
     },
 
     normalizeQuestion(question = {}) {
@@ -54,16 +60,32 @@ document.addEventListener("alpine:init", () => {
       }
     },
 
-    addQuestion() {
-      const question = this.normalizeQuestion({ question_type: "short_text" })
-      this.questions.push(question)
-      this.active = "question"
-      this.activeQuestion = question.clientId
+    focusTitle() {
+      this.active = "title"
+      this.activeQuestion = null
     },
 
     selectQuestion(clientId) {
       this.active = "question"
       this.activeQuestion = clientId
+    },
+
+    addQuestion() {
+      const question = this.normalizeQuestion({ question_type: "short_text" })
+      let insertAt = this.questions.length
+
+      if (this.activeQuestion) {
+        const index = this.questions.findIndex((item) => item.clientId === this.activeQuestion)
+        if (index >= 0) insertAt = index + 1
+      }
+
+      this.questions.splice(insertAt, 0, question)
+      this.active = "question"
+      this.activeQuestion = question.clientId
+      this.$nextTick(() => {
+        const card = this.$root.querySelector(`[data-question-id="${question.clientId}"] .brief-question__title`)
+        card?.focus()
+      })
     },
 
     duplicateActive() {
@@ -74,8 +96,6 @@ document.addEventListener("alpine:init", () => {
         ...current,
         id: null,
         clientId: `q-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        title_fr: current.title_fr,
-        title_ar: current.title_ar,
         options: current.options.map((option) => ({ ...option })),
         _destroy: false
       })
@@ -96,7 +116,7 @@ document.addEventListener("alpine:init", () => {
 
       const next = this.visibleQuestions[0]
       this.activeQuestion = next ? next.clientId : null
-      if (!next) this.active = "title"
+      this.active = next ? "question" : "title"
     },
 
     moveActive(delta) {
@@ -113,6 +133,33 @@ document.addEventListener("alpine:init", () => {
       const toIndex = this.questions.findIndex((question) => question.clientId === toId)
       const [ item ] = this.questions.splice(fromIndex, 1)
       this.questions.splice(toIndex, 0, item)
+    },
+
+    onDragStart(clientId, event) {
+      this.dragClientId = clientId
+      event.dataTransfer.effectAllowed = "move"
+      event.dataTransfer.setData("text/plain", clientId)
+    },
+
+    onDragOver(event) {
+      event.preventDefault()
+      event.dataTransfer.dropEffect = "move"
+    },
+
+    onDrop(targetClientId, event) {
+      event.preventDefault()
+      const sourceId = this.dragClientId || event.dataTransfer.getData("text/plain")
+      this.dragClientId = null
+      if (!sourceId || sourceId === targetClientId) return
+
+      const fromIndex = this.questions.findIndex((question) => question.clientId === sourceId)
+      const toIndex = this.questions.findIndex((question) => question.clientId === targetClientId)
+      if (fromIndex < 0 || toIndex < 0) return
+
+      const [ item ] = this.questions.splice(fromIndex, 1)
+      this.questions.splice(toIndex, 0, item)
+      this.activeQuestion = sourceId
+      this.active = "question"
     },
 
     needsOptions(type) {
@@ -132,8 +179,12 @@ document.addEventListener("alpine:init", () => {
       return this.typeLabels[type] || type
     },
 
-    beforeSubmit() {
-      // Positions are written by the template bindings.
+    openSettings() {
+      this.settingsOpen = true
+    },
+
+    closeSettings() {
+      this.settingsOpen = false
     }
   }))
 

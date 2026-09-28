@@ -1,7 +1,7 @@
 class CommunicationQuestion < ApplicationRecord
   include Bilingual
 
-  TYPES = %w[short_text long_text single_choice multi_choice dropdown].freeze
+  TYPES = %w[short_text long_text single_choice multi_choice dropdown image].freeze
   CHOICE_TYPES = %w[single_choice multi_choice dropdown].freeze
 
   belongs_to :communication
@@ -35,6 +35,10 @@ class CommunicationQuestion < ApplicationRecord
 
   def choice?
     CHOICE_TYPES.include?(question_type)
+  end
+
+  def image?
+    question_type == "image"
   end
 
   def option_labels(locale: I18n.locale)
