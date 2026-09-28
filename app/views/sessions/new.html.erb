@@ -28,15 +28,7 @@
       </label>
       <button class="m-btn m-btn--block" type="submit"><%= t("auth.sign_in") %></button>
 
-      <% if apex_request? && Rails.env.production? %>
-        <div class="m-demo">
-          <strong><%= t("auth.sales_demo_title") %></strong>
-          <p><%= t("auth.sales_demo_password") %></p>
-          <p><strong>Nour Markets</strong> — <code>nour</code><br>
-            <%= t("auth.demo_hq") %>: <code>hq@nour.test</code><br>
-            <%= t("auth.demo_store") %>: <code>store@nour.test</code></p>
-        </div>
-      <% elsif apex_request? && !Rails.env.production? %>
+      <% if apex_request? && !Rails.env.production? %>
         <div class="m-demo">
           <strong><%= t("auth.demo_title") %></strong>
           <p><%= t("auth.demo_password") %></p>
