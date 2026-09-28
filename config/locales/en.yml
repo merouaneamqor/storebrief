@@ -242,7 +242,7 @@ en:
   landing:
     nav:
       solutions: "The problem"
-      how: "The morning"
+      how: "How it works"
       resources: "Who it's for"
       demo: "Book a demo"
       demo_short: "Demo"
@@ -251,7 +251,7 @@ en:
     hero:
       brand: "StoreBrief"
       kicker: "Multi-store retail · Morocco"
-      title: "Every store knows what to do."
+      title: "Every store knows what to do — and you see it."
       lede: "You send the instruction once. The team gets it in their language, finishes it on the phone, and you see the photo — store by store."
       demo: "Book a demo"
       explore: "See this morning"

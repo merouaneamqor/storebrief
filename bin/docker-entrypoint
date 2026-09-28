@@ -8,6 +8,12 @@ if [ -n "${DATABASE_URL}" ]; then
 fi
 
 if [ "${1}" = "./bin/rails" ] && [ "${2}" = "server" ]; then
+  # Safety net when the image was built without precompiled CSS (e.g. local volume mounts)
+  if [ ! -f app/assets/builds/marketing.css ]; then
+    echo "Building CSS/JS assets..."
+    ./bin/rails active_admin:bundle_js dartsass:build assets:precompile
+  fi
+
   ./bin/rails db:prepare
 fi
 

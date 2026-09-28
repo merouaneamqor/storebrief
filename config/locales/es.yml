@@ -242,7 +242,7 @@ es:
   landing:
     nav:
       solutions: "El problema"
-      how: "La mañana"
+      how: "Cómo funciona"
       resources: "Para quién"
       demo: "Reservar una demo"
       demo_short: "Demo"
@@ -251,7 +251,7 @@ es:
     hero:
       brand: "StoreBrief"
       kicker: "Retail multi-tienda · Marruecos"
-      title: "Cada tienda sabe qué hacer."
+      title: "Cada tienda sabe qué hacer — y usted lo ve."
       lede: "Envía la consigna una vez. El equipo la recibe en su idioma, la termina en el teléfono, y usted ve la foto — tienda por tienda."
       demo: "Reservar una demo"
       explore: "Ver esta mañana"

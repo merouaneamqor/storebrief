@@ -64,5 +64,3 @@ end
 gem "dartsass-rails", "~> 0.5.1"
 
 gem "activeadmin", "~> 3.5"
-
-gem "cssbundling-rails", "~> 1.4"
