@@ -137,7 +137,38 @@ class SalesDemoSeeder
     existing = Tenant.find_by(slug: SLUG)
     return unless existing
 
-    existing.destroy!
+    communication_ids = existing.communications.pluck(:id)
+    checklist_ids = existing.checklists.pluck(:id)
+    org_unit_ids = existing.org_units.pluck(:id)
+    user_ids = existing.users.pluck(:id)
+
+    if communication_ids.any?
+      DeliveryAnswer.joins(:communication_question)
+                    .where(communication_questions: { communication_id: communication_ids })
+                    .delete_all
+      CommunicationQuestion.where(communication_id: communication_ids).delete_all
+      Delivery.where(communication_id: communication_ids).delete_all
+    end
+
+    if checklist_ids.any?
+      ChecklistItemResponse.joins(:checklist_delivery)
+                           .where(checklist_deliveries: { checklist_id: checklist_ids })
+                           .delete_all
+      ChecklistDelivery.where(checklist_id: checklist_ids).delete_all
+      ChecklistItem.where(checklist_id: checklist_ids).delete_all
+    end
+
+    existing.notification_logs.delete_all
+    existing.checklists.delete_all
+    existing.communications.delete_all
+    existing.checklist_templates.delete_all
+    Membership.where(user_id: user_ids).delete_all if user_ids.any?
+    existing.users.delete_all
+    existing.org_units.delete_all
+    existing.logo.purge if existing.logo.attached?
+    existing.logo_mark.purge if existing.logo_mark.attached?
+    existing.favicon.purge if existing.favicon.attached?
+    existing.delete
   end
 
   def create_tenant!

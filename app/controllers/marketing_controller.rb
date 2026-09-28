@@ -16,7 +16,11 @@ class MarketingController < ApplicationController
     @demo_request = DemoRequest.new(demo_request_params)
 
     if @demo_request.save
-      DemoRequestMailer.received(@demo_request).deliver_now
+      begin
+        DemoRequestMailer.received(@demo_request).deliver_now
+      rescue StandardError => e
+        Rails.logger.error("[demo_request] mail failed id=#{@demo_request.id}: #{e.class}: #{e.message}")
+      end
       redirect_to root_path(anchor: "demo"), notice: t("landing.demo.success")
     else
       render :show, status: :unprocessable_entity
