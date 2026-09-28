@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   RESERVED_SUBDOMAINS = %w[www admin mail api].freeze
 
-  helper_method :current_user, :current_tenant, :acting_tenant, :hq_user?, :super_admin?, :rtl?, :apex_request?, :host_tenant?
+  helper_method :current_user, :current_tenant, :acting_tenant, :hq_user?, :super_admin?, :rtl?, :apex_request?, :host_tenant?, :tenant_feature?
 
   before_action :redirect_www
   before_action :set_tenant_from_host
@@ -142,6 +142,16 @@ class ApplicationController < ActionController::Base
     return if super_admin?
 
     redirect_to app_root_path, alert: t("auth.super_admin_required")
+  end
+
+  def tenant_feature?(key)
+    Current.tenant&.feature?(key)
+  end
+
+  def require_feature!(key)
+    return if tenant_feature?(key)
+
+    redirect_to app_root_path, alert: t("auth.feature_disabled")
   end
 
   def tenant_scope

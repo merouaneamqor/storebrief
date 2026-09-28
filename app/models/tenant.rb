@@ -2,6 +2,39 @@ class Tenant < ApplicationRecord
   HEX_COLOR = /\A#[0-9A-Fa-f]{6}\z/
   IMAGE_TYPES = %w[image/png image/jpeg image/jpg image/webp image/svg+xml image/x-icon image/vnd.microsoft.icon].freeze
 
+  FEATURE_FLAGS = {
+    saml_sso: {
+      label: "SAML SSO",
+      hint: "Allow single sign-on on this brand’s subdomain (configure IdP under SSO).",
+      default: false
+    },
+    briefs: {
+      label: "Briefs",
+      hint: "HQ can compose and send news/task briefs.",
+      default: true
+    },
+    checklists: {
+      label: "Checklists",
+      hint: "HQ checklists, templates, and store checklist inbox.",
+      default: true
+    },
+    reports: {
+      label: "Reports",
+      hint: "HQ reports dashboard.",
+      default: true
+    },
+    whatsapp_alerts: {
+      label: "WhatsApp alerts",
+      hint: "Stub WhatsApp notifications when briefs/checklists are sent.",
+      default: true
+    },
+    offline_checklists: {
+      label: "Offline checklists",
+      hint: "Store offline queue + sync chip for checklist responses.",
+      default: true
+    }
+  }.freeze
+
   BRAND_COLORS = {
     brand_color: { css: "--accent", label: "Primary", group: "Brand", default: "#0c6b58" },
     primary_deep_color: { css: "--accent-deep", label: "Primary deep", group: "Brand", default: "#084c3f" },
@@ -32,6 +65,9 @@ class Tenant < ApplicationRecord
 
   attr_accessor :remove_logo, :remove_logo_mark, :remove_favicon
 
+  has_one :saml_setting, class_name: "TenantSamlSetting", dependent: :destroy, inverse_of: :tenant
+  accepts_nested_attributes_for :saml_setting
+
   has_many :checklists, dependent: :destroy
   has_many :communications, dependent: :destroy
   has_many :checklist_templates, dependent: :destroy
@@ -52,7 +88,15 @@ class Tenant < ApplicationRecord
   validate :acceptable_brand_assets
 
   before_validation :normalize_brand_colors
+  before_validation :normalize_features
   after_save :purge_removed_brand_assets
+
+  FEATURE_FLAGS.each_key do |key|
+    define_method("feature_#{key}") { feature?(key) }
+    define_method("feature_#{key}=") do |value|
+      self.features = feature_hash.merge(key.to_s => ActiveModel::Type::Boolean.new.cast(value))
+    end
+  end
 
   def brand_css_variables
     vars = { "--brand" => brand_color }
@@ -70,6 +114,32 @@ class Tenant < ApplicationRecord
     brand_name.presence || name
   end
 
+  def feature?(key)
+    key = key.to_sym
+    meta = FEATURE_FLAGS.fetch(key)
+    raw = feature_hash[key.to_s]
+    return meta[:default] if raw.nil?
+
+    ActiveModel::Type::Boolean.new.cast(raw)
+  end
+
+  def feature_hash
+    value = features
+    value.is_a?(Hash) ? value.stringify_keys : {}
+  end
+
+  def saml_sso_enabled?
+    feature?(:saml_sso) && saml_setting&.ready?
+  end
+
+  def saml_sso_enforced?
+    saml_sso_enabled? && saml_setting.sso_enforced?
+  end
+
+  def saml_setting_or_build
+    saml_setting || build_saml_setting
+  end
+
   def brand_color_deep
     primary_deep_color
   end
@@ -82,7 +152,15 @@ class Tenant < ApplicationRecord
     BRAND_COLORS.transform_values { |meta| meta[:default] }.merge(overrides)
   end
 
+  def self.default_features
+    FEATURE_FLAGS.transform_values { |meta| meta[:default] }.transform_keys(&:to_s)
+  end
+
   private
+
+  def normalize_features
+    self.features = feature_hash.slice(*FEATURE_FLAGS.keys.map(&:to_s))
+  end
 
   def normalize_brand_colors
     BRAND_COLORS.each_key do |attr|

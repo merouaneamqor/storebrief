@@ -1,4 +1,5 @@
 class InboxController < ApplicationController
+  before_action -> { require_feature!(:briefs) }
   before_action :set_store
 
   def index

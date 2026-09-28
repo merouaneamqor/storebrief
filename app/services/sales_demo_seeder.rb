@@ -5,6 +5,7 @@
 class SalesDemoSeeder
   SLUG = "nour"
   PASSWORD = "demo2026"
+  PLATFORM_ADMIN_PASSWORD = "password"
   HQ_EMAIL = "hq@nour.test"
   STORE_EMAIL = "store@nour.test"
   ADMIN_EMAIL = "admin@storebrief.test"
@@ -261,8 +262,8 @@ class SalesDemoSeeder
     admin = tenant.users.create!(
       name: "StoreBrief Admin",
       email: ADMIN_EMAIL,
-      password: password,
-      password_confirmation: password,
+      password: PLATFORM_ADMIN_PASSWORD,
+      password_confirmation: PLATFORM_ADMIN_PASSWORD,
       locale: "fr",
       super_admin: true
     )

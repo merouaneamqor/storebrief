@@ -1,5 +1,8 @@
 <% content_for :title, "#{t('auth.sign_in')} · StoreBrief" %>
 
+<% show_sso = host_tenant? && @login_tenant&.saml_sso_enabled? %>
+<% sso_enforced = show_sso && @login_tenant.saml_sso_enforced? %>
+
 <section class="m-section">
   <div class="m-convert m-login">
     <div>
@@ -8,47 +11,67 @@
       <p><%= t("landing.hero.lede") %></p>
     </div>
 
-    <%= form_with url: login_path, method: :post, class: "m-form", local: true do %>
+    <div class="m-form" id="login-panel">
       <% if host_tenant? %>
         <p class="m-kicker"><%= current_tenant.name %></p>
-      <% else %>
-        <label>
-          <%= t("auth.tenant_slug") %>
-          <input type="text" name="tenant_slug" value="<%= params[:tenant_slug] %>" placeholder="atlas" autocomplete="organization">
-          <span class="m-hint"><%= t("auth.tenant_optional") %></span>
-        </label>
       <% end %>
-      <label>
-        <%= t("auth.email") %>
-        <input type="email" name="email" value="<%= params[:email] %>" required autocomplete="username">
-      </label>
-      <label>
-        <%= t("auth.password") %>
-        <input type="password" name="password" required autocomplete="current-password">
-      </label>
-      <button class="m-btn m-btn--block" type="submit"><%= t("auth.sign_in") %></button>
 
-      <% if apex_request? && !Rails.env.production? %>
-        <div class="m-demo">
-          <strong><%= t("auth.demo_title") %></strong>
-          <p><%= t("auth.demo_password") %></p>
-          <p><strong>Nour Markets</strong> — <code>nour</code> · <%= t("auth.sales_demo_label") %><br>
-            <%= t("auth.demo_hq") %>: <code>hq@nour.test</code><br>
-            <%= t("auth.demo_store") %>: <code>store@nour.test</code><br>
-            <%= t("auth.sales_demo_password") %></p>
-          <p><strong>Atlas Retail Maroc</strong> — <code>atlas</code><br>
-            <%= t("auth.demo_hq") %>: <code>hq@atlas.test</code><br>
-            <%= t("auth.demo_store") %>: <code>store@atlas.test</code></p>
-          <p><strong>Contoso Shops</strong> — <code>contoso</code><br>
-            <%= t("auth.demo_hq") %>: <code>hq@contoso.test</code></p>
-          <p><strong>Casablanca Pâtisserie</strong> — <code>casa-patisserie</code><br>
-            <%= t("auth.demo_hq") %>: <code>hq@casa-patisserie.test</code><br>
-            <%= t("auth.demo_store") %>: <code>store@casa-patisserie.test</code></p>
-          <p><strong><%= t("auth.demo_super") %></strong><br>
-            <%= t("auth.email") %>: <code>admin@storebrief.test</code><br>
-            <%= t("auth.tenant_optional") %></p>
+      <% if sso_enforced %>
+        <div class="m-login__stack">
+          <p class="m-hint"><%= t("auth.sso_required") %></p>
+          <%= link_to t("auth.sso_sign_in"), saml_sso_path(@login_tenant.slug), class: "m-btn m-btn--block" %>
         </div>
+      <% else %>
+        <%= form_with url: login_path, method: :post, local: true, html: { id: "password-login-form", class: "m-login__stack" } do %>
+          <% unless host_tenant? %>
+            <label>
+              <%= t("auth.tenant_slug") %>
+              <input type="text" name="tenant_slug" id="tenant_slug" value="<%= params[:tenant_slug] %>" placeholder="atlas" autocomplete="organization">
+              <span class="m-hint"><%= t("auth.tenant_optional") %></span>
+            </label>
+          <% end %>
+
+          <% if show_sso %>
+            <div class="m-login__sso">
+              <%= link_to t("auth.sso_sign_in"), saml_sso_path(@login_tenant.slug), class: "m-btn m-btn--block" %>
+            </div>
+            <p class="m-login__divider" role="presentation"><span><%= t("auth.sso_or_password") %></span></p>
+          <% end %>
+
+          <label>
+            <%= t("auth.email") %>
+            <input type="email" name="email" value="<%= params[:email] %>" required autocomplete="username">
+          </label>
+          <label>
+            <%= t("auth.password") %>
+            <input type="password" name="password" required autocomplete="current-password">
+          </label>
+          <button class="m-btn m-btn--block<%= " m-btn--ghost" if show_sso %>" type="submit"><%= t("auth.sign_in") %></button>
+
+          <% if apex_request? && !Rails.env.production? %>
+            <div class="m-demo">
+              <strong><%= t("auth.demo_title") %></strong>
+              <p><%= t("auth.demo_password") %></p>
+              <p><strong>Nour Markets</strong> — <code>nour</code> · <%= t("auth.sales_demo_label") %><br>
+                <%= t("auth.demo_hq") %>: <code>hq@nour.test</code><br>
+                <%= t("auth.demo_store") %>: <code>store@nour.test</code><br>
+                <%= t("auth.sales_demo_password") %></p>
+              <p><strong>Atlas Retail Maroc</strong> — <code>atlas</code><br>
+                <%= t("auth.demo_hq") %>: <code>hq@atlas.test</code><br>
+                <%= t("auth.demo_store") %>: <code>store@atlas.test</code></p>
+              <p><strong>Contoso Shops</strong> — <code>contoso</code><br>
+                <%= t("auth.demo_hq") %>: <code>hq@contoso.test</code></p>
+              <p><strong>Casablanca Pâtisserie</strong> — <code>casa-patisserie</code><br>
+                <%= t("auth.demo_hq") %>: <code>hq@casa-patisserie.test</code><br>
+                <%= t("auth.demo_store") %>: <code>store@casa-patisserie.test</code></p>
+              <p><strong><%= t("auth.demo_super") %></strong><br>
+                <%= t("auth.email") %>: <code>admin@storebrief.test</code><br>
+                <%= t("auth.demo_password") %><br>
+                <%= t("auth.tenant_optional") %></p>
+            </div>
+          <% end %>
+        <% end %>
       <% end %>
-    <% end %>
+    </div>
   </div>
 </section>

@@ -8,6 +8,8 @@ class WhatsappNotifier
   end
 
   def notify_communication!(communication)
+    return unless communication.tenant.feature?(:whatsapp_alerts)
+
     communication.deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       recipients_for(delivery.org_unit).each do |user|
         create_log!(
@@ -21,6 +23,8 @@ class WhatsappNotifier
   end
 
   def notify_checklist!(checklist)
+    return unless checklist.tenant.feature?(:whatsapp_alerts)
+
     checklist.checklist_deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       recipients_for(delivery.org_unit).each do |user|
         create_log!(

@@ -1,5 +1,6 @@
 class ChecklistsController < ApplicationController
   before_action :require_hq
+  before_action -> { require_feature!(:checklists) }
   before_action :set_checklist, only: %i[show send_checklist]
 
   def index

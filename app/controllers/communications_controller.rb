@@ -2,6 +2,7 @@ class CommunicationsController < ApplicationController
   layout :communications_layout
 
   before_action :require_hq
+  before_action -> { require_feature!(:briefs) }
   before_action :set_communication, only: %i[show edit update send_brief]
   before_action :load_target_units, only: %i[new create edit update]
 

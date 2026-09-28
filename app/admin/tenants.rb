@@ -1,16 +1,29 @@
 # frozen_string_literal: true
 
 # HQ can edit their own brand only — no create/destroy (no new tenants).
+# Super-admins can also configure per-tenant SAML SSO.
 ActiveAdmin.register Tenant do
   menu priority: 9, label: "Brand"
   actions :index, :show, :edit, :update
 
-  permit_params(
-    :brand_name, :tagline,
-    :logo, :logo_mark, :favicon,
-    :remove_logo, :remove_logo_mark, :remove_favicon,
-    *Tenant::BRAND_COLORS.keys
-  )
+  permit_params do
+    allowed = [
+      :brand_name, :tagline,
+      :logo, :logo_mark, :favicon,
+      :remove_logo, :remove_logo_mark, :remove_favicon,
+      *Tenant::BRAND_COLORS.keys
+    ]
+    if current_user.super_admin?
+      allowed.concat(Tenant::FEATURE_FLAGS.keys.map { |k| :"feature_#{k}" })
+      allowed << {
+        saml_setting_attributes: %i[
+          id enabled sso_enforced
+          idp_entity_id idp_sso_target_url idp_cert email_attribute
+        ]
+      }
+    end
+    allowed
+  end
 
   controller do
     def scoped_collection
@@ -30,6 +43,11 @@ ActiveAdmin.register Tenant do
 
       redirect_to admin_tenant_path(acting_tenant)
     end
+
+    def edit
+      resource.saml_setting_or_build if current_user.super_admin?
+      super
+    end
   end
 
   index do
@@ -37,6 +55,13 @@ ActiveAdmin.register Tenant do
     column :name
     column :slug
     column :brand_name
+    if current_user.super_admin?
+      column("SSO") { |t| status_tag(t.saml_sso_enabled? ? "on" : "off") }
+      column("Flags") do |t|
+        on = Tenant::FEATURE_FLAGS.keys.count { |k| t.feature?(k) }
+        "#{on}/#{Tenant::FEATURE_FLAGS.size}"
+      end
+    end
     actions
   end
 
@@ -119,6 +144,46 @@ ActiveAdmin.register Tenant do
       end
     end
 
+    if current_user.super_admin?
+      f.inputs "Features" do
+        Tenant::FEATURE_FLAGS.each do |key, meta|
+          f.input :"feature_#{key}", as: :boolean, label: meta[:label], hint: meta[:hint]
+        end
+      end
+
+      f.object.saml_setting_or_build
+      urls = Saml::SettingsBuilder.urls_for(f.object, request: controller.request)
+      f.inputs "SSO (SAML)" do
+        text_node %(<li><p class="inline-hints">Requires the <strong>SAML SSO</strong> feature flag above. IdP details only apply when that flag is on.</p></li>).html_safe
+        f.semantic_fields_for :saml_setting do |sf|
+          sf.input :enabled, as: :boolean, hint: "Turn on SSO for this brand once IdP fields below are set"
+          sf.input :sso_enforced, as: :boolean, hint: "Hide password login for this brand (platform admins still use password on the apex host)"
+          sf.input :idp_entity_id, hint: "IdP Entity ID / Issuer"
+          sf.input :idp_sso_target_url, hint: "IdP HTTP-Redirect SSO URL"
+          sf.input :idp_cert, as: :text, input_html: { rows: 8 },
+                              hint: "IdP signing certificate (PEM or base64 body)"
+          sf.input :email_attribute, hint: "Optional SAML attribute name for email (default: NameID / email / mail)"
+        end
+        text_node <<~HTML.html_safe
+          <li class="saml-sp-urls">
+            <label class="label">Service Provider URLs (register these with the IdP)</label>
+            <p class="inline-hints">
+              <strong>Entity ID</strong><br>
+              <code>#{ERB::Util.html_escape(urls.sp_entity_id)}</code>
+            </p>
+            <p class="inline-hints">
+              <strong>ACS (Assertion Consumer Service)</strong><br>
+              <code>#{ERB::Util.html_escape(urls.acs_url)}</code>
+            </p>
+            <p class="inline-hints">
+              <strong>Metadata</strong><br>
+              <code>#{ERB::Util.html_escape(urls.metadata_url)}</code>
+            </p>
+          </li>
+        HTML
+      end
+    end
+
     f.actions
 
     text_node <<~HTML.html_safe
@@ -191,6 +256,39 @@ ActiveAdmin.register Tenant do
               end
             end
           end
+        end
+      end
+    end
+
+    if current_user.super_admin?
+      panel "Features" do
+        attributes_table_for resource do
+          Tenant::FEATURE_FLAGS.each do |key, meta|
+            row(meta[:label]) { |t| status_tag(t.feature?(key) ? "on" : "off") }
+          end
+        end
+      end
+
+      panel "SSO (SAML)" do
+        setting = resource.saml_setting
+        urls = Saml::SettingsBuilder.urls_for(resource, request: controller.request)
+        if setting
+          attributes_table_for setting do
+            row("Feature flag") { status_tag(resource.feature?(:saml_sso) ? "on" : "off") }
+            row("Enabled") { |s| status_tag(s.enabled? ? "yes" : "no") }
+            row("SSO enforced") { |s| status_tag(s.sso_enforced? ? "yes" : "no") }
+            row :idp_entity_id
+            row :idp_sso_target_url
+            row("IdP certificate") { |s| s.idp_cert.present? ? status_tag("set") : status_tag("missing") }
+            row :email_attribute
+          end
+        else
+          para "Not configured."
+        end
+        attributes_table do
+          row("SP Entity ID") { urls.sp_entity_id }
+          row("ACS URL") { urls.acs_url }
+          row("Metadata URL") { link_to urls.metadata_url, urls.metadata_url, target: "_blank", rel: "noopener" }
         end
       end
     end

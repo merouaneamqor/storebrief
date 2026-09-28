@@ -6,6 +6,10 @@ Rails.application.routes.draw do
   post "login",  to: "sessions#create"
   delete "logout", to: "sessions#destroy"
 
+  get  "saml/:tenant_slug",          to: "saml#sso",      as: :saml_sso
+  post "saml/:tenant_slug/acs",      to: "saml#acs",      as: :saml_acs
+  get  "saml/:tenant_slug/metadata", to: "saml#metadata", as: :saml_metadata
+
   patch "locale", to: "locales#update"
 
   root "marketing#show"

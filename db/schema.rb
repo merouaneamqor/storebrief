@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_27_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_28_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -217,6 +217,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_210000) do
     t.index ["tenant_id"], name: "index_org_units_on_tenant_id"
   end
 
+  create_table "tenant_saml_settings", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.boolean "enabled", default: false, null: false
+    t.boolean "sso_enforced", default: false, null: false
+    t.string "idp_entity_id"
+    t.string "idp_sso_target_url"
+    t.text "idp_cert"
+    t.string "email_attribute"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id"], name: "index_tenant_saml_settings_on_tenant_id", unique: true
+  end
+
   create_table "tenants", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
@@ -239,6 +252,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_210000) do
     t.string "warn_soft_color", default: "#ffedd5", null: false
     t.string "brand_name"
     t.string "tagline"
+    t.jsonb "features", default: {}, null: false
     t.index ["slug"], name: "index_tenants_on_slug", unique: true
   end
 
@@ -246,7 +260,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_210000) do
     t.bigint "tenant_id", null: false
     t.string "name", null: false
     t.string "email", null: false
-    t.string "password_digest", null: false
+    t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "locale", default: "fr", null: false
@@ -281,5 +295,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_210000) do
   add_foreign_key "notification_logs", "users"
   add_foreign_key "org_units", "org_units", column: "parent_id"
   add_foreign_key "org_units", "tenants"
+  add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
 end

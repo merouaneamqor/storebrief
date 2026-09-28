@@ -66,22 +66,38 @@
             <% end %>
             <% if hq_user? %>
               <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
-              <%= link_to t("nav.briefs"), communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" %>
-              <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
-              <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
-              <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to t("nav.briefs"), communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" %>
+              <% end %>
+              <% if tenant_feature?(:checklists) %>
+                <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
+              <% end %>
+              <% if tenant_feature?(:reports) %>
+                <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+              <% end %>
+              <% if tenant_feature?(:checklists) %>
+                <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
+              <% end %>
               <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
-              <%= link_to t("nav.compose"), new_communication_path, class: "app-nav-link app-nav-link--cta" %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to t("nav.compose"), new_communication_path, class: "app-nav-link app-nav-link--cta" %>
+              <% end %>
             <% else %>
-              <%= link_to t("nav.inbox"), inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox')}" %>
-              <%= link_to t("checklists.store_inbox"), checklists_deliveries_path, class: "app-nav-link #{'is-active' if request.path.include?('/deliveries')}" %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to t("nav.inbox"), inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox')}" %>
+              <% end %>
+              <% if tenant_feature?(:checklists) %>
+                <%= link_to t("checklists.store_inbox"), checklists_deliveries_path, class: "app-nav-link #{'is-active' if request.path.include?('/deliveries')}" %>
+              <% end %>
             <% end %>
           </nav>
 
-          <div class="app-sidebar__foot" x-data="offlineSync()" x-init="init()">
-            <span class="sync-chip sync-chip--ok"
-                  x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
-                  :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"><%= t("checklists.sync_ok") %></span>
+          <div class="app-sidebar__foot"<% if tenant_feature?(:offline_checklists) %> x-data="offlineSync()" x-init="init()"<% end %>>
+            <% if tenant_feature?(:offline_checklists) %>
+              <span class="sync-chip sync-chip--ok"
+                    x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
+                    :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"><%= t("checklists.sync_ok") %></span>
+            <% end %>
           </div>
         </aside>
 

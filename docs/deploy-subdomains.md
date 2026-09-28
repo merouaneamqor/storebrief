@@ -46,6 +46,18 @@ Caddy obtains HTTPS certificates for the apex and wildcard host. Rails listens o
 
 Seed or create tenants whose `slug` matches the subdomain (`atlas`, `casa-patisserie`). Unknown subdomains return 404.
 
+## SAML SSO
+
+Per-tenant SAML ACS and metadata URLs are always on the **apex** host (`APP_HOST`), not the brand subdomain:
+
+```text
+https://storebrief.com/saml/atlas
+https://storebrief.com/saml/atlas/acs
+https://storebrief.com/saml/atlas/metadata
+```
+
+Configure IdP entity ID, SSO URL, and signing cert in ActiveAdmin (platform admin) under Brand → SSO (SAML). Optional `APP_URL` overrides the derived base URL if the public origin differs from `https://{APP_HOST}`.
+
 ## Local check
 
 With the development stack and `APP_HOST=localhost` / `APP_TLD_LENGTH=0`:

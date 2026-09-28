@@ -14,6 +14,7 @@ puts "Seeding StoreBrief (Morocco first release)..."
   Membership,
   User,
   OrgUnit,
+  TenantSamlSetting,
   Tenant
 ].each(&:delete_all)
 
@@ -292,9 +293,19 @@ atlas.users.create!(
   super_admin: true
 )
 
+# Disabled SSO stub — enable Features → SAML SSO + IdP fields in ActiveAdmin to use.
+atlas.create_saml_setting!(
+  enabled: false,
+  sso_enforced: false,
+  idp_entity_id: "https://idp.example.com/atlas",
+  idp_sso_target_url: "https://idp.example.com/atlas/sso",
+  email_attribute: "email"
+)
+
 puts "Seeded atlas + contoso + casa-patisserie (password: password)."
 puts "  HQ: hq@atlas.test | hq@contoso.test | hq@casa-patisserie.test"
 puts "  Store: store@atlas.test | store@contoso.test | store@casa-patisserie.test"
 puts "  Platform admin (all brands): admin@storebrief.test"
+puts "  Atlas SAML stub: disabled (Admin → Brand → Features + SSO)"
 
 load Rails.root.join("db/seeds/sales_demo.rb")

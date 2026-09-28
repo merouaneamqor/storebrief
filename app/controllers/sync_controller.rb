@@ -1,4 +1,6 @@
 class SyncController < ApplicationController
+  before_action -> { require_feature!(:offline_checklists) }
+
   def checklist_responses
     payload = params.permit(responses: [:delivery_id, :item_id, :completed, :notes, :client_uuid, :photo_data])
     results = []

@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   LOCALES = %w[fr en es ar].freeze
 
-  has_secure_password
+  has_secure_password validations: false
 
   belongs_to :tenant
   has_many :memberships, dependent: :destroy
@@ -15,6 +15,8 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: { scope: :tenant_id }
   validates :email, uniqueness: { conditions: -> { super_admins } }, if: :super_admin?
   validates :locale, inclusion: { in: LOCALES }
+  validates :password, length: { minimum: 6 }, allow_nil: true
+  validates :password, confirmation: true, if: -> { password.present? }
 
   def hq?
     memberships.exists?(role: "hq")
