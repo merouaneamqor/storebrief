@@ -11,12 +11,15 @@ class PushNotifier
     new.notify_checklist!(checklist)
   end
 
+  def self.deliver_to_user!(**)
+    new.deliver_to_user!(**)
+  end
+
   def notify_communication!(communication)
     return unless WebPushConfig.configured?
 
     communication.deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       store_users_for(delivery.org_unit).each do |user|
-        path = "/inbox/#{delivery.id}"
         title, body = copy_for_communication(communication, user)
         deliver_to_user!(
           user: user,
@@ -24,7 +27,7 @@ class PushNotifier
           notifiable: communication,
           title: title,
           body: body,
-          url: path
+          url: "/inbox/#{delivery.id}"
         )
       end
     end
@@ -35,7 +38,6 @@ class PushNotifier
 
     checklist.checklist_deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       store_users_for(delivery.org_unit).each do |user|
-        path = "/checklists/deliveries/#{delivery.id}"
         title, body = copy_for_checklist(checklist, user)
         deliver_to_user!(
           user: user,
@@ -43,16 +45,10 @@ class PushNotifier
           notifiable: checklist,
           title: title,
           body: body,
-          url: path
+          url: "/checklists/deliveries/#{delivery.id}"
         )
       end
     end
-  end
-
-  private
-
-  def store_users_for(org_unit)
-    org_unit.memberships.includes(:user).select { |m| m.role == "store" }.map(&:user)
   end
 
   def deliver_to_user!(user:, tenant:, notifiable:, title:, body:, url:)
@@ -70,6 +66,12 @@ class PushNotifier
     subscriptions.find_each do |subscription|
       send_one!(subscription, tenant:, notifiable:, payload:)
     end
+  end
+
+  private
+
+  def store_users_for(org_unit)
+    org_unit.memberships.includes(:user).select { |m| m.role == "store" }.map(&:user)
   end
 
   def send_one!(subscription, tenant:, notifiable:, payload:)
