@@ -86,4 +86,27 @@ class PushSubscriptionsControllerTest < ActionDispatch::IntegrationTest
     ENV.delete("VAPID_PUBLIC_KEY")
     ENV.delete("VAPID_PRIVATE_KEY")
   end
+
+  test "destroys the current user's push subscription" do
+    ENV["VAPID_PUBLIC_KEY"] = "BPtestpublickeyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    ENV["VAPID_PRIVATE_KEY"] = "testprivatekeyxxxxxxxxxxxxxxxxxxxxxxx"
+
+    @user.push_subscriptions.create!(
+      tenant: @tenant,
+      endpoint: "https://push.example.test/reset-me",
+      p256dh: "p256",
+      auth: "authkey"
+    )
+
+    post login_path, params: { tenant_slug: @tenant.slug, email: @user.email, password: "password" }
+
+    assert_difference -> { @user.push_subscriptions.count }, -1 do
+      delete push_subscription_path, params: { endpoint: "https://push.example.test/reset-me" }, as: :json
+    end
+
+    assert_response :no_content
+  ensure
+    ENV.delete("VAPID_PUBLIC_KEY")
+    ENV.delete("VAPID_PRIVATE_KEY")
+  end
 end

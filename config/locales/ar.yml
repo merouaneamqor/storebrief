@@ -289,7 +289,15 @@ ar:
       title: "تفعيل الإشعارات"
       lede: "تصلك تنبيهات عند إرسال موجز أو قائمة تحقق من المقر."
       enable: "تفعيل"
+      enable_short: "تفعيل التنبيهات"
       dismiss: "ليس الآن"
+      manage: "الإشعارات"
+      close: "إغلاق"
+      subscribed_kicker: "الإشعارات"
+      subscribed_title: "هذا الجهاز مشترك."
+      reset: "إعادة ضبط الاشتراك"
+      turn_off: "إيقاف"
+      reset_done: "تم تحديث الاشتراك على هذا الجهاز."
   activerecord:
     errors:
       models:

@@ -1,26 +1,64 @@
 <% if current_user && WebPushConfig.configured? %>
-  <div class="pwa-push"
-       x-data="pwaPush()"
-       x-cloak
-       x-show="open"
-       x-transition.opacity.duration.200ms
-       role="dialog"
-       aria-labelledby="pwa-push-title"
-       aria-modal="false">
-    <div class="pwa-push__card">
-      <div class="pwa-push__copy">
-        <p class="pwa-push__kicker"><%= t("pwa.push.kicker") %></p>
-        <h2 id="pwa-push-title" class="pwa-push__title"><%= t("pwa.push.title") %></h2>
-        <p class="pwa-push__lede"><%= t("pwa.push.lede") %></p>
+  <div class="pwa-push-root" x-data="pwaPush()" x-init="init()" x-cloak>
+    <template x-teleport="#pwa-push-toggle-slot">
+      <button type="button"
+              class="app-signout pwa-push-toggle"
+              x-show="supported"
+              :disabled="busy"
+              @click="toggleManage()">
+        <span x-text="subscribed ? '<%= j t("pwa.push.manage") %>' : '<%= j t("pwa.push.enable_short") %>'"></span>
+      </button>
+    </template>
+
+    <div class="pwa-push"
+         x-show="open"
+         x-transition.opacity.duration.200ms
+         role="dialog"
+         aria-labelledby="pwa-push-title"
+         aria-modal="false">
+      <div class="pwa-push__card">
+        <div class="pwa-push__copy">
+          <p class="pwa-push__kicker"><%= t("pwa.push.kicker") %></p>
+          <h2 id="pwa-push-title" class="pwa-push__title"><%= t("pwa.push.title") %></h2>
+          <p class="pwa-push__lede"><%= t("pwa.push.lede") %></p>
+        </div>
+        <div class="pwa-push__actions">
+          <button type="button"
+                  class="btn pwa-push__btn"
+                  :disabled="busy"
+                  @click="enable()"><%= t("pwa.push.enable") %></button>
+          <button type="button"
+                  class="btn btn--ghost pwa-push__btn"
+                  @click="dismiss()"><%= t("pwa.push.dismiss") %></button>
+        </div>
       </div>
-      <div class="pwa-push__actions">
-        <button type="button"
-                class="btn pwa-push__btn"
-                :disabled="busy"
-                @click="enable()"><%= t("pwa.push.enable") %></button>
+    </div>
+
+    <div class="pwa-push pwa-push--manage"
+         x-show="manageOpen && subscribed && !open"
+         x-transition.opacity.duration.200ms
+         role="dialog"
+         aria-labelledby="pwa-push-manage-title"
+         aria-modal="false">
+      <div class="pwa-push__card pwa-push__card--compact">
+        <div class="pwa-push__copy">
+          <p class="pwa-push__kicker"><%= t("pwa.push.subscribed_kicker") %></p>
+          <p id="pwa-push-manage-title" class="pwa-push__title pwa-push__title--sm"><%= t("pwa.push.subscribed_title") %></p>
+          <p class="pwa-push__lede" x-show="message === 'reset'" x-cloak><%= t("pwa.push.reset_done") %></p>
+        </div>
+        <div class="pwa-push__actions">
+          <button type="button"
+                  class="btn pwa-push__btn"
+                  :disabled="busy"
+                  @click="reset()"><%= t("pwa.push.reset") %></button>
+          <button type="button"
+                  class="btn btn--ghost pwa-push__btn"
+                  :disabled="busy"
+                  @click="turnOff()"><%= t("pwa.push.turn_off") %></button>
+        </div>
         <button type="button"
                 class="btn btn--ghost pwa-push__btn"
-                @click="dismiss()"><%= t("pwa.push.dismiss") %></button>
+                @click="manageOpen = false"><%= t("pwa.push.close") %></button>
       </div>
     </div>
   </div>

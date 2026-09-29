@@ -289,7 +289,15 @@ es:
       title: "Activar notificaciones"
       lede: "Recibe un aviso cuando el centro envíe un brief o una checklist."
       enable: "Activar"
+      enable_short: "Activar alertas"
       dismiss: "Ahora no"
+      manage: "Notificaciones"
+      close: "Cerrar"
+      subscribed_kicker: "Notificaciones"
+      subscribed_title: "Este dispositivo está suscrito."
+      reset: "Restablecer suscripción"
+      turn_off: "Desactivar"
+      reset_done: "Suscripción actualizada en este dispositivo."
   activerecord:
     errors:
       models:

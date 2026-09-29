@@ -289,7 +289,15 @@ fr:
       title: "Activer les notifications"
       lede: "Recevez une alerte quand le siège envoie un brief ou une checklist."
       enable: "Activer"
+      enable_short: "Activer alertes"
       dismiss: "Pas maintenant"
+      manage: "Notifications"
+      close: "Fermer"
+      subscribed_kicker: "Notifications"
+      subscribed_title: "Cet appareil est abonné."
+      reset: "Réinitialiser l’abonnement"
+      turn_off: "Désactiver"
+      reset_done: "Abonnement rafraîchi sur cet appareil."
   activerecord:
     errors:
       models:

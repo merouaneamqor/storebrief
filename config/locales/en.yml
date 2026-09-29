@@ -289,7 +289,15 @@ en:
       title: "Enable notifications"
       lede: "Get a ping when HQ sends a new brief or checklist."
       enable: "Enable"
+      enable_short: "Enable alerts"
       dismiss: "Not now"
+      manage: "Notifications"
+      close: "Close"
+      subscribed_kicker: "Notifications"
+      subscribed_title: "This device is subscribed."
+      reset: "Reset subscription"
+      turn_off: "Turn off"
+      reset_done: "Subscription refreshed on this device."
   activerecord:
     errors:
       models:

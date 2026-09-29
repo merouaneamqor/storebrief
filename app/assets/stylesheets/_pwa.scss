@@ -138,8 +138,32 @@ body.rtl .pwa-push__kicker {
   font-size: 0.9rem;
 }
 
+.pwa-push--manage {
+  z-index: 79;
+}
+
+.pwa-push__card--compact {
+  gap: 0.65rem;
+  padding: 0.85rem 0.95rem 0.95rem;
+}
+
+.pwa-push__title--sm {
+  font-size: 0.98rem;
+}
+
+.pwa-push-toggle {
+  white-space: nowrap;
+}
+
 @media (min-width: 861px) {
   .pwa-install {
     display: none;
+  }
+
+  .pwa-push--manage {
+    inset-inline: auto 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    margin-inline: 0;
+    max-width: 22rem;
   }
 }

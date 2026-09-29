@@ -111,6 +111,7 @@
             </label>
             <div class="app-topbar__spacer"></div>
             <%= render "shared/locale_switch" %>
+            <span id="pwa-push-toggle-slot"></span>
             <%= button_to t("auth.sign_out"), logout_path, method: :delete, class: "app-signout" %>
           </header>
 
