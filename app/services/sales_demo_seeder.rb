@@ -161,6 +161,7 @@ class SalesDemoSeeder
     end
 
     existing.notification_logs.delete_all
+    existing.push_subscriptions.delete_all
     existing.checklists.delete_all
     existing.communications.delete_all
     existing.checklist_templates.delete_all
