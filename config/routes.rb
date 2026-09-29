@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   ActiveAdmin.routes(self)
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Progressive Web App (installable on phones)
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
   get  "login",  to: "sessions#new"
   post "login",  to: "sessions#create"
   delete "logout", to: "sessions#destroy"
@@ -53,6 +57,9 @@ Rails.application.routes.draw do
   end
 
   post "sync/checklist_responses", to: "sync#checklist_responses"
+
+  get "push/vapid_public_key", to: "push_subscriptions#vapid_public_key"
+  resource :push_subscription, only: %i[create destroy]
 
   resources :inbox, only: %i[index show], controller: "inbox" do
     member do

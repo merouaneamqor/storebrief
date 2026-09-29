@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :org_units, through: :memberships
   has_many :authored_communications, class_name: "Communication", foreign_key: :author_id, dependent: :restrict_with_exception, inverse_of: :author
   has_many :notification_logs, dependent: :nullify
+  has_many :push_subscriptions, dependent: :destroy
 
   scope :super_admins, -> { where(super_admin: true) }
 

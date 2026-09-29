@@ -255,6 +255,26 @@ en:
     store: "Store"
     by: "by"
     done: "done"
+  pwa:
+    kicker: "On your phone"
+    title: "Install StoreBrief"
+    lede: "Add it to your home screen for a full-screen app — faster to open next time."
+    install: "Install"
+    dismiss: "Not now"
+    ios:
+      step1_html: "Tap the <strong>Share</strong> button in Safari."
+      step2_html: "Scroll and tap <strong>Add to Home Screen</strong>."
+      step3: "Tap Add."
+    android:
+      step1: "Open the browser menu (⋮)."
+      step2: "Tap Install app or Add to Home screen."
+      step3: "Confirm Install."
+    push:
+      kicker: "Stay in the loop"
+      title: "Enable notifications"
+      lede: "Get a ping when HQ sends a new brief or checklist."
+      enable: "Enable"
+      dismiss: "Not now"
   activerecord:
     errors:
       models:

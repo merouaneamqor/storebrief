@@ -43,6 +43,9 @@ services:
       AWS_S3_FORCE_PATH_STYLE: ${AWS_S3_FORCE_PATH_STYLE:-}
       APP_HOST: ${APP_HOST:-localhost}
       APP_TLD_LENGTH: ${APP_TLD_LENGTH:-0}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:support@storebrief.app}
     depends_on:
       db:
         condition: service_healthy

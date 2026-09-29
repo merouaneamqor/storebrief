@@ -255,6 +255,26 @@ fr:
     store: "Magasin"
     by: "par"
     done: "faits"
+  pwa:
+    kicker: "Sur le téléphone"
+    title: "Installer StoreBrief"
+    lede: "Ajoutez-le à l’écran d’accueil pour une app plein écran — plus rapide à ouvrir."
+    install: "Installer"
+    dismiss: "Pas maintenant"
+    ios:
+      step1_html: "Touchez le bouton <strong>Partager</strong> dans Safari."
+      step2_html: "Faites défiler et touchez <strong>Sur l’écran d’accueil</strong>."
+      step3: "Touchez Ajouter."
+    android:
+      step1: "Ouvrez le menu du navigateur (⋮)."
+      step2: "Touchez Installer l’application ou Ajouter à l’écran d’accueil."
+      step3: "Confirmez l’installation."
+    push:
+      kicker: "Restez informé"
+      title: "Activer les notifications"
+      lede: "Recevez une alerte quand le siège envoie un brief ou une checklist."
+      enable: "Activer"
+      dismiss: "Pas maintenant"
   activerecord:
     errors:
       models:

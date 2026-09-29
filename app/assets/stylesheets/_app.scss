@@ -1,6 +1,14 @@
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overflow-x: clip;
+}
+
 .app-body {
   margin: 0;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: clip;
   font-family: "DM Sans", "Noto Sans Arabic", sans-serif;
   color: var(--ink, #0f172a);
   background: var(--bg, #f1f5f9);
@@ -14,6 +22,14 @@
 .app-body *::before,
 .app-body *::after {
   box-sizing: border-box;
+}
+
+.app-body img,
+.app-body svg,
+.app-body video,
+.app-body canvas {
+  max-width: 100%;
+  height: auto;
 }
 
 .app-body a {
@@ -885,7 +901,8 @@
 }
 
 .thumb {
-  max-width: 150px;
+  max-width: min(150px, 100%);
+  height: auto;
   border-radius: 10px;
   margin-top: 0.45rem;
 }
@@ -923,6 +940,13 @@
 
   .app-shell {
     grid-template-columns: 1fr;
+    min-width: 0;
+  }
+
+  .app-frame,
+  .app-content {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .app-sidebar {
@@ -1019,11 +1043,15 @@
 .brief-editor-body {
   margin: 0;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: clip;
   background:
     radial-gradient(circle at 12% -10%, rgba(12, 107, 88, 0.08), transparent 42%),
     linear-gradient(180deg, #f0f4f8 0%, #e8eef4 100%);
   color: var(--ink, #102033);
   font-family: "DM Sans", "Noto Sans Arabic", system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .brief-editor-flash {

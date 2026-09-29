@@ -1,15 +1,30 @@
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overflow-x: clip;
+}
 
 body {
   margin: 0;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: clip;
   font-family: var(--font);
   color: var(--ink);
   background:
     radial-gradient(900px 420px at 90% -10%, #d7ebe4 0%, transparent 60%),
     linear-gradient(180deg, #f8f5ef 0%, var(--bg) 40%, var(--bg-deep) 100%);
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
 }
 
 body.rtl,

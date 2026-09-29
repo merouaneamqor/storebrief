@@ -61,6 +61,7 @@ class Checklist < ApplicationRecord
     end
 
     WhatsappNotifier.notify_checklist!(self)
+    PushNotifier.notify_checklist!(self)
     self
   end
 

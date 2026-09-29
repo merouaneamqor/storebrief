@@ -57,6 +57,7 @@ class Communication < ApplicationRecord
     end
 
     WhatsappNotifier.notify_communication!(self) if task?
+    PushNotifier.notify_communication!(self)
     self
   end
 

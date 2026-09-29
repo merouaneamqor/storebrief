@@ -1,0 +1,12 @@
+<%# Shared PWA head tags — include from layouts %>
+<link rel="manifest" href="<%= pwa_manifest_path %>">
+<meta name="theme-color" content="#0c6b58">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="StoreBrief">
+<link rel="apple-touch-icon" href="/icon.png">
+<% if current_user && WebPushConfig.configured? %>
+  <meta name="push-configured" content="1">
+  <meta name="vapid-public-key" content="<%= WebPushConfig.public_key %>">
+<% end %>

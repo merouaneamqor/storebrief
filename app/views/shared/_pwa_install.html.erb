@@ -1,0 +1,38 @@
+<div class="pwa-install"
+     x-data="pwaInstall()"
+     x-cloak
+     x-show="open"
+     x-transition.opacity.duration.200ms
+     role="dialog"
+     aria-labelledby="pwa-install-title"
+     aria-modal="false">
+  <div class="pwa-install__card">
+    <div class="pwa-install__copy">
+      <p class="pwa-install__kicker"><%= t("pwa.kicker") %></p>
+      <h2 id="pwa-install-title" class="pwa-install__title"><%= t("pwa.title") %></h2>
+      <p class="pwa-install__lede"><%= t("pwa.lede") %></p>
+
+      <ol class="pwa-install__steps" x-show="isIos">
+        <li><%= t("pwa.ios.step1_html").html_safe %></li>
+        <li><%= t("pwa.ios.step2_html").html_safe %></li>
+        <li><%= t("pwa.ios.step3") %></li>
+      </ol>
+
+      <ol class="pwa-install__steps" x-show="!isIos && !canInstall">
+        <li><%= t("pwa.android.step1") %></li>
+        <li><%= t("pwa.android.step2") %></li>
+        <li><%= t("pwa.android.step3") %></li>
+      </ol>
+    </div>
+
+    <div class="pwa-install__actions">
+      <button type="button"
+              class="btn pwa-install__btn"
+              x-show="canInstall"
+              @click="install()"><%= t("pwa.install") %></button>
+      <button type="button"
+              class="btn btn--ghost pwa-install__btn"
+              @click="dismiss()"><%= t("pwa.dismiss") %></button>
+    </div>
+  </div>
+</div>

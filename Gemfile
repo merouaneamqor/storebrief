@@ -38,6 +38,9 @@ gem "image_processing", "~> 1.2"
 # Active Storage on Amazon S3 (and S3-compatible stores)
 gem "aws-sdk-s3", require: false
 
+# Web Push notifications for the installed PWA
+gem "web-push", "~> 3.0"
+
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

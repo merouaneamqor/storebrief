@@ -1,0 +1,27 @@
+<% if current_user && WebPushConfig.configured? %>
+  <div class="pwa-push"
+       x-data="pwaPush()"
+       x-cloak
+       x-show="open"
+       x-transition.opacity.duration.200ms
+       role="dialog"
+       aria-labelledby="pwa-push-title"
+       aria-modal="false">
+    <div class="pwa-push__card">
+      <div class="pwa-push__copy">
+        <p class="pwa-push__kicker"><%= t("pwa.push.kicker") %></p>
+        <h2 id="pwa-push-title" class="pwa-push__title"><%= t("pwa.push.title") %></h2>
+        <p class="pwa-push__lede"><%= t("pwa.push.lede") %></p>
+      </div>
+      <div class="pwa-push__actions">
+        <button type="button"
+                class="btn pwa-push__btn"
+                :disabled="busy"
+                @click="enable()"><%= t("pwa.push.enable") %></button>
+        <button type="button"
+                class="btn btn--ghost pwa-push__btn"
+                @click="dismiss()"><%= t("pwa.push.dismiss") %></button>
+      </div>
+    </div>
+  </div>
+<% end %>

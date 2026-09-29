@@ -818,6 +818,76 @@ body.marketing.rtl .m-eyebrow {
   }
 
   .m-flow { grid-template-columns: 1fr 1fr; }
+
+  .m-stage,
+  .m-window,
+  .m-convert,
+  .m-form {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .m-window--store {
+    width: min(100%, 340px);
+    margin-inline: auto 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .m-wrap,
+  .m-section,
+  .m-hero,
+  .m-block {
+    padding-inline: 1rem;
+  }
+
+  .m-hero {
+    padding-top: 1.25rem;
+    padding-bottom: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .m-block {
+    padding-block: 2.75rem;
+  }
+
+  .m-flow,
+  .m-flow--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .m-convert {
+    padding: 1.15rem;
+    border-radius: 18px;
+    gap: 1.25rem;
+  }
+
+  .m-form {
+    padding: 1rem;
+  }
+
+  .m-footer__inner {
+    padding-inline: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .m-nav__inner {
+    padding-inline: 1rem;
+    gap: 0.65rem;
+  }
+
+  .m-brand {
+    font-size: 1.15rem;
+    min-width: 0;
+  }
+
+  .m-brand__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 42vw;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,8 +3,9 @@
   <head>
     <% brand = host_tenant? ? current_tenant : nil %>
     <title><%= content_for?(:title) ? yield(:title) : (brand&.display_brand_name || "StoreBrief") %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="<%= brand&.tagline.presence || t('landing.hero.lede') %>">
+    <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <% if brand&.favicon&.attached? %>
@@ -16,11 +17,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,560;9..144,700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "marketing", "data-turbo-track": "reload" %>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <%= javascript_importmap_tags %>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
   </head>
   <body class="marketing <%= 'rtl' if rtl? %> <%= 'tenant-branded' if brand %>"
         <% if brand %>style="<%= brand.brand_style_attribute %>"<% end %>>
+    <%= render "shared/pwa_install" %>
     <header class="m-nav" x-data="{ open: false }">
       <div class="m-nav__inner">
         <a href="<%= brand ? login_path : root_path %>" class="m-brand">

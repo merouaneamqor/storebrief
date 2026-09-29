@@ -255,6 +255,26 @@ es:
     store: "Tienda"
     by: "por"
     done: "hechos"
+  pwa:
+    kicker: "En el teléfono"
+    title: "Instalar StoreBrief"
+    lede: "Añádelo a la pantalla de inicio para usarlo a pantalla completa — más rápido la próxima vez."
+    install: "Instalar"
+    dismiss: "Ahora no"
+    ios:
+      step1_html: "Toca el botón <strong>Compartir</strong> en Safari."
+      step2_html: "Desplázate y toca <strong>Añadir a pantalla de inicio</strong>."
+      step3: "Toca Añadir."
+    android:
+      step1: "Abre el menú del navegador (⋮)."
+      step2: "Toca Instalar app o Añadir a pantalla de inicio."
+      step3: "Confirma la instalación."
+    push:
+      kicker: "Mantente al día"
+      title: "Activar notificaciones"
+      lede: "Recibe un aviso cuando el centro envíe un brief o una checklist."
+      enable: "Activar"
+      dismiss: "Ahora no"
   activerecord:
     errors:
       models:
