@@ -192,7 +192,21 @@ es:
     send_draft: "Enviar el borrador"
     delivery: "Entrega"
     of_complete: "%{done} de %{total} tiendas hechas · %{pending} en espera"
-    notifications: "Avisos de WhatsApp (vista previa)"
+    notifications: "Notificaciones"
+    notifications_empty: "Aún no hay notificaciones enviadas."
+    notify_push: "Avisar a las tiendas en espera"
+    notify_push_hint:
+      one: "Enviar un recordatorio push a %{count} tienda aún en espera."
+      other: "Enviar un recordatorio push a %{count} tiendas aún en espera."
+    notify_push_confirm:
+      one: "¿Enviar una notificación push a %{count} tienda en espera?"
+      other: "¿Enviar una notificación push a %{count} tiendas en espera?"
+    push_sent:
+      one: "Push enviado a %{count} tienda."
+      other: "Push enviado a %{count} tiendas."
+    push_none_pending: "Todas las tiendas ya terminaron — nada que notificar."
+    push_not_configured: "Las notificaciones push no están configuradas en este servidor."
+    not_sent_yet: "Envía primero este elemento; después podrás notificar a las tiendas."
     back: "← Consignas"
   checklists:
     title: "Listas de control"

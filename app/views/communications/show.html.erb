@@ -41,6 +41,17 @@
 <section class="panel">
   <h2><%= t("communications.delivery") %></h2>
   <%= render "shared/progress", stats: @stats %>
+  <% pending_count = @deliveries.count { |d| d.pending? } %>
+  <% if pending_count.positive? && WebPushConfig.configured? %>
+    <div class="actions" style="margin:0.75rem 0 1rem;">
+      <%= button_to t("communications.notify_push"),
+            notify_push_communication_path(@communication),
+            method: :post,
+            class: "btn",
+            data: { turbo_confirm: t("communications.notify_push_confirm", count: pending_count) } %>
+      <p class="meta" style="margin:0;"><%= t("communications.notify_push_hint", count: pending_count) %></p>
+    </div>
+  <% end %>
   <ul class="list">
     <% @deliveries.each do |delivery| %>
       <li>
@@ -67,16 +78,20 @@
   </ul>
 </section>
 
-<% if @notifications.any? %>
-  <section class="panel">
-    <h2><%= t("communications.notifications") %></h2>
+<section class="panel">
+  <h2><%= t("communications.notifications") %></h2>
+  <% if @notifications.any? %>
     <ul class="notif-list">
       <% @notifications.each do |log| %>
         <li>
-          <strong><%= log.phone %></strong> · <%= log.user&.name %> · <%= log.status %>
+          <strong><%= log.channel %></strong>
+          <% if log.phone.present? %> · <%= log.phone %><% end %>
+          · <%= log.user&.name %> · <%= log.status %>
           <pre><%= log.message %></pre>
         </li>
       <% end %>
     </ul>
-  </section>
-<% end %>
+  <% else %>
+    <p class="empty"><%= t("communications.notifications_empty") %></p>
+  <% end %>
+</section>

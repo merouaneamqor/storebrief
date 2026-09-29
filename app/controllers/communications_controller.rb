@@ -3,7 +3,7 @@ class CommunicationsController < ApplicationController
 
   before_action :require_hq
   before_action -> { require_feature!(:briefs) }
-  before_action :set_communication, only: %i[show edit update send_brief]
+  before_action :set_communication, only: %i[show edit update send_brief notify_push]
   before_action :load_target_units, only: %i[new create edit update]
 
   def index
@@ -59,6 +59,27 @@ class CommunicationsController < ApplicationController
     rescue ArgumentError => e
       redirect_to @communication, alert: e.message
     end
+  end
+
+  def notify_push
+    unless @communication.sent?
+      redirect_to @communication, alert: t("communications.not_sent_yet")
+      return
+    end
+
+    unless WebPushConfig.configured?
+      redirect_to @communication, alert: t("communications.push_not_configured")
+      return
+    end
+
+    pending = @communication.deliveries.pending.count
+    if pending.zero?
+      redirect_to @communication, notice: t("communications.push_none_pending")
+      return
+    end
+
+    sent = PushNotifier.remind_communication!(@communication)
+    redirect_to @communication, notice: t("communications.push_sent", count: sent)
   end
 
   private

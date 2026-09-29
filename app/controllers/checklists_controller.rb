@@ -1,7 +1,7 @@
 class ChecklistsController < ApplicationController
   before_action :require_hq
   before_action -> { require_feature!(:checklists) }
-  before_action :set_checklist, only: %i[show send_checklist]
+  before_action :set_checklist, only: %i[show send_checklist notify_push]
 
   def index
     @checklists = tenant_scope.checklists.includes(:author, :checklist_deliveries).order(created_at: :desc)
@@ -26,6 +26,27 @@ class ChecklistsController < ApplicationController
     rescue ArgumentError => e
       redirect_to @checklist, alert: e.message
     end
+  end
+
+  def notify_push
+    unless @checklist.sent?
+      redirect_to @checklist, alert: t("communications.not_sent_yet")
+      return
+    end
+
+    unless WebPushConfig.configured?
+      redirect_to @checklist, alert: t("communications.push_not_configured")
+      return
+    end
+
+    pending = @checklist.checklist_deliveries.pending.count
+    if pending.zero?
+      redirect_to @checklist, notice: t("communications.push_none_pending")
+      return
+    end
+
+    sent = PushNotifier.remind_checklist!(@checklist)
+    redirect_to @checklist, notice: t("communications.push_sent", count: sent)
   end
 
   private

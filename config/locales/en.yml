@@ -192,7 +192,21 @@ en:
     send_draft: "Send the draft"
     delivery: "Delivery"
     of_complete: "%{done} of %{total} stores done · %{pending} waiting"
-    notifications: "WhatsApp notifications (preview)"
+    notifications: "Notifications"
+    notifications_empty: "No notifications sent yet."
+    notify_push: "Notify waiting stores"
+    notify_push_hint:
+      one: "Send a push reminder to %{count} store still waiting."
+      other: "Send a push reminder to %{count} stores still waiting."
+    notify_push_confirm:
+      one: "Send a push notification to %{count} waiting store?"
+      other: "Send a push notification to %{count} waiting stores?"
+    push_sent:
+      one: "Push sent to %{count} store."
+      other: "Push sent to %{count} stores."
+    push_none_pending: "Every store is already done — nothing to notify."
+    push_not_configured: "Push notifications are not configured on this server."
+    not_sent_yet: "Send this item first, then you can notify stores."
     back: "← Briefs"
   checklists:
     title: "Checklists"

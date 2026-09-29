@@ -192,7 +192,21 @@ fr:
     send_draft: "Envoyer le brouillon"
     delivery: "Livraison"
     of_complete: "%{done} sur %{total} magasins terminés · %{pending} en attente"
-    notifications: "Notifications WhatsApp (stub)"
+    notifications: "Notifications"
+    notifications_empty: "Aucune notification envoyée pour l’instant."
+    notify_push: "Notifier les magasins en attente"
+    notify_push_hint:
+      one: "Envoyer un rappel push au %{count} magasin encore en attente."
+      other: "Envoyer un rappel push aux %{count} magasins encore en attente."
+    notify_push_confirm:
+      one: "Envoyer une notification push à %{count} magasin en attente ?"
+      other: "Envoyer une notification push à %{count} magasins en attente ?"
+    push_sent:
+      one: "Push envoyé à %{count} magasin."
+      other: "Push envoyé à %{count} magasins."
+    push_none_pending: "Tous les magasins ont terminé — rien à notifier."
+    push_not_configured: "Les notifications push ne sont pas configurées sur ce serveur."
+    not_sent_yet: "Envoyez d’abord cet élément, puis vous pourrez notifier les magasins."
     back: "← Briefs"
   checklists:
     title: "Checklists"

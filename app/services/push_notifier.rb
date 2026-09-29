@@ -15,6 +15,14 @@ class PushNotifier
     new.deliver_to_user!(**)
   end
 
+  def self.remind_communication!(communication)
+    new.remind_communication!(communication)
+  end
+
+  def self.remind_checklist!(checklist)
+    new.remind_checklist!(checklist)
+  end
+
   def notify_communication!(communication)
     return unless WebPushConfig.configured?
 
@@ -49,6 +57,53 @@ class PushNotifier
         )
       end
     end
+  end
+
+  # HQ / super-admin: ping stores that still have this item open.
+  def remind_communication!(communication)
+    return 0 unless WebPushConfig.configured?
+
+    sent = 0
+    communication.deliveries.pending.includes(org_unit: { memberships: :user }).find_each do |delivery|
+      store_users_for(delivery.org_unit).each do |user|
+        next if user.push_subscriptions.empty?
+
+        title, body = reminder_copy_communication(communication, user)
+        deliver_to_user!(
+          user: user,
+          tenant: communication.tenant,
+          notifiable: communication,
+          title: title,
+          body: body,
+          url: "/inbox/#{delivery.id}"
+        )
+        sent += 1
+      end
+    end
+    sent
+  end
+
+  def remind_checklist!(checklist)
+    return 0 unless WebPushConfig.configured?
+
+    sent = 0
+    checklist.checklist_deliveries.pending.includes(org_unit: { memberships: :user }).find_each do |delivery|
+      store_users_for(delivery.org_unit).each do |user|
+        next if user.push_subscriptions.empty?
+
+        title, body = reminder_copy_checklist(checklist, user)
+        deliver_to_user!(
+          user: user,
+          tenant: checklist.tenant,
+          notifiable: checklist,
+          title: title,
+          body: body,
+          url: "/checklists/deliveries/#{delivery.id}"
+        )
+        sent += 1
+      end
+    end
+    sent
   end
 
   def deliver_to_user!(user:, tenant:, notifiable:, title:, body:, url:)
@@ -150,6 +205,28 @@ class PushNotifier
       [ "New checklist", title.to_s ]
     else
       [ "Nouvelle checklist", title.to_s ]
+    end
+  end
+
+  def reminder_copy_communication(communication, user)
+    locale = user.locale
+    title = communication.localized_value(:title, locale: locale)
+    case locale
+    when "ar" then [ "تذكير", title.to_s ]
+    when "es" then [ "Recordatorio", title.to_s ]
+    when "en" then [ "Reminder", title.to_s ]
+    else [ "Rappel", title.to_s ]
+    end
+  end
+
+  def reminder_copy_checklist(checklist, user)
+    locale = user.locale
+    title = checklist.localized_value(:title, locale: locale)
+    case locale
+    when "ar" then [ "تذكير", title.to_s ]
+    when "es" then [ "Recordatorio", title.to_s ]
+    when "en" then [ "Reminder", title.to_s ]
+    else [ "Rappel", title.to_s ]
     end
   end
 end

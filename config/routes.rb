@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   resources :communications, only: %i[index show new create edit update] do
     member do
       post :send_brief
+      post :notify_push
     end
   end
 
@@ -53,6 +54,7 @@ Rails.application.routes.draw do
   resources :checklists, only: %i[index show] do
     member do
       post :send_checklist
+      post :notify_push
     end
   end
 
