@@ -2,11 +2,15 @@
   <div class="pwa-push-root" x-data="pwaPush()" x-init="init()" x-cloak>
     <template x-teleport="#pwa-push-toggle-slot">
       <button type="button"
-              class="app-signout pwa-push-toggle"
+              class="app-topbar-btn pwa-push-toggle"
               x-show="supported"
               :disabled="busy"
+              :aria-label="subscribed ? '<%= j t("pwa.push.manage") %>' : '<%= j t("pwa.push.enable_short") %>'"
+              :title="subscribed ? '<%= j t("pwa.push.manage") %>' : '<%= j t("pwa.push.enable_short") %>'"
               @click="toggleManage()">
-        <span x-text="subscribed ? '<%= j t("pwa.push.manage") %>' : '<%= j t("pwa.push.enable_short") %>'"></span>
+        <%= render "shared/topbar_icon", name: "bell" %>
+        <span class="app-topbar-btn__label"
+              x-text="subscribed ? '<%= j t("pwa.push.manage") %>' : '<%= j t("pwa.push.enable_short") %>'"></span>
       </button>
     </template>
 

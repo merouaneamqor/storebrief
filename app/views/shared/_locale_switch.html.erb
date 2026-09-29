@@ -1,4 +1,7 @@
 <%= form_with url: locale_path, method: :patch, class: "locale-form", data: { turbo: false } do %>
+  <span class="locale-form__icon" aria-hidden="true">
+    <%= render "shared/topbar_icon", name: "globe" %>
+  </span>
   <%= select_tag :locale,
         options_for_select(User::LOCALES.map { |code| [t("locales.#{code}"), code] }, I18n.locale.to_s),
         class: "locale-select",

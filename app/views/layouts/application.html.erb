@@ -110,9 +110,14 @@
               <span class="visually-hidden"><%= t("nav.menu") %></span>
             </label>
             <div class="app-topbar__spacer"></div>
-            <%= render "shared/locale_switch" %>
-            <span id="pwa-push-toggle-slot"></span>
-            <%= button_to t("auth.sign_out"), logout_path, method: :delete, class: "app-signout" %>
+            <div class="app-topbar__actions">
+              <%= render "shared/locale_switch" %>
+              <span id="pwa-push-toggle-slot"></span>
+              <%= button_to logout_path, method: :delete, class: "app-topbar-btn", form: { class: "app-topbar-btn-form" }, title: t("auth.sign_out"), aria: { label: t("auth.sign_out") } do %>
+                <%= render "shared/topbar_icon", name: "logout" %>
+                <span class="app-topbar-btn__label"><%= t("auth.sign_out") %></span>
+              <% end %>
+            </div>
           </header>
 
           <main class="app-content">
