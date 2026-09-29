@@ -120,11 +120,13 @@ class SalesDemoSeeder
   end
 
   def seed!
+    saved_push = snapshot_push_subscriptions!
     wipe_existing!
     tenant = create_tenant!
     attach_brand_assets!(tenant)
     units = create_org_tree!(tenant)
     users = create_users!(tenant, units)
+    restore_push_subscriptions!(tenant, users, saved_push)
     seed_templates!(tenant)
     seed_briefs!(tenant, users, units)
     seed_checklists!(tenant, users, units)
@@ -134,6 +136,47 @@ class SalesDemoSeeder
   private
 
   attr_reader :password
+
+  def snapshot_push_subscriptions!
+    existing = Tenant.find_by(slug: SLUG)
+    return [] unless existing
+
+    existing.push_subscriptions.includes(:user).map do |sub|
+      {
+        email: sub.user&.email,
+        endpoint: sub.endpoint,
+        p256dh: sub.p256dh,
+        auth: sub.auth,
+        user_agent: sub.user_agent
+      }
+    end.select { |row| row[:email].present? && row[:endpoint].present? }
+  end
+
+  def restore_push_subscriptions!(tenant, users, saved)
+    return if saved.blank?
+
+    by_email = {
+      HQ_EMAIL => users[:hq],
+      STORE_EMAIL => users[:store],
+      "anfa@nour.test" => users[:anfa],
+      "hassan@nour.test" => users[:hassan]
+    }
+
+    saved.each do |row|
+      user = by_email[row[:email]]
+      next unless user
+
+      subscription = PushSubscription.find_or_initialize_by(endpoint: row[:endpoint])
+      subscription.assign_attributes(
+        user: user,
+        tenant: tenant,
+        p256dh: row[:p256dh],
+        auth: row[:auth],
+        user_agent: row[:user_agent]
+      )
+      subscription.save!
+    end
+  end
 
   def wipe_existing!
     existing = Tenant.find_by(slug: SLUG)
