@@ -46,7 +46,13 @@ class ChecklistsController < ApplicationController
     end
 
     sent = PushNotifier.remind_checklist!(@checklist)
-    redirect_to @checklist, notice: t("communications.push_sent", count: sent)
+    notice =
+      if sent.zero?
+        t("communications.push_no_devices")
+      else
+        t("communications.push_sent", count: sent)
+      end
+    redirect_to @checklist, notice: notice
   end
 
   private

@@ -204,6 +204,7 @@ fr:
     push_sent:
       one: "Push envoyé à %{count} magasin."
       other: "Push envoyé à %{count} magasins."
+    push_no_devices: "Les magasins en attente n’ont pas encore d’appareil avec les notifications. Demandez-leur d’installer l’app et d’autoriser les alertes."
     push_none_pending: "Tous les magasins ont terminé — rien à notifier."
     push_not_configured: "Les notifications push ne sont pas configurées sur ce serveur."
     not_sent_yet: "Envoyez d’abord cet élément, puis vous pourrez notifier les magasins."

@@ -79,7 +79,13 @@ class CommunicationsController < ApplicationController
     end
 
     sent = PushNotifier.remind_communication!(@communication)
-    redirect_to @communication, notice: t("communications.push_sent", count: sent)
+    notice =
+      if sent.zero?
+        t("communications.push_no_devices")
+      else
+        t("communications.push_sent", count: sent)
+      end
+    redirect_to @communication, notice: notice
   end
 
   private

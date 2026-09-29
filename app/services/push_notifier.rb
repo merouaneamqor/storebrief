@@ -64,9 +64,21 @@ class PushNotifier
     return 0 unless WebPushConfig.configured?
 
     sent = 0
-    communication.deliveries.pending.includes(org_unit: { memberships: :user }).find_each do |delivery|
-      store_users_for(delivery.org_unit).each do |user|
-        next if user.push_subscriptions.empty?
+    skipped = 0
+    communication.deliveries.pending.includes(org_unit: { memberships: { user: :push_subscriptions } }).find_each do |delivery|
+      users = store_users_for(delivery.org_unit)
+      if users.empty?
+        Rails.logger.info("[PushNotifier] remind brief##{communication.id} skip #{delivery.org_unit.name}: no store user")
+        skipped += 1
+        next
+      end
+
+      users.each do |user|
+        if user.push_subscriptions.empty?
+          Rails.logger.info("[PushNotifier] remind brief##{communication.id} skip #{user.email}: no device")
+          skipped += 1
+          next
+        end
 
         title, body = reminder_copy_communication(communication, user)
         deliver_to_user!(
@@ -80,6 +92,7 @@ class PushNotifier
         sent += 1
       end
     end
+    Rails.logger.info("[PushNotifier] remind brief##{communication.id} sent=#{sent} skipped=#{skipped}")
     sent
   end
 
@@ -87,9 +100,21 @@ class PushNotifier
     return 0 unless WebPushConfig.configured?
 
     sent = 0
-    checklist.checklist_deliveries.pending.includes(org_unit: { memberships: :user }).find_each do |delivery|
-      store_users_for(delivery.org_unit).each do |user|
-        next if user.push_subscriptions.empty?
+    skipped = 0
+    checklist.checklist_deliveries.pending.includes(org_unit: { memberships: { user: :push_subscriptions } }).find_each do |delivery|
+      users = store_users_for(delivery.org_unit)
+      if users.empty?
+        Rails.logger.info("[PushNotifier] remind checklist##{checklist.id} skip #{delivery.org_unit.name}: no store user")
+        skipped += 1
+        next
+      end
+
+      users.each do |user|
+        if user.push_subscriptions.empty?
+          Rails.logger.info("[PushNotifier] remind checklist##{checklist.id} skip #{user.email}: no device")
+          skipped += 1
+          next
+        end
 
         title, body = reminder_copy_checklist(checklist, user)
         deliver_to_user!(
@@ -103,6 +128,7 @@ class PushNotifier
         sent += 1
       end
     end
+    Rails.logger.info("[PushNotifier] remind checklist##{checklist.id} sent=#{sent} skipped=#{skipped}")
     sent
   end
 

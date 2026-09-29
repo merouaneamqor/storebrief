@@ -50,4 +50,40 @@ class PushSubscriptionsControllerTest < ActionDispatch::IntegrationTest
     ENV.delete("VAPID_PUBLIC_KEY")
     ENV.delete("VAPID_PRIVATE_KEY")
   end
+
+  test "reclaims an endpoint previously owned by another user" do
+    ENV["VAPID_PUBLIC_KEY"] = "BPtestpublickeyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    ENV["VAPID_PRIVATE_KEY"] = "testprivatekeyxxxxxxxxxxxxxxxxxxxxxxx"
+
+    other = @tenant.users.create!(
+      name: "Other",
+      email: "other@sub-co.test",
+      password: "password",
+      password_confirmation: "password",
+      locale: "en"
+    )
+    other.push_subscriptions.create!(
+      tenant: @tenant,
+      endpoint: "https://push.example.test/shared",
+      p256dh: "old",
+      auth: "oldauth"
+    )
+
+    post login_path, params: { tenant_slug: @tenant.slug, email: @user.email, password: "password" }
+
+    assert_no_difference -> { PushSubscription.count } do
+      post push_subscription_path, params: {
+        endpoint: "https://push.example.test/shared",
+        keys: { p256dh: "newp256", auth: "newauth" }
+      }, as: :json
+    end
+
+    assert_response :created
+    sub = PushSubscription.find_by!(endpoint: "https://push.example.test/shared")
+    assert_equal @user.id, sub.user_id
+    assert_equal "newp256", sub.p256dh
+  ensure
+    ENV.delete("VAPID_PUBLIC_KEY")
+    ENV.delete("VAPID_PRIVATE_KEY")
+  end
 end

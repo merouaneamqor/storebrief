@@ -19,8 +19,10 @@ class PushSubscriptionsController < ApplicationController
     p256dh = keys.require(:p256dh)
     auth = keys.require(:auth)
 
-    subscription = current_user.push_subscriptions.find_or_initialize_by(endpoint: endpoint)
+    # Endpoint is globally unique — reclaim when the same device signs in as another user.
+    subscription = PushSubscription.find_or_initialize_by(endpoint: endpoint)
     subscription.assign_attributes(
+      user: current_user,
       tenant: current_user.tenant,
       p256dh: p256dh,
       auth: auth,

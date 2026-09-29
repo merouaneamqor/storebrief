@@ -204,6 +204,7 @@ en:
     push_sent:
       one: "Push sent to %{count} store."
       other: "Push sent to %{count} stores."
+    push_no_devices: "Waiting stores have no push-enabled devices yet. Ask them to install the app and allow notifications."
     push_none_pending: "Every store is already done — nothing to notify."
     push_not_configured: "Push notifications are not configured on this server."
     not_sent_yet: "Send this item first, then you can notify stores."

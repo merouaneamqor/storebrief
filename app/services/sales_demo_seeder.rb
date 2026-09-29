@@ -259,6 +259,16 @@ class SalesDemoSeeder
     )
     anfa.memberships.create!(org_unit: units[:stores].second, role: "store")
 
+    hassan = tenant.users.create!(
+      name: "Karim Bennani · Hassan",
+      email: "hassan@nour.test",
+      password: password,
+      password_confirmation: password,
+      locale: "fr",
+      whatsapp_phone: "+212663456789"
+    )
+    hassan.memberships.create!(org_unit: units[:stores][4], role: "store")
+
     User.super_admins.where(email: ADMIN_EMAIL).find_each(&:destroy)
     admin = tenant.users.create!(
       name: "StoreBrief Admin",
@@ -269,7 +279,7 @@ class SalesDemoSeeder
       super_admin: true
     )
 
-    { hq: hq, store: store, anfa: anfa, admin: admin }
+    { hq: hq, store: store, anfa: anfa, hassan: hassan, admin: admin }
   end
 
   def seed_templates!(tenant)
@@ -390,6 +400,7 @@ class SalesDemoSeeder
     cleanliness = tenant.checklist_templates.find_by!(category: "cleanliness")
     clean_run = Checklist.build_from_template(cleanliness, author: hq)
     clean_run.save!
-    clean_run.send_to!([stores[1].id, stores[4].id])
+    # Maarif + Anfa — both have demo store users (and often a subscribed device).
+    clean_run.send_to!([stores[0].id, stores[1].id])
   end
 end
