@@ -322,9 +322,9 @@ fr:
       explore: "Voir le parcours"
     hero:
       brand: "Vazivo"
-      kicker: "Connective Tissue · Enseignes multi-magasins"
-      title: "Chaque magasin sait quoi faire, et vous le voyez."
-      lede: "Vous envoyez la consigne une fois. L’équipe la reçoit dans sa langue, la termine sur le téléphone, et vous voyez la photo, magasin par magasin."
+      kicker: "En tchèque : tissu conjonctif"
+      title: "Le tissu qui tient vos magasins ensemble."
+      lede: "En biologie, le tissu conjonctif soutient, relie et protège. Vazivo fait la même chose pour le retail multi-magasins : une consigne du siège, chaque magasin la termine sur le téléphone, et vous voyez la preuve."
       demo: "Réserver une démo"
       explore: "Voir cette matinée"
       example: "Exemple · ce matin"
@@ -346,8 +346,8 @@ fr:
       c: "La photo comme preuve"
       d: "Ça tient sans réseau"
     trust:
-      title: "Ce n’est pas une caisse. C’est le travail en magasin."
-      body: "Vous envoyez la consigne aux magasins concernés. L’équipe la termine sur le téléphone, avec la photo. Le siège voit qui a fini, et qui appeler. Les ventes et le stock restent dans vos outils."
+      title: "Nommé d’après ce qui tient un corps ensemble."
+      body: "Vazivo est le mot tchèque pour le tissu conjonctif fibreux — la structure qui soutient, relie, protège et maintient chaque tissu à sa place. Votre réseau a besoin de la même chose : des consignes au bon endroit, un travail terminé en magasin, une preuve que le siège peut croire — sans remplacer votre caisse ni vos outils de stock."
     problems:
       title: "Ce qui se passe encore dans trop de réseaux"
       p1_title: "La consigne part. Vous ne savez pas qui l’a vue."
@@ -400,7 +400,7 @@ fr:
       contact_hint: "E-mail ou téléphone : un des deux suffit."
       reassure: "30 minutes. Une consigne que vous envoyez déjà. Rien à installer pour la démo."
     footer:
-      tagline: "Connective Tissue — le siège envoie. Le magasin exécute. Vous voyez la preuve."
+      tagline: "Vazivo — le tissu conjonctif des réseaux de magasins."
     resources:
       title: "Vous reconnaissez votre réseau."
       lede: "Un siège, des régions, des standards à tenir chaque matin. Et des consignes qui se perdent encore dans les groupes."

@@ -322,9 +322,9 @@ es:
       explore: "Ver el recorrido"
     hero:
       brand: "Vazivo"
-      kicker: "Connective Tissue · Retail multi-tienda"
-      title: "Cada tienda sabe qué hacer, y usted lo ve."
-      lede: "Envía la consigna una vez. El equipo la recibe en su idioma, la termina en el teléfono, y usted ve la foto, tienda por tienda."
+      kicker: "En checo: tejido conectivo"
+      title: "El tejido que mantiene unidas sus tiendas."
+      lede: "En biología, el tejido conectivo sostiene, une y protege. Vazivo hace lo mismo para el retail multi-tienda: una instrucción de la sede, cada tienda la termina en el teléfono, y usted ve la prueba."
       demo: "Reservar una demo"
       explore: "Ver esta mañana"
       example: "Ejemplo · esta mañana"
@@ -346,8 +346,8 @@ es:
       c: "La foto es la prueba"
       d: "Aguanta sin red"
     trust:
-      title: "Esto no es una caja. Es el trabajo en la tienda."
-      body: "Usted envía la consigna a las tiendas que la necesitan. El equipo la termina en el teléfono, con la foto. La sede ve quién terminó, y a quién llamar. Las ventas y el stock se quedan en sus herramientas."
+      title: "Nombrado por lo que mantiene unido un cuerpo."
+      body: "Vazivo es la palabra checa para el tejido conectivo fibroso — la estructura que sostiene, une, protege y mantiene cada tejido en su sitio. Su red necesita lo mismo: instrucciones en el lugar correcto, trabajo terminado en tienda y una prueba en la que la sede puede confiar — sin sustituir su caja ni sus herramientas de stock."
     problems:
       title: "Lo que todavía pasa en demasiadas redes"
       p1_title: "La consigna sale. No sabe quién la vio."
@@ -400,7 +400,7 @@ es:
       contact_hint: "Correo o teléfono: basta con uno de los dos."
       reassure: "30 minutos. Una consigna que ya envía. Nada que instalar para la demo."
     footer:
-      tagline: "Connective Tissue — la sede envía. La tienda ejecuta. Usted ve la prueba."
+      tagline: "Vazivo — tejido conectivo para redes de retail."
     resources:
       title: "Reconocerá su red."
       lede: "Una sede, regiones, estándares que cumplir cada mañana. Y consignas que todavía se pierden en los grupos."

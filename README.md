@@ -1,6 +1,8 @@
 # Vazivo
 
-Multi-tenant Rails prototype for sending **news** and **task** briefs to stores across a region → area → store hierarchy — with a **Morocco first release**: French/Arabic (+ RTL), offline checklists, WhatsApp task alerts (stub), and bilingual store templates.
+**Vazivo** is Czech for connective tissue — and the product does the same for multi-store retail: it supports, binds, and protects the work between head office and every store.
+
+Multi-tenant Rails app for sending **news** and **task** briefs across a region → area → store hierarchy — with a **Morocco first release**: French/Arabic (+ RTL), offline checklists, WhatsApp task alerts (stub), and bilingual store templates.
 
 ## Stack
 
