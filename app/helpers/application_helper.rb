@@ -28,9 +28,10 @@ module ApplicationHelper
       end
     end
 
-    filename = BRAND_ASSET_FILES[kind]&. % { slug: tenant.slug }
-    return unless filename
+    template = BRAND_ASSET_FILES[kind]
+    return unless template
 
+    filename = format(template, slug: tenant.slug)
     public_file = Rails.root.join("public/brand", filename)
     "/brand/#{filename}" if public_file.exist?
   end
