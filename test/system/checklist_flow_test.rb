@@ -16,6 +16,7 @@ class ChecklistFlowTest < ApplicationSystemTestCase
     visit templates_path
     click_button I18n.t("templates.use", locale: :en)
     assert_text I18n.t("checklists.draft_saved", locale: :en)
+    wait_for_alpine
 
     find(".target-list label", text: brand.store.name).click
     click_button I18n.t("communications.send", locale: :en)
@@ -25,14 +26,19 @@ class ChecklistFlowTest < ApplicationSystemTestCase
 
     log_in_as(brand.store_user)
     click_link I18n.t("checklists.store_inbox", locale: :en)
+    assert_text "Ouverture magasin"
     click_link "Ouverture magasin"
+    # Wait for the delivery show page — Turbo can return from click_link first,
+    # and wait_for_alpine alone also passes on the inbox (layout Alpine).
+    assert_selector "h1", text: "Ouverture magasin"
+    assert_selector ".checklist-item", text: "Alarmes désactivées"
     wait_for_alpine
 
     within(".checklist-item", text: "Alarmes désactivées") do
       fill_in "notes", with: "Alarmes OK"
       click_button I18n.t("checklists.mark_done", locale: :en)
     end
-    within(".checklist-item", text: "Alarmes désactivées") { assert_text "Alarmes OK" }
+    assert_selector ".checklist-item.is-done", text: "Alarmes OK"
     assert delivery.reload.pending?
     wait_for_alpine
 
