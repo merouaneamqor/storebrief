@@ -100,7 +100,10 @@ window.pwaInstall = function pwaInstall() {
 
 if ("serviceWorker" in navigator) {
   const register = () => {
-    navigator.serviceWorker.register("/service-worker").catch(() => {})
+    navigator.serviceWorker
+      .register("/service-worker")
+      .then((registration) => registration.update())
+      .catch(() => {})
   }
 
   if (document.readyState === "complete") {
@@ -108,4 +111,22 @@ if ("serviceWorker" in navigator) {
   } else {
     window.addEventListener("load", register)
   }
+
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    const data = event.data
+    if (!data || data.type !== "storebrief:navigate" || !data.url) return
+
+    try {
+      const target = new URL(data.url, window.location.origin)
+      if (target.origin !== window.location.origin) return
+
+      if (window.Turbo && typeof window.Turbo.visit === "function") {
+        window.Turbo.visit(target.pathname + target.search + target.hash)
+      } else {
+        window.location.assign(target.href)
+      }
+    } catch (_error) {
+      // ignore
+    }
+  })
 }

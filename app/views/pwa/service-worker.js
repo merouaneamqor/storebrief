@@ -1,6 +1,6 @@
 // StoreBrief PWA service worker — shell cache + Web Push.
 
-const CACHE_NAME = "storebrief-shell-v1"
+const CACHE_NAME = "storebrief-shell-v2"
 const PRECACHE = ["/icon.png"]
 
 self.addEventListener("install", (event) => {
@@ -28,6 +28,51 @@ self.addEventListener("fetch", (event) => {
   )
 })
 
+function absoluteUrl(pathOrUrl) {
+  try {
+    return new URL(pathOrUrl || "/app", self.location.origin).href
+  } catch (_error) {
+    return new URL("/app", self.location.origin).href
+  }
+}
+
+function askClientToNavigate(client, url) {
+  try {
+    client.postMessage({ type: "storebrief:navigate", url })
+  } catch (_error) {
+    // ignore
+  }
+}
+
+async function openTargetUrl(targetUrl) {
+  const url = absoluteUrl(targetUrl)
+  const clientList = await self.clients.matchAll({ type: "window", includeUncontrolled: true })
+
+  for (const client of clientList) {
+    if (!client.url || !client.url.startsWith(self.location.origin)) continue
+    if (!("focus" in client)) continue
+
+    askClientToNavigate(client, url)
+
+    if ("navigate" in client) {
+      try {
+        const navigated = await client.navigate(url)
+        if (navigated) return navigated.focus()
+      } catch (_error) {
+        // Fall through to focus + postMessage.
+      }
+    }
+
+    return client.focus()
+  }
+
+  if (self.clients.openWindow) {
+    return self.clients.openWindow(url)
+  }
+
+  return undefined
+}
+
 self.addEventListener("push", (event) => {
   let data = {}
   try {
@@ -37,11 +82,12 @@ self.addEventListener("push", (event) => {
   }
 
   const title = data.title || "StoreBrief"
+  const targetUrl = data.url || "/app"
   const options = {
     body: data.body || "",
     icon: data.icon || "/icon.png",
     badge: data.badge || "/icon.png",
-    data: { url: data.url || "/app" },
+    data: { url: targetUrl },
     vibrate: [100, 50, 100]
   }
 
@@ -50,22 +96,10 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close()
-  const targetUrl = (event.notification.data && event.notification.data.url) || "/app"
+  const targetUrl =
+    (event.notification.data && event.notification.data.url) ||
+    (event.notification.data && event.notification.data.path) ||
+    "/app"
 
-  event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if ("focus" in client) {
-          if ("navigate" in client) {
-            return client.navigate(targetUrl).then((c) => (c && c.focus ? c.focus() : client.focus()))
-          }
-          return client.focus()
-        }
-      }
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(targetUrl)
-      }
-      return undefined
-    })
-  )
+  event.waitUntil(openTargetUrl(targetUrl))
 })

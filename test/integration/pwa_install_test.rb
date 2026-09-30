@@ -22,6 +22,8 @@ class PwaInstallTest < ActionDispatch::IntegrationTest
     assert_match(/addEventListener\(["']fetch["']/, response.body)
     assert_match(/addEventListener\(["']push["']/, response.body)
     assert_match(/addEventListener\(["']notificationclick["']/, response.body)
+    assert_match(/storebrief:navigate/, response.body)
+    assert_match(/openTargetUrl|clients\.openWindow/, response.body)
   end
 
   test "app layout exposes install prompt and PWA meta" do

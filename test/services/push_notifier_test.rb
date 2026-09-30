@@ -68,6 +68,9 @@ class PushNotifierTest < ActiveSupport::TestCase
 
     assert_equal 1, sent.size
     assert_equal @subscription.endpoint, sent.first[:endpoint]
+    payload = JSON.parse(sent.first[:message])
+    delivery = ChecklistDelivery.find_by!(checklist: Checklist.order(:id).last, org_unit: @store)
+    assert_equal "/checklists/deliveries/#{delivery.id}", payload["url"]
     log = NotificationLog.find_by!(channel: "web_push", user: @store_user)
     assert_equal "sent", log.status
     assert_match(/New checklist/i, log.message)
