@@ -7,8 +7,8 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
-    <% if current_tenant&.favicon&.attached? %>
-      <link rel="icon" href="<%= url_for(current_tenant.favicon) %>" type="<%= current_tenant.favicon.content_type %>">
+    <% if (favicon_src = tenant_brand_asset_src(current_tenant, :favicon)) %>
+      <link rel="icon" href="<%= favicon_src %>" type="image/svg+xml">
     <% else %>
       <link rel="icon" href="/icon.png" type="image/png">
       <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -31,11 +31,11 @@
         <aside class="app-sidebar" id="app-sidebar">
           <div class="app-sidebar__brand">
             <a href="<%= app_root_path %>" class="app-logo">
-              <% if current_tenant.logo.attached? %>
-                <%= image_tag current_tenant.logo, class: "app-logo__img", alt: current_tenant.display_brand_name %>
+              <% if (logo_src = tenant_brand_asset_src(current_tenant, :logo)) %>
+                <%= image_tag logo_src, class: "app-logo__img", alt: current_tenant.display_brand_name %>
               <% else %>
-                <% if current_tenant.logo_mark.attached? %>
-                  <%= image_tag current_tenant.logo_mark, class: "app-logo__mark-img", alt: "" %>
+                <% if (mark_src = tenant_brand_asset_src(current_tenant, :logo_mark)) %>
+                  <%= image_tag mark_src, class: "app-logo__mark-img", alt: "" %>
                 <% else %>
                   <span class="app-logo__mark" aria-hidden="true"></span>
                 <% end %>
