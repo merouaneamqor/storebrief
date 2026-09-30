@@ -77,3 +77,19 @@ Users must already exist in that tenant (matched by email from NameID or the con
 Copy `.env.example` if you run outside Compose. Default database URL:
 
 `postgres://store_brief:store_brief@localhost:5432/store_brief_development`
+
+## Tests
+
+```bash
+TEST_DB=postgres://store_brief:store_brief@db:5432/store_brief_test
+
+# Unit + integration
+docker compose run --rm -e RAILS_ENV=test -e DATABASE_URL=$TEST_DB web bin/rails db:test:prepare test
+
+# Browser smoke (system tests) against a Chromium container
+docker run -d --rm --name storebrief-selenium --network draft_default --shm-size 2g selenium/standalone-chromium
+docker compose run --rm -e RAILS_ENV=test -e DATABASE_URL=$TEST_DB \
+  -e SELENIUM_REMOTE_URL=http://storebrief-selenium:4444 web bin/rails test:system
+```
+
+Without `SELENIUM_REMOTE_URL`, system tests use a local headless Chrome (as on CI). Failure screenshots land in `tmp/screenshots`.
