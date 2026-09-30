@@ -129,7 +129,7 @@ document.addEventListener("click", (event) => {
 }, true);
 
 const OfflineQueue = {
-  dbName: "storebrief-offline",
+  dbName: "vazivo-offline",
   storeName: "checklist_responses",
   async open() {
     return new Promise((resolve, reject) => {

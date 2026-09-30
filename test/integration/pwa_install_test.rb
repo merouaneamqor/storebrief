@@ -9,7 +9,7 @@ class PwaInstallTest < ActionDispatch::IntegrationTest
     assert_includes response.media_type, "json"
 
     body = JSON.parse(response.body)
-    assert_equal "StoreBrief", body["name"]
+    assert_equal "Vazivo", body["name"]
     assert_equal "standalone", body["display"]
     assert_equal "/app", body["start_url"]
     assert body["icons"].any? { |icon| icon["sizes"] == "192x192" }
@@ -22,7 +22,7 @@ class PwaInstallTest < ActionDispatch::IntegrationTest
     assert_match(/addEventListener\(["']fetch["']/, response.body)
     assert_match(/addEventListener\(["']push["']/, response.body)
     assert_match(/addEventListener\(["']notificationclick["']/, response.body)
-    assert_match(/storebrief:navigate/, response.body)
+    assert_match(/vazivo:navigate/, response.body)
     assert_match(/openTargetUrl|clients\.openWindow/, response.body)
   end
 

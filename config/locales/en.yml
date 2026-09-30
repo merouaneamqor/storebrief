@@ -25,13 +25,13 @@ en:
     sso_needs_slug: "Enter your brand ID above, then continue with SSO."
     sso_required: "This brand requires single sign-on."
     sso_failed: "SSO sign-in failed. Try again or contact your administrator."
-    sso_user_not_found: "No StoreBrief account matches your SSO identity for this brand."
+    sso_user_not_found: "No Vazivo account matches your SSO identity for this brand."
     sso_not_configured: "SSO is not enabled for this brand."
     sso_unknown_tenant: "Unknown brand for SSO."
     use_password_instead: "Use password sign-in"
     feature_disabled: "This feature is not enabled for your brand."
     tenant_lede: "Sign in to manage briefs, checklists, and your stores."
-    powered_by: "Powered by StoreBrief"
+    powered_by: "Powered by Vazivo"
   nav:
     menu: "Menu"
     dashboard: "Dashboard"
@@ -58,7 +58,7 @@ en:
     briefs: "Briefs sent"
   demo_requests:
     title: "Demo requests"
-    lede: "Leads from the StoreBrief landing page."
+    lede: "Leads from the Vazivo landing page."
     empty: "No demo requests yet."
     stores:
       one: "%{count} store"
@@ -272,7 +272,7 @@ en:
     done: "done"
   pwa:
     kicker: "On your phone"
-    title: "Install StoreBrief"
+    title: "Install Vazivo"
     lede: "Add it to your home screen for a full-screen app — faster to open next time."
     install: "Install"
     dismiss: "Not now"
@@ -321,8 +321,8 @@ en:
       sign_in: "Sign in"
       explore: "See the path"
     hero:
-      brand: "StoreBrief"
-      kicker: "Multi-store retail · Morocco"
+      brand: "Vazivo"
+      kicker: "Connective Tissue · Multi-store retail"
       title: "Every store knows what to do, and you see it."
       lede: "You send the instruction once. The team gets it in their language, finishes it on the phone, and you see the photo, store by store."
       demo: "Book a demo"
@@ -400,7 +400,7 @@ en:
       contact_hint: "Email or phone: one of the two is enough."
       reassure: "30 minutes. One instruction you already send. Nothing to install for the demo."
     footer:
-      tagline: "Head office sends. The store executes. You see the proof."
+      tagline: "Connective Tissue — head office sends, the store executes, you see the proof."
     resources:
       title: "You will recognize your network."
       lede: "A head office, regions, standards to hold every morning. And instructions that still get lost in group chats."
@@ -435,7 +435,7 @@ en:
     faq:
       title: "Before you book"
       q1: "Is this a cash register or an inventory system?"
-      a1: "No. StoreBrief sends the instruction, the checklist, and the photo. It does not take payment, count stock, or replace your accounting."
+      a1: "No. Vazivo sends the instruction, the checklist, and the photo. It does not take payment, count stock, or replace your accounting."
       q2: "Can store teams use it in Arabic?"
       a2: "Yes. You write the same instruction in French and Arabic. Arabic displays right to left."
       q3: "What if the store has no connection?"
@@ -446,7 +446,7 @@ en:
       a5: "No. Start with one procedure and a small group of stores. You decide after that."
     prospects:
       title: "Formats that fit"
-      lede: "StoreBrief is the best fit for retailers with multiple branches, repeatable store procedures, and a head-office or regional operations team."
+      lede: "Vazivo is the best fit for retailers with multiple branches, repeatable store procedures, and a head-office or regional operations team."
       strongest: "Where it is clearest"
       adjacent_title: "Also a fit"
       close: "The simplest place to start is grocery, fashion, beauty, or franchise, with a head-office or regional team. You begin with one instruction, a checklist, and the photo."

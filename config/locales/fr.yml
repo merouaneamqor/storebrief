@@ -25,13 +25,13 @@ fr:
     sso_needs_slug: "Saisissez l'identifiant enseigne ci-dessus, puis continuez avec le SSO."
     sso_required: "Cette enseigne exige la connexion SSO."
     sso_failed: "Échec de la connexion SSO. Réessayez ou contactez votre administrateur."
-    sso_user_not_found: "Aucun compte StoreBrief ne correspond à votre identité SSO pour cette enseigne."
+    sso_user_not_found: "Aucun compte Vazivo ne correspond à votre identité SSO pour cette enseigne."
     sso_not_configured: "Le SSO n'est pas activé pour cette enseigne."
     sso_unknown_tenant: "Enseigne inconnue pour le SSO."
     use_password_instead: "Connexion par mot de passe"
     feature_disabled: "Cette fonctionnalité n'est pas activée pour votre enseigne."
     tenant_lede: "Connectez-vous pour gérer les briefs, checklists et magasins."
-    powered_by: "Propulsé par StoreBrief"
+    powered_by: "Propulsé par Vazivo"
   nav:
     menu: "Menu"
     dashboard: "Tableau de bord"
@@ -58,7 +58,7 @@ fr:
     briefs: "Briefs envoyés"
   demo_requests:
     title: "Demandes de démo"
-    lede: "Leads reçus depuis la page d’accueil StoreBrief."
+    lede: "Leads reçus depuis la page d’accueil Vazivo."
     empty: "Aucune demande de démo pour le moment."
     stores:
       one: "%{count} magasin"
@@ -272,7 +272,7 @@ fr:
     done: "faits"
   pwa:
     kicker: "Sur le téléphone"
-    title: "Installer StoreBrief"
+    title: "Installer Vazivo"
     lede: "Ajoutez-le à l’écran d’accueil pour une app plein écran — plus rapide à ouvrir."
     install: "Installer"
     dismiss: "Pas maintenant"
@@ -321,8 +321,8 @@ fr:
       sign_in: "Connexion"
       explore: "Voir le parcours"
     hero:
-      brand: "StoreBrief"
-      kicker: "Enseignes multi-magasins · Maroc"
+      brand: "Vazivo"
+      kicker: "Connective Tissue · Enseignes multi-magasins"
       title: "Chaque magasin sait quoi faire, et vous le voyez."
       lede: "Vous envoyez la consigne une fois. L’équipe la reçoit dans sa langue, la termine sur le téléphone, et vous voyez la photo, magasin par magasin."
       demo: "Réserver une démo"
@@ -400,7 +400,7 @@ fr:
       contact_hint: "E-mail ou téléphone : un des deux suffit."
       reassure: "30 minutes. Une consigne que vous envoyez déjà. Rien à installer pour la démo."
     footer:
-      tagline: "Le siège envoie. Le magasin exécute. Vous voyez la preuve."
+      tagline: "Connective Tissue — le siège envoie. Le magasin exécute. Vous voyez la preuve."
     resources:
       title: "Vous reconnaissez votre réseau."
       lede: "Un siège, des régions, des standards à tenir chaque matin. Et des consignes qui se perdent encore dans les groupes."
@@ -435,7 +435,7 @@ fr:
     faq:
       title: "Avant de réserver"
       q1: "C’est une caisse ou un stock ?"
-      a1: "Non. StoreBrief envoie la consigne, la checklist et la photo. Il n’encaisse pas, ne compte pas le stock, et ne remplace pas votre comptabilité."
+      a1: "Non. Vazivo envoie la consigne, la checklist et la photo. Il n’encaisse pas, ne compte pas le stock, et ne remplace pas votre comptabilité."
       q2: "Les équipes peuvent-elles l’utiliser en arabe ?"
       a2: "Oui. Vous écrivez la même consigne en français et en arabe. L’arabe s’affiche de droite à gauche."
       q3: "Et si le magasin n’a pas de réseau ?"
@@ -446,7 +446,7 @@ fr:
       a5: "Non. On commence par une procédure et un petit groupe de magasins. Vous décidez ensuite."
     prospects:
       title: "Les formats qui conviennent"
-      lede: "StoreBrief convient surtout aux enseignes qui ont plusieurs magasins, des procédures qui se répètent, et une équipe siège ou régionale."
+      lede: "Vazivo convient surtout aux enseignes qui ont plusieurs magasins, des procédures qui se répètent, et une équipe siège ou régionale."
       strongest: "Là où c’est le plus clair"
       adjacent_title: "Ça convient aussi"
       close: "Le plus simple pour commencer : alimentaire, mode, beauté ou franchise, avec une équipe au siège ou en région. On part d’une consigne, d’une checklist, et de la photo."

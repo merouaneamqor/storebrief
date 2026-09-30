@@ -45,7 +45,7 @@ services:
       APP_TLD_LENGTH: ${APP_TLD_LENGTH:-0}
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
-      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:support@storebrief.app}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:support@vazivo.com}
     depends_on:
       db:
         condition: service_healthy

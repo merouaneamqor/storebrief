@@ -1,4 +1,4 @@
-puts "Seeding StoreBrief (Morocco first release)..."
+puts "Seeding Vazivo (Morocco first release)..."
 
 [
   ChecklistItemResponse,
@@ -179,8 +179,8 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
 
   news = tenant.communications.create!(
     author: hq_user,
-    title_fr: "Bienvenue sur StoreBrief",
-    title_ar: "مرحباً بكم في StoreBrief",
+    title_fr: "Bienvenue sur Vazivo",
+    title_ar: "مرحباً بكم في Vazivo",
     body_fr: "Brief d'accueil pour #{name}. Infos et tâches pour vos magasins.",
     body_ar: "رسالة ترحيب لـ #{name}. أخبار ومهام لمتاجركم.",
     format: "news",
@@ -286,7 +286,7 @@ build_tenant!(
 atlas = Tenant.find_by!(slug: "atlas")
 atlas.users.create!(
   name: "Platform Admin",
-  email: "admin@storebrief.test",
+  email: "admin@vazivo.test",
   password: password,
   password_confirmation: password,
   locale: "en",
@@ -305,7 +305,7 @@ atlas.create_saml_setting!(
 puts "Seeded atlas + contoso + casa-patisserie (password: password)."
 puts "  HQ: hq@atlas.test | hq@contoso.test | hq@casa-patisserie.test"
 puts "  Store: store@atlas.test | store@contoso.test | store@casa-patisserie.test"
-puts "  Platform admin (all brands): admin@storebrief.test"
+puts "  Platform admin (all brands): admin@vazivo.test"
 puts "  Atlas SAML stub: disabled (Admin → Brand → Features + SSO)"
 
 load Rails.root.join("db/seeds/sales_demo.rb")

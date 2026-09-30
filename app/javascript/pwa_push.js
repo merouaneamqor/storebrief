@@ -1,4 +1,4 @@
-const PUSH_DISMISS_KEY = "storebrief-push-dismissed"
+const PUSH_DISMISS_KEY = "vazivo-push-dismissed"
 const PUSH_DISMISS_DAYS = 7
 
 function isStandalone() {

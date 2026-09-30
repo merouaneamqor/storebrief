@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Full sales-demo tenant used to pitch StoreBrief.
+# Full sales-demo tenant used to pitch Vazivo.
 # Idempotent: destroys and recreates the `nour` tenant only.
 class SalesDemoSeeder
   SLUG = "nour"
@@ -8,7 +8,7 @@ class SalesDemoSeeder
   PLATFORM_ADMIN_PASSWORD = "password"
   HQ_EMAIL = "hq@nour.test"
   STORE_EMAIL = "store@nour.test"
-  ADMIN_EMAIL = "admin@storebrief.test"
+  ADMIN_EMAIL = "admin@vazivo.test"
 
   TEMPLATE_DEFS = [
     {
@@ -314,7 +314,7 @@ class SalesDemoSeeder
 
     User.super_admins.where(email: ADMIN_EMAIL).find_each(&:destroy)
     admin = tenant.users.create!(
-      name: "StoreBrief Admin",
+      name: "Vazivo Admin",
       email: ADMIN_EMAIL,
       password: PLATFORM_ADMIN_PASSWORD,
       password_confirmation: PLATFORM_ADMIN_PASSWORD,

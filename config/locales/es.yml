@@ -25,13 +25,13 @@ es:
     sso_needs_slug: "Introduzca el identificador de la enseña arriba y continúe con SSO."
     sso_required: "Esta enseña exige inicio de sesión único (SSO)."
     sso_failed: "Falló el SSO. Inténtelo de nuevo o contacte a su administrador."
-    sso_user_not_found: "Ninguna cuenta de StoreBrief coincide con su identidad SSO para esta enseña."
+    sso_user_not_found: "Ninguna cuenta de Vazivo coincide con su identidad SSO para esta enseña."
     sso_not_configured: "El SSO no está activado para esta enseña."
     sso_unknown_tenant: "Enseña desconocida para SSO."
     use_password_instead: "Entrar con contraseña"
     feature_disabled: "Esta función no está activada para su enseña."
     tenant_lede: "Inicie sesión para gestionar consignas, checklists y tiendas."
-    powered_by: "Con tecnología de StoreBrief"
+    powered_by: "Con tecnología de Vazivo"
   nav:
     menu: "Menú"
     dashboard: "Panel"
@@ -58,7 +58,7 @@ es:
     briefs: "Consignas enviadas"
   demo_requests:
     title: "Solicitudes de demo"
-    lede: "Leads recibidos desde la landing de StoreBrief."
+    lede: "Leads recibidos desde la landing de Vazivo."
     empty: "Aún no hay solicitudes de demo."
     stores:
       one: "%{count} tienda"
@@ -272,7 +272,7 @@ es:
     done: "hechos"
   pwa:
     kicker: "En el teléfono"
-    title: "Instalar StoreBrief"
+    title: "Instalar Vazivo"
     lede: "Añádelo a la pantalla de inicio para usarlo a pantalla completa — más rápido la próxima vez."
     install: "Instalar"
     dismiss: "Ahora no"
@@ -321,8 +321,8 @@ es:
       sign_in: "Entrar"
       explore: "Ver el recorrido"
     hero:
-      brand: "StoreBrief"
-      kicker: "Retail multi-tienda · Marruecos"
+      brand: "Vazivo"
+      kicker: "Connective Tissue · Retail multi-tienda"
       title: "Cada tienda sabe qué hacer, y usted lo ve."
       lede: "Envía la consigna una vez. El equipo la recibe en su idioma, la termina en el teléfono, y usted ve la foto, tienda por tienda."
       demo: "Reservar una demo"
@@ -400,7 +400,7 @@ es:
       contact_hint: "Correo o teléfono: basta con uno de los dos."
       reassure: "30 minutos. Una consigna que ya envía. Nada que instalar para la demo."
     footer:
-      tagline: "La sede envía. La tienda ejecuta. Usted ve la prueba."
+      tagline: "Connective Tissue — la sede envía. La tienda ejecuta. Usted ve la prueba."
     resources:
       title: "Reconocerá su red."
       lede: "Una sede, regiones, estándares que cumplir cada mañana. Y consignas que todavía se pierden en los grupos."
@@ -435,7 +435,7 @@ es:
     faq:
       title: "Antes de reservar"
       q1: "¿Es una caja o un inventario?"
-      a1: "No. StoreBrief envía la consigna, la lista y la foto. No cobra, no cuenta el stock y no sustituye su contabilidad."
+      a1: "No. Vazivo envía la consigna, la lista y la foto. No cobra, no cuenta el stock y no sustituye su contabilidad."
       q2: "¿Los equipos pueden usarlo en árabe?"
       a2: "Sí. Escribe la misma consigna en francés y en árabe. El árabe se muestra de derecha a izquierda."
       q3: "¿Y si la tienda no tiene red?"
@@ -446,7 +446,7 @@ es:
       a5: "No. Se empieza por un procedimiento y un grupo pequeño de tiendas. Usted decide después."
     prospects:
       title: "Formatos que encajan"
-      lede: "StoreBrief encaja sobre todo en enseñas con varias tiendas, procedimientos que se repiten, y un equipo de sede o de operaciones regionales."
+      lede: "Vazivo encaja sobre todo en enseñas con varias tiendas, procedimientos que se repiten, y un equipo de sede o de operaciones regionales."
       strongest: "Donde es más claro"
       adjacent_title: "También encaja"
       close: "Lo más simple para empezar: alimentación, moda, belleza o franquicia, con un equipo de sede o de región. Se parte de una consigna, una lista y la foto."

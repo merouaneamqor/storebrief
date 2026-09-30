@@ -1,5 +1,5 @@
 <% brand = host_tenant? ? current_tenant : nil %>
-<% content_for :title, brand ? "#{t('auth.sign_in')} · #{brand.display_brand_name}" : "#{t('auth.sign_in')} · StoreBrief" %>
+<% content_for :title, brand ? "#{t('auth.sign_in')} · #{brand.display_brand_name}" : "#{t('auth.sign_in')} · Vazivo" %>
 
 <% show_sso = host_tenant? && @login_tenant&.saml_sso_enabled? %>
 <% sso_enforced = show_sso && @login_tenant.saml_sso_enforced? %>
@@ -77,7 +77,7 @@
                 <%= t("auth.demo_hq") %>: <code>hq@casa-patisserie.test</code><br>
                 <%= t("auth.demo_store") %>: <code>store@casa-patisserie.test</code></p>
               <p><strong><%= t("auth.demo_super") %></strong><br>
-                <%= t("auth.email") %>: <code>admin@storebrief.test</code><br>
+                <%= t("auth.email") %>: <code>admin@vazivo.test</code><br>
                 <%= t("auth.demo_password") %><br>
                 <%= t("auth.tenant_optional") %></p>
             </div>

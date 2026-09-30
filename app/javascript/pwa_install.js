@@ -1,4 +1,4 @@
-const DISMISS_KEY = "storebrief-pwa-install-dismissed"
+const DISMISS_KEY = "vazivo-pwa-install-dismissed"
 const DISMISS_DAYS = 14
 
 function isStandalone() {
@@ -114,7 +114,7 @@ if ("serviceWorker" in navigator) {
 
   navigator.serviceWorker.addEventListener("message", (event) => {
     const data = event.data
-    if (!data || data.type !== "storebrief:navigate" || !data.url) return
+    if (!data || data.type !== "vazivo:navigate" || !data.url) return
 
     try {
       const target = new URL(data.url, window.location.origin)

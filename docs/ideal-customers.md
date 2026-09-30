@@ -1,6 +1,6 @@
-# StoreBrief ideal customers
+# Vazivo ideal customers
 
-StoreBrief is likely the best fit for retailers with **multiple branches, repeatable store procedures, and a head-office or regional operations team**.
+Vazivo is likely the best fit for retailers with **multiple branches, repeatable store procedures, and a head-office or regional operations team**.
 
 The homepage shows four morning scenarios. The full format list is on [Who it's for](http://localhost:3001/resources).
 
@@ -22,4 +22,4 @@ The homepage shows four morning scenarios. The full format list is on [Who it's 
 - **Quick-service restaurants and cafés:** daily checklists, launches, cleanliness, and location inspections.
 - **Hotels and multi-site service businesses:** team tasks, inspections, and operational communications.
 
-I’d start sales outreach with **grocery, fashion, beauty, and franchise groups** that operate many locations. They’re the clearest match for StoreBrief’s communications, campaigns, forms, checklists, and reporting features.
+I’d start sales outreach with **grocery, fashion, beauty, and franchise groups** that operate many locations. They’re the clearest match for Vazivo’s communications, campaigns, forms, checklists, and reporting features.

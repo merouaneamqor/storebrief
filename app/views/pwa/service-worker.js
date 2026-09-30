@@ -1,6 +1,6 @@
-// StoreBrief PWA service worker — shell cache + Web Push.
+// Vazivo PWA service worker — shell cache + Web Push.
 
-const CACHE_NAME = "storebrief-shell-v2"
+const CACHE_NAME = "vazivo-shell-v2"
 const PRECACHE = ["/icon.png"]
 
 self.addEventListener("install", (event) => {
@@ -38,7 +38,7 @@ function absoluteUrl(pathOrUrl) {
 
 function askClientToNavigate(client, url) {
   try {
-    client.postMessage({ type: "storebrief:navigate", url })
+    client.postMessage({ type: "vazivo:navigate", url })
   } catch (_error) {
     // ignore
   }
@@ -81,7 +81,7 @@ self.addEventListener("push", (event) => {
     data = { body: event.data ? event.data.text() : "" }
   }
 
-  const title = data.title || "StoreBrief"
+  const title = data.title || "Vazivo"
   const targetUrl = data.url || "/app"
   const options = {
     body: data.body || "",

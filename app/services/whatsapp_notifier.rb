@@ -59,9 +59,9 @@ class WhatsappNotifier
     locale = user.locale
     title = communication.localized_value(:title, locale: locale)
     if locale == "ar"
-      "مهمة جديدة: #{title}\nافتح StoreBrief لإكمالها."
+      "مهمة جديدة: #{title}\nافتح Vazivo لإكمالها."
     else
-      "Nouvelle tâche: #{title}\nOuvrez StoreBrief pour la terminer."
+      "Nouvelle tâche: #{title}\nOuvrez Vazivo pour la terminer."
     end
   end
 

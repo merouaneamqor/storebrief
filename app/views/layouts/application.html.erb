@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>" dir="<%= rtl? ? 'rtl' : 'ltr' %>">
   <head>
-    <title><%= content_for?(:title) ? yield(:title) : (current_tenant&.display_brand_name || "StoreBrief") %></title>
+    <title><%= content_for?(:title) ? yield(:title) : (current_tenant&.display_brand_name || "Vazivo") %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>

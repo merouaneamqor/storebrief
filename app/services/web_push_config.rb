@@ -12,7 +12,7 @@ module WebPushConfig
   end
 
   def subject
-    ENV.fetch("VAPID_SUBJECT", "mailto:support@storebrief.app")
+    ENV.fetch("VAPID_SUBJECT", "mailto:support@vazivo.com")
   end
 
   def configured?
