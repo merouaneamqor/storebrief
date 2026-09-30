@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_28_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -217,6 +217,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_28_150000) do
     t.index ["tenant_id"], name: "index_org_units_on_tenant_id"
   end
 
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "tenant_id", null: false
+    t.string "endpoint", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["tenant_id"], name: "index_push_subscriptions_on_tenant_id"
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "tenant_saml_settings", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.boolean "enabled", default: false, null: false
@@ -295,6 +309,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_28_150000) do
   add_foreign_key "notification_logs", "users"
   add_foreign_key "org_units", "org_units", column: "parent_id"
   add_foreign_key "org_units", "tenants"
+  add_foreign_key "push_subscriptions", "tenants"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
 end

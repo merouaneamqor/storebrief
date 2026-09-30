@@ -153,11 +153,6 @@ class BriefQuestionsTest < ActionDispatch::IntegrationTest
 
   private
 
-  def sign_in(user, tenant)
-    post login_path, params: { tenant_slug: tenant.slug, email: user.email, password: "password" }
-    follow_redirect!
-  end
-
   def setup_brand(slug)
     tenant = Tenant.create!(
       name: slug.titleize,

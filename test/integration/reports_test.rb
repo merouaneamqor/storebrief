@@ -91,20 +91,4 @@ class ReportsTest < ActionDispatch::IntegrationTest
     get reports_path
     assert_redirected_to app_root_path
   end
-
-  private
-
-  def sign_in(user, tenant)
-    post login_path, params: { tenant_slug: tenant.slug, email: user.email, password: "password" }
-    follow_redirect!
-  end
-
-  def create_tenant(name, slug)
-    Tenant.create!(
-      name: name,
-      slug: slug,
-      brand_name: name.split.first,
-      **Tenant.default_palette
-    )
-  end
 end
