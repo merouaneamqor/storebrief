@@ -9,6 +9,6 @@ class CreateOrgUnits < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :org_units, [:tenant_id, :unit_type]
+    add_index :org_units, [ :tenant_id, :unit_type ]
   end
 end

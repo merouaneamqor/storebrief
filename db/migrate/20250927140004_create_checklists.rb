@@ -13,6 +13,6 @@ class CreateChecklists < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :checklists, [:tenant_id, :status]
+    add_index :checklists, [ :tenant_id, :status ]
   end
 end

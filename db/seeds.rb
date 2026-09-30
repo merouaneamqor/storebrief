@@ -186,7 +186,7 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
     format: "news",
     status: "draft"
   )
-  news.send_to!([casablanca.id])
+  news.send_to!([ casablanca.id ])
 
   task = tenant.communications.create!(
     author: hq_user,
@@ -197,12 +197,12 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
     format: "task",
     status: "draft"
   )
-  task.send_to!([stores.first.id, stores.second.id])
+  task.send_to!([ stores.first.id, stores.second.id ])
 
   opening = tenant.checklist_templates.find_by!(category: "opening")
   checklist = Checklist.build_from_template(opening, author: hq_user)
   checklist.save!
-  checklist.send_to!([stores.first.id])
+  checklist.send_to!([ stores.first.id ])
 
   tenant
 end

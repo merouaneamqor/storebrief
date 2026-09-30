@@ -12,6 +12,6 @@ class CreateChecklistTemplates < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :checklist_templates, [:tenant_id, :category]
+    add_index :checklist_templates, [ :tenant_id, :category ]
   end
 end
