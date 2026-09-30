@@ -4,7 +4,7 @@ class TenantSamlSetting < ApplicationRecord
   belongs_to :tenant
 
   validates :idp_entity_id, :idp_sso_target_url, :idp_cert, presence: true, if: :enabled?
-  validates :idp_sso_target_url, format: { with: /\Ahttps?:\/\//i }, allow_blank: true
+  validates :idp_sso_target_url, format: { with: /\Ahttps?:\/\/\S+\z/i }, allow_blank: true
   validate :certificate_looks_valid, if: -> { enabled? && idp_cert.present? }
 
   def ready?

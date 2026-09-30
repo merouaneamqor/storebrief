@@ -96,4 +96,3 @@ Rails.application.configure do
   # Enable DNS rebinding protection and other `Host` header attacks.
   # Hosts are set above from APP_HOST (apex + any subdomain).
 end
-

@@ -10,7 +10,7 @@ class CreateChecklistItemResponses < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :checklist_item_responses, [:checklist_delivery_id, :checklist_item_id], unique: true, name: "index_item_responses_on_delivery_and_item"
+    add_index :checklist_item_responses, [ :checklist_delivery_id, :checklist_item_id ], unique: true, name: "index_item_responses_on_delivery_and_item"
     add_index :checklist_item_responses, :client_uuid, unique: true, where: "client_uuid IS NOT NULL"
   end
 end

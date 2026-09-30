@@ -119,15 +119,4 @@ class SuperAdminTest < ActionDispatch::IntegrationTest
     get demo_requests_path
     assert_redirected_to app_root_path
   end
-
-  private
-
-  def create_tenant(name, slug)
-    Tenant.create!(
-      name: name,
-      slug: slug,
-      brand_name: name.split.first,
-      **Tenant.default_palette
-    )
-  end
 end

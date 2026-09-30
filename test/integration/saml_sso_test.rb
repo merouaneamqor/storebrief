@@ -120,15 +120,6 @@ class SamlSsoTest < ActionDispatch::IntegrationTest
 
   private
 
-  def create_tenant(name, slug)
-    Tenant.create!(
-      name: name,
-      slug: slug,
-      brand_name: name.split.first,
-      **Tenant.default_palette
-    )
-  end
-
   def sample_cert
     # Minimal PEM shape accepted by TenantSamlSetting validation (not used for crypto in these tests)
     <<~CERT

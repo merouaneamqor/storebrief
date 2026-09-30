@@ -14,18 +14,18 @@ class DashboardController < ApplicationController
                               .includes(:communication)
                               .order("communications.created_at DESC")
                               .limit(8)
-                    else
+      else
                       Delivery.none
-                    end
+      end
       @checklist_deliveries = if store
                                 ChecklistDelivery.joins(:checklist)
                                                  .where(org_unit: store, checklists: { tenant_id: tenant_scope.id, status: "sent" })
                                                  .includes(:checklist)
                                                  .order("checklists.created_at DESC")
                                                  .limit(5)
-                              else
+      else
                                 ChecklistDelivery.none
-                              end
+      end
     end
   end
 end

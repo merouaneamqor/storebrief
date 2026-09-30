@@ -48,13 +48,13 @@ class PwaInstallTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_select 'link[rel=manifest][href=?]', pwa_manifest_path
+    assert_select "link[rel=manifest][href=?]", pwa_manifest_path
     assert_select 'meta[name="theme-color"][content="#0c6b58"]'
     assert_select 'link[rel=apple-touch-icon][href="/icon.png"]'
     assert_select ".pwa-install"
     assert_select "#pwa-install-title", text: I18n.t("pwa.title", locale: :en)
     assert_match(/pwaInstall/, response.body)
-    assert_match(/pwaPush/, response.body)
+    assert_no_match(/pwaPush\(\)/, response.body)
   end
 
   test "app layout exposes push meta when VAPID is configured" do
@@ -86,6 +86,7 @@ class PwaInstallTest < ActionDispatch::IntegrationTest
     assert_select 'meta[name="vapid-public-key"]'
     assert_select ".pwa-push"
     assert_select "#pwa-push-title", text: I18n.t("pwa.push.title", locale: :en)
+    assert_match(/pwaPush\(\)/, response.body)
   ensure
     ENV.delete("VAPID_PUBLIC_KEY")
     ENV.delete("VAPID_PRIVATE_KEY")

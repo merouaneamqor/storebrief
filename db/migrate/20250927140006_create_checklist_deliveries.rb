@@ -10,7 +10,7 @@ class CreateChecklistDeliveries < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :checklist_deliveries, [:checklist_id, :org_unit_id], unique: true
+    add_index :checklist_deliveries, [ :checklist_id, :org_unit_id ], unique: true
     add_index :checklist_deliveries, :client_uuid, unique: true, where: "client_uuid IS NOT NULL"
   end
 end

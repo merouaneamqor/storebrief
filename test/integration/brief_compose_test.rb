@@ -93,15 +93,4 @@ class BriefComposeTest < ActionDispatch::IntegrationTest
     assert_redirected_to communication_path(brief)
     assert_equal [ store.id ], brief.deliveries.pluck(:org_unit_id)
   end
-
-  private
-
-  def create_tenant(name, slug)
-    Tenant.create!(
-      name: name,
-      slug: slug,
-      brand_name: name.split.first,
-      **Tenant.default_palette
-    )
-  end
 end

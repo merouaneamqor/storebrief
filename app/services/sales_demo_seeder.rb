@@ -265,8 +265,8 @@ class SalesDemoSeeder
     ]
 
     {
-      regions: [casa, rabat, marrakech],
-      areas: [casa_centre, ain_sebaa, agdal, gueliz],
+      regions: [ casa, rabat, marrakech ],
+      areas: [ casa_centre, ain_sebaa, agdal, gueliz ],
       stores: stores,
       flagship: stores.first
     }
@@ -412,7 +412,7 @@ class SalesDemoSeeder
       format: "task",
       status: "draft"
     )
-    follow_up.send_to!([stores[2].id, stores[3].id, stores[5].id])
+    follow_up.send_to!([ stores[2].id, stores[3].id, stores[5].id ])
   end
 
   def seed_checklists!(tenant, users, units)
@@ -444,6 +444,6 @@ class SalesDemoSeeder
     clean_run = Checklist.build_from_template(cleanliness, author: hq)
     clean_run.save!
     # Maarif + Anfa — both have demo store users (and often a subscribed device).
-    clean_run.send_to!([stores[0].id, stores[1].id])
+    clean_run.send_to!([ stores[0].id, stores[1].id ])
   end
 end

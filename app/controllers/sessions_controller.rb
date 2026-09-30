@@ -12,7 +12,7 @@ class SessionsController < ApplicationController
     @login_tenant = login_tenant
     return unless current_user
     return redirect_to(app_root_path) if current_user.super_admin?
-    return redirect_to(app_root_path) if !host_tenant? || current_user.tenant_id == Current.tenant.id
+    redirect_to(app_root_path) if !host_tenant? || current_user.tenant_id == Current.tenant.id
   end
 
   def create
