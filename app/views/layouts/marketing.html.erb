@@ -8,8 +8,8 @@
     <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <% if brand&.favicon&.attached? %>
-      <link rel="icon" href="<%= url_for(brand.favicon) %>" type="<%= brand.favicon.content_type %>">
+    <% if (favicon_src = tenant_brand_asset_src(brand, :favicon)) %>
+      <link rel="icon" href="<%= favicon_src %>" type="image/svg+xml">
     <% else %>
       <link rel="icon" href="/icon.png" type="image/png">
     <% end %>
@@ -27,10 +27,10 @@
       <div class="m-nav__inner">
         <a href="<%= brand ? login_path : root_path %>" class="m-brand">
           <% if brand %>
-            <% if brand.logo_mark.attached? %>
-              <%= image_tag brand.logo_mark, class: "m-brand__mark-img", alt: "" %>
-            <% elsif brand.logo.attached? %>
-              <%= image_tag brand.logo, class: "m-brand__logo", alt: "" %>
+            <% if (mark_src = tenant_brand_asset_src(brand, :logo_mark)) %>
+              <%= image_tag mark_src, class: "m-brand__mark-img", alt: "" %>
+            <% elsif (logo_src = tenant_brand_asset_src(brand, :logo)) %>
+              <%= image_tag logo_src, class: "m-brand__logo", alt: "" %>
             <% else %>
               <span class="m-mark m-mark--tenant" aria-hidden="true"></span>
             <% end %>
@@ -80,8 +80,8 @@
         <% if brand %>
           <div>
             <a href="<%= login_path %>" class="m-brand">
-              <% if brand.logo_mark.attached? %>
-                <%= image_tag brand.logo_mark, class: "m-brand__mark-img", alt: "" %>
+              <% if (mark_src = tenant_brand_asset_src(brand, :logo_mark)) %>
+                <%= image_tag mark_src, class: "m-brand__mark-img", alt: "" %>
               <% else %>
                 <span class="m-mark m-mark--tenant" aria-hidden="true"></span>
               <% end %>

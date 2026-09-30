@@ -7,8 +7,8 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
-    <% if current_tenant&.favicon&.attached? %>
-      <link rel="icon" href="<%= url_for(current_tenant.favicon) %>" type="<%= current_tenant.favicon.content_type %>">
+    <% if (favicon_src = tenant_brand_asset_src(current_tenant, :favicon)) %>
+      <link rel="icon" href="<%= favicon_src %>" type="image/svg+xml">
     <% else %>
       <link rel="icon" href="/icon.png" type="image/png">
       <link rel="icon" href="/icon.svg" type="image/svg+xml">
