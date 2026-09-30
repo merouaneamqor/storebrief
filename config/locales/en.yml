@@ -323,8 +323,8 @@ en:
     hero:
       brand: "Vazivo"
       kicker: "Czech for connective tissue"
-      title: "The tissue that holds your stores together."
-      lede: "In biology, connective tissue supports, binds, and protects. Vazivo does that for multi-store retail: one instruction from head office, every store finishes it on the phone, and you see the proof."
+      title: "Connective tissue for retail networks."
+      lede: "Just as biological vazivo holds organs together and lets nutrients flow, Vazivo links head office, regions, and stores—so one instruction reaches every site, work finishes on the phone, and proof flows back."
       demo: "Book a demo"
       explore: "See this morning"
       example: "Example · this morning"
@@ -344,10 +344,10 @@ en:
       a: "Français, English, Español, العربية"
       b: "Built for the phone"
       c: "The photo is the proof"
-      d: "It holds without a network"
+      d: "Proof flows back even offline"
     trust:
-      title: "Named for what holds a body together."
-      body: "Vazivo is the Czech word for fibrous connective tissue — the structure that supports, binds, protects, and keeps other tissues in place. Your store network needs the same: instructions that reach the right places, work that finishes on the floor, and proof head office can trust — without replacing your cash register or stock tools."
+      title: "Named for what binds a body—and a network."
+      body: "In Czech, vazivo is fibrous connective tissue: cells and fibers in a living matrix that support, bind, protect, and keep other tissues in place. Your retail network needs the same layer—the digital tissue between standalone systems and store floors—so instructions, checklists, and photos move cleanly, without replacing your cash register or stock tools."
     problems:
       title: "What still happens in too many networks"
       p1_title: "The instruction goes out. You don't know who saw it."

@@ -1,6 +1,6 @@
 # Vazivo
 
-**Vazivo** is Czech for connective tissue — and the product does the same for multi-store retail: it supports, binds, and protects the work between head office and every store.
+**Vazivo** is Czech for connective tissue. As a product, it is connective tissue for retail networks: the layer that links head office, regions, and stores so instructions, work, and proof can flow.
 
 Multi-tenant Rails app for sending **news** and **task** briefs across a region → area → store hierarchy — with a **Morocco first release**: French/Arabic (+ RTL), offline checklists, WhatsApp task alerts (stub), and bilingual store templates.
 

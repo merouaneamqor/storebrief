@@ -323,8 +323,8 @@ es:
     hero:
       brand: "Vazivo"
       kicker: "En checo: tejido conectivo"
-      title: "El tejido que mantiene unidas sus tiendas."
-      lede: "En biología, el tejido conectivo sostiene, une y protege. Vazivo hace lo mismo para el retail multi-tienda: una instrucción de la sede, cada tienda la termina en el teléfono, y usted ve la prueba."
+      title: "Tejido conectivo para redes de retail."
+      lede: "Igual que el vazivo biológico une los órganos y deja fluir los nutrientes, Vazivo conecta la sede, las regiones y las tiendas — para que una instrucción llegue a cada local, el trabajo se termine en el teléfono y la prueba vuelva."
       demo: "Reservar una demo"
       explore: "Ver esta mañana"
       example: "Ejemplo · esta mañana"
@@ -344,10 +344,10 @@ es:
       a: "Français, English, Español, العربية"
       b: "Hecho para el teléfono"
       c: "La foto es la prueba"
-      d: "Aguanta sin red"
+      d: "La prueba vuelve aunque no haya red"
     trust:
-      title: "Nombrado por lo que mantiene unido un cuerpo."
-      body: "Vazivo es la palabra checa para el tejido conectivo fibroso — la estructura que sostiene, une, protege y mantiene cada tejido en su sitio. Su red necesita lo mismo: instrucciones en el lugar correcto, trabajo terminado en tienda y una prueba en la que la sede puede confiar — sin sustituir su caja ni sus herramientas de stock."
+      title: "Nombrado por lo que une un cuerpo — y una red."
+      body: "En checo, vazivo es el tejido conectivo fibroso: células y fibras en una matriz viva que sostiene, une, protege y mantiene cada tejido en su sitio. Su red de retail necesita la misma capa — el tejido digital entre sistemas separados y el suelo de tienda — para que instrucciones, checklists y fotos circulen con claridad, sin sustituir su caja ni sus herramientas de stock."
     problems:
       title: "Lo que todavía pasa en demasiadas redes"
       p1_title: "La consigna sale. No sabe quién la vio."

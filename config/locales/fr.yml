@@ -323,8 +323,8 @@ fr:
     hero:
       brand: "Vazivo"
       kicker: "En tchèque : tissu conjonctif"
-      title: "Le tissu qui tient vos magasins ensemble."
-      lede: "En biologie, le tissu conjonctif soutient, relie et protège. Vazivo fait la même chose pour le retail multi-magasins : une consigne du siège, chaque magasin la termine sur le téléphone, et vous voyez la preuve."
+      title: "Le tissu conjonctif des réseaux de magasins."
+      lede: "Comme le vazivo biologique relie les organes et laisse circuler les nutriments, Vazivo relie le siège, les régions et les magasins — pour qu’une consigne atteigne chaque site, que le travail se termine sur le téléphone, et que la preuve remonte."
       demo: "Réserver une démo"
       explore: "Voir cette matinée"
       example: "Exemple · ce matin"
@@ -344,10 +344,10 @@ fr:
       a: "Français, English, Español, العربية"
       b: "Fait pour le téléphone"
       c: "La photo comme preuve"
-      d: "Ça tient sans réseau"
+      d: "La preuve remonte même hors ligne"
     trust:
-      title: "Nommé d’après ce qui tient un corps ensemble."
-      body: "Vazivo est le mot tchèque pour le tissu conjonctif fibreux — la structure qui soutient, relie, protège et maintient chaque tissu à sa place. Votre réseau a besoin de la même chose : des consignes au bon endroit, un travail terminé en magasin, une preuve que le siège peut croire — sans remplacer votre caisse ni vos outils de stock."
+      title: "Nommé d’après ce qui relie un corps — et un réseau."
+      body: "En tchèque, vazivo désigne le tissu conjonctif fibreux : cellules et fibres dans une matrice vivante qui soutient, relie, protège et maintient chaque tissu à sa place. Votre réseau retail a besoin de la même couche — le tissu numérique entre systèmes séparés et magasins — pour que consignes, checklists et photos circulent clairement, sans remplacer votre caisse ni vos outils de stock."
     problems:
       title: "Ce qui se passe encore dans trop de réseaux"
       p1_title: "La consigne part. Vous ne savez pas qui l’a vue."
