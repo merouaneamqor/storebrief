@@ -27,12 +27,20 @@ class User < ApplicationRecord
     memberships.exists?(role: "store")
   end
 
+  def area?
+    memberships.exists?(role: "area")
+  end
+
   def primary_membership
     memberships.includes(:org_unit).order(:id).first
   end
 
   def store_org_unit
     memberships.includes(:org_unit).find { |m| m.role == "store" }&.org_unit
+  end
+
+  def area_org_unit
+    memberships.includes(:org_unit).find { |m| m.role == "area" }&.org_unit
   end
 
   def arabic?

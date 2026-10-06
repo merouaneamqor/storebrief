@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -50,6 +50,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.string "client_uuid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "assignee_id"
+    t.datetime "due_at"
+    t.integer "escalation_level", default: 0, null: false
+    t.datetime "escalated_at"
+    t.index ["assignee_id"], name: "index_checklist_deliveries_on_assignee_id"
     t.index ["checklist_id", "org_unit_id"], name: "index_checklist_deliveries_on_checklist_id_and_org_unit_id", unique: true
     t.index ["checklist_id"], name: "index_checklist_deliveries_on_checklist_id"
     t.index ["client_uuid"], name: "index_checklist_deliveries_on_client_uuid", unique: true, where: "(client_uuid IS NOT NULL)"
@@ -106,8 +111,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.string "status", default: "draft", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "campaign_on"
+    t.bigint "playbook_id"
     t.index ["author_id"], name: "index_checklists_on_author_id"
     t.index ["checklist_template_id"], name: "index_checklists_on_checklist_template_id"
+    t.index ["playbook_id"], name: "index_checklists_on_playbook_id"
     t.index ["tenant_id", "status"], name: "index_checklists_on_tenant_id_and_status"
     t.index ["tenant_id"], name: "index_checklists_on_tenant_id"
   end
@@ -137,7 +145,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.string "title_ar"
     t.text "body_fr", null: false
     t.text "body_ar"
+    t.string "source", default: "compose", null: false
+    t.boolean "requires_proof", default: false, null: false
+    t.datetime "due_at"
+    t.bigint "playbook_id"
     t.index ["author_id"], name: "index_communications_on_author_id"
+    t.index ["playbook_id"], name: "index_communications_on_playbook_id"
     t.index ["tenant_id", "status"], name: "index_communications_on_tenant_id_and_status"
     t.index ["tenant_id"], name: "index_communications_on_tenant_id"
   end
@@ -149,9 +162,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "awareness", default: "pending", null: false
+    t.bigint "assignee_id"
+    t.datetime "due_at"
+    t.integer "escalation_level", default: 0, null: false
+    t.datetime "escalated_at"
+    t.string "verdict"
+    t.text "verdict_note"
+    t.bigint "validated_by_id"
+    t.datetime "validated_at"
+    t.index ["assignee_id"], name: "index_deliveries_on_assignee_id"
     t.index ["communication_id", "org_unit_id"], name: "index_deliveries_on_communication_id_and_org_unit_id", unique: true
     t.index ["communication_id"], name: "index_deliveries_on_communication_id"
     t.index ["org_unit_id"], name: "index_deliveries_on_org_unit_id"
+    t.index ["validated_by_id"], name: "index_deliveries_on_validated_by_id"
   end
 
   create_table "delivery_answers", force: :cascade do |t|
@@ -178,6 +202,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.index ["created_at"], name: "index_demo_requests_on_created_at"
   end
 
+  create_table "escalation_events", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "subject_type", null: false
+    t.bigint "subject_id", null: false
+    t.integer "level", null: false
+    t.string "notified_role", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subject_type", "subject_id"], name: "index_escalation_events_on_subject"
+    t.index ["tenant_id"], name: "index_escalation_events_on_tenant_id"
+  end
+
   create_table "memberships", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "org_unit_id", null: false
@@ -194,12 +230,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.bigint "user_id"
     t.string "notifiable_type", null: false
     t.bigint "notifiable_id", null: false
-    t.string "channel", default: "whatsapp", null: false
+    t.string "channel", default: "web_push", null: false
     t.string "phone"
     t.text "message", null: false
     t.string "status", default: "stubbed", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "billed", default: false, null: false
     t.index ["notifiable_type", "notifiable_id"], name: "index_notification_logs_on_notifiable_type_and_notifiable_id"
     t.index ["tenant_id"], name: "index_notification_logs_on_tenant_id"
     t.index ["user_id"], name: "index_notification_logs_on_user_id"
@@ -217,6 +254,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.index ["tenant_id"], name: "index_org_units_on_tenant_id"
   end
 
+  create_table "playbooks", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "key", null: false
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.text "description_fr", null: false
+    t.text "description_ar"
+    t.jsonb "steps", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id", "key"], name: "index_playbooks_on_tenant_id_and_key", unique: true
+    t.index ["tenant_id"], name: "index_playbooks_on_tenant_id"
+  end
+
   create_table "push_subscriptions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "tenant_id", null: false
@@ -229,6 +280,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
     t.index ["tenant_id"], name: "index_push_subscriptions_on_tenant_id"
     t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
+  create_table "tenant_mail_settings", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "from_email"
+    t.string "from_name"
+    t.string "smtp_address"
+    t.integer "smtp_port", default: 587, null: false
+    t.string "smtp_domain"
+    t.string "smtp_username"
+    t.string "smtp_password"
+    t.string "smtp_authentication", default: "plain", null: false
+    t.boolean "smtp_enable_starttls_auto", default: true, null: false
+    t.boolean "use_platform", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id"], name: "index_tenant_mail_settings_on_tenant_id", unique: true
   end
 
   create_table "tenant_saml_settings", force: :cascade do |t|
@@ -267,6 +335,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
     t.string "brand_name"
     t.string "tagline"
     t.jsonb "features", default: {}, null: false
+    t.boolean "ramadan_mode", default: false, null: false
+    t.string "opens_at", default: "09:00", null: false
+    t.string "closes_at", default: "21:00", null: false
+    t.string "ramadan_opens_at", default: "12:00", null: false
+    t.string "ramadan_closes_at", default: "01:00", null: false
     t.index ["slug"], name: "index_tenants_on_slug", unique: true
   end
 
@@ -289,28 +362,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_100000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "checklist_deliveries", "checklists"
   add_foreign_key "checklist_deliveries", "org_units"
+  add_foreign_key "checklist_deliveries", "users", column: "assignee_id"
   add_foreign_key "checklist_item_responses", "checklist_deliveries"
   add_foreign_key "checklist_item_responses", "checklist_items"
   add_foreign_key "checklist_items", "checklists"
   add_foreign_key "checklist_templates", "tenants"
   add_foreign_key "checklists", "checklist_templates"
+  add_foreign_key "checklists", "playbooks", on_delete: :nullify
   add_foreign_key "checklists", "tenants"
   add_foreign_key "checklists", "users", column: "author_id"
   add_foreign_key "communication_questions", "communications"
+  add_foreign_key "communications", "playbooks", on_delete: :nullify
   add_foreign_key "communications", "tenants"
   add_foreign_key "communications", "users", column: "author_id"
   add_foreign_key "deliveries", "communications"
   add_foreign_key "deliveries", "org_units"
+  add_foreign_key "deliveries", "users", column: "assignee_id"
+  add_foreign_key "deliveries", "users", column: "validated_by_id"
   add_foreign_key "delivery_answers", "communication_questions"
   add_foreign_key "delivery_answers", "deliveries"
+  add_foreign_key "escalation_events", "tenants"
   add_foreign_key "memberships", "org_units"
   add_foreign_key "memberships", "users"
   add_foreign_key "notification_logs", "tenants"
   add_foreign_key "notification_logs", "users"
   add_foreign_key "org_units", "org_units", column: "parent_id"
   add_foreign_key "org_units", "tenants"
+  add_foreign_key "playbooks", "tenants"
   add_foreign_key "push_subscriptions", "tenants"
   add_foreign_key "push_subscriptions", "users"
+  add_foreign_key "tenant_mail_settings", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
 end

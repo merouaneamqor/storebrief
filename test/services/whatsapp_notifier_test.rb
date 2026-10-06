@@ -2,11 +2,17 @@ require "test_helper"
 
 class WhatsappNotifierTest < ActiveSupport::TestCase
   test "sending a checklist logs a stubbed WhatsApp message for store phones" do
-    brand = build_brand("whatsapp-on", store_locale: "ar", whatsapp_phone: "+212600000000")
+    brand = build_brand(
+      "whatsapp-on",
+      store_locale: "ar",
+      whatsapp_phone: "+212600000000",
+      features: { whatsapp_alerts: true }
+    )
     checklist = send_checklist(brand)
 
     log = NotificationLog.find_by!(channel: "whatsapp", notifiable: checklist)
     assert_equal "stubbed", log.status
+    assert log.billed?
     assert_equal brand.store_user, log.user
     assert_equal "+212600000000", log.phone
     assert_includes log.message, "/checklists/deliveries/#{checklist.checklist_deliveries.first.id}"
