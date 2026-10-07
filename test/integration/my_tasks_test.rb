@@ -66,7 +66,7 @@ class MyTasksTest < ActionDispatch::IntegrationTest
 
   test "store user still sees a task assigned to them in another store" do
     task = seed_task("Audit cross-store", store: @second_store)
-    task.update!(assignee: @brand.store_user)
+    task.deliveries.find_by!(org_unit: @second_store).update!(assignee: @brand.store_user)
 
     sign_in(@brand.store_user)
     get inbox_index_path
@@ -78,7 +78,7 @@ class MyTasksTest < ActionDispatch::IntegrationTest
 
   test "my tasks hides finished tasks" do
     done_task = seed_task("Déjà bouclé", store: @store)
-    done_task.update!(status: "completed", completed_at: Time.current)
+    done_task.deliveries.find_by!(org_unit: @store).update!(status: "completed", completed_at: Time.current)
 
     sign_in(@brand.store_user)
     get inbox_index_path
