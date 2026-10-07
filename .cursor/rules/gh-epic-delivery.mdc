@@ -13,7 +13,8 @@ At session start (and when the user asks to continue roadmap work), follow the *
 2. **Pick Ready** — only `Ready` / assigned P0 (or user-named) child issues; one issue = one branch = one agent.
 3. **Trace** — comment on the issue → set Project status `In progress` → implement on `feature/<n>-slug` (worktree if parallel) → tests via Docker Compose → `gh pr create` linking `#n`.
 4. **Close the loop** — wait for CI green → rebase/resolve if dirty → squash-merge → close issue → Project `Done`.
-5. **Never stop at “PR opened”** when the user wants delivery through merge unless they say review-only.
+5. **Verify Render** — after merges to `main`, run the **vazivo-render-checks** skill (live deploy SHA, fix `update_failed`).
+6. **Never stop at “PR opened”** when the user wants delivery through merge unless they say review-only.
 
 ## Hard product constraints (still apply)
 

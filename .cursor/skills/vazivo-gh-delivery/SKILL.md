@@ -101,6 +101,7 @@ When user wants ship/merge (default for “continue delivery”):
 5. Merge **sequentially** when PRs touch shared files; wait for GitHub to recalculate between merges
 6. Close issue if not auto-closed; set Project status **Done**
 7. `git checkout main && git pull`
+8. **Render** — follow **vazivo-render-checks**: confirm `storebrief` deploy is `live` on the new SHA; if `update_failed`, fix migrations/logs and redeploy via push
 
 ## Phase 6 — Report
 

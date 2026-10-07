@@ -86,9 +86,10 @@ Roadmap work uses GitHub epics → Ready issues → feature branches/subagents �
 
 - Always-on rule: [`.cursor/rules/gh-epic-delivery.mdc`](.cursor/rules/gh-epic-delivery.mdc)
 - Full skill: [`.cursor/skills/vazivo-gh-delivery/SKILL.md`](.cursor/skills/vazivo-gh-delivery/SKILL.md)
+- Render skill: [`.cursor/skills/vazivo-render-checks/SKILL.md`](.cursor/skills/vazivo-render-checks/SKILL.md)
 - Board: [Vazivo Capability Roadmap](https://github.com/users/merouaneamqor/projects/6)
 
-At session start, sync the board with `gh` before inventing work.
+At session start, sync the board with `gh` before inventing work. After merges to `main`, verify the Render `storebrief` deploy.
 
 ## Do / don't
 

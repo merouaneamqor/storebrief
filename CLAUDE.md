@@ -45,7 +45,7 @@ docker compose exec -T web bash -lc \
 
 ## Roadmap delivery
 
-Each session: sync GitHub Project/epics, pick Ready issues, implement (agents/worktrees), open PRs, merge when CI is green. See `.cursor/rules/gh-epic-delivery.mdc` and `.cursor/skills/vazivo-gh-delivery/SKILL.md`.
+Each session: sync GitHub Project/epics, pick Ready issues, implement (agents/worktrees), open PRs, merge when CI is green, then verify Render `storebrief` deploys. See `.cursor/rules/gh-epic-delivery.mdc`, `.cursor/skills/vazivo-gh-delivery/SKILL.md`, and `.cursor/skills/vazivo-render-checks/SKILL.md`.
 
 ## When unsure
 
