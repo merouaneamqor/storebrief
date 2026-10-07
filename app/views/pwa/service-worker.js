@@ -1,6 +1,6 @@
 // Vazivo PWA service worker — shell cache + Web Push.
 
-const CACHE_NAME = "vazivo-shell-v2"
+const CACHE_NAME = "vazivo-shell-v3"
 const PRECACHE = ["/icon.png"]
 
 self.addEventListener("install", (event) => {
@@ -21,10 +21,25 @@ self.addEventListener("fetch", (event) => {
   const { request } = event
   if (request.method !== "GET") return
 
+  // Never substitute the app icon for HTML navigations — that made every
+  // offline/failed page look like a lone 512×512 icon.
+  const isDocument = request.mode === "navigate" ||
+    (request.headers.get("accept") || "").includes("text/html")
+
   event.respondWith(
     fetch(request)
       .then((response) => response)
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("/icon.png")))
+      .catch(async () => {
+        const cached = await caches.match(request)
+        if (cached) return cached
+        if (isDocument) {
+          return new Response("Vazivo is offline. Try again when the network is back.", {
+            status: 503,
+            headers: { "Content-Type": "text/plain; charset=utf-8" }
+          })
+        }
+        return caches.match("/icon.png")
+      })
   )
 })
 
