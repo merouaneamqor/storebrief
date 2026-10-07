@@ -1,0 +1,10 @@
+<% content_for :title, "#{t('morocco.visits.new')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.visits.back"), visits_path %></p>
+    <h1><%= t("morocco.visits.new") %></h1>
+  </div>
+</header>
+
+<%= render "form" %>

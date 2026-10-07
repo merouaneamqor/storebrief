@@ -1,0 +1,8 @@
+.visits-table__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+
+  form { margin: 0; }
+}

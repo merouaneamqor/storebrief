@@ -1,0 +1,32 @@
+<%= form_with model: @visit, class: "pb-editor__form" do |f| %>
+  <% if @visit.errors.any? %>
+    <div class="flash flash--alert"><%= @visit.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <section class="pb-editor__card">
+    <label>
+      <span><%= t("morocco.visits.fields.store") %></span>
+      <%= f.collection_select :org_unit_id, @stores, :id, :name, { prompt: t("morocco.visits.choose_store") }, class: "billing-input", required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.visits.fields.auditor") %></span>
+      <%= f.collection_select :auditor_id, @auditors, :id, :name, { prompt: t("morocco.visits.choose_auditor") }, class: "billing-input", required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.visits.fields.planned_at") %></span>
+      <%= f.datetime_local_field :planned_at, class: "billing-input", required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.visits.fields.notes") %></span>
+      <%= f.text_area :notes, class: "billing-input", rows: 3 %>
+    </label>
+  </section>
+
+  <div class="pb-editor__actions sticky-action">
+    <%= link_to t("morocco.visits.back"), visits_path, class: "btn btn--ghost" %>
+    <button type="submit" class="btn btn--primary">
+      <%= icon("check-circle", css_class: "icon") %>
+      <%= t("morocco.visits.save") %>
+    </button>
+  </div>
+<% end %>
