@@ -1,0 +1,29 @@
+<% content_for :title, "#{@task.title} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.my_tasks.back"), my_tasks_path %></p>
+    <h1><%= @task.title %></h1>
+    <p class="meta">
+      <span class="badge"><%= t("morocco.my_tasks.kind.#{@task.kind}") %></span>
+      <%= priority_badge(@task.priority) %>
+    </p>
+  </div>
+</header>
+
+<section class="panel">
+  <dl class="detail-grid">
+    <dt><%= t("morocco.my_tasks.store") %></dt>
+    <dd><%= @task.store_name %></dd>
+    <dt><%= t("morocco.my_tasks.due") %></dt>
+    <dd><%= @task.due_at ? morocco_due_label(@task.due_at) : "-" %></dd>
+    <dt><%= t("morocco.owner.status") %></dt>
+    <dd><%= t("morocco.tone.#{@task.tone}") %></dd>
+  </dl>
+
+  <% if current_user.store_org_unit && @task.kind == "task" %>
+    <p class="meta"><%= link_to t("morocco.my_tasks.open_work"), inbox_path(@task.record), class: "btn btn--primary" %></p>
+  <% elsif current_user.store_org_unit && @task.kind == "checklist" %>
+    <p class="meta"><%= link_to t("morocco.my_tasks.open_work"), checklists_delivery_path(@task.record), class: "btn btn--primary" %></p>
+  <% end %>
+</section>
