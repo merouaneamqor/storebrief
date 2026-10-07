@@ -79,7 +79,9 @@
       </p>
     <% end %>
 
-    <% if (step = @delivery.next_awareness_step) %>
+    <% if @blocked %>
+      <div class="task-blocked"><%= @blocking_reason %></div>
+    <% elsif (step = @delivery.next_awareness_step) %>
       <%= form_with url: advance_inbox_path(@delivery), method: :post, multipart: true, class: "task-card__action",
             data: { turbo_submits_with: t("morocco.sending") } do %>
         <%= hidden_field_tag :step, step %>
@@ -158,6 +160,8 @@
         <% end %>
       </section>
     <% end %>
+  <% elsif @blocked %>
+    <div class="task-blocked"><%= @blocking_reason %></div>
   <% elsif @delivery.pending? %>
     <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, multipart: true, class: "brief-answer-form" do %>
       <% if @questions.any? %>
