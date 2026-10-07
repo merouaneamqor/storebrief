@@ -1002,6 +1002,8 @@ body.rtl .section-title {
 .badge--priority-urgent { background: var(--tone-late-bg); color: var(--tone-late); }
 .badge--priority-important { background: var(--tone-urgent-bg); color: var(--tone-urgent); }
 .priority-form { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+.template-save-form { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+.page-head__actions { display: flex; align-items: center; gap: 0.5rem; }
 .badge--sent,
 .badge--completed,
 .badge--read { background: var(--accent-soft); color: var(--accent-deep); }

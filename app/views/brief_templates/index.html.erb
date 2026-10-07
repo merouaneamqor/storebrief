@@ -1,0 +1,39 @@
+<% content_for :title, "#{t('brief_templates.title')} · Vazivo" %>
+
+<div class="page-head">
+  <div>
+    <h1><%= t("brief_templates.title") %></h1>
+    <p class="lede" style="margin-bottom:0;"><%= t("brief_templates.lede") %></p>
+  </div>
+  <%= link_to t("communications.back"), communications_path, class: "btn btn--ghost" %>
+</div>
+
+<section class="panel">
+  <% if @templates.any? %>
+    <ul class="list">
+      <% @templates.each do |template| %>
+        <li>
+          <div>
+            <strong><%= template.name %></strong>
+            <div class="meta">
+              <%= localized_badge(template.format) %>
+              <%= priority_badge(template.priority) %>
+              · <%= t("brief_templates.questions", count: template.question_defs.size) %>
+              <% if template.requires_proof? %>
+                · <%= t("brief_templates.proof") %>
+              <% end %>
+            </div>
+          </div>
+          <div class="list__actions">
+            <%= button_to t("brief_templates.use"), use_brief_template_path(template), method: :post, class: "btn" %>
+            <%= button_to t("brief_templates.delete"), brief_template_path(template), method: :delete,
+                  class: "btn btn--ghost",
+                  data: { turbo_confirm: t("brief_templates.delete_confirm") } %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty"><%= t("brief_templates.empty") %></p>
+  <% end %>
+</section>

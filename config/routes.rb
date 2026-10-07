@@ -36,6 +36,13 @@ Rails.application.routes.draw do
       post :notify_push
       post :stop_recurrence
       patch :priority, action: :update_priority
+      post :save_template
+    end
+  end
+
+  resources :brief_templates, only: %i[index destroy] do
+    member do
+      post :use
     end
   end
 

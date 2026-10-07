@@ -24,6 +24,11 @@
         <noscript><%= f.submit t("communications.priority_save"), class: "btn btn--ghost" %></noscript>
       <% end %>
     <% end %>
+    <%= form_with url: save_template_communication_path(@communication), method: :post, class: "template-save-form" do %>
+      <%= text_field_tag :template_name, nil, placeholder: t("brief_templates.name_placeholder"),
+            "aria-label": t("brief_templates.name_placeholder") %>
+      <button type="submit" class="btn btn--ghost"><%= t("brief_templates.save_as") %></button>
+    <% end %>
   </div>
 </header>
 

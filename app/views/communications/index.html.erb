@@ -5,7 +5,10 @@
     <h1><%= t("communications.title") %></h1>
     <p class="lede" style="margin-bottom:0;"><%= t("communications.lede", tenant: current_tenant.name) %></p>
   </div>
-  <%= link_to t("communications.compose"), new_communication_path, class: "btn" %>
+  <div class="page-head__actions">
+    <%= link_to t("brief_templates.title"), brief_templates_path, class: "btn btn--ghost" %>
+    <%= link_to t("communications.compose"), new_communication_path, class: "btn" %>
+  </div>
 </div>
 
 <section class="panel">
