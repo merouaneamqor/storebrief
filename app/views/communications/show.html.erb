@@ -46,6 +46,34 @@
   </section>
 <% end %>
 
+<% if @communication.recurring? || @communication.occurrence? %>
+  <% source = @communication.series_source %>
+  <section class="panel brief-recurrence-card">
+    <p class="section-title"><%= t("communications.recurrence.title") %></p>
+    <% if @communication.occurrence? %>
+      <p class="meta">
+        <%= t("communications.recurrence.occurrence_of", date: l(@communication.occurrence_on, format: :long)) %>
+        · <%= link_to t("communications.recurrence.series_source"), communication_path(source) %>
+      </p>
+    <% else %>
+      <p><strong><%= recurrence_summary(@communication.recurrence_rule) %></strong></p>
+      <p class="meta">
+        <% if @communication.recurrence_active? %>
+          <%= t("communications.recurrence.next_on", date: l(@communication.recurrence_next_on, format: :long)) %>
+        <% else %>
+          <%= t("communications.recurrence.ended") %>
+        <% end %>
+        · <%= t("communications.recurrence.occurrences_count", count: @communication.occurrences.count) %>
+      </p>
+      <% if @communication.recurrence_active? %>
+        <%= button_to t("communications.recurrence.stop"), stop_recurrence_communication_path(@communication),
+              method: :post, class: "btn btn--ghost",
+              data: { turbo_confirm: t("communications.recurrence.stop_confirm") } %>
+      <% end %>
+    <% end %>
+  </section>
+<% end %>
+
 <section class="panel brief-progress-card">
   <p class="section-title"><%= t("communications.delivery") %></p>
   <% if morocco && rollup %>

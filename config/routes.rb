@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     member do
       post :send_brief
       post :notify_push
+      post :stop_recurrence
     end
   end
 
@@ -56,6 +57,7 @@ Rails.application.routes.draw do
     member do
       post :send_checklist
       post :notify_push
+      post :stop_recurrence
     end
   end
 

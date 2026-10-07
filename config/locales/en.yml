@@ -181,6 +181,36 @@ en:
     lede: "Region → area → store for %{tenant}."
     empty: "No units for this brand."
   communications:
+    recurrence:
+      title: "Repeat"
+      help: "Send this task again on a schedule. Stores see only the current one."
+      frequency: "Repeat"
+      frequencies:
+        none: "Does not repeat"
+        daily: "Daily"
+        weekly: "Weekly"
+        custom: "Every N days"
+      weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+      interval: "Every how many days"
+      ends_on: "Stop repeating after (optional)"
+      summary:
+        daily: "Every day"
+        weekly: "Every week on %{days}"
+        custom:
+          one: "Every day"
+          other: "Every %{count} days"
+        until: "until %{date}"
+      next_on: "Next send: %{date}"
+      ended: "No further sends planned."
+      occurrences_count:
+        one: "1 occurrence sent"
+        other: "%{count} occurrences sent"
+      occurrence_of: "Recurring task for %{date}"
+      series_source: "Open the series"
+      stop: "Stop repeating"
+      stop_confirm: "Stop sending this task again? Current work is not affected."
+      stopped: "Repeat stopped."
+      not_active: "This task is not repeating."
     title: "Briefs"
     lede: "Communications for %{tenant}."
     compose: "Write a brief"

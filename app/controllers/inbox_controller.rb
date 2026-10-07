@@ -3,7 +3,7 @@ class InboxController < ApplicationController
   before_action :set_store
 
   def index
-    @deliveries = Delivery.joins(:communication)
+    @deliveries = Delivery.current_instances
                           .where(org_unit: @store, communications: { tenant_id: tenant_scope.id, status: "sent" })
                           .includes(:communication)
                           .order("communications.created_at DESC")

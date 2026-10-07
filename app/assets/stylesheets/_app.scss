@@ -1803,6 +1803,18 @@ body.rtl .section-title {
   border-top: 1px solid var(--line, #e2e8f0);
 }
 
+.brief-recurrence {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.brief-recurrence__field {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 .brief-choices {
   display: grid;
   grid-template-columns: 1fr 1fr;

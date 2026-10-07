@@ -189,6 +189,36 @@ ar:
     lede: "تسلسل المنطقة → القطاع → المتجر لـ %{tenant}."
     empty: "لا وحدات لهذه العلامة."
   communications:
+    recurrence:
+      title: "التكرار"
+      help: "أعد إرسال هذه المهمة وفق جدول. ترى المتاجر النسخة الحالية فقط."
+      frequency: "التكرار"
+      frequencies:
+        none: "لا تتكرر"
+        daily: "كل يوم"
+        weekly: "كل أسبوع"
+        custom: "كل N أيام"
+      weekdays: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+      interval: "كل كم يوما"
+      ends_on: "إيقاف التكرار بعد (اختياري)"
+      summary:
+        daily: "كل يوم"
+        weekly: "كل أسبوع: %{days}"
+        custom:
+          one: "كل يوم"
+          other: "كل %{count} أيام"
+        until: "حتى %{date}"
+      next_on: "الإرسال التالي: %{date}"
+      ended: "لا توجد إرسالات أخرى مجدولة."
+      occurrences_count:
+        one: "تم إرسال نسخة واحدة"
+        other: "تم إرسال %{count} نسخ"
+      occurrence_of: "مهمة متكررة بتاريخ %{date}"
+      series_source: "فتح السلسلة"
+      stop: "إيقاف التكرار"
+      stop_confirm: "هل تريد إيقاف إرسال هذه المهمة مجددا؟ لا يتأثر العمل الجاري."
+      stopped: "تم إيقاف التكرار."
+      not_active: "هذه المهمة غير متكررة."
     title: "الرسائل"
     lede: "الاتصالات لـ %{tenant}."
     compose: "إنشاء رسالة"

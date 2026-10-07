@@ -162,6 +162,10 @@
           </div>
         </section>
 
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <%= render "recurrence", communication: @communication %>
+        </section>
+
         <section class="brief-settings__block">
           <%= render "targets", units: @target_units, selected_ids: Array(params[:org_unit_ids]), embedded: true %>
         </section>

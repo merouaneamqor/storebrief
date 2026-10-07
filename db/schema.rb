@@ -149,8 +149,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
     t.boolean "requires_proof", default: false, null: false
     t.datetime "due_at"
     t.bigint "playbook_id"
+    t.jsonb "recurrence_rule", default: {}, null: false
+    t.date "recurrence_next_on"
+    t.bigint "recurrence_parent_id"
+    t.date "occurrence_on"
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["playbook_id"], name: "index_communications_on_playbook_id"
+    t.index ["recurrence_next_on"], name: "index_communications_on_recurrence_next_on", where: "(recurrence_next_on IS NOT NULL)"
+    t.index ["recurrence_parent_id", "occurrence_on"], name: "index_communications_on_series_occurrence", unique: true, where: "(recurrence_parent_id IS NOT NULL)"
+    t.index ["recurrence_parent_id"], name: "index_communications_on_recurrence_parent_id"
     t.index ["tenant_id", "status"], name: "index_communications_on_tenant_id_and_status"
     t.index ["tenant_id"], name: "index_communications_on_tenant_id"
   end
@@ -392,6 +399,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
   add_foreign_key "checklists", "tenants"
   add_foreign_key "checklists", "users", column: "author_id"
   add_foreign_key "communication_questions", "communications"
+  add_foreign_key "communications", "communications", column: "recurrence_parent_id", on_delete: :nullify
   add_foreign_key "communications", "playbooks", on_delete: :nullify
   add_foreign_key "communications", "tenants"
   add_foreign_key "communications", "users", column: "author_id"
