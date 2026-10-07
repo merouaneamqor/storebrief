@@ -310,9 +310,25 @@ es:
     answer_title: "Sus respuestas"
     your_answers: "Respuestas"
     back: "← Bandeja"
+    my_tasks:
+      title: "Mis tareas"
+      lede: "Tareas abiertas en las tiendas que gestiona."
+      filter_label: "Filtrar tareas"
+      assigned_to_me: "Asignadas a mí"
+      filters:
+        all: "Todas"
+        overdue: "Atrasadas"
+        today: "Hoy"
+        upcoming: "Próximas"
+      empty:
+        all: "No tiene tareas abiertas."
+        overdue: "Nada atrasado."
+        today: "Nada para hoy."
+        upcoming: "Sin tareas próximas."
   errors:
     select_targets: "Seleccione al menos una tienda o una región"
     no_store: "No hay una tienda asociada."
+    not_assignable: "Puede ver esta tarea pero no actualizarla."
   common:
     news: "Nota"
     task: "Tarea"

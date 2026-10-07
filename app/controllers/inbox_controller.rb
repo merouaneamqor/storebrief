@@ -1,23 +1,28 @@
 class InboxController < ApplicationController
   before_action -> { require_feature!(:briefs) }
-  before_action :set_store
+  before_action :require_store_or_assignment_access, except: :index
 
   def index
-    @deliveries = Delivery.joins(:communication)
-                          .where(org_unit: @store, communications: { tenant_id: tenant_scope.id, status: "sent" })
-                          .includes(:communication)
-                          .order("communications.created_at DESC")
+    @scope = Vazivo::MyTasks::SCOPES.include?(params[:scope].to_s) ? params[:scope].to_s : Vazivo::MyTasks::DEFAULT_SCOPE
+    result = Vazivo::MyTasks.for(user: current_user, tenant: tenant_scope, scope: @scope)
+    @deliveries = result.deliveries
+    @counts = result.counts
+    @store = current_user.store_org_unit
+    @multi_store = @deliveries.map(&:org_unit_id).uniq.size > 1
   end
 
   def show
-    @delivery = find_delivery
+    @delivery = load_delivery
     @communication = @delivery.communication
     @questions = @communication.communication_questions
     @answers = @delivery.delivery_answers.index_by(&:communication_question_id)
+    @store = @delivery.org_unit
   end
 
   def advance
-    @delivery = find_delivery
+    @delivery = load_delivery
+    return unless deny_without_write_access(@delivery)
+
     attach_proof(@delivery)
     if params[:step].to_s == "done" && @delivery.communication.questions?
       @delivery.save_answers!(params[:answers])
@@ -30,7 +35,9 @@ class InboxController < ApplicationController
   end
 
   def complete
-    @delivery = find_delivery
+    @delivery = load_delivery
+    return unless deny_without_write_access(@delivery)
+
     attach_proof(@delivery)
 
     begin
@@ -55,17 +62,41 @@ class InboxController < ApplicationController
     delivery.photo_after.attach(params[:photo_after]) if params[:photo_after].present?
   end
 
-  def find_delivery
+  def load_delivery
     Delivery.joins(:communication)
-            .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
+            .where(communications: { tenant_id: tenant_scope.id })
+            .where("deliveries.org_unit_id IN (:store_ids) OR deliveries.assignee_id = :user_id",
+                   store_ids: accessible_store_ids, user_id: current_user.id)
             .includes(:communication, { delivery_answers: { image_attachment: :blob } }, communication: :communication_questions)
             .find(params[:id])
   end
 
-  def set_store
-    @store = current_user.store_org_unit
-    return if @store
+  def accessible_store_ids
+    ids = current_user.manageable_store_ids
+    ids.empty? ? [ 0 ] : ids
+  end
+
+  def require_store_or_assignment_access
+    return if current_user.store_org_unit
+    return if current_user.manageable_store_ids.any?
+    return if Delivery.where(assignee_id: current_user.id).exists?
 
     redirect_to app_root_path, alert: t("errors.no_store")
+  end
+
+  # Only direct owners (the store manager on that store, HQ, or the assignee)
+  # can advance a task. Area managers can see the task but not punch it through.
+  def deny_without_write_access(delivery)
+    return true if can_write?(delivery)
+
+    redirect_to inbox_path(delivery), alert: t("errors.not_assignable")
+    false
+  end
+
+  def can_write?(delivery)
+    return true if delivery.assignee_id == current_user.id
+    return true if current_user.hq? || current_user.super_admin?
+
+    current_user.memberships.where(org_unit_id: delivery.org_unit_id, role: "store").exists?
   end
 end

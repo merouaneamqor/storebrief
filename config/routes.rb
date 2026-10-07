@@ -70,6 +70,7 @@ Rails.application.routes.draw do
       post :advance
     end
   end
+  get "my-tasks", to: "inbox#index", as: :my_tasks
 
   resources :playbooks, only: %i[index new create edit update destroy] do
     member do

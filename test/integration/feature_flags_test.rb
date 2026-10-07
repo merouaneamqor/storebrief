@@ -17,14 +17,21 @@ class FeatureFlagsTest < ActionDispatch::IntegrationTest
     assert_select "details.app-nav-more a.app-nav-link[href=?]", reports_path
   end
 
-  test "store morocco nav is today and ranking only" do
+  test "store morocco nav links to today, my tasks, and ranking" do
     brand = build_brand("flags-store-nav")
     sign_in(brand.store_user)
 
     assert_select "a.app-nav-link[href=?]", app_root_path
     assert_select "a.app-nav-link[href=?]", ranking_path
-    assert_select "a.app-nav-link[href=?]", inbox_index_path, count: 0
+    assert_select "a.app-nav-link[href=?]", inbox_index_path
     assert_select "a.app-nav-link[href=?]", checklists_deliveries_path, count: 0
+  end
+
+  test "store morocco nav hides my tasks when briefs is off" do
+    brand = build_brand("flags-store-nav-briefs-off", features: { briefs: false })
+    sign_in(brand.store_user)
+
+    assert_select "a.app-nav-link[href=?]", inbox_index_path, count: 0
   end
 
   test "briefs off hides compose and blocks brief routes for hq and stores" do

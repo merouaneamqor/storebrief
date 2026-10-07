@@ -310,9 +310,25 @@ en:
     answer_title: "Your answers"
     your_answers: "Answers"
     back: "← Inbox"
+    my_tasks:
+      title: "My tasks"
+      lede: "Open tasks across the stores you manage."
+      filter_label: "Filter tasks"
+      assigned_to_me: "Assigned to me"
+      filters:
+        all: "All"
+        overdue: "Overdue"
+        today: "Today"
+        upcoming: "Upcoming"
+      empty:
+        all: "You have no open tasks."
+        overdue: "Nothing is overdue."
+        today: "Nothing is due today."
+        upcoming: "No upcoming tasks."
   errors:
     select_targets: "Select at least one store or region"
     no_store: "No store is linked to this account."
+    not_assignable: "You can view this task but not update it."
   common:
     news: "Note"
     task: "Task"
