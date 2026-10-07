@@ -185,6 +185,15 @@ fr:
     priority_saved: "Priorité enregistrée."
     priority_invalid: "La priorité n'a pas pu être modifiée."
     priority_save: "Enregistrer"
+    dependency:
+      label: "Dépend de"
+      none: "Aucun prérequis"
+      help: "Bloque cette tâche tant qu'une autre tâche n'est pas terminée en magasin."
+      summary: "Bloquée jusqu'à la fin de : %{task}."
+      save: "Enregistrer"
+      saved: "Prérequis enregistré."
+      cleared: "Prérequis retiré."
+      invalid: "Le prérequis n'a pas pu être modifié."
     recurrence:
       title: "Répétition"
       help: "Renvoie cette tâche selon un calendrier. Les magasins ne voient que l'instance en cours."
@@ -343,6 +352,8 @@ fr:
     answers_required: "Répondez d'abord aux questions obligatoires."
     answer_title: "Vos réponses"
     your_answers: "Réponses"
+    blocked: "Bloquée"
+    blocked_reason: "En attente de la tâche prérequise : %{task}."
     back: "← Boîte de réception"
   errors:
     select_targets: "Sélectionnez au moins un magasin ou une région"
