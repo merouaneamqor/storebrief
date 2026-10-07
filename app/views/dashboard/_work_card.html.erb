@@ -1,6 +1,8 @@
 <% variant = local_assigns.fetch(:variant, :card) %>
 <% if variant == :row %>
-  <%= link_to item.path, class: "work-card work-card--row work-card--#{item.tone}" do %>
+  <% row_class = "work-card work-card--row work-card--#{item.tone}" %>
+  <% if item.path.present? %>
+  <%= link_to item.path, class: row_class do %>
     <%= tone_icon(item.tone) %>
     <div class="work-card__body">
       <div class="work-card__meta">
@@ -18,6 +20,25 @@
     </div>
     <%= icon("chevron-right", css_class: "icon work-card__chevron") %>
   <% end %>
+  <% else %>
+    <div class="<%= row_class %>">
+      <%= tone_icon(item.tone) %>
+      <div class="work-card__body">
+        <div class="work-card__meta">
+          <span class="tone tone--<%= item.tone %>"><%= t("morocco.tone.#{item.tone}") %></span>
+          <% if item.due_at %>
+            <span class="work-card__due"><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(item.due_at) %></span>
+          <% end %>
+          <%= priority_badge(item.priority) %>
+          <% if lens == "area" %><span><%= item.store_name %></span><% end %>
+        </div>
+        <h3 class="work-card__title"><%= item.title %></h3>
+        <% if item.escalation_level.positive? %>
+          <p class="meta"><%= icon("alert-triangle", css_class: "icon icon--sm") %> <%= t("morocco.escalation.level_#{item.escalation_level}") %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 <% else %>
   <article class="work-card work-card--<%= item.tone %> <%= 'work-card--hero' if variant == :hero %>">
     <div class="work-card__body">
@@ -30,7 +51,7 @@
         <% if lens == "area" %><span><%= item.store_name %></span><% end %>
       </div>
       <h3 class="work-card__title">
-        <% if variant == :hero %>
+        <% if variant == :hero || item.path.blank? %>
           <%= item.title %>
         <% else %>
           <%= link_to item.title, item.path %>
@@ -40,6 +61,7 @@
         <p class="meta"><%= icon("alert-triangle", css_class: "icon icon--sm") %> <%= t("morocco.escalation.level_#{item.escalation_level}") %></p>
       <% end %>
     </div>
+    <% if item.path.present? %>
     <div class="work-card__action <%= 'sticky-action' if variant == :hero %>">
       <% if lens == "store" && item.kind == "brief" && item.next_step %>
         <%= button_to item.next_label,
@@ -54,5 +76,6 @@
               class: "btn btn--primary #{'btn--block' if variant == :hero}" %>
       <% end %>
     </div>
+    <% end %>
   </article>
 <% end %>

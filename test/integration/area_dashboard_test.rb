@@ -127,6 +127,29 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "area store radar shows the work without store inbox actions" do
+    brief = send_task("Campagne Aid", [ @maarif, @diab ])
+    late(brief, @diab)
+    sign_in(@area_user)
+
+    get app_root_path
+    assert_response :success
+    assert_select "article.work-card", minimum: 1
+    brief.deliveries.each do |delivery|
+      assert_select "a[href=?]", inbox_path(delivery), count: 0
+      assert_select "form[action=?]", advance_inbox_path(delivery), count: 0
+    end
+
+    get store_path(@diab)
+    assert_response :success
+    assert_match "Campagne Aid", response.body
+    assert_select "article.work-card", minimum: 1
+    assert_select ".work-card .btn", count: 0
+    diab = brief.deliveries.find_by!(org_unit: @diab)
+    assert_select "a[href=?]", inbox_path(diab), count: 0
+    assert_select "form[action=?]", advance_inbox_path(diab), count: 0
+  end
+
   test "head office keeps the exception board" do
     send_task("Campagne Aid", [ @maarif ])
     sign_in(@hq)

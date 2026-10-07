@@ -273,20 +273,27 @@ module Vazivo
       parent.descendant_stores.where.not(id: store.id).to_a
     end
 
+    # Inbox and checklist completion belong to the store user. Area and HQ
+    # viewers still see the work, without a path they cannot open.
+    def viewer_owns?(record)
+      @user.store_org_unit&.id == record.org_unit_id
+    end
+
     def to_item(record)
       routes = Rails.application.routes.url_helpers
+      owned = viewer_owns?(record)
       if record.is_a?(Delivery)
-        step = record.next_awareness_step
+        step = owned ? record.next_awareness_step : nil
         Item.new(
           kind: "brief",
           title: record.communication.title,
           due_at: record.due_at,
           tone: record.tone,
-          path: routes.inbox_path(record),
+          path: (routes.inbox_path(record) if owned),
           store_name: record.org_unit.name,
           escalation_level: record.escalation_level.to_i,
           next_step: step,
-          next_label: step ? I18n.t("morocco.awareness.actions.#{step}") : nil,
+          next_label: (I18n.t("morocco.awareness.actions.#{step}") if step),
           record_id: record.id,
           priority: record.communication.priority
         )
@@ -296,11 +303,11 @@ module Vazivo
           title: record.checklist.title,
           due_at: record.due_at,
           tone: record.tone,
-          path: routes.checklists_delivery_path(record),
+          path: (routes.checklists_delivery_path(record) if owned),
           store_name: record.org_unit.name,
           escalation_level: record.escalation_level.to_i,
           next_step: nil,
-          next_label: I18n.t("morocco.radar.open_routine"),
+          next_label: (I18n.t("morocco.radar.open_routine") if owned),
           record_id: record.id,
           priority: Communication::DEFAULT_PRIORITY
         )
