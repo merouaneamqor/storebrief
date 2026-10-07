@@ -13,6 +13,9 @@
             <div class="meta">
               <%= localized_badge(delivery.communication.format) %>
               <%= priority_badge(delivery.communication.priority) %>
+              <% if delivery.blocked? %>
+                <span class="badge badge--blocked"><%= t("inbox.blocked") %></span>
+              <% end %>
               <%= localized_badge(delivery.status) %>
             </div>
           </div>

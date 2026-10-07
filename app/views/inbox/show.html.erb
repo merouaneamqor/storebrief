@@ -6,6 +6,7 @@
 <% langs = [] %>
 <% langs << "fr" if fr_body.present? %>
 <% langs << "ar" if ar_body.present? %>
+<% blocked = @delivery.blocked? %>
 
 <p class="meta"><%= link_to t("inbox.back"), app_root_path %></p>
 
@@ -15,6 +16,9 @@
     <p class="lede">
       <%= localized_badge(@communication.format) %>
       <%= priority_badge(@communication.priority) %>
+      <% if blocked %>
+        <span class="badge badge--blocked"><%= t("inbox.blocked") %></span>
+      <% end %>
       <% if morocco %>
         <span class="tone tone--<%= @delivery.tone %>"><%= tone_icon(@delivery.tone) %> <%= t("morocco.tone.#{@delivery.tone}") %></span>
       <% else %>
@@ -71,6 +75,14 @@
     <div class="task-card__body prose"><%= @communication.body %></div>
   <% end %>
 
+  <% if blocked %>
+    <div class="blocked-note" role="status">
+      <%= icon("alert-triangle", css_class: "icon icon--sm") %>
+      <strong><%= t("inbox.blocked") %></strong>
+      <span><%= t("inbox.blocked_by", title: @communication.depends_on.title) %></span>
+    </div>
+  <% end %>
+
   <% if morocco %>
     <% if @delivery.verdict.present? %>
       <p class="verdict-line">
@@ -79,7 +91,7 @@
       </p>
     <% end %>
 
-    <% if (step = @delivery.next_awareness_step) %>
+    <% if (step = @delivery.next_awareness_step) && !blocked %>
       <%= form_with url: advance_inbox_path(@delivery), method: :post, multipart: true, class: "task-card__action",
             data: { turbo_submits_with: t("morocco.sending") } do %>
         <%= hidden_field_tag :step, step %>
@@ -158,7 +170,7 @@
         <% end %>
       </section>
     <% end %>
-  <% elsif @delivery.pending? %>
+  <% elsif @delivery.pending? && !blocked %>
     <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, multipart: true, class: "brief-answer-form" do %>
       <% if @questions.any? %>
         <section class="task-card__answers">

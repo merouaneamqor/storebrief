@@ -176,6 +176,15 @@
         </section>
 
         <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("communications.dependency.title") %></h3>
+          <p class="meta"><%= t("communications.dependency.help") %></p>
+          <%= f.select :depends_on_id,
+                @dependency_options.map { |option| [ option.title, option.id ] },
+                { include_blank: t("communications.dependency.none") },
+                ":disabled": "format !== 'task'" %>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
           <%= render "recurrence", communication: @communication %>
         </section>
 

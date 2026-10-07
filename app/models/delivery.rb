@@ -35,9 +35,33 @@ class Delivery < ApplicationRecord
   }
 
   def complete!
+    ensure_not_blocked!
     ensure_required_answers!
     ensure_proof!
     update!(status: "completed", completed_at: Time.current, awareness: "done")
+  end
+
+  # A delivery is blocked while this store has not finished the prerequisite
+  # task. A prerequisite still in draft blocks too (nothing was dispatched yet);
+  # a store that never received the prerequisite is not held back by it.
+  def blocked?
+    prerequisite = communication.depends_on
+    return false unless prerequisite&.task?
+
+    blocker = blocking_delivery
+    blocker ? !blocker.finished? : !prerequisite.sent?
+  end
+
+  def blocking_delivery
+    return nil if communication.depends_on_id.blank?
+
+    Delivery.find_by(communication_id: communication.depends_on_id, org_unit_id: org_unit_id)
+  end
+
+  def blocked_reason
+    return unless blocked?
+
+    I18n.t("inbox.blocked_by", title: communication.depends_on.title)
   end
 
   def mark_read!
@@ -69,6 +93,7 @@ class Delivery < ApplicationRecord
   end
 
   def advance_awareness!(step)
+    ensure_not_blocked!
     step = step.to_s
     raise ArgumentError, I18n.t("morocco.awareness.invalid") unless AWARENESS_STEPS.include?(step)
     raise ArgumentError, I18n.t("morocco.awareness.sequence") unless step == next_awareness_step
@@ -131,6 +156,10 @@ class Delivery < ApplicationRecord
   end
 
   private
+
+  def ensure_not_blocked!
+    raise ArgumentError, blocked_reason if blocked?
+  end
 
   def ensure_proof!
     return unless communication.requires_proof?
