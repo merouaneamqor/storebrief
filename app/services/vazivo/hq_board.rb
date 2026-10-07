@@ -4,7 +4,7 @@ module Vazivo
   class HqBoard
     SEVERITY = { "redo" => 0, "overdue" => 1, "unconfirmed" => 2 }.freeze
 
-    Row = Struct.new(:store_name, :owner_name, :due_at, :tone, :status_label, :path, :kind, keyword_init: true)
+    Row = Struct.new(:store_name, :owner_name, :due_at, :tone, :status_label, :path, :kind, :priority, keyword_init: true)
     Snapshot = Struct.new(
       :unconfirmed, :overdue, :redo, :exceptions, :awareness_brief, :awareness_rollup,
       :podium, keyword_init: true
@@ -38,7 +38,7 @@ module Vazivo
 
     def merge_exceptions(*lists)
       lists.flatten.sort_by do |row|
-        [ SEVERITY.fetch(row.kind, 9), row.due_at || Time.at(0) ]
+        [ SEVERITY.fetch(row.kind, 9), Communication.priority_rank(row.priority), row.due_at || Time.at(0) ]
       end
     end
 
@@ -60,7 +60,8 @@ module Vazivo
           tone: delivery.tone,
           status_label: I18n.t("morocco.awareness.steps.received"),
           path: Rails.application.routes.url_helpers.communication_path(brief),
-          kind: "unconfirmed"
+          kind: "unconfirmed",
+          priority: brief.priority
         )
       end
     end
@@ -80,7 +81,10 @@ module Vazivo
                                 .where.not(due_at: nil)
                                 .where("checklist_deliveries.due_at < ?", Time.current)
 
-      (briefs.to_a + checks.to_a).sort_by(&:due_at).first(12).map do |record|
+      records = (briefs.to_a + checks.to_a).sort_by do |record|
+        [ record.is_a?(Delivery) ? record.communication.priority_rank : Communication.priority_rank(nil), record.due_at ]
+      end
+      records.first(12).map do |record|
         if record.is_a?(Delivery)
           Row.new(
             store_name: record.org_unit.name,
@@ -89,7 +93,8 @@ module Vazivo
             tone: "late",
             status_label: record.communication.title,
             path: routes.communication_path(record.communication),
-            kind: "overdue"
+            kind: "overdue",
+            priority: record.communication.priority
           )
         else
           Row.new(
@@ -99,7 +104,8 @@ module Vazivo
             tone: "late",
             status_label: record.checklist.title,
             path: routes.checklist_path(record.checklist),
-            kind: "overdue"
+            kind: "overdue",
+            priority: Communication::DEFAULT_PRIORITY
           )
         end
       end
@@ -120,7 +126,8 @@ module Vazivo
           tone: "urgent",
           status_label: delivery.communication.title,
           path: Rails.application.routes.url_helpers.communication_path(delivery.communication),
-          kind: "redo"
+          kind: "redo",
+          priority: delivery.communication.priority
         )
       end
     end

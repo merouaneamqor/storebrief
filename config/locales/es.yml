@@ -181,6 +181,10 @@ es:
     lede: "Región → zona → tienda para %{tenant}."
     empty: "No hay unidades para esta enseña."
   communications:
+    priority: "Prioridad"
+    priority_saved: "Prioridad guardada."
+    priority_invalid: "No se pudo cambiar la prioridad."
+    priority_save: "Guardar"
     recurrence:
       title: "Repetición"
       help: "Vuelve a enviar esta tarea según un calendario. Las tiendas solo ven la instancia actual."
@@ -344,6 +348,10 @@ es:
     select_targets: "Seleccione al menos una tienda o una región"
     no_store: "No hay una tienda asociada."
   common:
+    priorities:
+      urgent: "Urgente"
+      important: "Importante"
+      routine: "Rutina"
     news: "Nota"
     task: "Tarea"
     draft: "Borrador"

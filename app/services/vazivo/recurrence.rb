@@ -130,6 +130,7 @@ module Vazivo
             body_fr: source.body_fr,
             body_ar: source.body_ar,
             requires_proof: source.requires_proof,
+            priority: source.priority,
             due_at: due_at_for(source, date)
           )
           copy_questions(source, occurrence)

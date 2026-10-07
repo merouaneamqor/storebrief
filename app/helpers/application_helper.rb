@@ -9,6 +9,13 @@ module ApplicationHelper
     content_tag(:span, t("common.#{key}"), class: "badge badge--#{key}")
   end
 
+  # Routine is the quiet default, so only urgent and important tasks get a badge.
+  def priority_badge(priority)
+    return if priority.blank? || priority == Communication::DEFAULT_PRIORITY
+
+    content_tag(:span, t("common.priorities.#{priority}"), class: "badge badge--priority-#{priority}")
+  end
+
   # One line description of a recurrence rule, e.g. "Every week on Mon, Wed".
   def recurrence_summary(rule)
     return "-" if rule.blank?

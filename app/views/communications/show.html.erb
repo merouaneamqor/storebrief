@@ -10,9 +10,20 @@
     <h1><%= @communication.title %></h1>
     <p class="meta">
       <%= localized_badge(@communication.format) %>
+      <%= priority_badge(@communication.priority) %>
       <%= localized_badge(@communication.status) %>
       · <%= t("common.by") %> <%= @communication.author.name %>
     </p>
+    <% if @communication.task? %>
+      <%= form_with model: @communication, url: priority_communication_path(@communication), method: :patch,
+                    class: "priority-form" do |f| %>
+        <%= f.label :priority, t("communications.priority") %>
+        <%= f.select :priority,
+              Communication::PRIORITIES.map { |key| [ t("common.priorities.#{key}"), key ] },
+              {}, onchange: "this.form.requestSubmit()" %>
+        <noscript><%= f.submit t("communications.priority_save"), class: "btn btn--ghost" %></noscript>
+      <% end %>
+    <% end %>
   </div>
 </header>
 

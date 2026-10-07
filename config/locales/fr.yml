@@ -181,6 +181,10 @@ fr:
     lede: "Hiérarchie région → zone → magasin pour %{tenant}."
     empty: "Aucune unité pour cette enseigne."
   communications:
+    priority: "Priorité"
+    priority_saved: "Priorité enregistrée."
+    priority_invalid: "La priorité n'a pas pu être modifiée."
+    priority_save: "Enregistrer"
     recurrence:
       title: "Répétition"
       help: "Renvoie cette tâche selon un calendrier. Les magasins ne voient que l'instance en cours."
@@ -344,6 +348,10 @@ fr:
     select_targets: "Sélectionnez au moins un magasin ou une région"
     no_store: "Aucun magasin associé."
   common:
+    priorities:
+      urgent: "Urgent"
+      important: "Important"
+      routine: "Routine"
     news: "Info"
     task: "Tâche"
     draft: "Brouillon"

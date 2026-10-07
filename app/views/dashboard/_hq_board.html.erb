@@ -125,6 +125,7 @@
               <div class="exception-row__top">
                 <span class="exception-kind exception-kind--<%= row.kind %>"><%= t("morocco.hq.board_#{row.kind == 'redo' ? 'redo' : row.kind == 'overdue' ? 'overdue' : 'unconfirmed'}") %></span>
                 <span class="tone tone--<%= row.tone %>"><%= tone_icon(row.tone) %> <%= t("morocco.tone.#{row.tone}") %></span>
+                <%= priority_badge(row.priority) %>
               </div>
               <%= link_to row.store_name, row.path, class: "exception-row__store" %>
               <div class="meta">

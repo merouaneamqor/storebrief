@@ -8,6 +8,7 @@
         <% if item.due_at %>
           <span class="work-card__due"><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(item.due_at) %></span>
         <% end %>
+        <%= priority_badge(item.priority) %>
         <% if lens == "area" %><span><%= item.store_name %></span><% end %>
       </div>
       <h3 class="work-card__title"><%= item.title %></h3>
@@ -25,6 +26,7 @@
         <% if item.due_at %>
           <span class="work-card__due"><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(item.due_at) %></span>
         <% end %>
+        <%= priority_badge(item.priority) %>
         <% if lens == "area" %><span><%= item.store_name %></span><% end %>
       </div>
       <h3 class="work-card__title">
