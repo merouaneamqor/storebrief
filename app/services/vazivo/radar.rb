@@ -13,11 +13,24 @@ module Vazivo
       keyword_init: true
     )
     # Monitoring summary for an area or region manager (read only).
+    StoreRow = Struct.new(:store, :score, :status, keyword_init: true)
     AreaSummary = Struct.new(
       :stores_count, :compliance_percent, :tasks_done, :tasks_total, :tasks_open, :tasks_late,
-      :audits, :campaign, :attention_stores,
+      :audits, :campaign, :attention_stores, :store_rows,
       keyword_init: true
-    )
+    ) do
+      def sorted_store_rows(sort)
+        rows = Array(store_rows)
+        case sort.to_s
+        when "score_asc"
+          rows.sort_by { |row| [ row.score.nil? ? 1 : 0, row.score.to_i, row.store.name ] }
+        when "name"
+          rows.sort_by { |row| row.store.name }
+        else
+          rows.sort_by { |row| [ row.score.nil? ? 1 : 0, -(row.score || 0), row.store.name ] }
+        end
+      end
+    end
     Campaign = Struct.new(:title, :received, :total, :percent, keyword_init: true)
     AttentionStore = Struct.new(:name, :reasons, :late_count, :redo_count, :unconfirmed, keyword_init: true) do
       def count_for(reason)
@@ -30,9 +43,17 @@ module Vazivo
       new(user, tenant).snapshot
     end
 
+    def self.for_store(user:, tenant:, store:)
+      new(user, tenant).store_snapshot(store)
+    end
+
     def initialize(user, tenant)
       @user = user
       @tenant = tenant
+    end
+
+    def store_snapshot(store)
+      build(lens: "store", place: store.name, stores: [ store ], attention_stores: siblings_of(store))
     end
 
     def snapshot
@@ -156,8 +177,28 @@ module Vazivo
         tasks_late: open_items.count(&:late?),
         audits: audit_counts(ids),
         campaign: campaign_progress(ids),
-        attention_stores: attention_rows(stores, open_items)
+        attention_stores: attention_rows(stores, open_items),
+        store_rows: store_rows_for(stores)
       )
+    end
+
+    def store_rows_for(stores)
+      scores = Ranking.for(@tenant).rows.index_by { |row| row.store.id }
+      status_for = store_status_index
+      stores.map do |store|
+        StoreRow.new(
+          store: store,
+          score: scores[store.id]&.percent,
+          status: status_for.fetch(store.id, "on_track")
+        )
+      end
+    end
+
+    def store_status_index
+      result = StoreStatus.for(@tenant)
+      StoreStatus::BUCKETS.each_with_object({}) do |bucket, index|
+        result.stores(bucket).each { |store| index[store.id] = bucket }
+      end
     end
 
     def compliance_totals(ids)

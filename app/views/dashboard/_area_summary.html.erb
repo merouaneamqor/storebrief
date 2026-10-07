@@ -57,4 +57,41 @@
       </div>
     <% end %>
   </div>
+
+  <% sort = params[:sort].presence_in(%w[score_asc score_desc name]) || "score_desc" %>
+  <div class="area-stores">
+    <p class="section-title"><%= t("morocco.radar.area.table") %></p>
+    <div class="table-scroll">
+      <table class="report-table area-store-table">
+        <thead>
+          <tr>
+            <th><%= link_to t("morocco.radar.area.col_store"), app_root_path(sort: "name") %></th>
+            <th>
+              <%= link_to t("morocco.radar.area.col_score"), app_root_path(sort: (sort == "score_desc" ? "score_asc" : "score_desc")) %>
+            </th>
+            <th><%= t("morocco.radar.area.col_status") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if area.store_rows.blank? %>
+            <tr>
+              <td colspan="3">-</td>
+            </tr>
+          <% else %>
+            <% area.sorted_store_rows(sort).each do |row| %>
+              <tr>
+                <td><%= link_to row.store.name, store_path(row.store) %></td>
+                <td class="num"><%= row.score.nil? ? "-" : "#{row.score}%" %></td>
+                <td>
+                  <span class="store-status-badge store-status-badge--<%= row.status %>">
+                    <%= t("morocco.hq.store_status.#{row.status}") %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </section>
