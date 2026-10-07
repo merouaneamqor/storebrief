@@ -5,6 +5,7 @@ es:
     playbooks: "Playbooks"
     ranking: "Clasificación"
     visits: "Visitas"
+    my_tasks: "Mis tareas"
   morocco:
     proof_required: "Añade la foto de antes y la foto de después."
     owner:
@@ -276,3 +277,21 @@ es:
         vm: "Mejor conformidad"
         improvement: "Mayor progreso"
         team: "Mejor equipo"
+    my_tasks:
+      title: "Mis tareas"
+      lede: "Trabajo abierto de las tiendas que gestionas."
+      empty: "Nada abierto en esta vista."
+      missing: "Esa tarea no está en tus tiendas."
+      back: "Mis tareas"
+      open_work: "Abrir el trabajo"
+      filters_label: "Filtrar tareas"
+      store: "Tienda"
+      due: "Fecha límite"
+      filters:
+        all: "Todas"
+        overdue: "Atrasadas"
+        today: "Hoy"
+        upcoming: "Próximas"
+      kind:
+        task: "Tarea"
+        checklist: "Checklist"

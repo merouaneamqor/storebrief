@@ -5,6 +5,7 @@ en:
     playbooks: "Playbooks"
     ranking: "Ranking"
     visits: "Visits"
+    my_tasks: "My tasks"
   morocco:
     proof_required: "Add the before photo and the after photo."
     owner:
@@ -276,3 +277,21 @@ en:
         vm: "Best compliance"
         improvement: "Best improvement"
         team: "Best team"
+    my_tasks:
+      title: "My tasks"
+      lede: "Open work for the stores you manage."
+      empty: "Nothing open in this view."
+      missing: "That task is not in your stores."
+      back: "My tasks"
+      open_work: "Open the work"
+      filters_label: "Filter tasks"
+      store: "Store"
+      due: "Deadline"
+      filters:
+        all: "All"
+        overdue: "Overdue"
+        today: "Today"
+        upcoming: "Upcoming"
+      kind:
+        task: "Task"
+        checklist: "Checklist"

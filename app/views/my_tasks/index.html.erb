@@ -1,0 +1,42 @@
+<% content_for :title, "#{t('morocco.my_tasks.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
+    <h1><%= t("morocco.my_tasks.title") %></h1>
+    <p class="meta"><%= t("morocco.my_tasks.lede") %></p>
+  </div>
+</header>
+
+<nav class="report-chips" aria-label="<%= t('morocco.my_tasks.filters_label') %>">
+  <%= link_to t("morocco.my_tasks.filters.all"), my_tasks_path, class: "report-chip #{'is-active' if @filter.nil?}" %>
+  <% Vazivo::MyTasks::FILTERS.each do |filter| %>
+    <%= link_to t("morocco.my_tasks.filters.#{filter}"), my_tasks_path(filter: filter), class: "report-chip #{'is-active' if @filter == filter}" %>
+  <% end %>
+</nav>
+
+<section class="panel">
+  <% if @tasks.any? %>
+    <ul class="list">
+      <% @tasks.each do |task| %>
+        <li id="<%= dom_id(task.record) %>">
+          <div>
+            <%= link_to task.title, my_task_path(task.id, kind: task.kind) %>
+            <div class="meta">
+              <span class="badge"><%= t("morocco.my_tasks.kind.#{task.kind}") %></span>
+              <%= priority_badge(task.priority) %>
+              <span><%= task.store_name %></span>
+              <% if task.due_at %>
+                <span><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(task.due_at) %></span>
+              <% else %>
+                <span>-</span>
+              <% end %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty"><%= t("morocco.my_tasks.empty") %></p>
+  <% end %>
+</section>
