@@ -163,6 +163,19 @@
         </section>
 
         <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("communications.priority") %></h3>
+          <div class="brief-choices">
+            <% Communication::PRIORITIES.each do |key| %>
+              <label class="brief-choice">
+                <%= radio_button_tag "communication[priority]", key, @communication.priority == key,
+                      ":disabled": "format !== 'task'" %>
+                <span><%= t("common.priorities.#{key}") %></span>
+              </label>
+            <% end %>
+          </div>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
           <%= render "recurrence", communication: @communication %>
         </section>
 

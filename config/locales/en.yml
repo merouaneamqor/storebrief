@@ -181,6 +181,10 @@ en:
     lede: "Region → area → store for %{tenant}."
     empty: "No units for this brand."
   communications:
+    priority: "Priority"
+    priority_saved: "Priority saved."
+    priority_invalid: "Priority could not be changed."
+    priority_save: "Save"
     recurrence:
       title: "Repeat"
       help: "Send this task again on a schedule. Stores see only the current one."
@@ -344,6 +348,10 @@ en:
     select_targets: "Select at least one store or region"
     no_store: "No store is linked to this account."
   common:
+    priorities:
+      urgent: "Urgent"
+      important: "Important"
+      routine: "Routine"
     news: "Note"
     task: "Task"
     draft: "Draft"

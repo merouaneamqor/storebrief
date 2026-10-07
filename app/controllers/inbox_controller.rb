@@ -6,6 +6,7 @@ class InboxController < ApplicationController
     @deliveries = Delivery.current_instances
                           .where(org_unit: @store, communications: { tenant_id: tenant_scope.id, status: "sent" })
                           .includes(:communication)
+                          .merge(Communication.by_priority)
                           .order("communications.created_at DESC")
   end
 

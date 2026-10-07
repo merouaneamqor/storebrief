@@ -14,6 +14,7 @@
     <h1><%= @communication.title %></h1>
     <p class="lede">
       <%= localized_badge(@communication.format) %>
+      <%= priority_badge(@communication.priority) %>
       <% if morocco %>
         <span class="tone tone--<%= @delivery.tone %>"><%= tone_icon(@delivery.tone) %> <%= t("morocco.tone.#{@delivery.tone}") %></span>
       <% else %>

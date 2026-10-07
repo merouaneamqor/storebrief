@@ -4,7 +4,7 @@ module Vazivo
   class Radar
     Item = Struct.new(
       :kind, :title, :due_at, :tone, :path, :store_name, :escalation_level,
-      :next_step, :next_label, :record_id, keyword_init: true
+      :next_step, :next_label, :record_id, :priority, keyword_init: true
     )
     Snapshot = Struct.new(
       :lens, :greeting_key, :name, :place_name, :ramadan, :opens_at,
@@ -103,10 +103,16 @@ module Vazivo
                                 .where(org_unit_id: ids, checklists: { tenant_id: @tenant.id, status: "sent" })
                                 .where.not(status: "completed")
                                 .includes(:checklist, :org_unit)
+      # Task priority first (urgent, important, routine), then lateness, then deadline.
       (deliveries.to_a + checks.to_a).sort_by do |record|
         rank = record.late? ? 0 : (record.urgent? ? 1 : (record.due_today? ? 2 : 3))
-        [ rank, record.due_at || 100.years.from_now ]
+        [ priority_rank_for(record), rank, record.due_at || 100.years.from_now ]
       end
+    end
+
+    # Checklists carry no priority, so they sort as routine.
+    def priority_rank_for(record)
+      record.is_a?(Delivery) ? record.communication.priority_rank : Communication.priority_rank(Communication::DEFAULT_PRIORITY)
     end
 
     def done_today(stores)
@@ -240,7 +246,8 @@ module Vazivo
           escalation_level: record.escalation_level.to_i,
           next_step: step,
           next_label: step ? I18n.t("morocco.awareness.actions.#{step}") : nil,
-          record_id: record.id
+          record_id: record.id,
+          priority: record.communication.priority
         )
       else
         Item.new(
@@ -253,7 +260,8 @@ module Vazivo
           escalation_level: record.escalation_level.to_i,
           next_step: nil,
           next_label: I18n.t("morocco.radar.open_routine"),
-          record_id: record.id
+          record_id: record.id,
+          priority: Communication::DEFAULT_PRIORITY
         )
       end
     end

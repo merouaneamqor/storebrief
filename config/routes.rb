@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       post :send_brief
       post :notify_push
       post :stop_recurrence
+      patch :priority, action: :update_priority
     end
   end
 

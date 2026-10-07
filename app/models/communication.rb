@@ -4,6 +4,9 @@ class Communication < ApplicationRecord
   FORMATS = %w[news task].freeze
   STATUSES = %w[draft sent].freeze
   SOURCES = %w[compose playbook].freeze
+  # Ordered most to least pressing; the index is the sort rank.
+  PRIORITIES = %w[urgent important routine].freeze
+  DEFAULT_PRIORITY = "routine".freeze
 
   belongs_to :tenant
   belongs_to :author, class_name: "User"
@@ -23,6 +26,7 @@ class Communication < ApplicationRecord
   validates :format, inclusion: { in: FORMATS }
   validates :status, inclusion: { in: STATUSES }
   validates :source, inclusion: { in: SOURCES }
+  validates :priority, inclusion: { in: PRIORITIES }
   validate :recurrence_rule_valid
 
   bilingual_fields :title, :body
@@ -33,7 +37,19 @@ class Communication < ApplicationRecord
   # The series source plus every occurrence cloned from it.
   scope :in_series, ->(source_id) { where(id: source_id).or(where(recurrence_parent_id: source_id)) }
 
+  # SQL ordering expression: urgent first, routine last.
+  # Literal CASE keeps Brakeman happy (no dynamic SQL fragments).
+  PRIORITY_ORDER_SQL = Arel.sql(
+    "CASE communications.priority WHEN 'urgent' THEN 0 WHEN 'important' THEN 1 WHEN 'routine' THEN 2 ELSE 3 END"
+  ).freeze
+  scope :by_priority, -> { order(PRIORITY_ORDER_SQL) }
+
+  def self.priority_rank(priority)
+    PRIORITIES.index(priority.to_s) || PRIORITIES.size
+  end
+
   before_validation :apply_source_default
+  before_validation :apply_priority_default
   before_validation :clear_recurrence_unless_task
 
   def news?
@@ -50,6 +66,10 @@ class Communication < ApplicationRecord
 
   def draft?
     status == "draft"
+  end
+
+  def priority_rank
+    self.class.priority_rank(priority)
   end
 
   def questions?
@@ -105,6 +125,11 @@ class Communication < ApplicationRecord
   end
 
   private
+
+  # Only tasks carry a priority; notes are always routine.
+  def apply_priority_default
+    self.priority = DEFAULT_PRIORITY if priority.blank? || !task?
+  end
 
   def clear_recurrence_unless_task
     self.recurrence_rule = {} unless task?

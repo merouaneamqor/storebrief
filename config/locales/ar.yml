@@ -189,6 +189,10 @@ ar:
     lede: "تسلسل المنطقة → القطاع → المتجر لـ %{tenant}."
     empty: "لا وحدات لهذه العلامة."
   communications:
+    priority: "الأولوية"
+    priority_saved: "تم حفظ الأولوية."
+    priority_invalid: "تعذر تغيير الأولوية."
+    priority_save: "حفظ"
     recurrence:
       title: "التكرار"
       help: "أعد إرسال هذه المهمة وفق جدول. ترى المتاجر النسخة الحالية فقط."
@@ -352,6 +356,10 @@ ar:
     select_targets: "اختر متجراً أو منطقة واحدة على الأقل"
     no_store: "لا عضوية متجر."
   common:
+    priorities:
+      urgent: "عاجل"
+      important: "مهم"
+      routine: "عادي"
     news: "خبر"
     task: "مهمة"
     draft: "مسودة"
