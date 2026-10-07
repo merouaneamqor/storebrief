@@ -3,6 +3,7 @@
 pin "application"
 pin "offline_sync"
 pin "brief_form"
+pin "campaign_targets"
 pin "pwa_install"
 pin "pwa_push"
 pin "task_lang"

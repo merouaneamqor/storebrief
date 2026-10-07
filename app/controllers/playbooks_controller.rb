@@ -2,11 +2,12 @@ class PlaybooksController < ApplicationController
   before_action :require_hq
   before_action -> { require_feature!(:checklists) }
   before_action -> { require_feature!(:morocco_ops) }
-  before_action :set_playbook, only: %i[edit update destroy reset deploy]
+  before_action :set_playbook, only: %i[edit update destroy reset deploy preview]
 
   def index
     @playbooks = Playbook.ensure_defaults!(tenant_scope)
     @stores = tenant_scope.org_units.stores.order(:name)
+    @target_options = Vazivo::CampaignTargets.options(tenant_scope)
     @selected_key = params[:key].presence || @playbooks.first&.key
   end
 
@@ -60,6 +61,13 @@ class PlaybooksController < ApplicationController
     redirect_to playbooks_path(key: @playbook.key), notice: t("morocco.playbooks.reset", title: @playbook.title)
   rescue ArgumentError => e
     redirect_to playbooks_path(key: @playbook.key), alert: e.message
+  end
+
+  def preview
+    targets = Vazivo::CampaignTargets.new(tenant_scope, params[:org_unit_ids])
+    render json: targets.preview.merge(
+      summary: t("morocco.playbooks.targets.summary", count: targets.stores.size)
+    )
   end
 
   def deploy

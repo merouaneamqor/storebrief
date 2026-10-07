@@ -173,6 +173,23 @@ es:
       deployed: "%{title} ya va hacia las tiendas."
       stores: "Tiendas"
       proof: "Foto obligatoria"
+      targets:
+        title: "Tiendas objetivo"
+        hint: "Elija regiones, zonas o tiendas. Se incluyen las tiendas de cada región o zona."
+        select_all: "Todas las tiendas"
+        clear: "Borrar"
+        preview: "Vista previa"
+        empty: "Aún no hay tiendas seleccionadas."
+        required: "Elija al menos un objetivo antes de desplegar."
+        none: "Sin tiendas"
+        unit_types:
+          region: "Región"
+          area: "Zona"
+          store: "Tienda"
+        summary:
+          zero: "Sin tiendas"
+          one: "1 tienda recibirá esta campaña"
+          other: "%{count} tiendas recibirán esta campaña"
       campaigns:
         nav: "Campañas"
         title: "Panel de campañas"

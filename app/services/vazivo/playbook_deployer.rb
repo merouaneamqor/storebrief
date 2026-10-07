@@ -2,6 +2,9 @@ module Vazivo
   class PlaybookDeployer
     def self.deploy!(playbook:, author:, campaign_on:, org_unit_ids:)
       tenant = playbook.tenant
+      targets = CampaignTargets.new(tenant, org_unit_ids)
+      raise ArgumentError, I18n.t("errors.select_targets") if targets.empty?
+
       due = Schedule.default_due(tenant, campaign_on.in_time_zone(Schedule::ZONE).change(hour: 18))
 
       tenant.transaction do
@@ -13,7 +16,8 @@ module Vazivo
           title_ar: playbook.title_ar,
           description_fr: playbook.description_fr,
           description_ar: playbook.description_ar,
-          status: "draft"
+          status: "draft",
+          target_snapshot: targets.snapshot
         )
         playbook.step_list.each_with_index do |step, index|
           checklist.checklist_items.create!(
@@ -23,7 +27,7 @@ module Vazivo
             requires_photo: ActiveModel::Type::Boolean.new.cast(step["requires_photo"])
           )
         end
-        checklist.send_to!(org_unit_ids)
+        checklist.send_to!(targets.store_ids)
 
         brief = tenant.communications.create!(
           author: author,
@@ -38,7 +42,7 @@ module Vazivo
           due_at: due,
           requires_proof: false
         )
-        brief.send_to!(org_unit_ids)
+        brief.send_to!(targets.store_ids)
         brief
       end
     end
