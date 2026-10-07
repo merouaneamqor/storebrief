@@ -10,6 +10,10 @@ class PlaybooksController < ApplicationController
     @selected_key = params[:key].presence || @playbooks.first&.key
   end
 
+  def campaigns
+    @dashboard = Vazivo::CampaignDashboard.for(current_tenant)
+  end
+
   def new
     @playbook = tenant_scope.playbooks.new(
       title_fr: "",

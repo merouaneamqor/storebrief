@@ -37,6 +37,11 @@
         <%= link_to playbooks_path, class: "btn btn--quiet" do %>
           <%= icon("book", css_class: "icon") %> <%= t("nav.playbooks") %>
         <% end %>
+        <% if current_tenant.feature?(:morocco_ops) %>
+          <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+            <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+          <% end %>
+        <% end %>
         <%= link_to billing_path, class: "btn btn--quiet" do %>
           <%= icon("credit-card", css_class: "icon") %> <%= t("nav.billing") %>
         <% end %>
