@@ -2196,3 +2196,7 @@ body.rtl .billing-channel em {
   color: var(--tone-done);
   font-weight: 650;
 }
+
+.area-summary { margin-bottom: 1rem; }
+.area-pulse .hq-pulse__tile { cursor: default; }
+.area-pulse .hq-pulse__tile:hover { transform: none; box-shadow: none; }

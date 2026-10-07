@@ -34,7 +34,9 @@
   <% end %>
 </p>
 
-<% if radar.attention_count.positive? %>
+<% if radar.area %>
+  <%= render "dashboard/area_summary", radar: radar %>
+<% elsif radar.attention_count.positive? %>
   <aside class="attention-banner" role="status">
     <%= icon("alert-triangle", css_class: "icon") %>
     <div>
