@@ -5,6 +5,7 @@ es:
     playbooks: "Playbooks"
     ranking: "Clasificación"
     visits: "Visitas"
+    my_tasks: "Mis tareas"
   morocco:
     proof_required: "Añade la foto de antes y la foto de después."
     owner:
@@ -81,6 +82,10 @@ es:
       summary_done:
         one: "1 terminada"
         other: "%{count} terminadas"
+      summary_completion: "%{percent} % terminadas hoy"
+      priority_counts: "Trabajo abierto por prioridad"
+      priority_pill: "%{priority} (%{count})"
+      priority_section: "%{priority} (%{count})"
       empty_now: "Nada que tratar ahora."
       attention: "Atención"
       attention_body:
@@ -128,6 +133,16 @@ es:
       exceptions: "Excepciones"
       exceptions_empty: "Nada pide una decisión ahora."
       filter_all: "Todo"
+      task_monitoring:
+        title: "Cumplimiento de tareas esta semana"
+        completion: "Hecho"
+        line: "%{done} de %{total} acciones terminadas"
+        overdue:
+          one: "1 con retraso"
+          other: "%{count} con retraso"
+        region_line: "%{done} de %{total} (%{percent} %)"
+        region_empty: "Aún no hay trabajo activo en esta región."
+        store_line: "%{done} de %{total} (%{percent} %)"
       store_status:
         title: "Estado de las tiendas hoy"
         on_track: "En regla"

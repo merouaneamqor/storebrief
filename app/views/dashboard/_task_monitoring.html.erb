@@ -1,0 +1,40 @@
+<% monitoring = board.task_monitoring %>
+<% if monitoring.total.positive? %>
+<section class="hq-task-monitor" aria-label="<%= t('morocco.hq.task_monitoring.title') %>">
+  <div class="hq-task-monitor__head">
+    <p class="section-title"><%= t("morocco.hq.task_monitoring.title") %></p>
+    <p class="meta">
+      <%= t("morocco.hq.task_monitoring.line", done: monitoring.done, total: monitoring.total) %>
+      <% if monitoring.overdue.positive? %>
+        · <%= t("morocco.hq.task_monitoring.overdue", count: monitoring.overdue) %>
+      <% end %>
+    </p>
+  </div>
+  <% if monitoring.percent %>
+    <div class="hq-campaign__meter hq-task-monitor__meter" role="img" aria-label="<%= monitoring.percent %>%">
+      <div class="hq-campaign__ring" style="--pct: <%= monitoring.percent %>;">
+        <strong><%= monitoring.percent %><span>%</span></strong>
+        <em><%= t("morocco.hq.task_monitoring.completion") %></em>
+      </div>
+    </div>
+  <% end %>
+  <% if monitoring.regions.any? %>
+    <ul class="hq-task-monitor__regions">
+      <% monitoring.regions.each do |region| %>
+        <li>
+          <%= link_to org_units_path(region_id: region.id), class: "hq-task-monitor__region" do %>
+            <strong><%= region.name %></strong>
+            <span class="meta">
+              <% if region.total.positive? %>
+                <%= t("morocco.hq.task_monitoring.region_line", done: region.done, total: region.total, percent: region.percent) %>
+              <% else %>
+                <%= t("morocco.hq.task_monitoring.region_empty") %>
+              <% end %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>
+<% end %>

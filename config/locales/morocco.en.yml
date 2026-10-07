@@ -5,6 +5,7 @@ en:
     playbooks: "Playbooks"
     ranking: "Ranking"
     visits: "Visits"
+    my_tasks: "My tasks"
   morocco:
     proof_required: "Add the before photo and the after photo."
     owner:
@@ -81,6 +82,10 @@ en:
       summary_done:
         one: "1 done"
         other: "%{count} done"
+      summary_completion: "%{percent}% done today"
+      priority_counts: "Open work by priority"
+      priority_pill: "%{priority} (%{count})"
+      priority_section: "%{priority} (%{count})"
       empty_now: "Nothing to handle right now."
       attention: "Attention"
       attention_body:
@@ -128,6 +133,16 @@ en:
       exceptions: "Exceptions"
       exceptions_empty: "Nothing needs a decision right now."
       filter_all: "All"
+      task_monitoring:
+        title: "Task completion this week"
+        completion: "Done"
+        line: "%{done} of %{total} actions finished"
+        overdue:
+          one: "1 overdue"
+          other: "%{count} overdue"
+        region_line: "%{done} of %{total} (%{percent}%)"
+        region_empty: "No active work in this region yet."
+        store_line: "%{done} of %{total} (%{percent}%)"
       store_status:
         title: "Store status today"
         on_track: "On track"

@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   post "demo_requests", to: "marketing#create_demo"
   get "resources", to: "marketing#resources"
   get "app", to: "dashboard#show", as: :app_root
+  get "my-tasks", to: "my_tasks#index", as: :my_tasks
   resources :tenants, only: :index do
     collection do
       post :switch

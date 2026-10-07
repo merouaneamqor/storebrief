@@ -48,6 +48,7 @@ fr:
     tenants: "Enseignes"
     demo_requests: "Démos"
     billing: "Facturation"
+    my_tasks: "Mes tâches"
   billing:
     title: "Facturation"
     lede: "Envois plateforme pour %{brand} : e-mail Vazivo et WhatsApp sont facturés. Le push reste inclus."
@@ -332,6 +333,16 @@ fr:
       promotions: "Promotions"
       equipment: "Équipement"
       store_visit: "Visite magasin"
+  my_tasks:
+    title: "Mes tâches"
+    lede: "Travail ouvert qui vous est assigné."
+    filters: "Filtres"
+    empty: "Rien ne vous est assigné pour ce filtre."
+    filter:
+      all: "Tout"
+      overdue: "En retard"
+      today: "Aujourd'hui"
+      upcoming: "À venir"
   inbox:
     title: "Boîte de réception"
     lede: "Briefs pour %{store}."

@@ -88,6 +88,8 @@
   </section>
 <% end %>
 
+<%= render "dashboard/task_monitoring", board: board %>
+
 <% status = board.store_status %>
 <section class="hq-status-strip" aria-label="<%= t('morocco.hq.store_status.title') %>">
   <p class="section-title"><%= t("morocco.hq.store_status.title") %></p>
