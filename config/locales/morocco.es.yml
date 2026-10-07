@@ -128,6 +128,13 @@ es:
       exceptions: "Excepciones"
       exceptions_empty: "Nada pide una decisión ahora."
       filter_all: "Todo"
+      store_status:
+        title: "Estado de las tiendas hoy"
+        on_track: "En regla"
+        attention: "Requiere atención"
+        critical: "Crítico"
+        empty: "No hay tiendas en esta categoría."
+        all_units: "Todas las unidades"
       more: "Más"
       title: "Red"
       lede: "Lo que las tiendas han recibido, lo que va tarde y las campañas por desplegar."

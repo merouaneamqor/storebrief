@@ -1495,6 +1495,87 @@ body.rtl .work-card--row .work-card__chevron {
   background: var(--tone-urgent-bg);
 }
 
+.hq-status-strip { margin-bottom: 0.85rem; }
+
+.hq-status-strip__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.hq-status-strip__tile {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: start;
+  min-height: 4.5rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.hq-status-strip__tile strong {
+  font-family: var(--display);
+  font-size: 1.55rem;
+  font-weight: 650;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.hq-status-strip__tile span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.hq-status-strip__tile:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-1);
+}
+
+.hq-status-strip__tile--on_track { border-color: var(--tone-done); background: var(--tone-done-bg); }
+.hq-status-strip__tile--attention { border-color: var(--tone-urgent); background: var(--tone-urgent-bg); }
+.hq-status-strip__tile--critical { border-color: var(--tone-late); background: var(--tone-late-bg); }
+
+.store-status-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.store-status-list__items {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.store-status-list__items li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.store-status-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.store-status-badge--on_track { color: var(--tone-done); background: var(--tone-done-bg); }
+.store-status-badge--attention { color: var(--tone-urgent); background: var(--tone-urgent-bg); }
+.store-status-badge--critical { color: var(--tone-late); background: var(--tone-late-bg); }
+
 .hq-exceptions {
   padding: 1rem 1.05rem 0.35rem;
   border-radius: var(--radius);
