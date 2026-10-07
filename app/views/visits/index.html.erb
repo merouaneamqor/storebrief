@@ -1,0 +1,66 @@
+<% content_for :title, "#{t('morocco.visits.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
+    <h1><%= t("morocco.visits.title") %></h1>
+    <p class="meta"><%= t("morocco.visits.lede") %></p>
+  </div>
+  <div class="radar-head__actions">
+    <%= link_to new_visit_path, class: "btn btn--quiet" do %>
+      <%= icon("plus", css_class: "icon") %> <%= t("morocco.visits.new") %>
+    <% end %>
+  </div>
+</header>
+
+<nav class="report-chips" aria-label="<%= t('morocco.visits.filter') %>">
+  <%= link_to t("morocco.visits.all"), visits_path, class: "report-chip #{'is-active' if @status.nil?}" %>
+  <% Visit::STATUSES.each do |status| %>
+    <%= link_to t("morocco.visits.statuses.#{status}"), visits_path(status: status), class: "report-chip #{'is-active' if @status == status}" %>
+  <% end %>
+</nav>
+
+<section class="panel">
+  <% if @visits.any? %>
+    <table class="report-table visits-table">
+      <thead>
+        <tr>
+          <th><%= t("morocco.visits.fields.planned_at") %></th>
+          <th><%= t("morocco.visits.fields.store") %></th>
+          <th><%= t("morocco.visits.fields.auditor") %></th>
+          <th><%= t("morocco.visits.fields.status") %></th>
+          <th><span class="visually-hidden"><%= t("morocco.visits.actions") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @visits.each do |visit| %>
+          <tr id="<%= dom_id(visit) %>" class="<%= 'is-stale' if visit.cancelled? %>">
+            <td><%= l(visit.planned_at, format: :short) %></td>
+            <td><%= visit.org_unit.name %></td>
+            <td><%= visit.auditor.name %></td>
+            <td>
+              <%= t("morocco.visits.statuses.#{visit.status}") %>
+              <% if visit.cancelled? && visit.cancel_reason.present? %>
+                <span class="meta"><%= visit.cancel_reason %></span>
+              <% end %>
+            </td>
+            <td class="visits-table__tools">
+              <% if visit.editable? %>
+                <%= link_to t("morocco.visits.edit"), edit_visit_path(visit), class: "btn btn--quiet" %>
+              <% end %>
+              <% if visit.cancellable? %>
+                <%= button_to t("morocco.visits.cancel"),
+                      cancel_visit_path(visit),
+                      method: :patch,
+                      class: "btn btn--ghost",
+                      form: { data: { turbo_confirm: t("morocco.visits.cancel_confirm") } } %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="meta"><%= t("morocco.visits.empty") %></p>
+  <% end %>
+</section>

@@ -80,6 +80,11 @@ Rails.application.routes.draw do
       post :reset
     end
   end
+  resources :visits, only: %i[index new create edit update] do
+    member do
+      patch :cancel
+    end
+  end
   get "classement", to: "rankings#show", as: :ranking
   resource :billing, only: %i[show update]
   resource :ramadan, only: :update, controller: "ramadan"

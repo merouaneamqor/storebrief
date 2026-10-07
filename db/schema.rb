@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -358,6 +358,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
     t.index ["tenant_id"], name: "index_users_on_tenant_id"
   end
 
+  create_table "visits", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "org_unit_id", null: false
+    t.bigint "auditor_id", null: false
+    t.bigint "created_by_id"
+    t.datetime "planned_at", null: false
+    t.string "status", default: "planned", null: false
+    t.text "notes"
+    t.text "cancel_reason"
+    t.datetime "cancelled_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["auditor_id"], name: "index_visits_on_auditor_id"
+    t.index ["created_by_id"], name: "index_visits_on_created_by_id"
+    t.index ["org_unit_id"], name: "index_visits_on_org_unit_id"
+    t.index ["tenant_id", "planned_at"], name: "index_visits_on_tenant_id_and_planned_at"
+    t.index ["tenant_id", "status"], name: "index_visits_on_tenant_id_and_status"
+    t.index ["tenant_id"], name: "index_visits_on_tenant_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "checklist_deliveries", "checklists"
@@ -394,4 +414,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
   add_foreign_key "tenant_mail_settings", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
+  add_foreign_key "visits", "org_units"
+  add_foreign_key "visits", "tenants"
+  add_foreign_key "visits", "users", column: "auditor_id"
+  add_foreign_key "visits", "users", column: "created_by_id", on_delete: :nullify
 end
