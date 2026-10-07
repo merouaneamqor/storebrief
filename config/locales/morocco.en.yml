@@ -128,6 +128,13 @@ en:
       exceptions: "Exceptions"
       exceptions_empty: "Nothing needs a decision right now."
       filter_all: "All"
+      store_status:
+        title: "Store status today"
+        on_track: "On track"
+        attention: "Needs attention"
+        critical: "Critical"
+        empty: "No stores in this bucket."
+        all_units: "All units"
       more: "More"
       title: "Network"
       lede: "What stores have received, what is late, and which campaigns to deploy."

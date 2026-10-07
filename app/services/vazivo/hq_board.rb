@@ -7,7 +7,7 @@ module Vazivo
     Row = Struct.new(:store_name, :owner_name, :due_at, :tone, :status_label, :path, :kind, keyword_init: true)
     Snapshot = Struct.new(
       :unconfirmed, :overdue, :redo, :exceptions, :awareness_brief, :awareness_rollup,
-      :podium, keyword_init: true
+      :podium, :store_status, keyword_init: true
     )
 
     def self.for(tenant)
@@ -30,7 +30,8 @@ module Vazivo
         exceptions: merge_exceptions(unconfirmed, overdue, redos),
         awareness_brief: brief,
         awareness_rollup: brief ? Delivery.awareness_rollup(brief.deliveries) : nil,
-        podium: Ranking.for(@tenant).podium.first(3)
+        podium: Ranking.for(@tenant).podium.first(3),
+        store_status: StoreStatus.for(@tenant)
       )
     end
 

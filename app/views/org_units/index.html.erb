@@ -3,6 +3,26 @@
 <h1><%= t("org_units.title") %></h1>
 <p class="lede"><%= t("org_units.lede", tenant: current_tenant.name) %></p>
 
+<% if @status %>
+  <section class="panel store-status-list">
+    <div class="store-status-list__head">
+      <span class="store-status-badge store-status-badge--<%= @status %>"><%= t("morocco.hq.store_status.#{@status}") %></span>
+      <%= link_to t("morocco.hq.store_status.all_units"), org_units_path, class: "meta" %>
+    </div>
+    <% if @status_stores.any? %>
+      <ul class="store-status-list__items">
+        <% @status_stores.each do |store| %>
+          <li>
+            <strong><%= store.name %></strong>
+            <span class="meta"><%= store.parent&.name || "-" %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="empty"><%= t("morocco.hq.store_status.empty") %></p>
+    <% end %>
+  </section>
+<% else %>
 <section class="panel">
   <% if @roots.any? %>
     <ul class="tree">
@@ -43,3 +63,4 @@
     <p class="empty"><%= t("org_units.empty") %></p>
   <% end %>
 </section>
+<% end %>

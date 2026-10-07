@@ -88,6 +88,19 @@
   </section>
 <% end %>
 
+<% status = board.store_status %>
+<section class="hq-status-strip" aria-label="<%= t('morocco.hq.store_status.title') %>">
+  <p class="section-title"><%= t("morocco.hq.store_status.title") %></p>
+  <div class="hq-status-strip__tiles">
+    <% %w[on_track attention critical].each do |bucket| %>
+      <%= link_to org_units_path(status: bucket), class: "hq-status-strip__tile hq-status-strip__tile--#{bucket}" do %>
+        <strong><%= status.count(bucket) %></strong>
+        <span><%= t("morocco.hq.store_status.#{bucket}") %></span>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+
 <section class="hq-board" x-data="{ filter: '<%= j filter %>' }" x-init="
   $watch('filter', (value) => {
     const url = new URL(window.location.href);

@@ -152,6 +152,13 @@ ar:
       exceptions: "الاستثناءات"
       exceptions_empty: "لا شيء يحتاج قراراً الآن."
       filter_all: "الكل"
+      store_status:
+        title: "حالة المتاجر اليوم"
+        on_track: "في الموعد"
+        attention: "يحتاج متابعة"
+        critical: "حرج"
+        empty: "لا متاجر في هذه الفئة."
+        all_units: "كل الوحدات"
       more: "المزيد"
       title: "الشبكة"
       lede: "ما وصل إلى المتاجر، وما تأخر، والحملات الجاهزة للنشر."
