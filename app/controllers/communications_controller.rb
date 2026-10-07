@@ -17,7 +17,12 @@ class CommunicationsController < ApplicationController
     end
 
     @stats = @communication.completion_stats
-    @deliveries = @communication.deliveries.includes(:org_unit, delivery_answers: [ :communication_question, { image_attachment: :blob } ]).order(:id)
+    @deliveries = @communication.deliveries.includes(
+      :org_unit, :assignee,
+      photo_before_attachment: :blob,
+      photo_after_attachment: :blob,
+      delivery_answers: [ :communication_question, { image_attachment: :blob } ]
+    ).order(:id)
     @notifications = @communication.notification_logs.includes(:user).order(created_at: :desc)
   end
 

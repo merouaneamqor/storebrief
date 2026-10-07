@@ -1,0 +1,56 @@
+<% variant = local_assigns.fetch(:variant, :card) %>
+<% if variant == :row %>
+  <%= link_to item.path, class: "work-card work-card--row work-card--#{item.tone}" do %>
+    <%= tone_icon(item.tone) %>
+    <div class="work-card__body">
+      <div class="work-card__meta">
+        <span class="tone tone--<%= item.tone %>"><%= t("morocco.tone.#{item.tone}") %></span>
+        <% if item.due_at %>
+          <span class="work-card__due"><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(item.due_at) %></span>
+        <% end %>
+        <% if lens == "area" %><span><%= item.store_name %></span><% end %>
+      </div>
+      <h3 class="work-card__title"><%= item.title %></h3>
+      <% if item.escalation_level.positive? %>
+        <p class="meta"><%= icon("alert-triangle", css_class: "icon icon--sm") %> <%= t("morocco.escalation.level_#{item.escalation_level}") %></p>
+      <% end %>
+    </div>
+    <%= icon("chevron-right", css_class: "icon work-card__chevron") %>
+  <% end %>
+<% else %>
+  <article class="work-card work-card--<%= item.tone %> <%= 'work-card--hero' if variant == :hero %>">
+    <div class="work-card__body">
+      <div class="work-card__meta">
+        <span class="tone tone--<%= item.tone %>"><%= tone_icon(item.tone) %> <%= t("morocco.tone.#{item.tone}") %></span>
+        <% if item.due_at %>
+          <span class="work-card__due"><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(item.due_at) %></span>
+        <% end %>
+        <% if lens == "area" %><span><%= item.store_name %></span><% end %>
+      </div>
+      <h3 class="work-card__title">
+        <% if variant == :hero %>
+          <%= item.title %>
+        <% else %>
+          <%= link_to item.title, item.path %>
+        <% end %>
+      </h3>
+      <% if item.escalation_level.positive? %>
+        <p class="meta"><%= icon("alert-triangle", css_class: "icon icon--sm") %> <%= t("morocco.escalation.level_#{item.escalation_level}") %></p>
+      <% end %>
+    </div>
+    <div class="work-card__action <%= 'sticky-action' if variant == :hero %>">
+      <% if lens == "store" && item.kind == "brief" && item.next_step %>
+        <%= button_to item.next_label,
+              advance_inbox_path(item.record_id),
+              method: :post,
+              params: { step: item.next_step },
+              class: "btn btn--primary #{'btn--block' if variant == :hero}",
+              form: { data: { turbo_submits_with: t("morocco.sending") } } %>
+      <% else %>
+        <%= link_to (item.kind == "checklist" ? item.next_label : t("morocco.radar.open")),
+              item.path,
+              class: "btn btn--primary #{'btn--block' if variant == :hero}" %>
+      <% end %>
+    </div>
+  </article>
+<% end %>

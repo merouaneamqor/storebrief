@@ -3,9 +3,11 @@ class Communication < ApplicationRecord
 
   FORMATS = %w[news task].freeze
   STATUSES = %w[draft sent].freeze
+  SOURCES = %w[compose playbook].freeze
 
   belongs_to :tenant
   belongs_to :author, class_name: "User"
+  belongs_to :playbook, optional: true
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
@@ -17,11 +19,14 @@ class Communication < ApplicationRecord
   validates :body_fr, presence: true, unless: :questions_present?
   validates :format, inclusion: { in: FORMATS }
   validates :status, inclusion: { in: STATUSES }
+  validates :source, inclusion: { in: SOURCES }
 
   bilingual_fields :title, :body
 
   scope :sent, -> { where(status: "sent") }
   scope :drafts, -> { where(status: "draft") }
+
+  before_validation :apply_source_default
 
   def news?
     format == "news"
@@ -47,17 +52,18 @@ class Communication < ApplicationRecord
     store_ids = resolve_store_ids(org_unit_ids)
     raise ArgumentError, I18n.t("errors.select_targets") if store_ids.empty?
 
+    due = Vazivo::Schedule.default_due(tenant, due_at)
     transaction do
-      update!(status: "sent")
+      update!(status: "sent", due_at: due)
       store_ids.uniq.each do |store_id|
-        deliveries.find_or_create_by!(org_unit_id: store_id) do |delivery|
-          delivery.status = "pending"
+        delivery = deliveries.find_or_create_by!(org_unit_id: store_id) do |record|
+          record.status = "pending"
         end
+        Vazivo::Assignment.stamp!(delivery, due_at: due)
       end
     end
 
-    WhatsappNotifier.notify_communication!(self) if task?
-    PushNotifier.notify_communication!(self)
+    NotificationDispatcher.notify_communication!(self)
     self
   end
 
@@ -69,6 +75,10 @@ class Communication < ApplicationRecord
   end
 
   private
+
+  def apply_source_default
+    self.source = "compose" if source.blank?
+  end
 
   def questions_present?
     communication_questions.reject(&:marked_for_destruction?).any? { |question| question.title_fr.present? }

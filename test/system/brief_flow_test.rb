@@ -27,12 +27,13 @@ class BriefFlowTest < ApplicationSystemTestCase
     log_out
 
     log_in_as(brand.store_user)
-    visit inbox_index_path
-    click_link "Alarm check"
+    visit inbox_path(brief.deliveries.first)
     assert_text "Confirm the alarms are off before opening."
-    click_button I18n.t("inbox.mark_complete", locale: :en)
+    %w[received read understood in_progress done].each do |step|
+      click_button I18n.t("morocco.awareness.actions.#{step}", locale: :en)
+    end
 
-    assert_text I18n.t("inbox.task_done", locale: :en)
+    assert_text I18n.t("morocco.awareness.saved", locale: :en)
     assert_equal "completed", brief.deliveries.first.reload.status
   end
 end

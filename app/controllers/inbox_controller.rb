@@ -16,8 +16,22 @@ class InboxController < ApplicationController
     @answers = @delivery.delivery_answers.index_by(&:communication_question_id)
   end
 
+  def advance
+    @delivery = find_delivery
+    attach_proof(@delivery)
+    if params[:step].to_s == "done" && @delivery.communication.questions?
+      @delivery.save_answers!(params[:answers])
+    end
+    @delivery.advance_awareness!(params[:step])
+    redirect_to inbox_path(@delivery), notice: t("morocco.awareness.saved")
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    message = e.is_a?(ArgumentError) ? e.message : t("inbox.answers_required")
+    redirect_to inbox_path(@delivery), alert: message
+  end
+
   def complete
     @delivery = find_delivery
+    attach_proof(@delivery)
 
     begin
       @delivery.save_answers!(params[:answers]) if @delivery.communication.questions?
@@ -35,6 +49,11 @@ class InboxController < ApplicationController
   end
 
   private
+
+  def attach_proof(delivery)
+    delivery.photo_before.attach(params[:photo_before]) if params[:photo_before].present?
+    delivery.photo_after.attach(params[:photo_after]) if params[:photo_after].present?
+  end
 
   def find_delivery
     Delivery.joins(:communication)

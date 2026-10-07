@@ -1,0 +1,79 @@
+<% filter = params[:filter].to_s %>
+<% now_list = if filter == "late"
+                radar.now_items.select { |i| %w[late urgent].include?(i.tone) }
+              else
+                radar.now_items
+              end %>
+<% hero = now_list.first %>
+<% rest = now_list.drop(1) %>
+
+<header class="radar-hero">
+  <div>
+    <p class="radar-hello"><%= t("morocco.radar.#{radar.greeting_key}") %></p>
+    <h1 class="radar-hero__name"><%= radar.name %></h1>
+    <p class="radar-place"><%= radar.place_name %> · <%= t("morocco.radar.place_#{radar.lens}") %></p>
+  </div>
+  <% if radar.ramadan %>
+    <p class="radar-chip"><%= icon("moon", css_class: "icon icon--sm") %> <%= t("morocco.radar.ramadan", open: radar.opens_at) %></p>
+  <% end %>
+</header>
+
+<p class="radar-summary radar-summary--live">
+  <span class="radar-summary__pill">
+    <%= link_to t("morocco.radar.summary_now", count: radar.now_items.size), app_root_path(filter: "now") %>
+  </span>
+  <% if radar.late_count.positive? %>
+    <span class="radar-summary__pill radar-summary__pill--late">
+      <%= link_to t("morocco.radar.summary_late", count: radar.late_count), app_root_path(filter: "late") %>
+    </span>
+  <% end %>
+  <% if radar.done_count.positive? %>
+    <span class="radar-summary__pill radar-summary__pill--done">
+      <%= t("morocco.radar.summary_done", count: radar.done_count) %>
+    </span>
+  <% end %>
+</p>
+
+<% if radar.attention_count.positive? %>
+  <aside class="attention-banner" role="status">
+    <%= icon("alert-triangle", css_class: "icon") %>
+    <div>
+      <strong><%= t("morocco.radar.attention") %></strong>
+      <p><%= t("morocco.radar.attention_body", count: radar.attention_count, campaign: radar.campaign_title) %></p>
+      <p class="meta"><%= radar.attention_names.to_sentence %></p>
+    </div>
+  </aside>
+<% end %>
+
+<section>
+  <h2 class="section-title"><%= t("morocco.radar.now") %></h2>
+  <% if hero %>
+    <%= render "dashboard/work_card", item: hero, lens: radar.lens, variant: :hero %>
+    <% if rest.any? %>
+      <div class="work-cards" style="margin-top:0.65rem;">
+        <% rest.each do |item| %>
+          <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="empty">
+      <%= icon("check-circle", css_class: "icon empty__icon") %>
+      <p class="empty__text"><%= t("morocco.radar.empty_now") %></p>
+    </div>
+  <% end %>
+</section>
+
+<% if radar.later_items.any? && filter != "late" %>
+  <details class="later-fold">
+    <summary>
+      <span><%= t("morocco.radar.later_count", count: radar.later_items.size) %></span>
+      <%= icon("chevron-right", css_class: "icon icon--sm") %>
+    </summary>
+    <div class="later-fold__body work-cards">
+      <% radar.later_items.each do |item| %>
+        <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+      <% end %>
+    </div>
+  </details>
+<% end %>

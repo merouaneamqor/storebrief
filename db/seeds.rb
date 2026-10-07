@@ -15,6 +15,7 @@ puts "Seeding Vazivo (Morocco first release)..."
   User,
   OrgUnit,
   TenantSamlSetting,
+  TenantMailSetting,
   Tenant
 ].each(&:delete_all)
 
@@ -175,7 +176,17 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
   )
   store_user.memberships.create!(org_unit: stores.first, role: "store")
 
+  area_user = tenant.users.create!(
+    name: "#{casa_area.name} Manager",
+    email: "area@#{slug}.test",
+    password: password,
+    password_confirmation: password,
+    locale: "fr"
+  )
+  area_user.memberships.create!(org_unit: casa_area, role: "area")
+
   seed_templates!(tenant)
+  Playbook.ensure_defaults!(tenant)
 
   news = tenant.communications.create!(
     author: hq_user,
@@ -203,6 +214,8 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
   checklist = Checklist.build_from_template(opening, author: hq_user)
   checklist.save!
   checklist.send_to!([ stores.first.id ])
+
+  Vazivo::Assignment.backfill!(tenant)
 
   tenant
 end
@@ -304,6 +317,7 @@ atlas.create_saml_setting!(
 
 puts "Seeded atlas + contoso + casa-patisserie (password: password)."
 puts "  HQ: hq@atlas.test | hq@contoso.test | hq@casa-patisserie.test"
+puts "  Area: area@atlas.test | area@contoso.test | area@casa-patisserie.test"
 puts "  Store: store@atlas.test | store@contoso.test | store@casa-patisserie.test"
 puts "  Platform admin (all brands): admin@vazivo.test"
 puts "  Atlas SAML stub: disabled (Admin → Brand → Features + SSO)"

@@ -1,0 +1,7 @@
+<%= t("mailers.task.hello", name: @user.name) %>
+
+<%= t("mailers.task.checklist_body", title: @checklist.localized_value(:title, locale: I18n.locale), brand: @tenant.display_brand_name) %>
+
+<%= @url %>
+
+<%= t("mailers.task.footer", brand: @tenant.display_brand_name) %>
