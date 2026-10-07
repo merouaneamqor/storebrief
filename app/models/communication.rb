@@ -38,11 +38,10 @@ class Communication < ApplicationRecord
   scope :in_series, ->(source_id) { where(id: source_id).or(where(recurrence_parent_id: source_id)) }
 
   # SQL ordering expression: urgent first, routine last.
+  # Literal CASE keeps Brakeman happy (no dynamic SQL fragments).
   PRIORITY_ORDER_SQL = Arel.sql(
-    "CASE communications.priority " +
-    PRIORITIES.each_with_index.map { |key, rank| "WHEN '#{key}' THEN #{rank}" }.join(" ") +
-    " ELSE #{PRIORITIES.size} END"
-  )
+    "CASE communications.priority WHEN 'urgent' THEN 0 WHEN 'important' THEN 1 WHEN 'routine' THEN 2 ELSE 3 END"
+  ).freeze
   scope :by_priority, -> { order(PRIORITY_ORDER_SQL) }
 
   def self.priority_rank(priority)
