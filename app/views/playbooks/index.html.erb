@@ -8,6 +8,9 @@
     <p class="meta"><%= t("morocco.playbooks.lede") %></p>
   </div>
   <div class="radar-head__actions">
+    <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+      <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+    <% end %>
     <%= link_to new_playbook_path, class: "btn btn--quiet" do %>
       <%= icon("plus", css_class: "icon") %> <%= t("morocco.playbooks.new") %>
     <% end %>

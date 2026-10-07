@@ -1,0 +1,83 @@
+<% content_for :title, "#{t('morocco.playbooks.campaigns.title')} · Vazivo" %>
+<% snapshot = @dashboard %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.playbooks.back"), playbooks_path %></p>
+    <h1><%= t("morocco.playbooks.campaigns.title") %></h1>
+    <p class="meta"><%= t("morocco.playbooks.campaigns.lede") %></p>
+  </div>
+</header>
+
+<% if snapshot.campaigns.any? %>
+  <section class="cmp-board" x-data="{ onlyExceptions: false }">
+    <div class="cmp-summary">
+      <div class="cmp-summary__tile">
+        <strong><%= snapshot.campaigns.size %></strong>
+        <span><%= t("morocco.playbooks.campaigns.active") %></span>
+      </div>
+      <div class="cmp-summary__tile">
+        <strong><%= snapshot.percent %><small>%</small></strong>
+        <span><%= t("morocco.playbooks.campaigns.compliance") %></span>
+      </div>
+      <div class="cmp-summary__tile cmp-summary__tile--late">
+        <strong><%= snapshot.exception_count %></strong>
+        <span><%= t("morocco.playbooks.campaigns.exceptions") %></span>
+      </div>
+      <button type="button" class="btn btn--quiet cmp-summary__filter" :aria-pressed="onlyExceptions" @click="onlyExceptions = !onlyExceptions">
+        <span x-show="!onlyExceptions"><%= t("morocco.playbooks.campaigns.only_exceptions") %></span>
+        <span x-show="onlyExceptions" x-cloak><%= t("morocco.playbooks.campaigns.show_all") %></span>
+      </button>
+    </div>
+
+    <% snapshot.campaigns.each do |campaign| %>
+      <article class="cmp-card" x-show="!onlyExceptions || <%= campaign.exceptions.any? %>" x-transition.opacity.duration.150ms>
+        <div class="cmp-card__head">
+          <div>
+            <h2><%= link_to campaign.title, campaign.path %></h2>
+            <p class="meta">
+              <%= t("morocco.playbooks.campaigns.campaign_day") %>:
+              <%= campaign.campaign_on ? l(campaign.campaign_on, format: "%d/%m/%Y") : "-" %>
+              · <%= t("morocco.playbooks.campaigns.stores_done", done: campaign.done, total: campaign.total) %>
+            </p>
+          </div>
+          <div class="cmp-card__percent" role="img" aria-label="<%= campaign.percent %>%">
+            <strong><%= campaign.percent %><span>%</span></strong>
+            <em><%= t("morocco.playbooks.campaigns.compliance") %></em>
+          </div>
+        </div>
+        <%= render "shared/progress", stats: { done: campaign.done, total: campaign.total, percent: campaign.percent } %>
+
+        <% if campaign.exceptions.any? %>
+          <p class="section-title"><%= t("morocco.playbooks.campaigns.exceptions") %> (<%= campaign.exceptions.size %>)</p>
+          <ul class="exception-list exception-list--rich">
+            <% campaign.exceptions.each do |row| %>
+              <li class="exception-row exception-row--<%= row.tone %>">
+                <div class="exception-list__main">
+                  <div class="exception-row__top">
+                    <span class="tone tone--<%= row.tone %>"><%= tone_icon(row.tone) %> <%= t("morocco.tone.#{row.tone}") %></span>
+                  </div>
+                  <%= link_to row.store_name, row.path, class: "exception-row__store" %>
+                  <div class="meta">
+                    <%= row.owner_name %>
+                    · <% if row.due_at %><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(row.due_at) %><% else %>-<% end %>
+                    · <%= t("morocco.playbooks.campaigns.steps_done", done: row.steps_done, total: row.steps_total) %>
+                  </div>
+                </div>
+                <%= link_to t("morocco.radar.open"), row.path, class: "btn btn--ghost" %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="meta cmp-card__clear"><%= icon("check-circle", css_class: "icon icon--sm") %> <%= t("morocco.playbooks.campaigns.on_track") %></p>
+        <% end %>
+      </article>
+    <% end %>
+  </section>
+<% else %>
+  <div class="empty empty--alive">
+    <%= icon("activity", css_class: "icon empty__icon") %>
+    <p class="empty__text"><%= t("morocco.playbooks.campaigns.empty") %></p>
+    <%= link_to t("morocco.playbooks.title"), playbooks_path, class: "btn btn--quiet" %>
+  </div>
+<% end %>

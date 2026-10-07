@@ -72,6 +72,9 @@ Rails.application.routes.draw do
   end
 
   resources :playbooks, only: %i[index new create edit update destroy] do
+    collection do
+      get :campaigns
+    end
     member do
       post :deploy
       post :reset
