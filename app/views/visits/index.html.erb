@@ -7,6 +7,9 @@
     <p class="meta"><%= t("morocco.visits.lede") %></p>
   </div>
   <div class="radar-head__actions">
+    <%= link_to calendar_visits_path, class: "btn btn--ghost" do %>
+      <%= icon("calendar", css_class: "icon") %> <%= t("morocco.visits.calendar.title") %>
+    <% end %>
     <%= link_to new_visit_path, class: "btn btn--quiet" do %>
       <%= icon("plus", css_class: "icon") %> <%= t("morocco.visits.new") %>
     <% end %>
@@ -36,7 +39,7 @@
         <% @visits.each do |visit| %>
           <tr id="<%= dom_id(visit) %>" class="<%= 'is-stale' if visit.cancelled? %>">
             <td><%= l(visit.planned_at, format: :short) %></td>
-            <td><%= visit.org_unit.name %></td>
+            <td><%= link_to visit.org_unit.name, visit_path(visit) %></td>
             <td><%= visit.auditor.name %></td>
             <td>
               <%= t("morocco.visits.statuses.#{visit.status}") %>

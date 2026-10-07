@@ -2,7 +2,7 @@ class VisitsController < ApplicationController
   before_action -> { require_feature!(:morocco_ops) }
   before_action :require_visit_manager
   around_action :use_store_time_zone
-  before_action :set_visit, only: %i[edit update cancel]
+  before_action :set_visit, only: %i[show edit update cancel]
   before_action :load_form_options, only: %i[new create edit update]
 
   def index
@@ -10,6 +10,20 @@ class VisitsController < ApplicationController
     @visits = visit_scope.includes(:org_unit, :auditor).upcoming_first
     @visits = @visits.with_status(@status) if @status
   end
+
+  def calendar
+    @auditors = Visit.auditor_candidates(tenant_scope).where(id: visit_scope.select(:auditor_id))
+    @units = calendar_units
+    @unit = @units.find { |unit| unit.id.to_s == params[:unit_id].to_s }
+    @auditor = @auditors.find_by(id: params[:auditor_id])
+
+    visits = visit_scope.includes(:org_unit, :auditor)
+    visits = visits.where(org_unit_id: @unit.descendant_stores.select(:id)) if @unit
+    visits = visits.where(auditor_id: @auditor.id) if @auditor
+    @calendar = Vazivo::VisitCalendar.new(visits: visits, view: params[:view], date: params[:date])
+  end
+
+  def show; end
 
   def new
     @visit = tenant_scope.visits.new(planned_at: Time.zone.now.change(hour: 10, min: 0) + 1.day, auditor: current_user_auditor)
@@ -80,6 +94,14 @@ class VisitsController < ApplicationController
     store_ids = current_user.memberships.where(role: "area").includes(:org_unit)
                             .flat_map { |m| m.org_unit.descendant_stores.pluck(:id) }
     stores.where(id: store_ids)
+  end
+
+  # Regions and areas that contain at least one store the user can see.
+  def calendar_units
+    visible_ids = store_scope.pluck(:id)
+    tenant_scope.org_units.where(unit_type: %w[region area]).order(:name).select do |unit|
+      unit.descendant_stores.where(id: visible_ids).exists?
+    end
   end
 
   def load_form_options
