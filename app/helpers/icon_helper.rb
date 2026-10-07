@@ -19,7 +19,7 @@ module IconHelper
     svg = File.read(path).strip
     classes = Array(css_class).join(" ")
 
-    attrs = [%(class="#{classes}")]
+    attrs = [ %(class="#{classes}") ]
     if label.present?
       attrs << %(role="img")
       attrs << %(aria-label="#{ERB::Util.html_escape(label)}")

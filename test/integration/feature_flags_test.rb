@@ -11,7 +11,7 @@ class FeatureFlagsTest < ActionDispatch::IntegrationTest
     assert_select "a.app-nav-link[href=?]", communications_path
     assert_select "a.app-nav-link[href=?]", playbooks_path
     assert_select "a.app-nav-link[href=?]", ranking_path
-    assert_select "a.app-nav-link[href=?]", new_communication_path
+    assert_select "a.app-sidebar__compose[href=?]", new_communication_path
     assert_select "details.app-nav-more a.app-nav-link[href=?]", checklists_path
     assert_select "details.app-nav-more a.app-nav-link[href=?]", templates_path
     assert_select "details.app-nav-more a.app-nav-link[href=?]", reports_path

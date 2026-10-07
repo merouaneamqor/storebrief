@@ -35,15 +35,12 @@ module Vazivo
       return if record.due_at > now
 
       hours = ((now - record.due_at) / 1.hour).floor
-      level = if hours >= 72
-                3
-              elsif hours >= 48
-                2
-              elsif hours >= 24
-                1
-              else
-                0
-              end
+      level = case hours
+      when 72.. then 3
+      when 48...72 then 2
+      when 24...48 then 1
+      else 0
+      end
       return if level <= record.escalation_level.to_i
 
       tenant = tenant_for(record)

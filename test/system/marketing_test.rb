@@ -34,6 +34,7 @@ class MarketingSystemTest < ApplicationSystemTestCase
 
     log_in_as(brand.store_user)
     assert_selector "html[dir=rtl][lang=ar]", visible: false
-    assert_selector "a.app-nav-link", text: I18n.t("nav.inbox", locale: :ar)
+    assert_selector "a.app-nav-link", text: I18n.t("nav.today", locale: :ar)
+    assert_selector "a.app-nav-link", text: I18n.t("nav.ranking", locale: :ar)
   end
 end
