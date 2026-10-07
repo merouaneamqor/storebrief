@@ -79,6 +79,7 @@ Rails.application.routes.draw do
     end
     member do
       post :deploy
+      get :preview
       post :reset
     end
   end

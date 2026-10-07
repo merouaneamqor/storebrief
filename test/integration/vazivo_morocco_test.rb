@@ -111,6 +111,57 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_equal "pending", confirmation.deliveries.first.awareness
   end
 
+  test "playbook targets preview resolves stores under a region within the tenant" do
+    Playbook.ensure_defaults!(@brand.tenant)
+    playbook = @brand.tenant.playbooks.find_by!(key: "aid")
+    other = build_brand("vazivo-other")
+    sign_in(@brand.hq)
+
+    get preview_playbook_path(playbook, format: :json), params: { org_unit_ids: [ @brand.region.id, other.store.id ] }
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 1, body["count"]
+    assert_equal [ @brand.store.id ], body["stores"].map { |store| store["id"] }
+    assert_equal "Casa", body["stores"].first["region"]
+
+    get preview_playbook_path(playbook, format: :json)
+    assert_equal 0, response.parsed_body["count"]
+  end
+
+  test "deploying a playbook persists the target snapshot and requires targets" do
+    Playbook.ensure_defaults!(@brand.tenant)
+    playbook = @brand.tenant.playbooks.find_by!(key: "aid")
+    sign_in(@brand.hq)
+
+    assert_no_difference -> { @brand.tenant.checklists.count } do
+      post deploy_playbook_path(playbook), params: { campaign_on: Date.new(2026, 6, 16).iso8601 }
+    end
+    assert_redirected_to playbooks_path(key: playbook.key)
+
+    post deploy_playbook_path(playbook), params: {
+      campaign_on: Date.new(2026, 6, 16).iso8601,
+      org_unit_ids: [ @brand.region.id ]
+    }
+
+    snapshot = @brand.tenant.checklists.order(:id).last.target_snapshot
+    assert_equal 1, snapshot["store_count"]
+    assert_equal [ @brand.store.id ], snapshot["stores"].map { |store| store["id"] }
+    assert_equal [ @brand.region.id ], snapshot["selection"].map { |unit| unit["id"] }
+    assert snapshot["captured_at"].present?
+  end
+
+  test "playbooks page lets hq pick targets from the org tree" do
+    sign_in(@brand.hq)
+
+    get playbooks_path
+
+    assert_response :success
+    assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.region.id}']"
+    assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.store.id}']"
+    assert_select "form.pb-deploy[x-data=campaignTargets]"
+  end
+
   test "hq can customize and create playbooks" do
     Playbook.ensure_defaults!(@brand.tenant)
     playbook = @brand.tenant.playbooks.find_by!(key: "sale")

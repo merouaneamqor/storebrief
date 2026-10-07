@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -113,6 +113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
     t.datetime "updated_at", null: false
     t.date "campaign_on"
     t.bigint "playbook_id"
+    t.jsonb "target_snapshot", default: {}, null: false
     t.index ["author_id"], name: "index_checklists_on_author_id"
     t.index ["checklist_template_id"], name: "index_checklists_on_checklist_template_id"
     t.index ["playbook_id"], name: "index_checklists_on_playbook_id"
