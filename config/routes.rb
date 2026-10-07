@@ -83,7 +83,10 @@ Rails.application.routes.draw do
       post :reset
     end
   end
-  resources :visits, only: %i[index new create edit update] do
+  resources :visits, only: %i[index show new create edit update] do
+    collection do
+      get :calendar
+    end
     member do
       patch :cancel
     end
