@@ -19,6 +19,20 @@ class Delivery < ApplicationRecord
 
   scope :pending, -> { where(status: "pending") }
   scope :for_store, ->(org_unit) { where(org_unit_id: org_unit.id) }
+  # A store sees one instance per recurring series: the newest one it received.
+  scope :current_instances, -> {
+    joins(:communication).where(<<~SQL.squish)
+      NOT EXISTS (
+        SELECT 1 FROM deliveries newer
+        JOIN communications newer_c ON newer_c.id = newer.communication_id
+        WHERE newer.org_unit_id = deliveries.org_unit_id
+          AND newer_c.status = 'sent'
+          AND newer_c.id > communications.id
+          AND COALESCE(newer_c.recurrence_parent_id, newer_c.id) = COALESCE(communications.recurrence_parent_id, communications.id)
+          AND newer_c.recurrence_parent_id IS NOT NULL
+      )
+    SQL
+  }
 
   def complete!
     ensure_required_answers!

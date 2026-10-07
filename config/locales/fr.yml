@@ -181,6 +181,36 @@ fr:
     lede: "Hiérarchie région → zone → magasin pour %{tenant}."
     empty: "Aucune unité pour cette enseigne."
   communications:
+    recurrence:
+      title: "Répétition"
+      help: "Renvoie cette tâche selon un calendrier. Les magasins ne voient que l'instance en cours."
+      frequency: "Répétition"
+      frequencies:
+        none: "Ne se répète pas"
+        daily: "Tous les jours"
+        weekly: "Toutes les semaines"
+        custom: "Tous les N jours"
+      weekdays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
+      interval: "Tous les combien de jours"
+      ends_on: "Arrêter la répétition après (facultatif)"
+      summary:
+        daily: "Tous les jours"
+        weekly: "Chaque semaine : %{days}"
+        custom:
+          one: "Tous les jours"
+          other: "Tous les %{count} jours"
+        until: "jusqu'au %{date}"
+      next_on: "Prochain envoi : %{date}"
+      ended: "Aucun autre envoi prévu."
+      occurrences_count:
+        one: "1 occurrence envoyée"
+        other: "%{count} occurrences envoyées"
+      occurrence_of: "Tâche récurrente du %{date}"
+      series_source: "Ouvrir la série"
+      stop: "Arrêter la répétition"
+      stop_confirm: "Arrêter les prochains envois de cette tâche ? Le travail en cours n'est pas touché."
+      stopped: "Répétition arrêtée."
+      not_active: "Cette tâche ne se répète pas."
     title: "Briefs"
     lede: "Communications pour %{tenant}."
     compose: "Rédiger un brief"

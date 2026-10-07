@@ -26,7 +26,7 @@ class DashboardController < ApplicationController
   def load_store_fallback
     store = current_user.store_org_unit
     @deliveries = if store
-                    Delivery.joins(:communication)
+                    Delivery.current_instances
                             .where(org_unit: store, communications: { tenant_id: tenant_scope.id, status: "sent" })
                             .includes(:communication)
                             .order("communications.created_at DESC")

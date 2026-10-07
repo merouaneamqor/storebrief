@@ -181,6 +181,36 @@ es:
     lede: "Región → zona → tienda para %{tenant}."
     empty: "No hay unidades para esta enseña."
   communications:
+    recurrence:
+      title: "Repetición"
+      help: "Vuelve a enviar esta tarea según un calendario. Las tiendas solo ven la instancia actual."
+      frequency: "Repetición"
+      frequencies:
+        none: "No se repite"
+        daily: "Cada día"
+        weekly: "Cada semana"
+        custom: "Cada N días"
+      weekdays: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+      interval: "Cada cuántos días"
+      ends_on: "Dejar de repetir después de (opcional)"
+      summary:
+        daily: "Cada día"
+        weekly: "Cada semana: %{days}"
+        custom:
+          one: "Cada día"
+          other: "Cada %{count} días"
+        until: "hasta el %{date}"
+      next_on: "Próximo envío: %{date}"
+      ended: "No hay más envíos previstos."
+      occurrences_count:
+        one: "1 ocurrencia enviada"
+        other: "%{count} ocurrencias enviadas"
+      occurrence_of: "Tarea recurrente del %{date}"
+      series_source: "Abrir la serie"
+      stop: "Dejar de repetir"
+      stop_confirm: "¿Dejar de enviar esta tarea? El trabajo en curso no se modifica."
+      stopped: "Repetición detenida."
+      not_active: "Esta tarea no se repite."
     title: "Consignas"
     lede: "Comunicaciones de %{tenant}."
     compose: "Redactar una consigna"
