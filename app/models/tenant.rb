@@ -92,6 +92,7 @@ class Tenant < ApplicationRecord
   has_many :communications, dependent: :destroy
   has_many :playbooks, dependent: :destroy
   has_many :visits, dependent: :destroy
+  has_many :audit_templates, dependent: :destroy
   has_many :checklist_templates, dependent: :destroy
   has_many :notification_logs, dependent: :destroy
   has_many :users, dependent: :destroy

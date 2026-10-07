@@ -1,0 +1,42 @@
+<% content_for :title, "#{@template.title} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.audit_templates.back"), audit_templates_path %></p>
+    <h1><%= @template.title %></h1>
+    <p class="meta"><%= @template.description.presence || "-" %></p>
+  </div>
+  <% if hq_user? %>
+    <div class="radar-head__actions">
+      <%= link_to t("morocco.audit_templates.edit"), edit_audit_template_path(@template), class: "btn btn--quiet" %>
+      <%= button_to t("morocco.audit_templates.delete"), audit_template_path(@template), method: :delete, class: "btn btn--ghost",
+            form: { data: { turbo_confirm: t("morocco.audit_templates.delete_confirm") } } %>
+    </div>
+  <% end %>
+</header>
+
+<% @template.sections_data.each do |section| %>
+  <section class="panel">
+    <h2><%= section["title_fr"].presence || "-" %></h2>
+    <% if section["title_ar"].present? %>
+      <p class="meta" dir="rtl"><%= section["title_ar"] %></p>
+    <% end %>
+    <ul class="list">
+      <% Array(section["questions"]).each do |question| %>
+        <li>
+          <div>
+            <strong><%= question["prompt_fr"] %></strong>
+            <div class="meta">
+              <span class="badge"><%= t("morocco.audit_templates.kinds.#{question["kind"]}") %></span>
+              <% if question["required"] %><span><%= t("morocco.audit_templates.fields.required") %></span><% end %>
+              <span><%= t("morocco.audit_templates.points", count: question["points"].to_i) %></span>
+              <% if question["show_if_key"].present? %>
+                <span><%= t("morocco.audit_templates.shown_when", key: question["show_if_key"], value: question["show_if_value"]) %></span>
+              <% end %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>

@@ -85,6 +85,10 @@
                   <span class="app-nav-link__icon"><%= icon("calendar") %></span>
                   <span><%= t("nav.visits") %></span>
                 <% end %>
+                <%= link_to audit_templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_templates')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                  <span><%= t("nav.audit_templates") %></span>
+                <% end %>
                 <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                   <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                   <span><%= t("nav.ranking") %></span>

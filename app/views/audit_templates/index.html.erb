@@ -1,0 +1,36 @@
+<% content_for :title, "#{t('morocco.audit_templates.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
+    <h1><%= t("morocco.audit_templates.title") %></h1>
+    <p class="meta"><%= t("morocco.audit_templates.lede") %></p>
+  </div>
+  <% if hq_user? %>
+    <div class="radar-head__actions">
+      <%= link_to new_audit_template_path, class: "btn btn--primary" do %>
+        <%= icon("plus", css_class: "icon") %> <%= t("morocco.audit_templates.new") %>
+      <% end %>
+    </div>
+  <% end %>
+</header>
+
+<section class="panel">
+  <% if @templates.any? %>
+    <ul class="list">
+      <% @templates.each do |template| %>
+        <li>
+          <div>
+            <%= link_to template.title, audit_template_path(template) %>
+            <div class="meta">
+              <%= t("morocco.audit_templates.question_count", count: template.questions.size) %>
+              · <%= t("morocco.audit_templates.points", count: template.max_points) %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty"><%= t("morocco.audit_templates.empty") %></p>
+  <% end %>
+</section>

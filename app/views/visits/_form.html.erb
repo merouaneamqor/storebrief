@@ -17,6 +17,10 @@
       <%= f.datetime_local_field :planned_at, class: "billing-input", required: true %>
     </label>
     <label>
+      <span><%= t("morocco.audit_templates.field") %></span>
+      <%= f.collection_select :audit_template_id, @audit_templates, :id, :title, { include_blank: t("morocco.audit_templates.none") }, class: "billing-input" %>
+    </label>
+    <label>
       <span><%= t("morocco.visits.fields.notes") %></span>
       <%= f.text_area :notes, class: "billing-input", rows: 3 %>
     </label>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_191000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "audit_templates", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.text "description_fr"
+    t.text "description_ar"
+    t.jsonb "sections", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id"], name: "index_audit_templates_on_tenant_id"
   end
 
   create_table "checklist_deliveries", force: :cascade do |t|
@@ -379,6 +391,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
     t.datetime "cancelled_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "audit_template_id"
+    t.index ["audit_template_id"], name: "index_visits_on_audit_template_id"
     t.index ["auditor_id"], name: "index_visits_on_auditor_id"
     t.index ["created_by_id"], name: "index_visits_on_created_by_id"
     t.index ["org_unit_id"], name: "index_visits_on_org_unit_id"
@@ -389,6 +403,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "audit_templates", "tenants"
   add_foreign_key "checklist_deliveries", "checklists"
   add_foreign_key "checklist_deliveries", "org_units"
   add_foreign_key "checklist_deliveries", "users", column: "assignee_id"
@@ -424,6 +439,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
   add_foreign_key "tenant_mail_settings", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
+  add_foreign_key "visits", "audit_templates"
   add_foreign_key "visits", "org_units"
   add_foreign_key "visits", "tenants"
   add_foreign_key "visits", "users", column: "auditor_id"
