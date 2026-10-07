@@ -7,13 +7,41 @@ document.addEventListener("alpine:init", () => {
       this.sections = parsed.length ? parsed : [ this.blankSection() ]
     },
 
-    blankSection() {
-      return { key: `s${this.sections.length + 1}`, title_fr: "", title_ar: "", questions: [ this.blankQuestion(1) ] }
+    takenKeys() {
+      const keys = []
+      for (const section of this.sections) {
+        if (section.key) keys.push(section.key)
+        for (const question of section.questions || []) {
+          if (question.key) keys.push(question.key)
+          if (question.show_if_key) keys.push(question.show_if_key)
+        }
+      }
+      return new Set(keys)
     },
 
-    blankQuestion(index) {
+    freshKey(prefix) {
+      const taken = this.takenKeys()
+      let index = 1
+      let key = `${prefix}${index}`
+      while (taken.has(key)) {
+        index += 1
+        key = `${prefix}${index}`
+      }
+      return key
+    },
+
+    blankSection() {
       return {
-        key: `q${index}`,
+        key: this.freshKey("s"),
+        title_fr: "",
+        title_ar: "",
+        questions: [ this.blankQuestion() ]
+      }
+    },
+
+    blankQuestion() {
+      return {
+        key: this.freshKey("q"),
         prompt_fr: "",
         prompt_ar: "",
         required: true,
@@ -29,7 +57,7 @@ document.addEventListener("alpine:init", () => {
     },
 
     addQuestion(section) {
-      section.questions.push(this.blankQuestion(section.questions.length + 1))
+      section.questions.push(this.blankQuestion())
     },
 
     removeQuestion(section, index) {

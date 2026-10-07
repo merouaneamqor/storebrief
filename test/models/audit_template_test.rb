@@ -22,6 +22,17 @@ class AuditTemplateTest < ActiveSupport::TestCase
 
     template.sections.last["questions"].last["show_if_key"] = "q1"
     assert template.valid?
+
+    template.sections << {
+      "key" => "s2",
+      "title_fr" => "Réserve",
+      "questions" => [
+        { "key" => "q1", "prompt_fr" => "Stock", "kind" => "yes_no", "required" => true, "points" => 1 }
+      ]
+    }
+    assert_not template.valid?
+    template.sections.last["questions"].first["key"] = "q3"
+    assert template.valid?
     assert_equal 2, template.max_points
     assert template.question_visible?(template.questions.last, { "q1" => "non_conforme" })
     assert_not template.question_visible?(template.questions.last, { "q1" => "conforme" })
