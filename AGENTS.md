@@ -80,6 +80,16 @@ docker compose exec web bin/rails db:seed
 
 Demo password: `password`. Atlas HQ: `hq@atlas.test` (slug `atlas`). See README for more accounts.
 
+## Delivery process (GitHub)
+
+Roadmap work uses GitHub epics → Ready issues → feature branches/subagents → PR → CI → squash-merge → Project **Done**.
+
+- Always-on rule: [`.cursor/rules/gh-epic-delivery.mdc`](.cursor/rules/gh-epic-delivery.mdc)
+- Full skill: [`.cursor/skills/vazivo-gh-delivery/SKILL.md`](.cursor/skills/vazivo-gh-delivery/SKILL.md)
+- Board: [Vazivo Capability Roadmap](https://github.com/users/merouaneamqor/projects/6)
+
+At session start, sync the board with `gh` before inventing work.
+
 ## Do / don't
 
 **Do**
@@ -88,6 +98,7 @@ Demo password: `password`. Atlas HQ: `hq@atlas.test` (slug `atlas`). See README 
 - Gate Morocco surfaces behind `morocco_ops` (and related flags).
 - Add/update tests next to behavior you change (`test/integration`, `test/services`).
 - Keep agent docs (`AGENTS.md`, `CLAUDE.md`) accurate when product rules change.
+- Follow the GitHub epic delivery loop for roadmap/feature work (see above).
 
 **Don't**
 

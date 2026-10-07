@@ -1,0 +1,20 @@
+---
+description: Every session — sync to GitHub epics/Project, pick Ready work, deliver via traced agents until PR merge
+alwaysApply: true
+---
+
+# GitHub epic delivery loop
+
+At session start (and when the user asks to continue roadmap work), follow the **vazivo-gh-delivery** skill.
+
+## Mandatory path
+
+1. **Sync board** — `gh` issues/epics + [Vazivo Capability Roadmap](https://github.com/users/merouaneamqor/projects/6); do not invent parallel todos outside GitHub.
+2. **Pick Ready** — only `Ready` / assigned P0 (or user-named) child issues; one issue = one branch = one agent.
+3. **Trace** — comment on the issue → set Project status `In progress` → implement on `feature/<n>-slug` (worktree if parallel) → tests via Docker Compose → `gh pr create` linking `#n`.
+4. **Close the loop** — wait for CI green → rebase/resolve if dirty → squash-merge → close issue → Project `Done`.
+5. **Never stop at “PR opened”** when the user wants delivery through merge unless they say review-only.
+
+## Hard product constraints (still apply)
+
+- Tenant scope; `morocco_ops` for Morocco surfaces; FR/EN/ES/AR; no YOOBIC clone; no Darija; no WhatsApp intake; no force-push `main`.
