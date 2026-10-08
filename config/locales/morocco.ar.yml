@@ -5,6 +5,7 @@ ar:
     playbooks: "خطط التشغيل"
     ranking: "الترتيب"
     visits: "الزيارات"
+    my_tasks: "مهامي"
   morocco:
     proof_required: "أضيفوا صورة قبل وصورة بعد."
     owner:
@@ -304,3 +305,21 @@ ar:
         vm: "أفضل مطابقة"
         improvement: "أفضل تقدم"
         team: "أفضل فريق"
+    my_tasks:
+      title: "مهامي"
+      lede: "العمل المفتوح للمتاجر التي تديرها."
+      empty: "لا يوجد عمل مفتوح في هذا العرض."
+      missing: "هذه المهمة ليست ضمن متاجرك."
+      back: "مهامي"
+      open_work: "فتح العمل"
+      filters_label: "تصفية المهام"
+      store: "المتجر"
+      due: "الموعد"
+      filters:
+        all: "الكل"
+        overdue: "متأخر"
+        today: "اليوم"
+        upcoming: "قادم"
+      kind:
+        task: "مهمة"
+        checklist: "قائمة تحقق"

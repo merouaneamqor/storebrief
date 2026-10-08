@@ -114,12 +114,22 @@
                 </div>
               </details>
             <% elsif tenant_feature?(:morocco_ops) %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                  <span><%= t("nav.my_tasks") %></span>
+                <% end %>
+              <% end %>
               <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                 <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                 <span><%= t("nav.ranking") %></span>
               <% end %>
             <% else %>
               <% if tenant_feature?(:briefs) %>
+                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                  <span><%= t("nav.my_tasks") %></span>
+                <% end %>
                 <%= link_to inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox')}" do %>
                   <span class="app-nav-link__icon"><%= icon("inbox") %></span>
                   <span><%= t("nav.inbox") %></span>

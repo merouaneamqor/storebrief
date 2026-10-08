@@ -67,6 +67,7 @@ Rails.application.routes.draw do
   get "push/vapid_public_key", to: "push_subscriptions#vapid_public_key"
   resource :push_subscription, only: %i[create destroy]
 
+  resources :my_tasks, only: %i[index show]
   resources :inbox, only: %i[index show], controller: "inbox" do
     member do
       post :complete
