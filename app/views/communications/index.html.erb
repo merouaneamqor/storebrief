@@ -17,6 +17,7 @@
             <%= link_to brief.title, brief %>
             <div class="meta">
               <%= localized_badge(brief.format) %>
+              <%= priority_badge(brief.priority) %>
               <%= localized_badge(brief.status) %>
               · <%= t("common.by") %> <%= brief.author.name %>
             </div>

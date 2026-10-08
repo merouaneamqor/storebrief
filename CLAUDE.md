@@ -43,6 +43,10 @@ docker compose exec -T web bash -lc \
 - Prefer Alpine on ERB pages; match existing HQ/store visual language
 - Do not commit secrets; do not force-push `main`
 
+## Roadmap delivery
+
+Each session: sync GitHub Project/epics, pick Ready issues, implement (agents/worktrees), open PRs, merge when CI is green, then verify Render `storebrief` deploys. See `.cursor/rules/gh-epic-delivery.mdc`, `.cursor/skills/vazivo-gh-delivery/SKILL.md`, and `.cursor/skills/vazivo-render-checks/SKILL.md`.
+
 ## When unsure
 
 Read `README.md` and `AGENTS.md` before inventing structure. Extend `Vazivo::` services and existing controllers rather than parallel stacks.

@@ -37,6 +37,11 @@
         <%= link_to playbooks_path, class: "btn btn--quiet" do %>
           <%= icon("book", css_class: "icon") %> <%= t("nav.playbooks") %>
         <% end %>
+        <% if current_tenant.feature?(:morocco_ops) %>
+          <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+            <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+          <% end %>
+        <% end %>
         <%= link_to billing_path, class: "btn btn--quiet" do %>
           <%= icon("credit-card", css_class: "icon") %> <%= t("nav.billing") %>
         <% end %>
@@ -83,6 +88,19 @@
   </section>
 <% end %>
 
+<% status = board.store_status %>
+<section class="hq-status-strip" aria-label="<%= t('morocco.hq.store_status.title') %>">
+  <p class="section-title"><%= t("morocco.hq.store_status.title") %></p>
+  <div class="hq-status-strip__tiles">
+    <% %w[on_track attention critical].each do |bucket| %>
+      <%= link_to org_units_path(status: bucket), class: "hq-status-strip__tile hq-status-strip__tile--#{bucket}" do %>
+        <strong><%= status.count(bucket) %></strong>
+        <span><%= t("morocco.hq.store_status.#{bucket}") %></span>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+
 <section class="hq-board" x-data="{ filter: '<%= j filter %>' }" x-init="
   $watch('filter', (value) => {
     const url = new URL(window.location.href);
@@ -120,6 +138,7 @@
               <div class="exception-row__top">
                 <span class="exception-kind exception-kind--<%= row.kind %>"><%= t("morocco.hq.board_#{row.kind == 'redo' ? 'redo' : row.kind == 'overdue' ? 'overdue' : 'unconfirmed'}") %></span>
                 <span class="tone tone--<%= row.tone %>"><%= tone_icon(row.tone) %> <%= t("morocco.tone.#{row.tone}") %></span>
+                <%= priority_badge(row.priority) %>
               </div>
               <%= link_to row.store_name, row.path, class: "exception-row__store" %>
               <div class="meta">

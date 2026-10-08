@@ -79,9 +79,15 @@ class InboxController < ApplicationController
   def require_store_or_assignment_access
     return if current_user.store_org_unit
     return if current_user.manageable_store_ids.any?
-    return if Delivery.where(assignee_id: current_user.id).exists?
+    return if assigned_in_tenant?
 
     redirect_to app_root_path, alert: t("errors.no_store")
+  end
+
+  def assigned_in_tenant?
+    Delivery.joins(:communication)
+            .where(communications: { tenant_id: tenant_scope.id }, assignee_id: current_user.id)
+            .exists?
   end
 
   # Only direct owners (the store manager on that store, HQ, or the assignee)

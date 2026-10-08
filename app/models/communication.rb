@@ -4,10 +4,16 @@ class Communication < ApplicationRecord
   FORMATS = %w[news task].freeze
   STATUSES = %w[draft sent].freeze
   SOURCES = %w[compose playbook].freeze
+  # Ordered most to least pressing; the index is the sort rank.
+  PRIORITIES = %w[urgent important routine].freeze
+  DEFAULT_PRIORITY = "routine".freeze
 
   belongs_to :tenant
   belongs_to :author, class_name: "User"
   belongs_to :playbook, optional: true
+  belongs_to :recurrence_parent, class_name: "Communication", optional: true, inverse_of: :occurrences
+  has_many :occurrences, class_name: "Communication", foreign_key: :recurrence_parent_id,
+                         inverse_of: :recurrence_parent, dependent: :nullify
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
@@ -20,13 +26,31 @@ class Communication < ApplicationRecord
   validates :format, inclusion: { in: FORMATS }
   validates :status, inclusion: { in: STATUSES }
   validates :source, inclusion: { in: SOURCES }
+  validates :priority, inclusion: { in: PRIORITIES }
+  validate :recurrence_rule_valid
 
   bilingual_fields :title, :body
 
   scope :sent, -> { where(status: "sent") }
   scope :drafts, -> { where(status: "draft") }
+  scope :recurrence_due, ->(today) { sent.where("recurrence_next_on <= ?", today) }
+  # The series source plus every occurrence cloned from it.
+  scope :in_series, ->(source_id) { where(id: source_id).or(where(recurrence_parent_id: source_id)) }
+
+  # SQL ordering expression: urgent first, routine last.
+  # Literal CASE keeps Brakeman happy (no dynamic SQL fragments).
+  PRIORITY_ORDER_SQL = Arel.sql(
+    "CASE communications.priority WHEN 'urgent' THEN 0 WHEN 'important' THEN 1 WHEN 'routine' THEN 2 ELSE 3 END"
+  ).freeze
+  scope :by_priority, -> { order(PRIORITY_ORDER_SQL) }
+
+  def self.priority_rank(priority)
+    PRIORITIES.index(priority.to_s) || PRIORITIES.size
+  end
 
   before_validation :apply_source_default
+  before_validation :apply_priority_default
+  before_validation :clear_recurrence_unless_task
 
   def news?
     format == "news"
@@ -44,8 +68,33 @@ class Communication < ApplicationRecord
     status == "draft"
   end
 
+  def priority_rank
+    self.class.priority_rank(priority)
+  end
+
   def questions?
     communication_questions.any?
+  end
+
+  def recurring?
+    recurrence_parent_id.nil? && recurrence_rule.present?
+  end
+
+  def occurrence?
+    recurrence_parent_id.present?
+  end
+
+  def recurrence_active?
+    recurring? && recurrence_next_on.present?
+  end
+
+  def series_source
+    recurrence_parent || self
+  end
+
+  # Form input: { frequency:, interval:, weekdays: [], ends_on: }
+  def recurrence_attributes=(attrs)
+    self.recurrence_rule = Vazivo::Recurrence.normalize(attrs)
   end
 
   def send_to!(org_unit_ids)
@@ -63,6 +112,7 @@ class Communication < ApplicationRecord
       end
     end
 
+    Vazivo::Recurrence.arm!(self) if recurring?
     NotificationDispatcher.notify_communication!(self)
     self
   end
@@ -75,6 +125,21 @@ class Communication < ApplicationRecord
   end
 
   private
+
+  # Only tasks carry a priority; notes are always routine.
+  def apply_priority_default
+    self.priority = DEFAULT_PRIORITY if priority.blank? || !task?
+  end
+
+  def clear_recurrence_unless_task
+    self.recurrence_rule = {} unless task?
+  end
+
+  def recurrence_rule_valid
+    return if recurrence_rule.blank?
+
+    errors.add(:recurrence_rule, :invalid) if occurrence? || Vazivo::Recurrence.errors_for(recurrence_rule).any?
+  end
 
   def apply_source_default
     self.source = "compose" if source.blank?

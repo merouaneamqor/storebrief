@@ -34,6 +34,7 @@
               <%= delivery.communication.title %>
             </div>
             <div class="task-list__meta">
+              <%= priority_badge(delivery.communication.priority) %>
               <% if morocco %>
                 <span class="tone tone--<%= delivery.tone %>"><%= tone_icon(delivery.tone) %> <%= t("morocco.tone.#{delivery.tone}") %></span>
               <% else %>

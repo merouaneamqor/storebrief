@@ -8,6 +8,9 @@
     <p class="meta"><%= t("morocco.playbooks.lede") %></p>
   </div>
   <div class="radar-head__actions">
+    <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+      <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+    <% end %>
     <%= link_to new_playbook_path, class: "btn btn--quiet" do %>
       <%= icon("plus", css_class: "icon") %> <%= t("morocco.playbooks.new") %>
     <% end %>
@@ -78,26 +81,53 @@
         <% end %>
       </ol>
 
-      <%= form_with url: deploy_playbook_path(playbook), method: :post, class: "pb-deploy" do %>
+      <%= form_with url: deploy_playbook_path(playbook), method: :post,
+            html: {
+              class: "pb-deploy",
+              "x-data": "campaignTargets",
+              data: {
+                store_ids: @stores.map(&:id).to_json,
+                preview_url: preview_playbook_path(playbook, format: :json),
+                empty_text: t("morocco.playbooks.targets.empty")
+              }
+            } do %>
         <label class="pb-deploy__date">
           <span><%= t("morocco.playbooks.date") %></span>
           <input type="date" name="campaign_on" value="<%= (Date.current + 14).iso8601 %>" required class="billing-input">
         </label>
 
-        <div class="pb-deploy__stores">
-          <p class="section-title"><%= t("morocco.playbooks.stores") %></p>
-          <div class="store-checks">
-            <% @stores.each do |store| %>
-              <label class="check">
-                <%= check_box_tag "org_unit_ids[]", store.id, true, id: "pb_#{playbook.id}_#{store.id}" %>
-                <%= store.name %>
+        <div class="pb-deploy__stores pb-targets">
+          <p class="section-title"><%= t("morocco.playbooks.targets.title") %></p>
+          <p class="meta"><%= t("morocco.playbooks.targets.hint") %></p>
+
+          <div class="pb-targets__tools">
+            <button type="button" class="btn btn--quiet" @click="selectAllStores()"><%= t("morocco.playbooks.targets.select_all") %></button>
+            <button type="button" class="btn btn--ghost" @click="clear()"><%= t("morocco.playbooks.targets.clear") %></button>
+          </div>
+
+          <div class="pb-targets__tree">
+            <% @target_options.each do |option| %>
+              <label class="check" style="--depth: <%= option.depth %>">
+                <%= check_box_tag "org_unit_ids[]", option.unit.id, false, id: "pb_#{playbook.id}_#{option.unit.id}", "x-model": "ids" %>
+                <%= option.unit.name %>
+                <span class="pb-targets__type"><%= t("morocco.playbooks.targets.unit_types.#{option.unit.unit_type}") %></span>
               </label>
             <% end %>
+          </div>
+
+          <div class="pb-targets__preview" aria-live="polite">
+            <strong><%= t("morocco.playbooks.targets.preview") %></strong>
+            <span x-text="summary"></span>
+            <ul x-show="stores.length">
+              <template x-for="store in stores" :key="store.id">
+                <li><span x-text="store.name"></span> <span class="meta" x-text="[store.region, store.area].filter(Boolean).join(' / ')"></span></li>
+              </template>
+            </ul>
           </div>
         </div>
 
         <div class="sticky-action">
-          <button type="submit" class="btn btn--primary btn--block">
+          <button type="submit" class="btn btn--primary btn--block" :disabled="count === 0">
             <%= icon("send", css_class: "icon") %>
             <%= t("morocco.playbooks.deploy") %>
           </button>

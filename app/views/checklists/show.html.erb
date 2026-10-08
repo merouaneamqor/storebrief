@@ -39,7 +39,7 @@
     <% end %>
     <ul class="list">
       <% @deliveries.each do |delivery| %>
-        <li>
+        <li id="store-<%= delivery.org_unit_id %>">
           <span><%= delivery.org_unit.name %></span>
           <%= localized_badge(delivery.status) %>
         </li>

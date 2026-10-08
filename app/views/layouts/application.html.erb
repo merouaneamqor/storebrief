@@ -81,6 +81,10 @@
                   <span class="app-nav-link__icon"><%= icon("book") %></span>
                   <span><%= t("nav.playbooks") %></span>
                 <% end %>
+                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                  <span><%= t("nav.visits") %></span>
+                <% end %>
                 <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                   <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                   <span><%= t("nav.ranking") %></span>

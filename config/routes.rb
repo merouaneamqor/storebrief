@@ -34,6 +34,8 @@ Rails.application.routes.draw do
     member do
       post :send_brief
       post :notify_push
+      post :stop_recurrence
+      patch :priority, action: :update_priority
     end
   end
 
@@ -56,6 +58,7 @@ Rails.application.routes.draw do
     member do
       post :send_checklist
       post :notify_push
+      post :stop_recurrence
     end
   end
 
@@ -73,9 +76,21 @@ Rails.application.routes.draw do
   get "my-tasks", to: "inbox#index", as: :my_tasks
 
   resources :playbooks, only: %i[index new create edit update destroy] do
+    collection do
+      get :campaigns
+    end
     member do
       post :deploy
+      get :preview
       post :reset
+    end
+  end
+  resources :visits, only: %i[index show new create edit update] do
+    collection do
+      get :calendar
+    end
+    member do
+      patch :cancel
     end
   end
   get "classement", to: "rankings#show", as: :ranking

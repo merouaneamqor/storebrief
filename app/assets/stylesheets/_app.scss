@@ -999,6 +999,9 @@ body.rtl .section-title {
 
 .badge--news { background: var(--secondary-soft); color: var(--secondary); }
 .badge--task { background: var(--warn-soft); color: var(--warn); }
+.badge--priority-urgent { background: var(--tone-late-bg); color: var(--tone-late); }
+.badge--priority-important { background: var(--tone-urgent-bg); color: var(--tone-urgent); }
+.priority-form { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
 .badge--sent,
 .badge--completed,
 .badge--read { background: var(--accent-soft); color: var(--accent-deep); }
@@ -1801,6 +1804,18 @@ body.rtl .section-title {
   gap: 0.55rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--line, #e2e8f0);
+}
+
+.brief-recurrence {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.brief-recurrence__field {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .brief-choices {

@@ -88,6 +88,46 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", notify_push_communication_path(@brand.tenant.communications.sent.last)
   end
 
+  test "head office today shows store status buckets linking to the store list" do
+    brief = task_for(@brand, proof: false)
+    brief.deliveries.first.update!(due_at: 1.hour.ago)
+    sign_in(@brand.hq)
+
+    get app_root_path
+    assert_response :success
+    assert_select ".hq-status-strip__tile", 3
+    assert_select ".hq-status-strip__tile--critical strong", text: "1"
+    assert_select "a.hq-status-strip__tile--critical[href=?]", org_units_path(status: "critical")
+
+    get org_units_path(status: "critical")
+    assert_response :success
+    assert_select ".store-status-list__items li", text: /Maarif/
+
+    get org_units_path(status: "on_track")
+    assert_select ".store-status-list__items li", 0
+    assert_select ".empty"
+  end
+
+  test "store status strip is hidden and ignored without morocco_ops" do
+    brand = build_brand("status-off", features: { morocco_ops: false })
+    sign_in(brand.hq)
+
+    get app_root_path
+    assert_select ".hq-status-strip", 0
+
+    get org_units_path(status: "critical")
+    assert_response :success
+    assert_select ".store-status-list__items", 0
+    assert_select ".tree"
+  end
+
+  test "store users cannot open the status store list" do
+    sign_in(@brand.store_user)
+
+    get org_units_path(status: "critical")
+    assert_response :redirect
+  end
+
   test "a playbook deploys the same campaign to the store" do
     Playbook.ensure_defaults!(@brand.tenant)
     playbook = @brand.tenant.playbooks.find_by!(key: "aid")
@@ -109,6 +149,57 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
 
     confirmation = @brand.tenant.communications.where(source: "playbook").order(:id).last
     assert_equal "pending", confirmation.deliveries.first.awareness
+  end
+
+  test "playbook targets preview resolves stores under a region within the tenant" do
+    Playbook.ensure_defaults!(@brand.tenant)
+    playbook = @brand.tenant.playbooks.find_by!(key: "aid")
+    other = build_brand("vazivo-other")
+    sign_in(@brand.hq)
+
+    get preview_playbook_path(playbook, format: :json), params: { org_unit_ids: [ @brand.region.id, other.store.id ] }
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 1, body["count"]
+    assert_equal [ @brand.store.id ], body["stores"].map { |store| store["id"] }
+    assert_equal "Casa", body["stores"].first["region"]
+
+    get preview_playbook_path(playbook, format: :json)
+    assert_equal 0, response.parsed_body["count"]
+  end
+
+  test "deploying a playbook persists the target snapshot and requires targets" do
+    Playbook.ensure_defaults!(@brand.tenant)
+    playbook = @brand.tenant.playbooks.find_by!(key: "aid")
+    sign_in(@brand.hq)
+
+    assert_no_difference -> { @brand.tenant.checklists.count } do
+      post deploy_playbook_path(playbook), params: { campaign_on: Date.new(2026, 6, 16).iso8601 }
+    end
+    assert_redirected_to playbooks_path(key: playbook.key)
+
+    post deploy_playbook_path(playbook), params: {
+      campaign_on: Date.new(2026, 6, 16).iso8601,
+      org_unit_ids: [ @brand.region.id ]
+    }
+
+    snapshot = @brand.tenant.checklists.order(:id).last.target_snapshot
+    assert_equal 1, snapshot["store_count"]
+    assert_equal [ @brand.store.id ], snapshot["stores"].map { |store| store["id"] }
+    assert_equal [ @brand.region.id ], snapshot["selection"].map { |unit| unit["id"] }
+    assert snapshot["captured_at"].present?
+  end
+
+  test "playbooks page lets hq pick targets from the org tree" do
+    sign_in(@brand.hq)
+
+    get playbooks_path
+
+    assert_response :success
+    assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.region.id}']"
+    assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.store.id}']"
+    assert_select "form.pb-deploy[x-data=campaignTargets]"
   end
 
   test "hq can customize and create playbooks" do

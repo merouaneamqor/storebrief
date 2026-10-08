@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -113,6 +113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
     t.datetime "updated_at", null: false
     t.date "campaign_on"
     t.bigint "playbook_id"
+    t.jsonb "target_snapshot", default: {}, null: false
     t.index ["author_id"], name: "index_checklists_on_author_id"
     t.index ["checklist_template_id"], name: "index_checklists_on_checklist_template_id"
     t.index ["playbook_id"], name: "index_checklists_on_playbook_id"
@@ -149,8 +150,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
     t.boolean "requires_proof", default: false, null: false
     t.datetime "due_at"
     t.bigint "playbook_id"
+    t.jsonb "recurrence_rule", default: {}, null: false
+    t.date "recurrence_next_on"
+    t.bigint "recurrence_parent_id"
+    t.date "occurrence_on"
+    t.string "priority", default: "routine", null: false
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["playbook_id"], name: "index_communications_on_playbook_id"
+    t.index ["recurrence_next_on"], name: "index_communications_on_recurrence_next_on", where: "(recurrence_next_on IS NOT NULL)"
+    t.index ["recurrence_parent_id", "occurrence_on"], name: "index_communications_on_series_occurrence", unique: true, where: "(recurrence_parent_id IS NOT NULL)"
+    t.index ["recurrence_parent_id"], name: "index_communications_on_recurrence_parent_id"
     t.index ["tenant_id", "status"], name: "index_communications_on_tenant_id_and_status"
     t.index ["tenant_id"], name: "index_communications_on_tenant_id"
   end
@@ -358,6 +367,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
     t.index ["tenant_id"], name: "index_users_on_tenant_id"
   end
 
+  create_table "visits", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "org_unit_id", null: false
+    t.bigint "auditor_id", null: false
+    t.bigint "created_by_id"
+    t.datetime "planned_at", null: false
+    t.string "status", default: "planned", null: false
+    t.text "notes"
+    t.text "cancel_reason"
+    t.datetime "cancelled_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["auditor_id"], name: "index_visits_on_auditor_id"
+    t.index ["created_by_id"], name: "index_visits_on_created_by_id"
+    t.index ["org_unit_id"], name: "index_visits_on_org_unit_id"
+    t.index ["tenant_id", "planned_at"], name: "index_visits_on_tenant_id_and_planned_at"
+    t.index ["tenant_id", "status"], name: "index_visits_on_tenant_id_and_status"
+    t.index ["tenant_id"], name: "index_visits_on_tenant_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "checklist_deliveries", "checklists"
@@ -372,6 +401,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
   add_foreign_key "checklists", "tenants"
   add_foreign_key "checklists", "users", column: "author_id"
   add_foreign_key "communication_questions", "communications"
+  add_foreign_key "communications", "communications", column: "recurrence_parent_id", on_delete: :nullify
   add_foreign_key "communications", "playbooks", on_delete: :nullify
   add_foreign_key "communications", "tenants"
   add_foreign_key "communications", "users", column: "author_id"
@@ -394,4 +424,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_210000) do
   add_foreign_key "tenant_mail_settings", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
+  add_foreign_key "visits", "org_units"
+  add_foreign_key "visits", "tenants"
+  add_foreign_key "visits", "users", column: "auditor_id"
+  add_foreign_key "visits", "users", column: "created_by_id", on_delete: :nullify
 end
