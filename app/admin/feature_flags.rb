@@ -52,7 +52,7 @@ ActiveAdmin.register Tenant, as: "FeatureFlag" do
         Tenant::FEATURE_FLAGS.each do |key, meta|
           row(meta[:label]) do |t|
             span status_tag(t.feature?(key) ? "on" : "off")
-            span " — #{meta[:hint]}", style: "color:#666;margin-left:0.5rem"
+            span " · #{meta[:hint]}", style: "color:#666;margin-left:0.5rem"
           end
         end
       end

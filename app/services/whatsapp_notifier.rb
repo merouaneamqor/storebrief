@@ -51,7 +51,8 @@ class WhatsappNotifier
       channel: "whatsapp",
       phone: user.whatsapp_phone,
       message: message,
-      status: "stubbed"
+      status: "stubbed",
+      billed: true
     )
   end
 

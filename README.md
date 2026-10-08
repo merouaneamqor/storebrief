@@ -51,6 +51,7 @@ Public summary: [http://localhost:3001/resources](http://localhost:3001/resource
 - Tenant isolation
 - Per-tenant feature flags + SAML SSO (Admin → **Feature flags**, or Brand → Features / SSO)
 - Org hierarchy + communications (bilingual FR/AR fields)
+- Recurring task briefs (daily, weekly, every N days): schedule `bin/rails vazivo:recurring` at least daily; stores keep one open instance per series
 - Checklist templates (opening, closing, cleanliness, safety, promotions, equipment, store visit)
 - Offline checklist responses via IndexedDB → `POST /sync/checklist_responses`
 - WhatsAppNotifier stub → `notification_logs`

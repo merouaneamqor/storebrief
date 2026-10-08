@@ -108,10 +108,10 @@
               data-state="<%= row[:pending].positive? ? "behind" : "clear" %>"
               data-search="<%= "#{row[:store].name} #{row[:place]&.name}".downcase %>">
             <td><%= row[:store].name %></td>
-            <td><%= row[:place]&.name || "—" %></td>
+            <td><%= row[:place]&.name || "-" %></td>
             <td class="num"><%= row[:briefs] %></td>
             <td class="num"><%= row[:checks] %></td>
-            <td><%= row[:oldest_at] ? time_ago_in_words(row[:oldest_at]) : "—" %></td>
+            <td><%= row[:oldest_at] ? time_ago_in_words(row[:oldest_at]) : "-" %></td>
             <td>
               <% if row[:priority] %>
                 <span class="badge badge--task"><%= t("reports.focus") %></span>

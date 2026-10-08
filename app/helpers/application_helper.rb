@@ -9,6 +9,31 @@ module ApplicationHelper
     content_tag(:span, t("common.#{key}"), class: "badge badge--#{key}")
   end
 
+  # Routine is the quiet default, so only urgent and important tasks get a badge.
+  def priority_badge(priority)
+    return if priority.blank? || priority == Communication::DEFAULT_PRIORITY
+
+    content_tag(:span, t("common.priorities.#{priority}"), class: "badge badge--priority-#{priority}")
+  end
+
+  # One line description of a recurrence rule, e.g. "Every week on Mon, Wed".
+  def recurrence_summary(rule)
+    return "-" if rule.blank?
+
+    base = case rule["frequency"]
+    when "weekly"
+      names = t("communications.recurrence.weekdays")
+      t("communications.recurrence.summary.weekly", days: Array(rule["weekdays"]).map { |wday| names[wday.to_i] }.join(", "))
+    when "custom"
+      t("communications.recurrence.summary.custom", count: rule["interval"].to_i)
+    else
+      t("communications.recurrence.summary.daily")
+    end
+    return base if rule["ends_on"].blank?
+
+    "#{base} · #{t('communications.recurrence.summary.until', date: rule['ends_on'])}"
+  end
+
   def bilingual_label(record, field)
     record.public_send(field)
   end

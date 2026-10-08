@@ -34,6 +34,8 @@ Rails.application.routes.draw do
     member do
       post :send_brief
       post :notify_push
+      post :stop_recurrence
+      patch :priority, action: :update_priority
     end
   end
 
@@ -56,6 +58,7 @@ Rails.application.routes.draw do
     member do
       post :send_checklist
       post :notify_push
+      post :stop_recurrence
     end
   end
 
@@ -67,6 +70,30 @@ Rails.application.routes.draw do
   resources :inbox, only: %i[index show], controller: "inbox" do
     member do
       post :complete
+      post :advance
     end
   end
+
+  resources :playbooks, only: %i[index new create edit update destroy] do
+    collection do
+      get :campaigns
+    end
+    member do
+      post :deploy
+      get :preview
+      post :reset
+    end
+  end
+  resources :visits, only: %i[index show new create edit update] do
+    collection do
+      get :calendar
+    end
+    member do
+      patch :cancel
+    end
+  end
+  get "classement", to: "rankings#show", as: :ranking
+  resource :billing, only: %i[show update]
+  resource :ramadan, only: :update, controller: "ramadan"
+  post "deliveries/:delivery_id/verdict", to: "delivery_verdicts#create", as: :delivery_verdict
 end

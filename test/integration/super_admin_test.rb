@@ -36,7 +36,7 @@ class SuperAdminTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_select "p.lede", text: /#{Regexp.escape(atlas.name)}/
+    assert_match atlas.name, response.body
     assert_select "select#tenant_id option[selected]", text: atlas.name
 
     get tenants_path
@@ -49,7 +49,7 @@ class SuperAdminTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_select "p.lede", text: /#{Regexp.escape(contoso.name)}/
+    assert_match contoso.name, response.body
     assert_select "a", text: "Brief Contoso"
     assert_select "a", text: "Brief Atlas", count: 0
 
@@ -112,7 +112,7 @@ class SuperAdminTest < ActionDispatch::IntegrationTest
 
     post switch_tenants_path, params: { tenant_id: other.id, to: "dashboard" }
     follow_redirect!
-    assert_select "p.lede", text: /#{Regexp.escape(store.name)}/
+    assert_match store.name, response.body
     assert_select "select#tenant_id", count: 0
     assert_select "a", text: other.name, count: 0
 

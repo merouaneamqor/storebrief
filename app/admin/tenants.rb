@@ -11,7 +11,14 @@ ActiveAdmin.register Tenant do
       :brand_name, :tagline,
       :logo, :logo_mark, :favicon,
       :remove_logo, :remove_logo_mark, :remove_favicon,
-      *Tenant::BRAND_COLORS.keys
+      *Tenant::BRAND_COLORS.keys,
+      {
+        mail_setting_attributes: %i[
+          id use_platform from_email from_name
+          smtp_address smtp_port smtp_domain smtp_username smtp_password
+          smtp_authentication smtp_enable_starttls_auto
+        ]
+      }
     ]
     if current_user.super_admin?
       allowed.concat(Tenant::FEATURE_FLAGS.keys.map { |k| :"feature_#{k}" })
@@ -46,6 +53,7 @@ ActiveAdmin.register Tenant do
 
     def edit
       resource.saml_setting_or_build if current_user.super_admin?
+      resource.mail_setting_or_build
       super
     end
   end
@@ -141,6 +149,35 @@ ActiveAdmin.register Tenant do
           FIELD
         end
         text_node fields.join.html_safe
+      end
+    end
+
+    f.object.mail_setting_or_build
+    f.inputs "Outbound email (SMTP)" do
+      text_node <<~HTML.html_safe
+        <li>
+          <p class="inline-hints">
+            Configure your brand SMTP to send alerts from your domain.
+            If you leave <strong>Use Vazivo SMTP</strong> on, Vazivo sends on your behalf and those emails are billed.
+            WhatsApp messages are billed separately when that channel is on. Push stays included.
+          </p>
+        </li>
+      HTML
+      f.semantic_fields_for :mail_setting do |mf|
+        mf.input :use_platform, as: :boolean,
+                 label: "Use Vazivo SMTP (billed)",
+                 hint: "Turn off to use your own SMTP below"
+        mf.input :from_name, hint: "Display name on emails"
+        mf.input :from_email, hint: "Required when using your SMTP"
+        mf.input :smtp_address, hint: "e.g. smtp.office365.com"
+        mf.input :smtp_port
+        mf.input :smtp_domain
+        mf.input :smtp_username
+        mf.input :smtp_password, as: :string,
+                 input_html: { type: "password", autocomplete: "new-password", value: "" },
+                 hint: "Leave blank to keep the current password"
+        mf.input :smtp_authentication, as: :select, collection: TenantMailSetting::AUTH_METHODS
+        mf.input :smtp_enable_starttls_auto, as: :boolean, label: "STARTTLS"
       end
     end
 
@@ -262,6 +299,27 @@ ActiveAdmin.register Tenant do
             end
           end
         end
+      end
+    end
+
+    panel "Outbound email" do
+      setting = resource.mail_setting_or_build
+      attributes_table_for setting do
+        row("Mode") do
+          if setting.configured_tenant_smtp?
+            status_tag "tenant SMTP"
+          else
+            status_tag "Vazivo SMTP (billed)"
+          end
+        end
+        row :use_platform
+        row :from_name
+        row :from_email
+        row :smtp_address
+        row :smtp_port
+        row :smtp_domain
+        row :smtp_username
+        row("SMTP password") { setting.smtp_password.present? ? "••••••" : status_tag("not set") }
       end
     end
 

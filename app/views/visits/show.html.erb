@@ -1,0 +1,40 @@
+<% content_for :title, "#{@visit.org_unit.name} · #{t('morocco.visits.show')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta">
+      <%= link_to t("morocco.visits.calendar.title"), calendar_visits_path %> ·
+      <%= link_to t("morocco.visits.back"), visits_path %>
+    </p>
+    <h1><%= @visit.org_unit.name %></h1>
+    <p class="meta"><%= t("morocco.visits.statuses.#{@visit.status}") %></p>
+  </div>
+  <div class="radar-head__actions">
+    <% if @visit.editable? %>
+      <%= link_to t("morocco.visits.edit"), edit_visit_path(@visit), class: "btn btn--quiet" %>
+    <% end %>
+    <% if @visit.cancellable? %>
+      <%= button_to t("morocco.visits.cancel"), cancel_visit_path(@visit), method: :patch, class: "btn btn--ghost",
+            form: { data: { turbo_confirm: t("morocco.visits.cancel_confirm") } } %>
+    <% end %>
+  </div>
+</header>
+
+<section class="panel">
+  <dl class="visit-detail">
+    <dt><%= t("morocco.visits.fields.store") %></dt>
+    <dd><%= @visit.org_unit.name %></dd>
+    <dt><%= t("morocco.visits.fields.auditor") %></dt>
+    <dd><%= @visit.auditor.name %></dd>
+    <dt><%= t("morocco.visits.fields.planned_at") %></dt>
+    <dd><%= l(@visit.planned_at, format: :long) %></dd>
+    <dt><%= t("morocco.visits.fields.status") %></dt>
+    <dd><%= t("morocco.visits.statuses.#{@visit.status}") %></dd>
+    <dt><%= t("morocco.visits.fields.notes") %></dt>
+    <dd><%= @visit.notes.presence || "-" %></dd>
+    <% if @visit.cancelled? %>
+      <dt><%= t("morocco.visits.fields.cancel_reason") %></dt>
+      <dd><%= @visit.cancel_reason.presence || "-" %></dd>
+    <% end %>
+  </dl>
+</section>

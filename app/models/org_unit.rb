@@ -7,6 +7,7 @@ class OrgUnit < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
   has_many :deliveries, dependent: :destroy
+  has_many :visits, dependent: :destroy
 
   validates :name, presence: true
   validates :unit_type, inclusion: { in: UNIT_TYPES }

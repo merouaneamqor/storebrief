@@ -1,0 +1,138 @@
+<% content_for :title, "#{t('morocco.playbooks.title')} · Vazivo" %>
+<% default_key = @selected_key.presence_in(@playbooks.map(&:key)) || @playbooks.first&.key %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
+    <h1><%= t("morocco.playbooks.title") %></h1>
+    <p class="meta"><%= t("morocco.playbooks.lede") %></p>
+  </div>
+  <div class="radar-head__actions">
+    <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+      <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+    <% end %>
+    <%= link_to new_playbook_path, class: "btn btn--quiet" do %>
+      <%= icon("plus", css_class: "icon") %> <%= t("morocco.playbooks.new") %>
+    <% end %>
+  </div>
+</header>
+
+<section class="pb-board" x-data="{ key: '<%= j default_key %>' }">
+  <div class="pb-picker" role="tablist" aria-label="<%= t('morocco.playbooks.title') %>">
+    <% @playbooks.each do |playbook| %>
+      <button type="button"
+              class="pb-picker__tile"
+              role="tab"
+              :aria-selected="key === '<%= playbook.key %>'"
+              :class="{ 'is-active': key === '<%= playbook.key %>' }"
+              @click="key = '<%= playbook.key %>'">
+        <strong><%= playbook.title %></strong>
+        <span><%= t("morocco.playbooks.steps_count", count: playbook.step_list.size) %></span>
+      </button>
+    <% end %>
+  </div>
+
+  <% @playbooks.each do |playbook| %>
+    <article class="pb-campaign"
+             x-show="key === '<%= playbook.key %>'"
+             x-cloak
+             role="tabpanel">
+      <div class="pb-campaign__intro">
+        <div class="pb-campaign__title-row">
+          <h2><%= playbook.title %></h2>
+          <div class="pb-campaign__tools">
+            <%= link_to t("morocco.playbooks.customize"), edit_playbook_path(playbook), class: "btn btn--quiet" %>
+            <% if playbook.system? %>
+              <%= button_to t("morocco.playbooks.reset_action"),
+                    reset_playbook_path(playbook),
+                    method: :post,
+                    class: "btn btn--ghost",
+                    form: { data: { turbo_confirm: t("morocco.playbooks.reset_confirm") } } %>
+            <% else %>
+              <%= button_to t("morocco.playbooks.delete"),
+                    playbook_path(playbook),
+                    method: :delete,
+                    class: "btn btn--ghost",
+                    form: { data: { turbo_confirm: t("morocco.playbooks.delete_confirm") } } %>
+            <% end %>
+          </div>
+        </div>
+        <p class="meta"><%= playbook.description %></p>
+        <% if playbook.description_ar.present? && I18n.locale.to_s != "ar" %>
+          <p class="meta" dir="rtl" lang="ar"><%= playbook.description_ar %></p>
+        <% end %>
+      </div>
+
+      <ol class="pb-timeline">
+        <% playbook.step_list.each do |step| %>
+          <% offset = step[:offset_days].to_i %>
+          <li>
+            <span class="pb-timeline__day"><%= offset.zero? ? "J" : (offset.negative? ? "J#{offset}" : "J+#{offset}") %></span>
+            <div>
+              <strong><%= step[:title_fr] %></strong>
+              <% if step[:title_ar].present? %>
+                <span class="meta" dir="rtl" lang="ar"><%= step[:title_ar] %></span>
+              <% end %>
+              <% if ActiveModel::Type::Boolean.new.cast(step[:requires_photo]) %>
+                <em class="pb-timeline__proof"><%= icon("camera", css_class: "icon icon--sm") %> <%= t("morocco.playbooks.proof") %></em>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+
+      <%= form_with url: deploy_playbook_path(playbook), method: :post,
+            html: {
+              class: "pb-deploy",
+              "x-data": "campaignTargets",
+              data: {
+                store_ids: @stores.map(&:id).to_json,
+                preview_url: preview_playbook_path(playbook, format: :json),
+                empty_text: t("morocco.playbooks.targets.empty")
+              }
+            } do %>
+        <label class="pb-deploy__date">
+          <span><%= t("morocco.playbooks.date") %></span>
+          <input type="date" name="campaign_on" value="<%= (Date.current + 14).iso8601 %>" required class="billing-input">
+        </label>
+
+        <div class="pb-deploy__stores pb-targets">
+          <p class="section-title"><%= t("morocco.playbooks.targets.title") %></p>
+          <p class="meta"><%= t("morocco.playbooks.targets.hint") %></p>
+
+          <div class="pb-targets__tools">
+            <button type="button" class="btn btn--quiet" @click="selectAllStores()"><%= t("morocco.playbooks.targets.select_all") %></button>
+            <button type="button" class="btn btn--ghost" @click="clear()"><%= t("morocco.playbooks.targets.clear") %></button>
+          </div>
+
+          <div class="pb-targets__tree">
+            <% @target_options.each do |option| %>
+              <label class="check" style="--depth: <%= option.depth %>">
+                <%= check_box_tag "org_unit_ids[]", option.unit.id, false, id: "pb_#{playbook.id}_#{option.unit.id}", "x-model": "ids" %>
+                <%= option.unit.name %>
+                <span class="pb-targets__type"><%= t("morocco.playbooks.targets.unit_types.#{option.unit.unit_type}") %></span>
+              </label>
+            <% end %>
+          </div>
+
+          <div class="pb-targets__preview" aria-live="polite">
+            <strong><%= t("morocco.playbooks.targets.preview") %></strong>
+            <span x-text="summary"></span>
+            <ul x-show="stores.length">
+              <template x-for="store in stores" :key="store.id">
+                <li><span x-text="store.name"></span> <span class="meta" x-text="[store.region, store.area].filter(Boolean).join(' / ')"></span></li>
+              </template>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sticky-action">
+          <button type="submit" class="btn btn--primary btn--block" :disabled="count === 0">
+            <%= icon("send", css_class: "icon") %>
+            <%= t("morocco.playbooks.deploy") %>
+          </button>
+        </div>
+      <% end %>
+    </article>
+  <% end %>
+</section>

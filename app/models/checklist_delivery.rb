@@ -1,9 +1,13 @@
 class ChecklistDelivery < ApplicationRecord
+  include Vazivo::Execution
+
   STATUSES = %w[pending completed].freeze
 
   belongs_to :checklist
   belongs_to :org_unit
+  belongs_to :assignee, class_name: "User", optional: true
   has_many :checklist_item_responses, dependent: :destroy
+  has_many :escalation_events, as: :subject, dependent: :destroy
 
   validates :status, inclusion: { in: STATUSES }
   validates :org_unit_id, uniqueness: { scope: :checklist_id }

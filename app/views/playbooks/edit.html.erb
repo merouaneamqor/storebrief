@@ -1,0 +1,11 @@
+<% content_for :title, "#{t('morocco.playbooks.customize')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.playbooks.back"), playbooks_path(key: @playbook.key) %></p>
+    <h1><%= t("morocco.playbooks.customize") %></h1>
+    <p class="meta"><%= @playbook.title %></p>
+  </div>
+</header>
+
+<%= render "form" %>

@@ -7,6 +7,7 @@ class User < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :org_units, through: :memberships
   has_many :authored_communications, class_name: "Communication", foreign_key: :author_id, dependent: :restrict_with_exception, inverse_of: :author
+  has_many :audited_visits, class_name: "Visit", foreign_key: :auditor_id, dependent: :restrict_with_exception, inverse_of: :auditor
   has_many :notification_logs, dependent: :nullify
   has_many :push_subscriptions, dependent: :destroy
 
@@ -27,12 +28,20 @@ class User < ApplicationRecord
     memberships.exists?(role: "store")
   end
 
+  def area?
+    memberships.exists?(role: "area")
+  end
+
   def primary_membership
     memberships.includes(:org_unit).order(:id).first
   end
 
   def store_org_unit
     memberships.includes(:org_unit).find { |m| m.role == "store" }&.org_unit
+  end
+
+  def area_org_unit
+    memberships.includes(:org_unit).find { |m| m.role == "area" }&.org_unit
   end
 
   def arabic?
