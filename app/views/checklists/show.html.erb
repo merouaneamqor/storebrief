@@ -25,19 +25,21 @@
     <h2><%= t("checklists.delivery") %></h2>
     <%= render "shared/progress", stats: @stats %>
     <% pending_count = @deliveries.count { |d| d.pending? } %>
-    <% if pending_count.positive? && WebPushConfig.configured? %>
-      <div class="actions" style="margin:0.75rem 0 1rem;">
-        <%= button_to t("communications.notify_push"),
-              notify_push_checklist_path(@checklist),
+    <% if pending_count.positive? && current_tenant.feature?(:push_alerts) %>
+      <div class="hq-push-remind">
+        <%= button_to notify_push_checklist_path(@checklist),
               method: :post,
               class: "btn",
-              data: { turbo_confirm: t("communications.notify_push_confirm", count: pending_count) } %>
-        <p class="meta" style="margin:0;"><%= t("communications.notify_push_hint", count: pending_count) %></p>
+              data: { turbo_confirm: t("communications.notify_push_confirm", count: pending_count) } do %>
+          <%= icon("send", css_class: "icon") %>
+          <%= t("communications.notify_push") %>
+        <% end %>
+        <p class="meta"><%= t("communications.notify_push_hint", count: pending_count) %></p>
       </div>
     <% end %>
     <ul class="list">
       <% @deliveries.each do |delivery| %>
-        <li>
+        <li id="store-<%= delivery.org_unit_id %>">
           <span><%= delivery.org_unit.name %></span>
           <%= localized_badge(delivery.status) %>
         </li>

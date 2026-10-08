@@ -1,4 +1,5 @@
 const DISMISS_KEY = "vazivo-pwa-install-dismissed"
+const VISIT_KEY = "vazivo-pwa-install-visits"
 const DISMISS_DAYS = 14
 
 function isStandalone() {
@@ -34,6 +35,24 @@ function wasDismissed() {
   }
 }
 
+function visitCount() {
+  try {
+    return Number(localStorage.getItem(VISIT_KEY) || "0") || 0
+  } catch (_error) {
+    return 0
+  }
+}
+
+function bumpVisit() {
+  try {
+    const next = visitCount() + 1
+    localStorage.setItem(VISIT_KEY, String(next))
+    return next
+  } catch (_error) {
+    return 1
+  }
+}
+
 window.pwaInstall = function pwaInstall() {
   return {
     open: false,
@@ -42,6 +61,10 @@ window.pwaInstall = function pwaInstall() {
     deferredPrompt: null,
     init() {
       if (isStandalone() || wasDismissed() || !isMobileViewport()) return
+      if (window.location.pathname.startsWith("/inbox/")) return
+
+      const visits = bumpVisit()
+      if (visits < 2) return
 
       this.isIos = isIos()
 
@@ -63,10 +86,9 @@ window.pwaInstall = function pwaInstall() {
         this.deferredPrompt = null
       })
 
-      // Chromium may already be installable without firing yet; still show how-to.
       if (!this.isIos) {
         window.setTimeout(() => {
-          if (!this.open && !isStandalone() && !wasDismissed()) {
+          if (!this.open && !isStandalone() && !wasDismissed() && visitCount() >= 2) {
             this.open = true
           }
         }, 1800)

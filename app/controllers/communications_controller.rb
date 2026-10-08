@@ -3,7 +3,7 @@ class CommunicationsController < ApplicationController
 
   before_action :require_hq
   before_action -> { require_feature!(:briefs) }
-  before_action :set_communication, only: %i[show edit update send_brief notify_push]
+  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority]
   before_action :load_target_units, only: %i[new create edit update]
 
   def index
@@ -17,7 +17,12 @@ class CommunicationsController < ApplicationController
     end
 
     @stats = @communication.completion_stats
-    @deliveries = @communication.deliveries.includes(:org_unit, delivery_answers: [ :communication_question, { image_attachment: :blob } ]).order(:id)
+    @deliveries = @communication.deliveries.includes(
+      :org_unit, :assignee,
+      photo_before_attachment: :blob,
+      photo_after_attachment: :blob,
+      delivery_answers: [ :communication_question, { image_attachment: :blob } ]
+    ).order(:id)
     @notifications = @communication.notification_logs.includes(:user).order(created_at: :desc)
   end
 
@@ -58,6 +63,25 @@ class CommunicationsController < ApplicationController
       redirect_to @communication, notice: t("communications.sent")
     rescue ArgumentError => e
       redirect_to @communication, alert: e.message
+    end
+  end
+
+  def stop_recurrence
+    unless @communication.recurrence_active?
+      redirect_to @communication, alert: t("communications.recurrence.not_active")
+      return
+    end
+
+    Vazivo::Recurrence.stop!(@communication)
+    redirect_to @communication, notice: t("communications.recurrence.stopped")
+  end
+
+  # HQ can re-prioritise a task at any time, including after it was sent.
+  def update_priority
+    if @communication.task? && @communication.update(priority: params.dig(:communication, :priority))
+      redirect_to @communication, notice: t("communications.priority_saved")
+    else
+      redirect_to @communication, alert: t("communications.priority_invalid")
     end
   end
 
@@ -125,7 +149,8 @@ class CommunicationsController < ApplicationController
 
   def communication_params
     params.require(:communication).permit(
-      :title_fr, :title_ar, :body_fr, :body_ar, :format,
+      :title_fr, :title_ar, :body_fr, :body_ar, :format, :priority,
+      recurrence_attributes: [ :frequency, :interval, :ends_on, { weekdays: [] } ],
       communication_questions_attributes: [
         :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy
       ]

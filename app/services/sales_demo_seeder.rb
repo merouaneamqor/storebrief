@@ -344,8 +344,8 @@ class SalesDemoSeeder
 
     news = tenant.communications.create!(
       author: hq,
-      title_fr: "Lancement promo Ramadan — semaine 1",
-      title_ar: "إطلاق عرض رمضان — الأسبوع 1",
+      title_fr: "Lancement promo Ramadan, semaine 1",
+      title_ar: "إطلاق عرض رمضان، الأسبوع 1",
       body_fr: "Priorité siège : déployer la PLV dates & lait dans tous les magasins avant 10h. Photos obligatoires sur le brief tâche.",
       body_ar: "أولوية المقر: تثبيت لوحات التمر والحليب قبل العاشرة. الصور مطلوبة في مهمة العرض.",
       format: "news",
@@ -405,8 +405,8 @@ class SalesDemoSeeder
 
     follow_up = tenant.communications.create!(
       author: hq,
-      title_fr: "Rappel froid — relevé températures",
-      title_ar: "تذكير التبريد — قياس الحرارة",
+      title_fr: "Rappel froid: relevé températures",
+      title_ar: "تذكير التبريد: قياس الحرارة",
       body_fr: "Relevez les températures des meubles frais avant 12h et signalez tout écart >2°C.",
       body_ar: "سجّلوا حرارة الثلاجات قبل الظهر وأبلغوا عن أي انحراف فوق درجتين.",
       format: "task",

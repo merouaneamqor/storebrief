@@ -12,6 +12,7 @@
             <%= link_to delivery.communication.title, inbox_path(delivery) %>
             <div class="meta">
               <%= localized_badge(delivery.communication.format) %>
+              <%= priority_badge(delivery.communication.priority) %>
               <%= localized_badge(delivery.status) %>
             </div>
           </div>
