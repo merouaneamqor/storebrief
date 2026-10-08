@@ -1,0 +1,88 @@
+<% content_for :title, "#{t('morocco.visits.calendar.title')} · Vazivo" %>
+<% filters = { unit_id: @unit&.id, auditor_id: @auditor&.id }.compact %>
+<% nav_params = ->(date, view = @calendar.view) { filters.merge(view: view, date: date.iso8601) } %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
+    <h1><%= t("morocco.visits.calendar.title") %></h1>
+    <p class="meta"><%= t("morocco.visits.calendar.lede") %></p>
+  </div>
+  <div class="radar-head__actions">
+    <%= link_to t("morocco.visits.calendar.list"), visits_path, class: "btn btn--ghost" %>
+    <%= link_to new_visit_path, class: "btn btn--quiet" do %>
+      <%= icon("plus", css_class: "icon") %> <%= t("morocco.visits.new") %>
+    <% end %>
+  </div>
+</header>
+
+<section class="panel visit-calendar" x-data>
+  <div class="visit-calendar__bar">
+    <div class="visit-calendar__nav">
+      <%= link_to t("morocco.visits.calendar.prev"), calendar_visits_path(nav_params.call(@calendar.previous_date)), class: "btn btn--ghost", rel: "prev" %>
+      <%= link_to t("morocco.visits.calendar.today"), calendar_visits_path(nav_params.call(@calendar.today)), class: "btn btn--ghost" %>
+      <%= link_to t("morocco.visits.calendar.next"), calendar_visits_path(nav_params.call(@calendar.next_date)), class: "btn btn--ghost", rel: "next" %>
+    </div>
+    <h2 class="visit-calendar__title">
+      <% if @calendar.month? %>
+        <%= "#{t('date.month_names')[@calendar.anchor.month]} #{@calendar.anchor.year}" %>
+      <% else %>
+        <%= "#{l(@calendar.days.first, format: :short)} - #{l(@calendar.days.last, format: :short)}" %>
+      <% end %>
+    </h2>
+    <nav class="report-chips" aria-label="<%= t('morocco.visits.calendar.view') %>">
+      <% Vazivo::VisitCalendar::VIEWS.each do |view| %>
+        <%= link_to t("morocco.visits.calendar.views.#{view}"), calendar_visits_path(nav_params.call(@calendar.anchor, view)),
+              class: "report-chip #{'is-active' if @calendar.view == view}" %>
+      <% end %>
+    </nav>
+  </div>
+
+  <%= form_with url: calendar_visits_path, method: :get, class: "visit-calendar__filters" do %>
+    <%= hidden_field_tag :view, @calendar.view %>
+    <%= hidden_field_tag :date, @calendar.anchor.iso8601 %>
+    <label>
+      <span><%= t("morocco.visits.calendar.filter_unit") %></span>
+      <%= select_tag :unit_id,
+            options_from_collection_for_select(@units, :id, :name, @unit&.id),
+            include_blank: t("morocco.visits.calendar.all_units"),
+            class: "billing-input",
+            "@change": "$el.form.requestSubmit()" %>
+    </label>
+    <label>
+      <span><%= t("morocco.visits.calendar.filter_auditor") %></span>
+      <%= select_tag :auditor_id,
+            options_from_collection_for_select(@auditors, :id, :name, @auditor&.id),
+            include_blank: t("morocco.visits.calendar.all_auditors"),
+            class: "billing-input",
+            "@change": "$el.form.requestSubmit()" %>
+    </label>
+    <noscript><button type="submit" class="btn btn--quiet"><%= t("morocco.visits.calendar.apply") %></button></noscript>
+  <% end %>
+
+  <div class="visit-calendar__grid visit-calendar__grid--<%= @calendar.view %>" role="grid">
+    <% I18n.t("date.abbr_day_names").rotate(1).each do |name| %>
+      <div class="visit-calendar__dow" role="columnheader"><%= name %></div>
+    <% end %>
+
+    <% @calendar.days.each do |day| %>
+      <% day_visits = @calendar.visits_by_day.fetch(day, []) %>
+      <div class="visit-calendar__day <%= 'is-outside' unless @calendar.in_period?(day) %> <%= 'is-today' if day == @calendar.today %>"
+           role="gridcell" data-date="<%= day.iso8601 %>">
+        <span class="visit-calendar__date"><%= day.day %></span>
+        <% day_visits.each do |visit| %>
+          <%= link_to visit_path(visit), id: "calendar_#{dom_id(visit)}",
+                class: "visit-calendar__visit visit-calendar__visit--#{visit.status}" do %>
+            <strong><%= visit.planned_at.in_time_zone(Vazivo::Schedule::ZONE).strftime("%H:%M") %></strong>
+            <span><%= visit.org_unit.name %></span>
+            <small><%= visit.auditor.name %></small>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @calendar.visits.empty? %>
+    <p class="meta"><%= t("morocco.visits.calendar.empty") %></p>
+  <% end %>
+</section>

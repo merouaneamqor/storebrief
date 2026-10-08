@@ -9,6 +9,6 @@ class CreateDeliveries < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :deliveries, [:communication_id, :org_unit_id], unique: true
+    add_index :deliveries, [ :communication_id, :org_unit_id ], unique: true
   end
 end

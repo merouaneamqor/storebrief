@@ -1,0 +1,44 @@
+<% content_for :title, "#{t('landing.resources.title')} · Vazivo" %>
+
+<section class="m-section m-page">
+  <header class="m-page__head">
+    <p class="m-kicker"><%= t("landing.nav.resources") %></p>
+    <h1><%= t("landing.resources.title") %></h1>
+    <p class="m-lede"><%= t("landing.resources.lede") %></p>
+  </header>
+
+  <h2><%= t("landing.resources.fits_title") %></h2>
+  <%= render "marketing/fits" %>
+
+  <%= render "marketing/prospects" %>
+
+  <header class="m-page__head m-page__head--later">
+    <h2><%= t("landing.resources.demo_title") %></h2>
+    <p class="m-lede"><%= t("landing.resources.demo_lede") %></p>
+  </header>
+  <ol class="m-flow m-flow--3">
+    <li>
+      <span>1</span>
+      <h3><%= t("landing.resources.d1") %></h3>
+      <p><%= t("landing.resources.d1_body") %></p>
+    </li>
+    <li>
+      <span>2</span>
+      <h3><%= t("landing.resources.d2") %></h3>
+      <p><%= t("landing.resources.d2_body") %></p>
+    </li>
+    <li>
+      <span>3</span>
+      <h3><%= t("landing.resources.d3") %></h3>
+      <p><%= t("landing.resources.d3_body") %></p>
+    </li>
+  </ol>
+
+  <div class="m-convert m-convert--solo">
+    <div>
+      <h2><%= t("landing.resources.close_title") %></h2>
+      <p><%= t("landing.resources.close_body") %></p>
+      <a href="<%= root_path(anchor: 'demo') %>" class="m-btn"><%= t("landing.resources.cta") %></a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,45 @@
+<% content_for :title, "#{t('morocco.ranking.title')} · Vazivo" %>
+
+<h1><%= t("morocco.ranking.title") %></h1>
+<p class="lede"><%= t("morocco.ranking.lede", week: l(@ranking.week_start, format: :short)) %></p>
+
+<% if @ranking.podium.empty? %>
+  <p class="empty"><%= t("morocco.ranking.empty") %></p>
+<% else %>
+  <section class="panel">
+    <h2><%= t("morocco.ranking.podium") %></h2>
+    <ol class="podium">
+      <% @ranking.podium.each_with_index do |row, index| %>
+        <li class="podium__card">
+          <span class="meta"><%= index + 1 %></span>
+          <strong><%= row.store.name %></strong>
+          <span><%= row.percent %>%</span>
+          <div class="meta"><%= t("morocco.ranking.progress", done: row.done, total: row.total) %></div>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+
+  <section class="panel">
+    <h2><%= t("morocco.ranking.awards_title") %></h2>
+    <div class="award-grid">
+      <% %i[execution vm improvement team].each do |key| %>
+        <% row = @ranking.awards[key] %>
+        <% next unless row %>
+        <article class="award-card">
+          <span class="meta"><%= t("morocco.ranking.awards.#{key}") %></span>
+          <strong><%= row.store.name %></strong>
+          <span>
+            <% if key == :improvement %>
+              +<%= row.delta %>%
+            <% elsif key == :vm %>
+              <%= t("morocco.ranking.conforme_count", count: row.conforme) %>
+            <% else %>
+              <%= row.percent %>%
+            <% end %>
+          </span>
+        </article>
+      <% end %>
+    </div>
+  </section>
+<% end %>

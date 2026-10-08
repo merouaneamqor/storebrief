@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Casa Pâtisserie">
+  <rect width="64" height="64" rx="14" fill="#4a2c2a"/>
+  <path d="M14 42 C18 26 26 18 34 18 C42 18 46 24 48 30 C42 28 38 30 36 34 C40 32 46 34 50 38 C46 46 38 50 30 50 C22 50 16 46 14 42 Z" fill="#fce7e7"/>
+  <path d="M22 34 C26 28 32 26 36 28" fill="none" stroke="#c45c6a" stroke-width="2" stroke-linecap="round"/>
+  <path d="M24 40 C28 35 34 33 38 36" fill="none" stroke="#c45c6a" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="44" cy="22" r="2.5" fill="#f9a8b4"/>
+</svg>

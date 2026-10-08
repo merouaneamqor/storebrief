@@ -1,0 +1,43 @@
+<%# Repeat settings for task briefs. Inputs are disabled when the brief is not a task. %>
+<% rule = communication.recurrence_rule.presence || {} %>
+<% selected_days = Array(rule["weekdays"]).map(&:to_i) %>
+<div x-data="{ frequency: '<%= j(rule['frequency'].presence || 'none') %>' }" class="brief-recurrence">
+  <h3><%= t("communications.recurrence.title") %></h3>
+  <p class="meta"><%= t("communications.recurrence.help") %></p>
+
+  <label class="brief-recurrence__field">
+    <span class="visually-hidden"><%= t("communications.recurrence.frequency") %></span>
+    <select name="communication[recurrence_attributes][frequency]" x-model="frequency" :disabled="format !== 'task'">
+      <option value="none"><%= t("communications.recurrence.frequencies.none") %></option>
+      <% Vazivo::Recurrence::FREQUENCIES.each do |frequency| %>
+        <option value="<%= frequency %>"><%= t("communications.recurrence.frequencies.#{frequency}") %></option>
+      <% end %>
+    </select>
+  </label>
+
+  <div class="brief-choices" x-show="frequency === 'weekly'" x-cloak>
+    <% t("communications.recurrence.weekdays").each_with_index do |label, wday| %>
+      <label class="brief-choice">
+        <input type="checkbox" name="communication[recurrence_attributes][weekdays][]" value="<%= wday %>"
+               <%= "checked" if selected_days.include?(wday) %>
+               :disabled="format !== 'task' || frequency !== 'weekly'">
+        <span><%= label %></span>
+      </label>
+    <% end %>
+  </div>
+
+  <label class="brief-recurrence__field" x-show="frequency === 'custom'" x-cloak>
+    <span><%= t("communications.recurrence.interval") %></span>
+    <input type="number" min="1" max="<%= Vazivo::Recurrence::MAX_INTERVAL %>" step="1"
+           name="communication[recurrence_attributes][interval]"
+           value="<%= rule['interval'].presence || 2 %>"
+           :disabled="format !== 'task' || frequency !== 'custom'">
+  </label>
+
+  <label class="brief-recurrence__field" x-show="frequency !== 'none'" x-cloak>
+    <span><%= t("communications.recurrence.ends_on") %></span>
+    <input type="date" name="communication[recurrence_attributes][ends_on]"
+           value="<%= rule['ends_on'] %>"
+           :disabled="format !== 'task' || frequency === 'none'">
+  </label>
+</div>

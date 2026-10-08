@@ -1,0 +1,246 @@
+<%
+  questions_payload = @communication.communication_questions.map do |question|
+    {
+      id: question.id,
+      question_type: question.question_type,
+      title_fr: question.title_fr,
+      title_ar: question.title_ar,
+      required: question.required,
+      options: question.options
+    }
+  end
+  type_labels = CommunicationQuestion::TYPES.index_with { |type| t("communications.question_types.#{type}") }
+%>
+
+<div class="brief-form"
+     x-data="briefForm()"
+     data-title-fr="<%= @communication.title_fr %>"
+     data-title-ar="<%= @communication.title_ar %>"
+     data-body-fr="<%= @communication.body_fr %>"
+     data-body-ar="<%= @communication.body_ar %>"
+     data-format="<%= @communication.format %>"
+     data-news-label="<%= t('common.news') %>"
+     data-task-label="<%= t('common.task') %>"
+     data-untitled="<%= t('communications.untitled') %>"
+     data-type-labels="<%= h(type_labels.to_json) %>"
+     data-questions="<%= h(questions_payload.to_json) %>">
+
+  <%= form_with model: @communication, local: true, html: { class: "brief-editor-form" } do |f| %>
+    <header class="brief-topbar" x-show="!preview">
+      <div class="brief-topbar__start">
+        <%= link_to t("communications.back"), communications_path, class: "brief-topbar__back" %>
+        <strong class="brief-topbar__title" x-text="headerTitle"></strong>
+      </div>
+      <div class="brief-topbar__actions">
+        <button type="button" class="btn btn--ghost" @click="preview = true"><%= t("communications.preview") %></button>
+        <button type="button" class="btn btn--ghost" @click="openSettings()"><%= t("communications.settings") %></button>
+        <button type="submit" class="btn btn--ghost" name="commit" value="draft"><%= t("communications.save_draft") %></button>
+        <button type="button" class="btn" @click="openSettings()"><%= t("communications.send") %></button>
+      </div>
+    </header>
+
+    <% if @communication.errors.any? %>
+      <div class="flash flash--alert brief-editor-flash"><%= @communication.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <div class="brief-canvas" x-show="!preview">
+      <div class="brief-stack">
+        <section class="brief-card brief-card--title"
+                 :class="{ 'is-active': active === 'title' }"
+                 @click="focusTitle()"
+                 @focusin="focusTitle()">
+          <%= f.hidden_field :format, "x-model": "format" %>
+          <%= f.text_field :title_fr,
+                class: "brief-title",
+                required: true,
+                placeholder: t("communications.title_placeholder"),
+                "aria-label": t("communications.title_fr"),
+                "x-model": "titleFr" %>
+          <%= f.text_area :body_fr,
+                class: "brief-description",
+                rows: 2,
+                placeholder: t("communications.body_placeholder"),
+                "aria-label": t("communications.body_fr"),
+                "x-model": "bodyFr" %>
+        </section>
+
+        <template x-for="(question, index) in questions" :key="question.clientId">
+          <section class="brief-card brief-card--question"
+                   x-show="!question._destroy"
+                   :data-question-id="question.clientId"
+                   :class="{ 'is-active': activeQuestion === question.clientId }"
+                   @dragover="onDragOver($event)"
+                   @drop="onDrop(question.clientId, $event)"
+                   @click="selectQuestion(question.clientId)"
+                   @focusin="selectQuestion(question.clientId)">
+            <template x-if="question.id">
+              <input type="hidden" :name="`communication[communication_questions_attributes][${index}][id]`" :value="question.id">
+            </template>
+            <input type="hidden" :name="`communication[communication_questions_attributes][${index}][position]`" :value="index">
+            <input type="hidden" :name="`communication[communication_questions_attributes][${index}][_destroy]`" :value="question._destroy ? '1' : '0'">
+            <input type="hidden" :name="`communication[communication_questions_attributes][${index}][options]`" :value="JSON.stringify(needsOptions(question.question_type) ? question.options : [])">
+
+            <div class="brief-question__drag"
+                 draggable="true"
+                 @dragstart.stop="onDragStart(question.clientId, $event)"
+                 title="<%= t('communications.drag_question') %>"
+                 aria-hidden="true">⋮⋮</div>
+
+            <input type="text"
+                   class="brief-question__title"
+                   :name="`communication[communication_questions_attributes][${index}][title_fr]`"
+                   x-model="question.title_fr"
+                   placeholder="<%= t('communications.question_title_placeholder') %>"
+                   :required="!question._destroy">
+
+            <div class="brief-options" x-show="needsOptions(question.question_type)" x-cloak>
+              <template x-for="(option, optionIndex) in question.options" :key="question.clientId + '-opt-' + optionIndex">
+                <div class="brief-option">
+                  <span class="brief-option__mark" aria-hidden="true" x-text="question.question_type === 'multi_choice' ? '☐' : (question.question_type === 'dropdown' ? String(optionIndex + 1) + '.' : '○')"></span>
+                  <input type="text" class="brief-underline" x-model="option.label_fr" placeholder="<%= t('communications.option_placeholder') %>">
+                  <button type="button" class="brief-icon-btn" @click.stop="removeOption(question, optionIndex)" :disabled="question.options.length <= 1" title="<%= t('communications.remove_option') %>">×</button>
+                </div>
+              </template>
+              <button type="button" class="brief-text-btn" @click.stop="addOption(question)"><%= t("communications.add_option") %></button>
+            </div>
+
+            <p class="brief-answer-hint" x-show="!needsOptions(question.question_type)" x-cloak>
+              <span x-text="question.question_type === 'image' ? '<%= j t('communications.answer_hint_image') %>' : (question.question_type === 'long_text' ? '<%= j t('communications.answer_hint_long') %>' : '<%= j t('communications.answer_hint_short') %>')"></span>
+            </p>
+
+            <div class="brief-question__foot">
+              <label class="brief-question__type">
+                <span class="visually-hidden"><%= t("communications.question_type") %></span>
+                <select :name="`communication[communication_questions_attributes][${index}][question_type]`" x-model="question.question_type">
+                  <% CommunicationQuestion::TYPES.each do |type| %>
+                    <option value="<%= type %>"><%= t("communications.question_types.#{type}") %></option>
+                  <% end %>
+                </select>
+              </label>
+              <label class="brief-required">
+                <input type="hidden" :name="`communication[communication_questions_attributes][${index}][required]`" value="0">
+                <input type="checkbox" :name="`communication[communication_questions_attributes][${index}][required]`" value="1" x-model="question.required">
+                <span><%= t("communications.required") %></span>
+              </label>
+              <div class="brief-question__controls">
+                <button type="button" class="brief-icon-btn" @click.stop="moveActive(-1)" title="<%= t('communications.move_up') %>">↑</button>
+                <button type="button" class="brief-icon-btn" @click.stop="moveActive(1)" title="<%= t('communications.move_down') %>">↓</button>
+                <button type="button" class="brief-icon-btn" @click.stop="duplicateActive()" title="<%= t('communications.duplicate_question') %>">⧉</button>
+                <button type="button" class="brief-icon-btn" @click.stop="deleteActive()" title="<%= t('communications.delete_question') %>">🗑</button>
+              </div>
+            </div>
+          </section>
+        </template>
+      </div>
+
+      <aside class="brief-toolbar" aria-label="<%= t('communications.toolbar') %>">
+        <button type="button" class="brief-toolbar__btn" @click="addQuestion()" title="<%= t('communications.add_question') %>">+</button>
+        <button type="button" class="brief-toolbar__btn" @click="duplicateActive()" :disabled="!activeQuestion" title="<%= t('communications.duplicate_question') %>">⧉</button>
+        <button type="button" class="brief-toolbar__btn" @click="deleteActive()" :disabled="!activeQuestion" title="<%= t('communications.delete_question') %>">×</button>
+      </aside>
+    </div>
+
+    <div class="brief-settings" x-show="settingsOpen" x-cloak>
+      <button type="button" class="brief-settings__backdrop" @click="closeSettings()" aria-label="<%= t('communications.close_settings') %>"></button>
+      <div class="brief-settings__panel" role="dialog" aria-label="<%= t('communications.settings') %>">
+        <div class="brief-settings__head">
+          <h2><%= t("communications.settings") %></h2>
+          <button type="button" class="brief-icon-btn" @click="closeSettings()" aria-label="<%= t('communications.close_settings') %>">×</button>
+        </div>
+
+        <section class="brief-settings__block">
+          <h3><%= t("communications.format") %></h3>
+          <div class="brief-choices">
+            <label class="brief-choice" :class="{ 'is-selected': format === 'news' }">
+              <input type="radio" name="communication_format_ui" value="news" x-model="format">
+              <span><%= t("common.news") %></span>
+            </label>
+            <label class="brief-choice" :class="{ 'is-selected': format === 'task' }">
+              <input type="radio" name="communication_format_ui" value="task" x-model="format">
+              <span><%= t("common.task") %></span>
+            </label>
+          </div>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("communications.priority") %></h3>
+          <div class="brief-choices">
+            <% Communication::PRIORITIES.each do |key| %>
+              <label class="brief-choice">
+                <%= radio_button_tag "communication[priority]", key, @communication.priority == key,
+                      ":disabled": "format !== 'task'" %>
+                <span><%= t("common.priorities.#{key}") %></span>
+              </label>
+            <% end %>
+          </div>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <%= render "recurrence", communication: @communication %>
+        </section>
+
+        <section class="brief-settings__block">
+          <%= render "targets", units: @target_units, selected_ids: Array(params[:org_unit_ids]), embedded: true %>
+        </section>
+
+        <div class="brief-settings__actions">
+          <button type="submit" class="btn btn--ghost" name="commit" value="draft"><%= t("communications.save_draft") %></button>
+          <button type="submit" class="btn" name="commit" value="send"><%= t("communications.send") %></button>
+        </div>
+      </div>
+    </div>
+
+    <section class="brief-preview" x-show="preview" x-cloak>
+      <header class="brief-topbar">
+        <button type="button" class="btn btn--ghost" @click="preview = false"><%= t("communications.preview_back") %></button>
+      </header>
+      <div class="brief-preview__card">
+        <p class="meta"><%= t("communications.preview_lede") %></p>
+        <h1 x-text="titleFr || '<%= j(t('communications.title_placeholder')) %>'"></h1>
+        <p class="lede"><span class="badge" :class="format === 'task' ? 'badge--task' : 'badge--news'" x-text="formatLabel"></span></p>
+        <div class="prose" x-show="bodyFr.trim() !== ''" x-cloak x-text="bodyFr"></div>
+
+        <div class="brief-preview__questions">
+          <template x-for="question in visibleQuestions" :key="'preview-' + question.clientId">
+            <div class="brief-preview__question">
+              <h3>
+                <span x-text="question.title_fr || '<%= j t('communications.question_title_placeholder') %>'"></span>
+                <span class="brief-required-mark" x-show="question.required" x-cloak>*</span>
+              </h3>
+              <template x-if="question.question_type === 'image'">
+                <div class="brief-preview__image">
+                  <span class="brief-preview__image-icon" aria-hidden="true">🖼</span>
+                  <span><%= t('communications.answer_hint_image') %></span>
+                </div>
+              </template>
+              <template x-if="question.question_type === 'short_text'">
+                <input type="text" disabled placeholder="<%= t('communications.answer_hint_short') %>">
+              </template>
+              <template x-if="question.question_type === 'long_text'">
+                <textarea disabled rows="3" placeholder="<%= t('communications.answer_hint_long') %>"></textarea>
+              </template>
+              <template x-if="question.question_type === 'dropdown'">
+                <select disabled>
+                  <option><%= t("communications.choose_option") %></option>
+                  <template x-for="option in question.options" :key="option.label_fr">
+                    <option x-text="option.label_fr"></option>
+                  </template>
+                </select>
+              </template>
+              <template x-if="question.question_type === 'single_choice' || question.question_type === 'multi_choice'">
+                <ul class="brief-preview__choices">
+                  <template x-for="option in question.options" :key="option.label_fr + '-choice'">
+                    <li>
+                      <span x-text="question.question_type === 'multi_choice' ? '☐' : '○'"></span>
+                      <span x-text="option.label_fr"></span>
+                    </li>
+                  </template>
+                </ul>
+              </template>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+  <% end %>
+</div>

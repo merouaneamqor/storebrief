@@ -1,0 +1,167 @@
+<% content_for :title, "#{t('billing.title')} · Vazivo" %>
+<% platform = @billing.mode == :platform_billed %>
+<% currency = @billing.currency %>
+<% email_stat = @billing.channels.find { |c| c.channel == "email" } %>
+<% wa_stat = @billing.channels.find { |c| c.channel == "whatsapp" } %>
+<% email_price = number_to_currency(email_stat.unit_price, unit: currency, format: "%n %u") %>
+<% wa_price = number_to_currency(wa_stat.unit_price, unit: currency, format: "%n %u") %>
+<% month_amount = number_to_currency(@billing.month_amount, unit: currency, format: "%n %u") %>
+
+<header class="radar-head">
+  <div>
+    <p class="radar-hello"><%= current_tenant.display_brand_name %></p>
+    <h1><%= t("billing.title") %></h1>
+    <p class="meta"><%= t("billing.lede", brand: current_tenant.display_brand_name) %></p>
+  </div>
+</header>
+
+<article class="billing-hero <%= platform ? 'billing-hero--platform' : 'billing-hero--tenant' %>">
+  <div class="billing-hero__copy">
+    <p class="section-title"><%= t("billing.mode_title") %></p>
+    <% if platform %>
+      <h2 class="billing-hero__title">
+        <%= icon("send", css_class: "icon") %>
+        <%= t("billing.mode_platform") %>
+      </h2>
+      <p class="billing-hero__lede"><%= t("billing.mode_platform_hint", email_price: email_price, whatsapp_price: wa_price) %></p>
+    <% else %>
+      <h2 class="billing-hero__title">
+        <%= icon("check-circle", css_class: "icon") %>
+        <%= t("billing.mode_tenant") %>
+      </h2>
+      <p class="billing-hero__lede"><%= t("billing.mode_tenant_hint", whatsapp_price: wa_price) %></p>
+    <% end %>
+  </div>
+  <div class="billing-hero__amount">
+    <span class="meta"><%= t("billing.stat_month_amount") %></span>
+    <strong><%= month_amount %></strong>
+    <span class="meta"><%= t("billing.stat_month_sends_short", count: @billing.month_count) %></span>
+  </div>
+</article>
+
+<div class="billing-metrics">
+  <div class="billing-metric">
+    <strong><%= email_stat.month_count %></strong>
+    <span><%= t("billing.stat_month_email") %></span>
+    <em class="meta"><%= email_price %><%= t("billing.price_each") %></em>
+  </div>
+  <div class="billing-metric">
+    <strong><%= wa_stat.month_count %></strong>
+    <span><%= t("billing.stat_month_whatsapp") %></span>
+    <em class="meta"><%= wa_price %><%= t("billing.price_each") %></em>
+  </div>
+  <div class="billing-metric">
+    <strong><%= number_to_currency(@billing.total_billed_amount, unit: currency, format: "%n %u") %></strong>
+    <span><%= t("billing.stat_total_amount") %></span>
+    <em class="meta"><%= t("billing.stat_prev_sends", count: @billing.prev_count) %></em>
+  </div>
+</div>
+
+<section class="billing-channels" aria-label="<%= t('billing.channels_title') %>">
+  <p class="section-title"><%= t("billing.channels_title") %></p>
+  <div class="billing-channel-row">
+    <% [
+      [:push_alerts, "push", "home", false],
+      [:email_alerts, "email", "send", true],
+      [:whatsapp_alerts, "whatsapp", "message-circle", true]
+    ].each do |feature, key, icon_name, billable| %>
+      <% on = current_tenant.feature?(feature) %>
+      <div class="billing-channel <%= 'is-on' if on %> <%= 'is-billable' if billable %>">
+        <%= icon(icon_name, css_class: "icon") %>
+        <div>
+          <strong><%= t("billing.channel_#{key}") %></strong>
+          <span><%= t("billing.channel_#{key}_hint") %></span>
+        </div>
+        <em><%= on ? t("billing.on") : t("billing.off") %></em>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="panel billing-smtp"
+         x-data="{ platform: <%= @mail_setting.use_platform? %> }"
+         id="smtp">
+  <p class="section-title"><%= t("billing.smtp_title") %></p>
+  <p class="meta"><%= t("billing.smtp_lede") %></p>
+
+  <%= form_with model: @mail_setting, url: billing_path, method: :patch, class: "billing-form" do |f| %>
+    <label class="billing-toggle">
+      <%= f.check_box :use_platform, "x-model": "platform" %>
+      <span>
+        <strong><%= t("billing.use_platform") %></strong>
+        <span class="meta"><%= t("billing.use_platform_hint") %></span>
+      </span>
+    </label>
+
+    <div class="billing-form__grid" x-show="!platform" x-cloak>
+      <label>
+        <%= t("billing.from_name") %>
+        <%= f.text_field :from_name, class: "billing-input" %>
+      </label>
+      <label>
+        <%= t("billing.from_email") %>
+        <%= f.email_field :from_email, autocomplete: "off", class: "billing-input" %>
+      </label>
+      <label class="billing-form__wide">
+        <%= t("billing.smtp_address") %>
+        <%= f.text_field :smtp_address, placeholder: "smtp.office365.com", class: "billing-input" %>
+      </label>
+      <label>
+        <%= t("billing.smtp_port") %>
+        <%= f.number_field :smtp_port, class: "billing-input" %>
+      </label>
+      <label>
+        <%= t("billing.smtp_domain") %>
+        <%= f.text_field :smtp_domain, class: "billing-input" %>
+      </label>
+      <label>
+        <%= t("billing.smtp_username") %>
+        <%= f.text_field :smtp_username, autocomplete: "off", class: "billing-input" %>
+      </label>
+      <label>
+        <%= t("billing.smtp_password") %>
+        <%= f.password_field :smtp_password, autocomplete: "new-password", value: "", class: "billing-input" %>
+        <span class="meta"><%= t("billing.smtp_password_hint") %></span>
+      </label>
+      <label>
+        <%= t("billing.smtp_authentication") %>
+        <%= f.select :smtp_authentication, TenantMailSetting::AUTH_METHODS, {}, class: "billing-input" %>
+      </label>
+      <label class="billing-toggle billing-form__wide">
+        <%= f.check_box :smtp_enable_starttls_auto %>
+        <span><strong><%= t("billing.smtp_starttls") %></strong></span>
+      </label>
+    </div>
+
+    <div class="sticky-action">
+      <button type="submit" class="btn btn--primary"><%= t("billing.save") %></button>
+    </div>
+  <% end %>
+</section>
+
+<section class="panel">
+  <p class="section-title"><%= t("billing.recent_title") %></p>
+  <% if @billing.recent_logs.any? %>
+    <ul class="billing-log">
+      <% @billing.recent_logs.each do |log| %>
+        <% line_price = Vazivo::Billing.unit_price_for(log.channel) %>
+        <li>
+          <div class="billing-log__main">
+            <span class="billing-log__channel"><%= t("billing.channel_#{log.channel == 'web_push' ? 'push' : log.channel}") %></span>
+            <strong><%= log.message %></strong>
+            <span class="meta">
+              <%= log.user&.email || log.phone || "-" %>
+              · <%= log.created_at.in_time_zone(Vazivo::Schedule::ZONE).strftime("%d/%m/%Y %H:%M") %>
+            </span>
+          </div>
+          <span class="billing-log__amount"><%= number_to_currency(line_price, unit: currency, format: "%n %u") %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="empty">
+      <%= icon("check-circle", css_class: "icon empty__icon") %>
+      <p class="empty__text"><%= t("billing.recent_empty") %></p>
+    </div>
+  <% end %>
+</section>

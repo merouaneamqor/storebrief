@@ -1,0 +1,14 @@
+<div class="lang-set">
+  <% if fr.present? %>
+    <article class="lang-set__item">
+      <span>FR</span>
+      <p><%= fr %></p>
+    </article>
+  <% end %>
+  <% if ar.present? %>
+    <article class="lang-set__item" dir="rtl" lang="ar">
+      <span>AR</span>
+      <p><%= ar %></p>
+    </article>
+  <% end %>
+</div>

@@ -1,0 +1,95 @@
+<% content_for :title, "#{@checklist.title} · Vazivo" %>
+
+<p class="meta"><%= link_to t("checklists.back"), checklists_path %></p>
+<h1><%= @checklist.title %></h1>
+<p class="lede"><%= localized_badge(@checklist.status) %></p>
+
+<% if @checklist.description.present? %>
+  <section class="panel"><div class="prose"><%= @checklist.description %></div></section>
+<% end %>
+
+<section class="panel">
+  <h2>Items</h2>
+  <ul class="list">
+    <% @checklist.checklist_items.each do |item| %>
+      <li>
+        <span><%= item.title %></span>
+        <% if item.requires_photo? %><span class="badge"><%= t("checklists.requires_photo") %></span><% end %>
+      </li>
+    <% end %>
+  </ul>
+</section>
+
+<% if @checklist.sent? %>
+  <section class="panel">
+    <h2><%= t("checklists.delivery") %></h2>
+    <%= render "shared/progress", stats: @stats %>
+    <% pending_count = @deliveries.count { |d| d.pending? } %>
+    <% if pending_count.positive? && current_tenant.feature?(:push_alerts) %>
+      <div class="hq-push-remind">
+        <%= button_to notify_push_checklist_path(@checklist),
+              method: :post,
+              class: "btn",
+              data: { turbo_confirm: t("communications.notify_push_confirm", count: pending_count) } do %>
+          <%= icon("send", css_class: "icon") %>
+          <%= t("communications.notify_push") %>
+        <% end %>
+        <p class="meta"><%= t("communications.notify_push_hint", count: pending_count) %></p>
+      </div>
+    <% end %>
+    <ul class="list">
+      <% @deliveries.each do |delivery| %>
+        <li id="store-<%= delivery.org_unit_id %>">
+          <span><%= delivery.org_unit.name %></span>
+          <%= localized_badge(delivery.status) %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2><%= t("communications.notifications") %></h2>
+    <% if @notifications.any? %>
+      <ul class="notif-list">
+        <% @notifications.each do |log| %>
+          <li>
+            <strong><%= log.channel %></strong>
+            <% if log.phone.present? %> · <%= log.phone %><% end %>
+            · <%= log.user&.name %> · <%= log.status %>
+            <pre><%= log.message %></pre>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="empty"><%= t("communications.notifications_empty") %></p>
+    <% end %>
+  </section>
+<% else %>
+  <section class="panel" x-data="{ filter: '', type: 'all' }">
+    <h2><%= t("communications.send") %></h2>
+    <%= form_with url: send_checklist_checklist_path(@checklist), method: :post, local: true do %>
+      <div class="filter-row">
+        <input type="text" placeholder="<%= t('common.filter') %>" x-model="filter">
+        <select x-model="type">
+          <option value="all"><%= t("common.all") %></option>
+          <option value="region"><%= t("common.region") %></option>
+          <option value="store"><%= t("common.store") %></option>
+        </select>
+      </div>
+      <div class="target-list">
+        <% @target_units.each do |unit| %>
+          <label
+            x-show="(type === 'all' || type === '<%= unit.unit_type %>') && '<%= j unit.name.downcase %>'.includes(filter.toLowerCase())"
+            x-cloak>
+            <input type="checkbox" name="org_unit_ids[]" value="<%= unit.id %>">
+            <span class="badge"><%= unit.unit_type %></span>
+            <%= unit.name %>
+          </label>
+        <% end %>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit"><%= t("communications.send") %></button>
+      </div>
+    <% end %>
+  </section>
+<% end %>

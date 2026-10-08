@@ -1,0 +1,42 @@
+:root {
+  --bg: #f4f1ea;
+  --bg-deep: #efeae2;
+  --ink: #102033;
+  /* Darkened for ≥4.5:1 on --bg (#f4f1ea) */
+  --muted: #4a5b6a;
+  --line: #ddd6cb;
+  --surface: #fffcf7;
+  --accent: #0c6b58;
+  --accent-deep: #084c3f;
+  --accent-soft: #d7efe7;
+  --secondary: #1e4b7a;
+  --secondary-soft: #e0ecf8;
+  --sidebar-bg: #0f172a;
+  --sidebar-text: #e2e8f0;
+  --warn: #9a3412;
+  --warn-soft: #ffedd5;
+
+  --tone-urgent: #9a3412;
+  --tone-urgent-bg: #ffedd5;
+  --tone-late: #b91c1c;
+  --tone-late-bg: #fee2e2;
+  --tone-soon: #1e4b7a;
+  --tone-soon-bg: #e0ecf8;
+  --tone-done: #084c3f;
+  --tone-done-bg: #d7efe7;
+  --tone-open: #0c6b58;
+  --tone-open-bg: #e8f5f1;
+
+  --focus-ring: #0c6b58;
+  --shadow-1: 0 1px 2px rgba(16, 32, 51, 0.06), 0 4px 12px rgba(16, 32, 51, 0.04);
+  --shadow-2: 0 8px 24px rgba(16, 32, 51, 0.1);
+  --tap: 44px;
+  --ease: 150ms ease;
+
+  --font: "DM Sans", "Noto Sans Arabic", sans-serif;
+  --display: "Fraunces", "Noto Sans Arabic", Georgia, serif;
+  --shadow: var(--shadow-2);
+  --nav: 72px;
+  --radius: 18px;
+  --radius-sm: 12px;
+}
