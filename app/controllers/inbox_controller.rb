@@ -15,6 +15,8 @@ class InboxController < ApplicationController
     @communication = @delivery.communication
     @questions = @communication.communication_questions
     @answers = @delivery.delivery_answers.index_by(&:communication_question_id)
+    @blocked = @delivery.blocked?
+    @blocking_reason = @delivery.blocking_reason
   end
 
   def advance

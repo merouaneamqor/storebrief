@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -155,7 +155,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
     t.bigint "recurrence_parent_id"
     t.date "occurrence_on"
     t.string "priority", default: "routine", null: false
+    t.bigint "depends_on_id"
     t.index ["author_id"], name: "index_communications_on_author_id"
+    t.index ["depends_on_id"], name: "index_communications_on_depends_on_id"
     t.index ["playbook_id"], name: "index_communications_on_playbook_id"
     t.index ["recurrence_next_on"], name: "index_communications_on_recurrence_next_on", where: "(recurrence_next_on IS NOT NULL)"
     t.index ["recurrence_parent_id", "occurrence_on"], name: "index_communications_on_series_occurrence", unique: true, where: "(recurrence_parent_id IS NOT NULL)"
@@ -401,6 +403,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_180200) do
   add_foreign_key "checklists", "tenants"
   add_foreign_key "checklists", "users", column: "author_id"
   add_foreign_key "communication_questions", "communications"
+  add_foreign_key "communications", "communications", column: "depends_on_id", on_delete: :nullify
   add_foreign_key "communications", "communications", column: "recurrence_parent_id", on_delete: :nullify
   add_foreign_key "communications", "playbooks", on_delete: :nullify
   add_foreign_key "communications", "tenants"

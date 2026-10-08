@@ -23,6 +23,19 @@
               {}, onchange: "this.form.requestSubmit()" %>
         <noscript><%= f.submit t("communications.priority_save"), class: "btn btn--ghost" %></noscript>
       <% end %>
+
+      <%= form_with model: @communication, url: dependency_communication_path(@communication), method: :patch,
+                    class: "dependency-form" do |f| %>
+        <%= f.label :depends_on_id, t("communications.dependency.label") %>
+        <%= f.select :depends_on_id,
+              @dependency_options.map { |option| [ option.title, option.id ] },
+              { include_blank: t("communications.dependency.none") },
+              onchange: "this.form.requestSubmit()" %>
+        <noscript><%= f.submit t("communications.dependency.save"), class: "btn btn--ghost" %></noscript>
+      <% end %>
+      <% if @communication.dependency? %>
+        <p class="meta"><%= t("communications.dependency.summary", task: @communication.depends_on.title) %></p>
+      <% end %>
     <% end %>
   </div>
 </header>

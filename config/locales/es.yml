@@ -185,6 +185,15 @@ es:
     priority_saved: "Prioridad guardada."
     priority_invalid: "No se pudo cambiar la prioridad."
     priority_save: "Guardar"
+    dependency:
+      label: "Depende de"
+      none: "Sin requisito previo"
+      help: "Bloquea esta tarea hasta que otra tarea se complete en la tienda."
+      summary: "Bloqueada hasta completar: %{task}."
+      save: "Guardar"
+      saved: "Requisito previo guardado."
+      cleared: "Requisito previo quitado."
+      invalid: "No se pudo cambiar el requisito previo."
     recurrence:
       title: "Repetición"
       help: "Vuelve a enviar esta tarea según un calendario. Las tiendas solo ven la instancia actual."
@@ -343,6 +352,8 @@ es:
     answers_required: "Responda primero las preguntas obligatorias."
     answer_title: "Sus respuestas"
     your_answers: "Respuestas"
+    blocked: "Bloqueada"
+    blocked_reason: "A la espera de la tarea previa: %{task}."
     back: "← Bandeja"
   errors:
     select_targets: "Seleccione al menos una tienda o una región"

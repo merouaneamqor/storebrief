@@ -193,6 +193,15 @@ ar:
     priority_saved: "تم حفظ الأولوية."
     priority_invalid: "تعذر تغيير الأولوية."
     priority_save: "حفظ"
+    dependency:
+      label: "يعتمد على"
+      none: "بدون مهمة مسبقة"
+      help: "احجب هذه المهمة حتى تكتمل مهمة أخرى في المتجر."
+      summary: "محجوبة حتى اكتمال: %{task}."
+      save: "حفظ"
+      saved: "تم حفظ المهمة المسبقة."
+      cleared: "تمت إزالة المهمة المسبقة."
+      invalid: "تعذر تغيير المهمة المسبقة."
     recurrence:
       title: "التكرار"
       help: "أعد إرسال هذه المهمة وفق جدول. ترى المتاجر النسخة الحالية فقط."
@@ -351,6 +360,8 @@ ar:
     answers_required: "أجب أولاً عن الأسئلة الإلزامية."
     answer_title: "إجاباتك"
     your_answers: "الإجابات"
+    blocked: "محجوبة"
+    blocked_reason: "في انتظار المهمة المسبقة: %{task}."
     back: "← الوارد"
   errors:
     select_targets: "اختر متجراً أو منطقة واحدة على الأقل"

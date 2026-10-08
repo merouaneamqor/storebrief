@@ -14,6 +14,9 @@ class Communication < ApplicationRecord
   belongs_to :recurrence_parent, class_name: "Communication", optional: true, inverse_of: :occurrences
   has_many :occurrences, class_name: "Communication", foreign_key: :recurrence_parent_id,
                          inverse_of: :recurrence_parent, dependent: :nullify
+  belongs_to :depends_on, class_name: "Communication", optional: true, inverse_of: :dependents
+  has_many :dependents, class_name: "Communication", foreign_key: :depends_on_id,
+                        inverse_of: :depends_on, dependent: :nullify
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
@@ -28,6 +31,7 @@ class Communication < ApplicationRecord
   validates :source, inclusion: { in: SOURCES }
   validates :priority, inclusion: { in: PRIORITIES }
   validate :recurrence_rule_valid
+  validate :dependency_valid
 
   bilingual_fields :title, :body
 
@@ -51,6 +55,7 @@ class Communication < ApplicationRecord
   before_validation :apply_source_default
   before_validation :apply_priority_default
   before_validation :clear_recurrence_unless_task
+  before_validation :clear_dependency_unless_task
 
   def news?
     format == "news"
@@ -74,6 +79,10 @@ class Communication < ApplicationRecord
 
   def questions?
     communication_questions.any?
+  end
+
+  def dependency?
+    depends_on_id.present?
   end
 
   def recurring?
@@ -133,6 +142,31 @@ class Communication < ApplicationRecord
 
   def clear_recurrence_unless_task
     self.recurrence_rule = {} unless task?
+  end
+
+  # Only tasks block on a prerequisite; notes always arrive on their own.
+  def clear_dependency_unless_task
+    self.depends_on_id = nil unless task?
+  end
+
+  def dependency_valid
+    return if depends_on_id.blank?
+
+    if depends_on_id == id
+      errors.add(:depends_on, :invalid)
+      return
+    end
+
+    prerequisite = depends_on
+    return if prerequisite.nil?
+
+    unless prerequisite.tenant_id == tenant_id && prerequisite.task?
+      errors.add(:depends_on, :invalid)
+      return
+    end
+
+    # Reject a direct back-reference so two tasks cannot block each other.
+    errors.add(:depends_on, :invalid) if id.present? && prerequisite.depends_on_id == id
   end
 
   def recurrence_rule_valid

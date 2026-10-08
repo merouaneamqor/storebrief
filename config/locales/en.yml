@@ -185,6 +185,15 @@ en:
     priority_saved: "Priority saved."
     priority_invalid: "Priority could not be changed."
     priority_save: "Save"
+    dependency:
+      label: "Depends on"
+      none: "No prerequisite"
+      help: "Block this task until another task is done at the store."
+      summary: "Blocked until done: %{task}."
+      save: "Save"
+      saved: "Prerequisite saved."
+      cleared: "Prerequisite cleared."
+      invalid: "Prerequisite could not be changed."
     recurrence:
       title: "Repeat"
       help: "Send this task again on a schedule. Stores see only the current one."
@@ -343,6 +352,8 @@ en:
     answers_required: "Answer the required questions first."
     answer_title: "Your answers"
     your_answers: "Answers"
+    blocked: "Blocked"
+    blocked_reason: "Waiting on the prerequisite task: %{task}."
     back: "← Inbox"
   errors:
     select_targets: "Select at least one store or region"

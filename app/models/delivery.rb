@@ -35,14 +35,37 @@ class Delivery < ApplicationRecord
   }
 
   def complete!
+    ensure_not_blocked!
     ensure_required_answers!
     ensure_proof!
     update!(status: "completed", completed_at: Time.current, awareness: "done")
   end
 
   def mark_read!
+    ensure_not_blocked!
     ensure_required_answers!
     update!(status: "read", completed_at: Time.current, awareness: "done")
+  end
+
+  # The same store's delivery of the prerequisite task, if one was sent here.
+  def prerequisite_delivery
+    return nil if communication.depends_on_id.blank?
+
+    @prerequisite_delivery ||= Delivery
+                               .where(org_unit_id: org_unit_id, communication_id: communication.depends_on_id)
+                               .first
+  end
+
+  # Actionable only once the prerequisite task finishes at this store.
+  def blocked?
+    prerequisite = prerequisite_delivery
+    prerequisite.present? && !prerequisite.finished?
+  end
+
+  def blocking_reason
+    return nil unless blocked?
+
+    I18n.t("inbox.blocked_reason", task: communication.depends_on&.title)
   end
 
   def self.awareness_rollup(deliveries)
@@ -72,6 +95,8 @@ class Delivery < ApplicationRecord
     step = step.to_s
     raise ArgumentError, I18n.t("morocco.awareness.invalid") unless AWARENESS_STEPS.include?(step)
     raise ArgumentError, I18n.t("morocco.awareness.sequence") unless step == next_awareness_step
+
+    ensure_not_blocked!
 
     if step == "done"
       communication.task? ? complete! : mark_read!
@@ -131,6 +156,12 @@ class Delivery < ApplicationRecord
   end
 
   private
+
+  def ensure_not_blocked!
+    return unless blocked?
+
+    raise ArgumentError, blocking_reason
+  end
 
   def ensure_proof!
     return unless communication.requires_proof?
