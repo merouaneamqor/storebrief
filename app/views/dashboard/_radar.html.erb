@@ -6,7 +6,6 @@
               end %>
 <% hero = now_list.first %>
 <% rest = now_list.drop(1) %>
-<% all_open = radar.now_items + radar.later_items %>
 <% priority_filter = params[:priority].presence_in(Communication::PRIORITIES) %>
 
 <header class="radar-hero">
@@ -72,24 +71,40 @@
 
 <% if radar.lens == "store" && !radar.area %>
   <% grouped = Communication::PRIORITIES.filter_map do |priority|
-       items = all_open.select { |item| item.priority == priority }
-       next if items.empty?
+       now_items = radar.now_items.select { |item| item.priority == priority }
+       later_items = radar.later_items.select { |item| item.priority == priority }
+       next if now_items.empty? && later_items.empty?
        next if priority_filter && priority_filter != priority
 
-       [ priority, items ]
+       [ priority, now_items, later_items ]
      end %>
   <% if grouped.any? %>
-    <% grouped.each do |priority, items| %>
+    <% grouped.each do |priority, now_items, later_items| %>
       <section class="radar-priority-group">
         <h2 class="section-title">
           <%= priority_badge(priority) %>
-          <%= t("morocco.radar.priority_section", priority: t("common.priorities.#{priority}"), count: items.size) %>
+          <%= t("morocco.radar.priority_section", priority: t("common.priorities.#{priority}"), count: now_items.size + later_items.size) %>
         </h2>
-        <div class="work-cards">
-          <% items.each_with_index do |item, index| %>
-            <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: (index.zero? ? :hero : :row) %>
-          <% end %>
-        </div>
+        <% if now_items.any? %>
+          <div class="work-cards">
+            <% now_items.each_with_index do |item, index| %>
+              <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: (index.zero? ? :hero : :row) %>
+            <% end %>
+          </div>
+        <% end %>
+        <% if later_items.any? && filter != "late" %>
+          <details class="later-fold">
+            <summary>
+              <span><%= t("morocco.radar.later_count", count: later_items.size) %></span>
+              <%= icon("chevron-right", css_class: "icon icon--sm") %>
+            </summary>
+            <div class="later-fold__body work-cards">
+              <% later_items.each do |item| %>
+                <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+              <% end %>
+            </div>
+          </details>
+        <% end %>
       </section>
     <% end %>
   <% else %>
