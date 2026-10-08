@@ -30,6 +30,8 @@
     <dd><%= l(@visit.planned_at, format: :long) %></dd>
     <dt><%= t("morocco.visits.fields.status") %></dt>
     <dd><%= t("morocco.visits.statuses.#{@visit.status}") %></dd>
+    <dt><%= t("morocco.audit_templates.field") %></dt>
+    <dd><%= @visit.audit_template ? link_to(@visit.audit_template.title, audit_template_path(@visit.audit_template)) : "-" %></dd>
     <dt><%= t("morocco.visits.fields.notes") %></dt>
     <dd><%= @visit.notes.presence || "-" %></dd>
     <% if @visit.cancelled? %>

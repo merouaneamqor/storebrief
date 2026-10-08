@@ -5,11 +5,13 @@ class Visit < ApplicationRecord
   belongs_to :org_unit
   belongs_to :auditor, class_name: "User"
   belongs_to :created_by, class_name: "User", optional: true
+  belongs_to :audit_template, optional: true
 
   validates :planned_at, presence: true
   validates :status, inclusion: { in: STATUSES }
   validate :org_unit_is_tenant_store
   validate :auditor_is_eligible
+  validate :template_same_tenant
 
   scope :upcoming_first, -> { order(:planned_at, :id) }
   scope :with_status, ->(status) { where(status: status) if STATUSES.include?(status.to_s) }
@@ -52,6 +54,13 @@ class Visit < ApplicationRecord
     return if org_unit.tenant_id == tenant_id && org_unit.store?
 
     errors.add(:org_unit, :invalid)
+  end
+
+  def template_same_tenant
+    return if audit_template.blank?
+    return if audit_template.tenant_id == tenant_id
+
+    errors.add(:audit_template, :invalid)
   end
 
   def auditor_is_eligible

@@ -107,6 +107,7 @@ class VisitsController < ApplicationController
   def load_form_options
     @stores = store_scope.order(:name)
     @auditors = Visit.auditor_candidates(tenant_scope)
+    @audit_templates = tenant_scope.audit_templates.order(:title_fr)
   end
 
   def current_user_auditor
@@ -114,9 +115,12 @@ class VisitsController < ApplicationController
   end
 
   def visit_attrs
-    permitted = params.require(:visit).permit(:org_unit_id, :auditor_id, :planned_at, :notes)
+    permitted = params.require(:visit).permit(:org_unit_id, :auditor_id, :planned_at, :notes, :audit_template_id)
     permitted[:org_unit_id] = nil if permitted.key?(:org_unit_id) && !@stores.exists?(id: permitted[:org_unit_id])
     permitted[:auditor_id] = nil if permitted.key?(:auditor_id) && !@auditors.exists?(id: permitted[:auditor_id])
+    if permitted.key?(:audit_template_id) && !tenant_scope.audit_templates.exists?(id: permitted[:audit_template_id])
+      permitted[:audit_template_id] = nil
+    end
     permitted
   end
 end

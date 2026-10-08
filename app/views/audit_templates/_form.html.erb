@@ -1,0 +1,94 @@
+<%= form_with model: template, class: "pb-editor__form" do |f| %>
+  <% if template.errors.any? %>
+    <div class="flash flash--alert"><%= template.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <section class="pb-editor__card">
+    <label>
+      <span><%= t("morocco.audit_templates.fields.title_fr") %></span>
+      <%= f.text_field :title_fr, class: "billing-input", required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.audit_templates.fields.title_ar") %></span>
+      <%= f.text_field :title_ar, class: "billing-input", dir: "rtl" %>
+    </label>
+    <label>
+      <span><%= t("morocco.audit_templates.fields.description_fr") %></span>
+      <%= f.text_area :description_fr, class: "billing-input", rows: 2 %>
+    </label>
+    <label>
+      <span><%= t("morocco.audit_templates.fields.description_ar") %></span>
+      <%= f.text_area :description_ar, class: "billing-input", rows: 2, dir: "rtl" %>
+    </label>
+  </section>
+
+  <div class="audit-template-form" x-data="auditTemplateForm" data-sections="<%= h template.form_sections.to_json %>">
+    <template x-for="(section, si) in sections" :key="si">
+      <section class="pb-editor__card">
+        <input type="hidden" :name="`audit_template[sections][${si}][key]`" :value="section.key">
+        <label>
+          <span><%= t("morocco.audit_templates.fields.section_fr") %></span>
+          <input type="text" class="billing-input" :name="`audit_template[sections][${si}][title_fr]`" x-model="section.title_fr" required>
+        </label>
+        <label>
+          <span><%= t("morocco.audit_templates.fields.section_ar") %></span>
+          <input type="text" class="billing-input" dir="rtl" :name="`audit_template[sections][${si}][title_ar]`" x-model="section.title_ar">
+        </label>
+
+        <template x-for="(question, qi) in section.questions" :key="qi">
+          <fieldset class="audit-question">
+            <input type="hidden" :name="`audit_template[sections][${si}][questions][${qi}][key]`" :value="question.key">
+            <label>
+              <span><%= t("morocco.audit_templates.fields.prompt_fr") %> <span class="meta" x-text="question.key"></span></span>
+              <input type="text" class="billing-input" :name="`audit_template[sections][${si}][questions][${qi}][prompt_fr]`" x-model="question.prompt_fr" required>
+            </label>
+            <label>
+              <span><%= t("morocco.audit_templates.fields.prompt_ar") %></span>
+              <input type="text" class="billing-input" dir="rtl" :name="`audit_template[sections][${si}][questions][${qi}][prompt_ar]`" x-model="question.prompt_ar">
+            </label>
+            <label>
+              <span><%= t("morocco.audit_templates.fields.kind") %></span>
+              <select class="billing-input" :name="`audit_template[sections][${si}][questions][${qi}][kind]`" x-model="question.kind">
+                <% AuditTemplate::KINDS.each do |kind| %>
+                  <option value="<%= kind %>"><%= t("morocco.audit_templates.kinds.#{kind}") %></option>
+                <% end %>
+              </select>
+            </label>
+            <label>
+              <span><%= t("morocco.audit_templates.fields.points") %></span>
+              <input type="number" min="0" max="100" class="billing-input" :name="`audit_template[sections][${si}][questions][${qi}][points]`" x-model="question.points">
+            </label>
+            <label class="check">
+              <input type="hidden" :name="`audit_template[sections][${si}][questions][${qi}][required]`" value="0">
+              <input type="checkbox" value="1" :name="`audit_template[sections][${si}][questions][${qi}][required]`" x-model="question.required">
+              <span><%= t("morocco.audit_templates.fields.required") %></span>
+            </label>
+            <label>
+              <span><%= t("morocco.audit_templates.fields.show_if_key") %></span>
+              <input type="text" class="billing-input" :name="`audit_template[sections][${si}][questions][${qi}][show_if_key]`" x-model="question.show_if_key" placeholder="q1">
+            </label>
+            <label>
+              <span><%= t("morocco.audit_templates.fields.show_if_value") %></span>
+              <input type="text" class="billing-input" :name="`audit_template[sections][${si}][questions][${qi}][show_if_value]`" x-model="question.show_if_value">
+            </label>
+            <button type="button" class="btn btn--ghost" @click="removeQuestion(section, qi)"><%= t("morocco.audit_templates.remove_question") %></button>
+          </fieldset>
+        </template>
+
+        <div class="pb-editor__actions">
+          <button type="button" class="btn btn--quiet" @click="addQuestion(section)"><%= t("morocco.audit_templates.add_question") %></button>
+          <button type="button" class="btn btn--ghost" @click="removeSection(si)"><%= t("morocco.audit_templates.remove_section") %></button>
+        </div>
+      </section>
+    </template>
+
+    <div class="pb-editor__actions">
+      <button type="button" class="btn btn--quiet" @click="addSection()"><%= t("morocco.audit_templates.add_section") %></button>
+    </div>
+  </div>
+
+  <div class="pb-editor__actions sticky-action">
+    <%= link_to t("morocco.audit_templates.back"), audit_templates_path, class: "btn btn--ghost" %>
+    <button type="submit" class="btn btn--primary"><%= t("morocco.audit_templates.save") %></button>
+  </div>
+<% end %>

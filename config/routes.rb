@@ -84,6 +84,7 @@ Rails.application.routes.draw do
       post :reset
     end
   end
+  resources :audit_templates
   resources :visits, only: %i[index show new create edit update] do
     collection do
       get :calendar

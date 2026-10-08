@@ -94,6 +94,15 @@
   &--cancelled { border-inline-start-color: #94a3b8; background: #f1f5f9; text-decoration: line-through; }
 }
 
+.audit-question {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.8rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius, 8px);
+}
+
 .visit-detail {
   display: grid;
   grid-template-columns: max-content 1fr;
