@@ -7,7 +7,7 @@ ActiveAdmin.register Membership do
 
   controller do
     def scoped_collection
-      super.joins(:user).where(users: { tenant_id: current_user.tenant_id })
+      super.joins(:user).where(users: { tenant_id: acting_tenant.id, super_admin: false })
     end
   end
 
@@ -27,8 +27,8 @@ ActiveAdmin.register Membership do
 
   form do |f|
     f.inputs do
-      f.input :user, as: :select, collection: current_user.tenant.users.order(:name)
-      f.input :org_unit, as: :select, collection: current_user.tenant.org_units.order(:name)
+      f.input :user, as: :select, collection: acting_tenant.users.where(super_admin: false).order(:name)
+      f.input :org_unit, as: :select, collection: acting_tenant.org_units.order(:name)
       f.input :role, as: :select, collection: Membership::ROLES
     end
     f.actions

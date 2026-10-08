@@ -8,6 +8,8 @@ class WhatsappNotifier
   end
 
   def notify_communication!(communication)
+    return unless communication.tenant.feature?(:whatsapp_alerts)
+
     communication.deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       recipients_for(delivery.org_unit).each do |user|
         create_log!(
@@ -21,6 +23,8 @@ class WhatsappNotifier
   end
 
   def notify_checklist!(checklist)
+    return unless checklist.tenant.feature?(:whatsapp_alerts)
+
     checklist.checklist_deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       recipients_for(delivery.org_unit).each do |user|
         create_log!(
@@ -47,7 +51,8 @@ class WhatsappNotifier
       channel: "whatsapp",
       phone: user.whatsapp_phone,
       message: message,
-      status: "stubbed"
+      status: "stubbed",
+      billed: true
     )
   end
 
@@ -55,9 +60,9 @@ class WhatsappNotifier
     locale = user.locale
     title = communication.localized_value(:title, locale: locale)
     if locale == "ar"
-      "مهمة جديدة: #{title}\nافتح StoreBrief لإكمالها."
+      "مهمة جديدة: #{title}\nافتح Vazivo لإكمالها."
     else
-      "Nouvelle tâche: #{title}\nOuvrez StoreBrief pour la terminer."
+      "Nouvelle tâche: #{title}\nOuvrez Vazivo pour la terminer."
     end
   end
 

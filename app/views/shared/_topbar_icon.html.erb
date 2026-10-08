@@ -1,0 +1,18 @@
+<%# Inline SVG icons for the app top bar. Keep strokes currentColor. %>
+<% case name.to_s
+when "bell" %>
+  <svg class="app-topbar-btn__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 3a5.5 5.5 0 0 0-5.5 5.5v2.1c0 .7-.22 1.38-.62 1.95L4.7 14.3A1.4 1.4 0 0 0 5.85 16.5h12.3a1.4 1.4 0 0 0 1.15-2.2l-1.18-1.75a3.5 3.5 0 0 1-.62-1.95V8.5A5.5 5.5 0 0 0 12 3Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+    <path d="M9.5 16.5a2.5 2.5 0 0 0 5 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+  </svg>
+<% when "logout" %>
+  <svg class="app-topbar-btn__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M10 4.5H7.5A2.5 2.5 0 0 0 5 7v10a2.5 2.5 0 0 0 2.5 2.5H10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    <path d="M14 8.5 17.5 12 14 15.5M17.2 12H9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+<% when "globe" %>
+  <svg class="app-topbar-btn__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.75"/>
+    <path d="M3.75 12h16.5M12 3.75c2.4 2.55 3.6 5.3 3.6 8.25s-1.2 5.7-3.6 8.25c-2.4-2.55-3.6-5.3-3.6-8.25s1.2-5.7 3.6-8.25Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  </svg>
+<% end %>

@@ -1,81 +1,173 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>" dir="<%= rtl? ? 'rtl' : 'ltr' %>">
   <head>
-    <title><%= content_for?(:title) ? yield(:title) : (current_tenant&.display_brand_name || "StoreBrief") %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title><%= content_for?(:title) ? yield(:title) : (current_tenant&.display_brand_name || "Vazivo") %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
-    <% if current_tenant&.favicon&.attached? %>
-      <link rel="icon" href="<%= url_for(current_tenant.favicon) %>" type="<%= current_tenant.favicon.content_type %>">
+    <% if (favicon_src = tenant_brand_asset_src(current_tenant, :favicon)) %>
+      <link rel="icon" href="<%= favicon_src %>" type="image/svg+xml">
     <% else %>
       <link rel="icon" href="/icon.png" type="image/png">
       <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <% end %>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <%= javascript_importmap_tags %>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
   </head>
 
   <body class="app-body <%= 'rtl' if rtl? %>"
-        <% if current_tenant %>style="<%= current_tenant.brand_style_attribute %>"<% end %>
-        x-data="{ navOpen: false, ...offlineSync() }" x-init="init()">
+        <% if current_tenant %>style="<%= current_tenant.brand_style_attribute %>"<% end %>>
+    <% unless request.path.start_with?("/inbox/") %>
+      <%= render "shared/pwa_install" %>
+    <% end %>
+    <%= render "shared/pwa_push" %>
     <% if current_user %>
-      <div class="app-shell" :class="{ 'is-nav-open': navOpen }">
-        <aside class="app-sidebar">
+      <% show_store_tabs = !hq_user? && !super_admin? && tenant_feature?(:morocco_ops) %>
+      <div class="app-shell <%= 'app-shell--tabs' if show_store_tabs %>">
+        <input type="checkbox" id="app-nav-toggle" class="app-nav-toggle" autocomplete="off" aria-label="<%= t('nav.menu') %>">
+        <aside class="app-sidebar" id="app-sidebar">
           <div class="app-sidebar__brand">
             <a href="<%= app_root_path %>" class="app-logo">
-              <% if current_tenant.logo.attached? %>
-                <%= image_tag current_tenant.logo, class: "app-logo__img", alt: current_tenant.display_brand_name %>
+              <% if (logo_src = tenant_brand_asset_src(current_tenant, :logo)) %>
+                <%= image_tag logo_src, class: "app-logo__img", alt: current_tenant.display_brand_name %>
               <% else %>
-                <% if current_tenant.logo_mark.attached? %>
-                  <%= image_tag current_tenant.logo_mark, class: "app-logo__mark-img", alt: "" %>
+                <% if (mark_src = tenant_brand_asset_src(current_tenant, :logo_mark)) %>
+                  <%= image_tag mark_src, class: "app-logo__mark-img", alt: "" %>
                 <% else %>
                   <span class="app-logo__mark" aria-hidden="true"></span>
                 <% end %>
                 <span class="app-logo__name"><%= current_tenant.display_brand_name %></span>
               <% end %>
             </a>
-            <% if current_tenant.tagline.present? %>
-              <p class="app-sidebar__tagline"><%= current_tenant.tagline %></p>
+            <% if super_admin? %>
+              <%= form_with url: switch_tenants_path, method: :post, class: "tenant-switch" do %>
+                <label>
+                  <%= t("tenants.switcher_label") %>
+                  <%= select_tag :tenant_id,
+                        options_from_collection_for_select(Tenant.order(:name), :id, :name, current_tenant.id),
+                        aria: { label: t("tenants.switcher_label") } %>
+                </label>
+                <button type="submit" class="tenant-switch__btn"><%= t("tenants.switch") %></button>
+              <% end %>
+            <% else %>
+              <p class="app-sidebar__tenant"><%= current_tenant.name %></p>
             <% end %>
-            <p class="app-sidebar__tenant"><%= current_tenant.name %></p>
           </div>
 
-          <nav class="app-sidebar__nav">
-            <%= link_to t("nav.dashboard"), app_root_path, class: "app-nav-link #{'is-active' if current_page?(app_root_path)}" %>
+          <nav class="app-sidebar__nav" aria-label="<%= t('nav.menu') %>">
+            <%= link_to app_root_path, class: "app-nav-link #{'is-active' if current_page?(app_root_path)}" do %>
+              <span class="app-nav-link__icon"><%= icon("home") %></span>
+              <span><%= t("nav.today") %></span>
+            <% end %>
+            <% if super_admin? %>
+              <%= link_to t("nav.tenants"), tenants_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/tenants')}" %>
+              <%= link_to t("nav.demo_requests"), demo_requests_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/demo_requests')}" %>
+            <% end %>
             <% if hq_user? %>
-              <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
-              <%= link_to t("nav.briefs"), communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" %>
-              <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
-              <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
-              <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
-              <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
-              <%= link_to t("nav.compose"), new_communication_path, class: "app-nav-link app-nav-link--cta" %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications') && !request.path.end_with?('/new')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                  <span><%= t("nav.briefs") %></span>
+                <% end %>
+              <% end %>
+              <% if tenant_feature?(:morocco_ops) %>
+                <%= link_to playbooks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/playbooks')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("book") %></span>
+                  <span><%= t("nav.playbooks") %></span>
+                <% end %>
+                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                  <span><%= t("nav.visits") %></span>
+                <% end %>
+                <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("trophy") %></span>
+                  <span><%= t("nav.ranking") %></span>
+                <% end %>
+              <% elsif tenant_feature?(:reports) %>
+                <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+              <% end %>
+              <%= link_to billing_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/billing')}" do %>
+                <span class="app-nav-link__icon"><%= icon("credit-card") %></span>
+                <span><%= t("nav.billing") %></span>
+              <% end %>
+              <details class="app-nav-more" <%= "open" if request.path.start_with?("/org_units", "/templates", "/checklists", "/reports", "/admin") %>>
+                <summary class="app-nav-link">
+                  <span class="app-nav-link__icon"><%= icon("more-horizontal") %></span>
+                  <span><%= t("nav.more") %></span>
+                </summary>
+                <div class="app-nav-more__list">
+                  <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
+                  <% if tenant_feature?(:checklists) %>
+                    <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
+                    <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
+                  <% end %>
+                  <% if tenant_feature?(:reports) %>
+                    <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+                  <% end %>
+                  <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
+                </div>
+              </details>
+            <% elsif tenant_feature?(:morocco_ops) %>
+              <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
+                <span class="app-nav-link__icon"><%= icon("trophy") %></span>
+                <span><%= t("nav.ranking") %></span>
+              <% end %>
             <% else %>
-              <%= link_to t("nav.inbox"), inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox')}" %>
-              <%= link_to t("checklists.store_inbox"), checklists_deliveries_path, class: "app-nav-link #{'is-active' if request.path.include?('/deliveries')}" %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                  <span><%= t("nav.inbox") %></span>
+                <% end %>
+              <% end %>
+              <% if tenant_feature?(:checklists) %>
+                <%= link_to t("checklists.store_inbox"), checklists_deliveries_path, class: "app-nav-link #{'is-active' if request.path.include?('/deliveries')}" %>
+              <% end %>
             <% end %>
           </nav>
 
-          <div class="app-sidebar__foot">
-            <span class="sync-chip" x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
-                  :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"></span>
+          <div class="app-sidebar__dock">
+            <% if hq_user? && tenant_feature?(:briefs) %>
+              <%= link_to new_communication_path, class: "app-sidebar__compose" do %>
+                <%= icon("plus") %>
+                <span><%= t("nav.compose") %></span>
+              <% end %>
+            <% end %>
+            <div class="app-sidebar__foot"<% if tenant_feature?(:offline_checklists) %> x-data="offlineSync()" x-init="init()"<% end %>>
+              <span class="app-sidebar__avatar" aria-hidden="true"><%= current_user.name.to_s.first(1).upcase %></span>
+              <div class="app-sidebar__who">
+                <p class="app-sidebar__user"><%= current_user.name %></p>
+                <p class="app-sidebar__user-meta"><%= current_user.email %></p>
+              </div>
+              <% if tenant_feature?(:offline_checklists) %>
+                <span class="sync-chip sync-chip--ok"
+                      x-text="online ? '<%= j t('checklists.sync_ok') %>' : '<%= j t('checklists.sync_pending') %>'"
+                      :class="online ? 'sync-chip--ok' : 'sync-chip--pending'"><%= t("checklists.sync_ok") %></span>
+              <% end %>
+            </div>
           </div>
         </aside>
 
         <div class="app-frame">
           <header class="app-topbar">
-            <button type="button" class="app-menu-btn" @click="navOpen = !navOpen" :aria-expanded="navOpen" aria-label="Menu">
+            <label for="app-nav-toggle" class="app-menu-btn">
               <span></span><span></span><span></span>
-            </button>
+              <span class="visually-hidden"><%= t("nav.menu") %></span>
+            </label>
             <div class="app-topbar__spacer"></div>
-            <%= render "shared/locale_switch" %>
-            <%= button_to t("auth.sign_out"), logout_path, method: :delete, class: "app-signout" %>
+            <div class="app-topbar__actions">
+              <%= render "shared/locale_switch" %>
+              <span id="pwa-push-toggle-slot"></span>
+              <%= button_to logout_path, method: :delete, class: "app-topbar-btn", form: { class: "app-topbar-btn-form" }, title: t("auth.sign_out"), aria: { label: t("auth.sign_out") } do %>
+                <%= render "shared/topbar_icon", name: "logout" %>
+                <span class="app-topbar-btn__label"><%= t("auth.sign_out") %></span>
+              <% end %>
+            </div>
           </header>
 
           <main class="app-content">
@@ -89,7 +181,20 @@
           </main>
         </div>
 
-        <div class="app-backdrop" @click="navOpen = false" x-show="navOpen" x-cloak></div>
+        <% if show_store_tabs %>
+          <nav class="app-bottom-nav" aria-label="<%= t('nav.today') %>">
+            <%= link_to app_root_path, class: "app-bottom-nav__link #{'is-active' if current_page?(app_root_path)}" do %>
+              <%= icon("home") %>
+              <span><%= t("nav.today") %></span>
+            <% end %>
+            <%= link_to ranking_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/classement')}" do %>
+              <%= icon("trophy") %>
+              <span><%= t("nav.ranking") %></span>
+            <% end %>
+          </nav>
+        <% end %>
+
+        <label for="app-nav-toggle" class="app-backdrop" aria-hidden="true"></label>
       </div>
     <% else %>
       <main class="app-content app-content--alone">

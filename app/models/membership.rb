@@ -1,5 +1,5 @@
 class Membership < ApplicationRecord
-  ROLES = %w[hq store].freeze
+  ROLES = %w[hq area store].freeze
 
   belongs_to :user
   belongs_to :org_unit

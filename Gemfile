@@ -20,6 +20,9 @@ gem "stimulus-rails"
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
 
+# SAML 2.0 Service Provider (per-tenant IdP SSO)
+gem "ruby-saml", "~> 1.18"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
@@ -34,6 +37,9 @@ gem "image_processing", "~> 1.2"
 
 # Active Storage on Amazon S3 (and S3-compatible stores)
 gem "aws-sdk-s3", require: false
+
+# Web Push notifications for the installed PWA
+gem "web-push", "~> 3.0"
 
 
 group :development, :test do
@@ -59,10 +65,10 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+  # Minitest 6 ships Object#stub / Minitest::Mock as a separate gem
+  gem "minitest-mock"
 end
 
 gem "dartsass-rails", "~> 0.5.1"
 
 gem "activeadmin", "~> 3.5"
-
-gem "cssbundling-rails", "~> 1.4"

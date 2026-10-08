@@ -1,4 +1,4 @@
-puts "Seeding StoreBrief (Morocco first release)..."
+puts "Seeding Vazivo (Morocco first release)..."
 
 [
   ChecklistItemResponse,
@@ -6,12 +6,19 @@ puts "Seeding StoreBrief (Morocco first release)..."
   ChecklistItem,
   Checklist,
   ChecklistTemplate,
+  EscalationEvent,
   NotificationLog,
+  DeliveryAnswer,
   Delivery,
+  CommunicationQuestion,
   Communication,
+  Playbook,
+  PushSubscription,
   Membership,
   User,
   OrgUnit,
+  TenantSamlSetting,
+  TenantMailSetting,
   Tenant
 ].each(&:delete_all)
 
@@ -172,18 +179,28 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
   )
   store_user.memberships.create!(org_unit: stores.first, role: "store")
 
+  area_user = tenant.users.create!(
+    name: "#{casa_area.name} Manager",
+    email: "area@#{slug}.test",
+    password: password,
+    password_confirmation: password,
+    locale: "fr"
+  )
+  area_user.memberships.create!(org_unit: casa_area, role: "area")
+
   seed_templates!(tenant)
+  Playbook.ensure_defaults!(tenant)
 
   news = tenant.communications.create!(
     author: hq_user,
-    title_fr: "Bienvenue sur StoreBrief",
-    title_ar: "مرحباً بكم في StoreBrief",
+    title_fr: "Bienvenue sur Vazivo",
+    title_ar: "مرحباً بكم في Vazivo",
     body_fr: "Brief d'accueil pour #{name}. Infos et tâches pour vos magasins.",
     body_ar: "رسالة ترحيب لـ #{name}. أخبار ومهام لمتاجركم.",
     format: "news",
     status: "draft"
   )
-  news.send_to!([casablanca.id])
+  news.send_to!([ casablanca.id ])
 
   task = tenant.communications.create!(
     author: hq_user,
@@ -194,12 +211,14 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
     format: "task",
     status: "draft"
   )
-  task.send_to!([stores.first.id, stores.second.id])
+  task.send_to!([ stores.first.id, stores.second.id ])
 
   opening = tenant.checklist_templates.find_by!(category: "opening")
   checklist = Checklist.build_from_template(opening, author: hq_user)
   checklist.save!
-  checklist.send_to!([stores.first.id])
+  checklist.send_to!([ stores.first.id ])
+
+  Vazivo::Assignment.backfill!(tenant)
 
   tenant
 end
@@ -280,6 +299,30 @@ build_tenant!(
   }
 )
 
+atlas = Tenant.find_by!(slug: "atlas")
+atlas.users.create!(
+  name: "Platform Admin",
+  email: "admin@vazivo.test",
+  password: password,
+  password_confirmation: password,
+  locale: "en",
+  super_admin: true
+)
+
+# Disabled SSO stub — enable Features → SAML SSO + IdP fields in ActiveAdmin to use.
+atlas.create_saml_setting!(
+  enabled: false,
+  sso_enforced: false,
+  idp_entity_id: "https://idp.example.com/atlas",
+  idp_sso_target_url: "https://idp.example.com/atlas/sso",
+  email_attribute: "email"
+)
+
 puts "Seeded atlas + contoso + casa-patisserie (password: password)."
 puts "  HQ: hq@atlas.test | hq@contoso.test | hq@casa-patisserie.test"
+puts "  Area: area@atlas.test | area@contoso.test | area@casa-patisserie.test"
 puts "  Store: store@atlas.test | store@contoso.test | store@casa-patisserie.test"
+puts "  Platform admin (all brands): admin@vazivo.test"
+puts "  Atlas SAML stub: disabled (Admin → Brand → Features + SSO)"
+
+load Rails.root.join("db/seeds/sales_demo.rb")

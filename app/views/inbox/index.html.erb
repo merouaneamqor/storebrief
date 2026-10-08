@@ -1,4 +1,4 @@
-<% content_for :title, "#{t('inbox.title')} · StoreBrief" %>
+<% content_for :title, "#{t('inbox.title')} · Vazivo" %>
 
 <h1><%= t("inbox.title") %></h1>
 <p class="lede"><%= t("inbox.lede", store: @store.name) %></p>
@@ -12,6 +12,7 @@
             <%= link_to delivery.communication.title, inbox_path(delivery) %>
             <div class="meta">
               <%= localized_badge(delivery.communication.format) %>
+              <%= priority_badge(delivery.communication.priority) %>
               <%= localized_badge(delivery.status) %>
             </div>
           </div>

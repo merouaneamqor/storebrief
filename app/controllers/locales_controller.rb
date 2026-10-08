@@ -1,6 +1,5 @@
 class LocalesController < ApplicationController
   skip_before_action :require_login, only: :update
-  skip_before_action :set_current_tenant, only: :update
 
   def update
     locale = params[:locale].to_s

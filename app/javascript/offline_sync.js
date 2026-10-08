@@ -12,7 +12,12 @@ window.offlineSync = function offlineSync() {
       if (this.online) this.flushQueue();
     },
     async flushQueue() {
-      const queue = await OfflineQueue.all();
+      let queue = [];
+      try {
+        queue = await OfflineQueue.all();
+      } catch (_error) {
+        return;
+      }
       if (!queue.length) return;
 
       const token = document.querySelector("meta[name='csrf-token']")?.content;
@@ -116,8 +121,15 @@ window.checklistFill = function checklistFill(config) {
   };
 };
 
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".app-sidebar a")) return;
+
+  const toggle = document.getElementById("app-nav-toggle");
+  if (toggle) toggle.checked = false;
+}, true);
+
 const OfflineQueue = {
-  dbName: "storebrief-offline",
+  dbName: "vazivo-offline",
   storeName: "checklist_responses",
   async open() {
     return new Promise((resolve, reject) => {

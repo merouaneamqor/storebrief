@@ -1,21 +1,17 @@
-<% content_for :title, "#{t('dashboard.title')} · StoreBrief" %>
+<% content_for :title, "#{t('dashboard.title')} · Vazivo" %>
 
-<h1><%= t("dashboard.title") %></h1>
-<p class="lede">
-  <% if hq_user? %>
-    <%= t("dashboard.hq_lede", tenant: current_tenant.name) %>
-  <% else %>
-    <%= t("dashboard.store_lede", store: current_user.store_org_unit&.name || "—") %>
-  <% end %>
-</p>
-
-<% if hq_user? %>
+<% if @board %>
+  <%= render "dashboard/hq_board", board: @board %>
+<% elsif @radar %>
+  <%= render "dashboard/radar", radar: @radar %>
+<% elsif hq_user? %>
+  <h1><%= t("dashboard.title") %></h1>
+  <p class="lede"><%= t("dashboard.hq_lede", tenant: current_tenant.name) %></p>
   <div class="stats">
     <div class="stat"><strong><%= @region_count %></strong><span><%= t("dashboard.regions") %></span></div>
     <div class="stat"><strong><%= @store_count %></strong><span><%= t("dashboard.stores") %></span></div>
     <div class="stat"><strong><%= @sent_count %></strong><span><%= t("dashboard.sent_briefs") %></span></div>
   </div>
-
   <section class="panel">
     <h2><%= t("dashboard.recent_briefs") %></h2>
     <% if @communications.any? %>
@@ -39,7 +35,6 @@
       <p class="empty"><%= t("dashboard.no_briefs", link: link_to(t("dashboard.compose_one"), new_communication_path)).html_safe %></p>
     <% end %>
   </section>
-
   <section class="panel">
     <h2><%= t("dashboard.recent_checklists") %></h2>
     <% if @checklists.any? %>
@@ -61,6 +56,8 @@
     <% end %>
   </section>
 <% else %>
+  <h1><%= t("dashboard.title") %></h1>
+  <p class="lede"><%= t("dashboard.store_lede", store: current_user.store_org_unit&.name || "-") %></p>
   <section class="panel">
     <h2><%= t("nav.inbox") %></h2>
     <% if @deliveries.any? %>
@@ -82,7 +79,6 @@
       <p class="empty"><%= t("dashboard.empty_inbox") %></p>
     <% end %>
   </section>
-
   <section class="panel">
     <h2><%= t("checklists.store_inbox") %></h2>
     <% if @checklist_deliveries.any? %>

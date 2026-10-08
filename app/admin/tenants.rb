@@ -1,29 +1,76 @@
 # frozen_string_literal: true
 
 # HQ can edit their own brand only — no create/destroy (no new tenants).
+# Super-admins can also configure per-tenant SAML SSO.
 ActiveAdmin.register Tenant do
   menu priority: 9, label: "Brand"
-  actions :show, :edit, :update
+  actions :index, :show, :edit, :update
 
-  permit_params(
-    :brand_name, :tagline,
-    :logo, :logo_mark, :favicon,
-    :remove_logo, :remove_logo_mark, :remove_favicon,
-    *Tenant::BRAND_COLORS.keys
-  )
+  permit_params do
+    allowed = [
+      :brand_name, :tagline,
+      :logo, :logo_mark, :favicon,
+      :remove_logo, :remove_logo_mark, :remove_favicon,
+      *Tenant::BRAND_COLORS.keys,
+      {
+        mail_setting_attributes: %i[
+          id use_platform from_email from_name
+          smtp_address smtp_port smtp_domain smtp_username smtp_password
+          smtp_authentication smtp_enable_starttls_auto
+        ]
+      }
+    ]
+    if current_user.super_admin?
+      allowed.concat(Tenant::FEATURE_FLAGS.keys.map { |k| :"feature_#{k}" })
+      allowed << {
+        saml_setting_attributes: %i[
+          id enabled sso_enforced
+          idp_entity_id idp_sso_target_url idp_cert email_attribute
+        ]
+      }
+    end
+    allowed
+  end
 
   controller do
     def scoped_collection
-      super.where(id: current_user.tenant_id)
+      return super if current_user.super_admin?
+
+      super.where(id: acting_tenant.id)
     end
 
     def find_resource
-      current_user.tenant
+      return super if current_user.super_admin?
+
+      acting_tenant
     end
 
     def index
-      redirect_to admin_tenant_path(current_user.tenant)
+      return super if current_user.super_admin?
+
+      redirect_to admin_tenant_path(acting_tenant)
     end
+
+    def edit
+      resource.saml_setting_or_build if current_user.super_admin?
+      resource.mail_setting_or_build
+      super
+    end
+  end
+
+  index do
+    id_column
+    column :name
+    column :slug
+    column :brand_name
+    if current_user.super_admin?
+      column("SSO") { |t| status_tag(t.saml_sso_enabled? ? "on" : "off") }
+      column("Flags") do |t|
+        on = Tenant::FEATURE_FLAGS.keys.count { |k| t.feature?(k) }
+        "#{on}/#{Tenant::FEATURE_FLAGS.size}"
+      end
+    end
+    actions
   end
 
   form html: { multipart: true } do |f|
@@ -105,6 +152,80 @@ ActiveAdmin.register Tenant do
       end
     end
 
+    f.object.mail_setting_or_build
+    f.inputs "Outbound email (SMTP)" do
+      text_node <<~HTML.html_safe
+        <li>
+          <p class="inline-hints">
+            Configure your brand SMTP to send alerts from your domain.
+            If you leave <strong>Use Vazivo SMTP</strong> on, Vazivo sends on your behalf and those emails are billed.
+            WhatsApp messages are billed separately when that channel is on. Push stays included.
+          </p>
+        </li>
+      HTML
+      f.semantic_fields_for :mail_setting do |mf|
+        mf.input :use_platform, as: :boolean,
+                 label: "Use Vazivo SMTP (billed)",
+                 hint: "Turn off to use your own SMTP below"
+        mf.input :from_name, hint: "Display name on emails"
+        mf.input :from_email, hint: "Required when using your SMTP"
+        mf.input :smtp_address, hint: "e.g. smtp.office365.com"
+        mf.input :smtp_port
+        mf.input :smtp_domain
+        mf.input :smtp_username
+        mf.input :smtp_password, as: :string,
+                 input_html: { type: "password", autocomplete: "new-password", value: "" },
+                 hint: "Leave blank to keep the current password"
+        mf.input :smtp_authentication, as: :select, collection: TenantMailSetting::AUTH_METHODS
+        mf.input :smtp_enable_starttls_auto, as: :boolean, label: "STARTTLS"
+      end
+    end
+
+    if current_user.super_admin?
+      f.inputs "Features" do
+        para do
+          text_node "Or manage all brands from "
+          text_node link_to("Feature flags", admin_feature_flags_path)
+          text_node "."
+        end
+        Tenant::FEATURE_FLAGS.each do |key, meta|
+          f.input :"feature_#{key}", as: :boolean, label: meta[:label], hint: meta[:hint]
+        end
+      end
+
+      f.object.saml_setting_or_build
+      urls = Saml::SettingsBuilder.urls_for(f.object, request: controller.request)
+      f.inputs "SSO (SAML)" do
+        text_node %(<li><p class="inline-hints">Requires the <strong>SAML SSO</strong> feature flag above. IdP details only apply when that flag is on.</p></li>).html_safe
+        f.semantic_fields_for :saml_setting do |sf|
+          sf.input :enabled, as: :boolean, hint: "Turn on SSO for this brand once IdP fields below are set"
+          sf.input :sso_enforced, as: :boolean, hint: "Hide password login for this brand (platform admins still use password on the apex host)"
+          sf.input :idp_entity_id, hint: "IdP Entity ID / Issuer"
+          sf.input :idp_sso_target_url, hint: "IdP HTTP-Redirect SSO URL"
+          sf.input :idp_cert, as: :text, input_html: { rows: 8 },
+                              hint: "IdP signing certificate (PEM or base64 body)"
+          sf.input :email_attribute, hint: "Optional SAML attribute name for email (default: NameID / email / mail)"
+        end
+        text_node <<~HTML.html_safe
+          <li class="saml-sp-urls">
+            <label class="label">Service Provider URLs (register these with the IdP)</label>
+            <p class="inline-hints">
+              <strong>Entity ID</strong><br>
+              <code>#{ERB::Util.html_escape(urls.sp_entity_id)}</code>
+            </p>
+            <p class="inline-hints">
+              <strong>ACS (Assertion Consumer Service)</strong><br>
+              <code>#{ERB::Util.html_escape(urls.acs_url)}</code>
+            </p>
+            <p class="inline-hints">
+              <strong>Metadata</strong><br>
+              <code>#{ERB::Util.html_escape(urls.metadata_url)}</code>
+            </p>
+          </li>
+        HTML
+      end
+    end
+
     f.actions
 
     text_node <<~HTML.html_safe
@@ -177,6 +298,60 @@ ActiveAdmin.register Tenant do
               end
             end
           end
+        end
+      end
+    end
+
+    panel "Outbound email" do
+      setting = resource.mail_setting_or_build
+      attributes_table_for setting do
+        row("Mode") do
+          if setting.configured_tenant_smtp?
+            status_tag "tenant SMTP"
+          else
+            status_tag "Vazivo SMTP (billed)"
+          end
+        end
+        row :use_platform
+        row :from_name
+        row :from_email
+        row :smtp_address
+        row :smtp_port
+        row :smtp_domain
+        row :smtp_username
+        row("SMTP password") { setting.smtp_password.present? ? "••••••" : status_tag("not set") }
+      end
+    end
+
+    if current_user.super_admin?
+      panel "Features" do
+        attributes_table_for resource do
+          Tenant::FEATURE_FLAGS.each do |key, meta|
+            row(meta[:label]) { |t| status_tag(t.feature?(key) ? "on" : "off") }
+          end
+        end
+      end
+
+      panel "SSO (SAML)" do
+        setting = resource.saml_setting
+        urls = Saml::SettingsBuilder.urls_for(resource, request: controller.request)
+        if setting
+          attributes_table_for setting do
+            row("Feature flag") { status_tag(resource.feature?(:saml_sso) ? "on" : "off") }
+            row("Enabled") { |s| status_tag(s.enabled? ? "yes" : "no") }
+            row("SSO enforced") { |s| status_tag(s.sso_enforced? ? "yes" : "no") }
+            row :idp_entity_id
+            row :idp_sso_target_url
+            row("IdP certificate") { |s| s.idp_cert.present? ? status_tag("set") : status_tag("missing") }
+            row :email_attribute
+          end
+        else
+          para "Not configured."
+        end
+        attributes_table do
+          row("SP Entity ID") { urls.sp_entity_id }
+          row("ACS URL") { urls.acs_url }
+          row("Metadata URL") { link_to urls.metadata_url, urls.metadata_url, target: "_blank", rel: "noopener" }
         end
       end
     end

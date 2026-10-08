@@ -1,0 +1,54 @@
+<% selected_ids = local_assigns.fetch(:selected_ids, []) %>
+<% embedded = local_assigns.fetch(:embedded, false) %>
+<% payload = units.map { |unit| { id: unit.id.to_s, name: unit.name, type: unit.unit_type, typeLabel: t("common.#{unit.unit_type}") } } %>
+<section class="<%= embedded ? 'brief-targets-block' : 'brief-card' %>"
+         x-data="briefTargets()"
+         data-units="<%= h(payload.to_json) %>"
+         data-selected="<%= h(selected_ids.map(&:to_s).to_json) %>"
+         data-count-label="<%= t('communications.selected_count', count: '%{count}') %>">
+  <% unless embedded %>
+    <h2><%= t("communications.targets") %></h2>
+  <% else %>
+    <h3><%= t("communications.targets") %></h3>
+  <% end %>
+  <p class="meta"><%= t("communications.targets_help") %></p>
+
+  <template x-for="id in selected" :key="'picked-' + id">
+    <input type="hidden" name="org_unit_ids[]" :value="id">
+  </template>
+
+  <div class="brief-chips" x-show="chosen.length" x-cloak>
+    <template x-for="unit in chosen" :key="'chip-' + unit.id">
+      <button type="button" class="brief-chip" @click="toggle(unit.id)">
+        <span x-text="unit.name"></span>
+        <span aria-hidden="true">×</span>
+      </button>
+    </template>
+  </div>
+
+  <div class="brief-target-tools">
+    <input type="search" class="brief-search" placeholder="<%= t('common.filter') %>" x-model="filter" aria-label="<%= t('common.filter') %>">
+    <select class="brief-type" x-model="type" aria-label="<%= t('communications.filter_type') %>">
+      <option value="all"><%= t("common.all") %></option>
+      <option value="region"><%= t("common.region") %></option>
+      <option value="store"><%= t("common.store") %></option>
+    </select>
+  </div>
+
+  <div class="brief-target-actions">
+    <p class="brief-count" x-text="countLabel"></p>
+    <button type="button" class="btn btn--ghost" @click="selectVisible()"><%= t("communications.select_visible") %></button>
+    <button type="button" class="btn btn--ghost" @click="clear()"><%= t("communications.clear_selection") %></button>
+  </div>
+
+  <div class="brief-targets">
+    <template x-for="unit in visible" :key="unit.id">
+      <label class="brief-target">
+        <input type="checkbox" :value="unit.id" x-model="selected">
+        <span class="badge" x-text="unit.typeLabel"></span>
+        <span x-text="unit.name"></span>
+      </label>
+    </template>
+    <p class="empty" x-show="visible.length === 0" x-cloak><%= t("communications.no_matches") %></p>
+  </div>
+</section>

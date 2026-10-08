@@ -6,6 +6,7 @@ class Checklist < ApplicationRecord
   belongs_to :tenant
   belongs_to :author, class_name: "User"
   belongs_to :checklist_template, optional: true
+  belongs_to :playbook, optional: true
   has_many :checklist_items, -> { order(:position) }, dependent: :destroy, inverse_of: :checklist
   has_many :checklist_deliveries, dependent: :destroy
   has_many :org_units, through: :checklist_deliveries
@@ -51,16 +52,18 @@ class Checklist < ApplicationRecord
     store_ids = resolve_store_ids(org_unit_ids)
     raise ArgumentError, I18n.t("errors.select_targets") if store_ids.empty?
 
+    due = scheduled_due
     transaction do
       update!(status: "sent")
       store_ids.uniq.each do |store_id|
-        checklist_deliveries.find_or_create_by!(org_unit_id: store_id) do |delivery|
-          delivery.status = "pending"
+        delivery = checklist_deliveries.find_or_create_by!(org_unit_id: store_id) do |record|
+          record.status = "pending"
         end
+        Vazivo::Assignment.stamp!(delivery, due_at: due)
       end
     end
 
-    WhatsappNotifier.notify_checklist!(self)
+    NotificationDispatcher.notify_checklist!(self)
     self
   end
 
@@ -77,6 +80,14 @@ class Checklist < ApplicationRecord
     return 0 if total.zero?
 
     ((done.to_f / total) * 100).round
+  end
+
+  def scheduled_due
+    if campaign_on.present?
+      Vazivo::Schedule.default_due(tenant, campaign_on.in_time_zone(Vazivo::Schedule::ZONE).change(hour: 18))
+    else
+      Vazivo::Schedule.default_due(tenant, nil)
+    end
   end
 
   def resolve_store_ids(org_unit_ids)

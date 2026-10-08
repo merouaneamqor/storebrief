@@ -6,7 +6,7 @@ ActiveAdmin.register NotificationLog do
 
   controller do
     def scoped_collection
-      super.where(tenant_id: current_user.tenant_id)
+      super.where(tenant_id: acting_tenant.id)
     end
   end
 
@@ -15,6 +15,7 @@ ActiveAdmin.register NotificationLog do
     column :channel
     column :phone
     column :status
+    column("Billed") { |log| status_tag(log.billed? ? "yes" : "no") }
     column :notifiable_type
     column :user
     column :created_at
@@ -23,6 +24,7 @@ ActiveAdmin.register NotificationLog do
 
   filter :channel
   filter :status
+  filter :billed
   filter :notifiable_type
   filter :created_at
 
@@ -32,6 +34,7 @@ ActiveAdmin.register NotificationLog do
       row :channel
       row :phone
       row :status
+      row :billed
       row :message
       row :notifiable
       row :user

@@ -41,7 +41,9 @@ input[type="tel"],
 select,
 textarea {
   font: inherit;
+  font-size: 1rem; /* ≥16px — stops iOS Safari auto-zoom on focus */
   min-height: 46px;
+  max-width: 100%;
   padding: 0.65rem 0.75rem;
   border: 1px solid var(--line);
   border-radius: 12px;

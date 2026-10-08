@@ -1,5 +1,6 @@
 class ChecklistTemplatesController < ApplicationController
   before_action :require_hq
+  before_action -> { require_feature!(:checklists) }
 
   def index
     @templates = tenant_scope.checklist_templates.order(:category, :title_fr)

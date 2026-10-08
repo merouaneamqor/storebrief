@@ -1,4 +1,5 @@
 class ChecklistDeliveriesController < ApplicationController
+  before_action -> { require_feature!(:checklists) }
   before_action :set_store
   before_action :set_delivery, only: %i[show submit_item complete]
 

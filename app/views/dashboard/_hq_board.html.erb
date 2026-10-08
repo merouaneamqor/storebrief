@@ -1,0 +1,181 @@
+<% filter = params[:filter].presence || "all" %>
+<% counts = {
+  "unconfirmed" => board.unconfirmed.size,
+  "overdue" => board.overdue.size,
+  "redo" => board.redo.size
+} %>
+<% decision_count = board.exceptions.size %>
+<% hour = Time.current.in_time_zone(Vazivo::Schedule::ZONE).hour %>
+<% hello_key = hour < 18 ? "hello" : "hello_evening" %>
+
+<section class="hq-hero <%= 'hq-hero--clear' if decision_count.zero? %>">
+  <div class="hq-hero__copy">
+    <p class="radar-hello"><%= t("morocco.hq.#{hello_key}") %></p>
+    <h1><%= t("morocco.hq.today_title") %></h1>
+    <p class="hq-hero__lede"><%= current_tenant.name %></p>
+  </div>
+  <div class="hq-hero__pulse" aria-live="polite">
+    <% if decision_count.positive? %>
+      <strong class="hq-hero__count"><%= decision_count %></strong>
+      <span><%= t("morocco.hq.decision_count", count: decision_count) %></span>
+    <% else %>
+      <strong class="hq-hero__count hq-hero__count--ok"><%= icon("check-circle", css_class: "icon icon--lg") %></strong>
+      <span><%= t("morocco.hq.decision_clear") %></span>
+    <% end %>
+  </div>
+  <div class="hq-hero__actions">
+    <%= link_to new_communication_path, class: "btn btn--primary" do %>
+      <%= icon("plus", css_class: "icon") %>
+      <%= t("nav.compose") %>
+    <% end %>
+    <details class="hq-overflow">
+      <summary aria-label="<%= t('morocco.hq.more') %>">
+        <%= icon("more-horizontal", css_class: "icon") %>
+        <span class="meta"><%= t("morocco.hq.more") %></span>
+      </summary>
+      <div class="hq-overflow__menu">
+        <%= link_to playbooks_path, class: "btn btn--quiet" do %>
+          <%= icon("book", css_class: "icon") %> <%= t("nav.playbooks") %>
+        <% end %>
+        <% if current_tenant.feature?(:morocco_ops) %>
+          <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+            <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+          <% end %>
+        <% end %>
+        <%= link_to billing_path, class: "btn btn--quiet" do %>
+          <%= icon("credit-card", css_class: "icon") %> <%= t("nav.billing") %>
+        <% end %>
+        <%= button_to (current_tenant.ramadan_mode? ? t("morocco.ramadan.disable") : t("morocco.ramadan.enable")),
+              ramadan_path, method: :patch, class: "btn btn--quiet" %>
+      </div>
+    </details>
+  </div>
+</section>
+
+<% if board.awareness_brief && board.awareness_rollup %>
+  <% rollup = board.awareness_rollup %>
+  <% total = rollup[:total].to_i %>
+  <% received = (rollup["received"] || rollup[:received] || 0).to_i %>
+  <% pct = total.zero? ? 0 : ((received.to_f / total) * 100).round %>
+  <section class="hq-campaign">
+    <div class="hq-campaign__head">
+      <p class="section-title"><%= t("morocco.hq.latest") %></p>
+      <h2 class="hq-campaign__title"><%= link_to board.awareness_brief.title, board.awareness_brief %></h2>
+      <p class="meta"><%= t("morocco.hq.received_line", done: received, total: total) %></p>
+    </div>
+    <div class="hq-campaign__meter" role="img" aria-label="<%= pct %>%">
+      <div class="hq-campaign__ring" style="--pct: <%= pct %>;">
+        <strong><%= pct %><span>%</span></strong>
+        <em><%= t("morocco.awareness.steps.received") %></em>
+      </div>
+    </div>
+    <div class="hq-campaign__track">
+      <%= render "shared/awareness_progress", rollup: rollup %>
+      <% pending_push = board.awareness_brief.deliveries.count(&:pending?) %>
+      <% if pending_push.positive? && current_tenant.feature?(:push_alerts) %>
+        <div class="hq-push-remind">
+          <%= button_to notify_push_communication_path(board.awareness_brief),
+                method: :post,
+                class: "btn",
+                data: { turbo_confirm: t("communications.notify_push_confirm", count: pending_push) } do %>
+            <%= icon("send", css_class: "icon") %>
+            <%= t("communications.notify_push") %>
+          <% end %>
+          <p class="meta"><%= t("communications.notify_push_hint", count: pending_push) %></p>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<% status = board.store_status %>
+<section class="hq-status-strip" aria-label="<%= t('morocco.hq.store_status.title') %>">
+  <p class="section-title"><%= t("morocco.hq.store_status.title") %></p>
+  <div class="hq-status-strip__tiles">
+    <% %w[on_track attention critical].each do |bucket| %>
+      <%= link_to org_units_path(status: bucket), class: "hq-status-strip__tile hq-status-strip__tile--#{bucket}" do %>
+        <strong><%= status.count(bucket) %></strong>
+        <span><%= t("morocco.hq.store_status.#{bucket}") %></span>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+
+<section class="hq-board" x-data="{ filter: '<%= j filter %>' }" x-init="
+  $watch('filter', (value) => {
+    const url = new URL(window.location.href);
+    if (value === 'all') { url.searchParams.delete('filter'); }
+    else { url.searchParams.set('filter', value); }
+    window.history.replaceState({}, '', url);
+  })
+">
+  <div class="hq-pulse" role="tablist" aria-label="<%= t('morocco.hq.exceptions') %>">
+    <button type="button" class="hq-pulse__tile" role="tab" :aria-selected="filter === 'all'" :class="{ 'is-active': filter === 'all' }" @click="filter = 'all'">
+      <strong><%= decision_count %></strong>
+      <span><%= t("morocco.hq.filter_all") %></span>
+    </button>
+    <button type="button" class="hq-pulse__tile hq-pulse__tile--warn" role="tab" :aria-selected="filter === 'unconfirmed'" :class="{ 'is-active': filter === 'unconfirmed' }" @click="filter = 'unconfirmed'">
+      <strong><%= counts["unconfirmed"] %></strong>
+      <span><%= t("morocco.hq.board_unconfirmed") %></span>
+    </button>
+    <button type="button" class="hq-pulse__tile hq-pulse__tile--late" role="tab" :aria-selected="filter === 'overdue'" :class="{ 'is-active': filter === 'overdue' }" @click="filter = 'overdue'">
+      <strong><%= counts["overdue"] %></strong>
+      <span><%= t("morocco.hq.board_overdue") %></span>
+    </button>
+    <button type="button" class="hq-pulse__tile hq-pulse__tile--urgent" role="tab" :aria-selected="filter === 'redo'" :class="{ 'is-active': filter === 'redo' }" @click="filter = 'redo'">
+      <strong><%= counts["redo"] %></strong>
+      <span><%= t("morocco.hq.board_redo") %></span>
+    </button>
+  </div>
+
+  <div class="hq-exceptions">
+    <p class="section-title"><%= t("morocco.hq.exceptions") %></p>
+    <% if board.exceptions.any? %>
+      <ul class="exception-list exception-list--rich">
+        <% board.exceptions.each do |row| %>
+          <li class="exception-row exception-row--<%= row.tone %>" x-show="filter === 'all' || filter === '<%= row.kind %>'" x-transition.opacity.duration.150ms>
+            <div class="exception-list__main">
+              <div class="exception-row__top">
+                <span class="exception-kind exception-kind--<%= row.kind %>"><%= t("morocco.hq.board_#{row.kind == 'redo' ? 'redo' : row.kind == 'overdue' ? 'overdue' : 'unconfirmed'}") %></span>
+                <span class="tone tone--<%= row.tone %>"><%= tone_icon(row.tone) %> <%= t("morocco.tone.#{row.tone}") %></span>
+                <%= priority_badge(row.priority) %>
+              </div>
+              <%= link_to row.store_name, row.path, class: "exception-row__store" %>
+              <div class="meta">
+                <%= row.owner_name %>
+                · <% if row.due_at %><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(row.due_at) %><% else %>-<% end %>
+                · <%= row.status_label %>
+              </div>
+            </div>
+            <%= link_to t("morocco.radar.open"), row.path, class: "btn btn--ghost" %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="empty empty--alive">
+        <%= icon("check-circle", css_class: "icon empty__icon") %>
+        <p class="empty__text"><%= t("morocco.hq.exceptions_empty") %></p>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<% if board.podium.any? %>
+  <section class="hq-podium">
+    <div class="hq-podium__head">
+      <p class="section-title"><%= icon("trophy", css_class: "icon icon--sm") %> <%= t("morocco.ranking.podium") %></p>
+      <%= link_to t("nav.ranking"), ranking_path, class: "meta" %>
+    </div>
+    <ol class="podium podium--race">
+      <% board.podium.each_with_index do |row, index| %>
+        <li class="podium__card podium__card--<%= index + 1 %>">
+          <span class="podium__rank"><%= index + 1 %></span>
+          <strong><%= row.store.name %></strong>
+          <span class="podium__score"><%= row.percent %>%</span>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+<% end %>
+
+<p class="hq-footnote"><%= t("morocco.hq.chase") %></p>

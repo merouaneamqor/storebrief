@@ -3,8 +3,21 @@
 ActiveAdmin.register_page "Dashboard" do
   menu priority: 1, label: proc { I18n.t("active_admin.dashboard") }
 
-  content title: proc { "HQ · #{current_user.tenant.name}" } do
-    tenant = current_user.tenant
+  content title: proc { "HQ · #{acting_tenant.name}" } do
+    tenant = acting_tenant
+
+    if current_user.super_admin?
+      panel "Platform" do
+        para do
+          text_node "Manage product capabilities per brand: "
+          text_node link_to("Feature flags", admin_feature_flags_path)
+          text_node " · "
+          text_node link_to("Demo requests", admin_demo_requests_path)
+          text_node " · "
+          text_node link_to("Brands", admin_tenants_path)
+        end
+      end
+    end
 
     columns do
       column do

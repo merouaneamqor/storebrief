@@ -1,0 +1,45 @@
+<% content_for :title, "#{t('demo_requests.title')} · Vazivo" %>
+
+<h1><%= t("demo_requests.title") %></h1>
+<p class="lede"><%= t("demo_requests.lede") %></p>
+
+<% if @demo_requests.empty? %>
+  <p class="empty"><%= t("demo_requests.empty") %></p>
+<% else %>
+  <ul class="list">
+    <% @demo_requests.each do |demo| %>
+      <li>
+        <div>
+          <strong><%= demo.company %></strong>
+          <span class="badge badge--<%= { 'new' => 'pending', 'contacted' => 'sent', 'closed' => 'completed' }.fetch(demo.status, 'pending') %>">
+            <%= t("demo_requests.statuses.#{demo.status}") %>
+          </span>
+          <div class="meta">
+            <span><%= demo.name %></span>
+            <% if demo.email.present? %>
+              <span><%= mail_to demo.email %></span>
+            <% end %>
+            <% if demo.phone.present? %>
+              <span><%= demo.phone %></span>
+            <% end %>
+            <% if demo.store_count.present? %>
+              <span><%= t("demo_requests.stores", count: demo.store_count) %></span>
+            <% end %>
+            <span><%= demo.preferred_locale.upcase %></span>
+            <span><%= l(demo.created_at, format: :short) %></span>
+          </div>
+        </div>
+        <div class="list__actions">
+          <% DemoRequest::STATUSES.each do |status| %>
+            <% next if status == demo.status %>
+            <%= button_to t("demo_requests.mark_as", status: t("demo_requests.statuses.#{status}")),
+                  demo_request_path(demo),
+                  method: :patch,
+                  params: { status: status },
+                  class: "btn btn--ghost" %>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

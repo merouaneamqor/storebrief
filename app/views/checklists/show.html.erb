@@ -1,4 +1,4 @@
-<% content_for :title, "#{@checklist.title} · StoreBrief" %>
+<% content_for :title, "#{@checklist.title} · Vazivo" %>
 
 <p class="meta"><%= link_to t("checklists.back"), checklists_path %></p>
 <h1><%= @checklist.title %></h1>
@@ -24,9 +24,22 @@
   <section class="panel">
     <h2><%= t("checklists.delivery") %></h2>
     <%= render "shared/progress", stats: @stats %>
+    <% pending_count = @deliveries.count { |d| d.pending? } %>
+    <% if pending_count.positive? && current_tenant.feature?(:push_alerts) %>
+      <div class="hq-push-remind">
+        <%= button_to notify_push_checklist_path(@checklist),
+              method: :post,
+              class: "btn",
+              data: { turbo_confirm: t("communications.notify_push_confirm", count: pending_count) } do %>
+          <%= icon("send", css_class: "icon") %>
+          <%= t("communications.notify_push") %>
+        <% end %>
+        <p class="meta"><%= t("communications.notify_push_hint", count: pending_count) %></p>
+      </div>
+    <% end %>
     <ul class="list">
       <% @deliveries.each do |delivery| %>
-        <li>
+        <li id="store-<%= delivery.org_unit_id %>">
           <span><%= delivery.org_unit.name %></span>
           <%= localized_badge(delivery.status) %>
         </li>
@@ -34,19 +47,23 @@
     </ul>
   </section>
 
-  <% if @notifications.any? %>
-    <section class="panel">
-      <h2><%= t("communications.notifications") %></h2>
+  <section class="panel">
+    <h2><%= t("communications.notifications") %></h2>
+    <% if @notifications.any? %>
       <ul class="notif-list">
         <% @notifications.each do |log| %>
           <li>
-            <strong><%= log.phone %></strong> · <%= log.user&.name %>
+            <strong><%= log.channel %></strong>
+            <% if log.phone.present? %> · <%= log.phone %><% end %>
+            · <%= log.user&.name %> · <%= log.status %>
             <pre><%= log.message %></pre>
           </li>
         <% end %>
       </ul>
-    </section>
-  <% end %>
+    <% else %>
+      <p class="empty"><%= t("communications.notifications_empty") %></p>
+    <% end %>
+  </section>
 <% else %>
   <section class="panel" x-data="{ filter: '', type: 'all' }">
     <h2><%= t("communications.send") %></h2>

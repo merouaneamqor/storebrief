@@ -56,8 +56,10 @@
 .m-card h3,
 .m-flow h3 {
   font-family: var(--display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
+  line-height: 1.25;
   margin: 0 0 0.45rem;
+  text-wrap: balance;
 }
 
 .m-card p {

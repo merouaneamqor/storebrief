@@ -7,11 +7,11 @@ ActiveAdmin.register OrgUnit do
 
   controller do
     def scoped_collection
-      super.where(tenant_id: current_user.tenant_id)
+      super.where(tenant_id: acting_tenant.id)
     end
 
     def build_new_resource
-      super.tap { |r| r.tenant = current_user.tenant }
+      super.tap { |r| r.tenant = acting_tenant }
     end
   end
 
@@ -35,7 +35,7 @@ ActiveAdmin.register OrgUnit do
       f.input :unit_type, as: :select, collection: OrgUnit::UNIT_TYPES
       f.input :parent,
               as: :select,
-              collection: current_user.tenant.org_units.where.not(unit_type: "store").order(:name),
+              collection: acting_tenant.org_units.where.not(unit_type: "store").order(:name),
               include_blank: true
     end
     f.actions

@@ -1,0 +1,40 @@
+<div class="proof-pair" x-data="{
+  beforeUrl: null,
+  afterUrl: null,
+  preview(event, key) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (key === 'before') { if (this.beforeUrl) URL.revokeObjectURL(this.beforeUrl); this.beforeUrl = url; }
+    else { if (this.afterUrl) URL.revokeObjectURL(this.afterUrl); this.afterUrl = url; }
+  }
+}">
+  <label class="proof-zone">
+    <span class="proof-zone__label">
+      <%= icon("camera", css_class: "icon icon--lg") %>
+      <%= t("morocco.proof.before") %>
+      <span class="proof-zone__hint"><%= t("morocco.proof.tap") %></span>
+    </span>
+    <% if delivery.photo_before.attached? %>
+      <%= image_tag delivery.photo_before, class: "proof-zone__preview" %>
+    <% end %>
+    <template x-if="beforeUrl">
+      <img :src="beforeUrl" alt="" class="proof-zone__preview">
+    </template>
+    <input class="proof-zone__input" type="file" name="photo_before" accept="image/*" capture="environment" @change="preview($event, 'before')">
+  </label>
+  <label class="proof-zone">
+    <span class="proof-zone__label">
+      <%= icon("camera", css_class: "icon icon--lg") %>
+      <%= t("morocco.proof.after") %>
+      <span class="proof-zone__hint"><%= t("morocco.proof.tap") %></span>
+    </span>
+    <% if delivery.photo_after.attached? %>
+      <%= image_tag delivery.photo_after, class: "proof-zone__preview" %>
+    <% end %>
+    <template x-if="afterUrl">
+      <img :src="afterUrl" alt="" class="proof-zone__preview">
+    </template>
+    <input class="proof-zone__input" type="file" name="photo_after" accept="image/*" capture="environment" @change="preview($event, 'after')">
+  </label>
+</div>
