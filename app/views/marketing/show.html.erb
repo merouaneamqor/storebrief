@@ -1,0 +1,235 @@
+<% content_for :title, "#{t('landing.hero.brand')} · #{t('landing.hero.title')}" %>
+
+<section class="m-hero">
+  <div class="m-hero__copy">
+    <p class="m-hero__brand"><%= t("landing.hero.brand") %></p>
+    <p class="m-kicker"><%= t("landing.hero.kicker") %></p>
+    <h1><%= t("landing.hero.title") %></h1>
+    <p class="m-lede"><%= t("landing.hero.lede") %></p>
+    <div class="m-hero__actions">
+      <a href="#demo" class="m-btn"><%= t("landing.hero.demo") %></a>
+      <a href="#how" class="m-btn m-btn--ghost"><%= t("landing.hero.explore") %></a>
+    </div>
+    <ul class="m-proof">
+      <li><%= t("landing.proof.a") %></li>
+      <li><%= t("landing.proof.b") %></li>
+      <li><%= t("landing.proof.c") %></li>
+      <li><%= t("landing.proof.d") %></li>
+    </ul>
+  </div>
+
+  <div class="m-stage">
+    <p class="m-stage__caption"><%= t("landing.hero.example") %></p>
+    <div class="m-window m-window--hq">
+      <header>
+        <span class="m-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <strong><%= t("landing.hero.scene_title") %></strong>
+        <em><%= t("landing.hero.scene_status") %></em>
+      </header>
+      <div class="m-window__body">
+        <ul class="m-stores">
+          <li class="is-done">
+            <span class="m-stores__name"><%= t("landing.hero.store_a") %></span>
+            <span class="m-stores__state"><%= t("landing.hero.done") %></span>
+          </li>
+          <li class="is-done">
+            <span class="m-stores__name"><%= t("landing.hero.store_b") %></span>
+            <span class="m-stores__state"><%= t("landing.hero.done") %></span>
+          </li>
+          <li class="is-wait">
+            <span class="m-stores__name"><%= t("landing.hero.store_c") %></span>
+            <span class="m-stores__state"><%= t("landing.hero.waiting") %></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="m-window m-window--store">
+      <header>
+        <span class="m-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <strong><%= t("landing.hero.phone_title") %></strong>
+      </header>
+      <div class="m-window__body">
+        <div class="m-task done"><i aria-hidden="true"></i><span><%= t("landing.hero.task_done") %></span></div>
+        <div class="m-task m-task--photo"><i aria-hidden="true"></i><span><%= t("landing.hero.task_photo") %></span><em><%= t("landing.hero.photo") %></em></div>
+        <div class="m-task"><i aria-hidden="true"></i><span><%= t("landing.hero.task_open") %></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="m-band">
+  <div class="m-wrap m-band__inner">
+    <h2><%= t("landing.trust.title") %></h2>
+    <p><%= t("landing.trust.body") %></p>
+  </div>
+</section>
+
+<section class="m-wrap m-block" id="problems">
+  <header class="m-block__head">
+    <h2><%= t("landing.problems.title") %></h2>
+  </header>
+  <div class="m-cards">
+    <article class="m-card">
+      <span class="m-index">01</span>
+      <h3><%= t("landing.problems.p1_title") %></h3>
+      <p><%= t("landing.problems.p1_body") %></p>
+    </article>
+    <article class="m-card">
+      <span class="m-index">02</span>
+      <h3><%= t("landing.problems.p2_title") %></h3>
+      <p><%= t("landing.problems.p2_body") %></p>
+    </article>
+    <article class="m-card">
+      <span class="m-index">03</span>
+      <h3><%= t("landing.problems.p3_title") %></h3>
+      <p><%= t("landing.problems.p3_body") %></p>
+    </article>
+  </div>
+</section>
+
+<section class="m-wrap m-block" id="how">
+  <header class="m-block__head">
+    <h2><%= t("landing.walkthrough.title") %></h2>
+    <p class="m-lede"><%= t("landing.walkthrough.example") %></p>
+  </header>
+  <ol class="m-flow">
+    <li>
+      <span>1</span>
+      <h3><%= t("landing.walkthrough.step1") %></h3>
+      <p><%= t("landing.walkthrough.step1_body") %></p>
+    </li>
+    <li>
+      <span>2</span>
+      <h3><%= t("landing.walkthrough.step2") %></h3>
+      <p><%= t("landing.walkthrough.step2_body") %></p>
+    </li>
+    <li>
+      <span>3</span>
+      <h3><%= t("landing.walkthrough.step3") %></h3>
+      <p><%= t("landing.walkthrough.step3_body") %></p>
+    </li>
+    <li>
+      <span>4</span>
+      <h3><%= t("landing.walkthrough.step4") %></h3>
+      <p><%= t("landing.walkthrough.step4_body") %></p>
+    </li>
+  </ol>
+</section>
+
+<section class="m-wrap m-block">
+  <header class="m-block__head">
+    <h2><%= t("landing.benefits.title") %></h2>
+  </header>
+  <div class="m-cards">
+    <article class="m-card">
+      <h3><%= t("landing.benefits.b1_title") %></h3>
+      <p><%= t("landing.benefits.b1_body") %></p>
+    </article>
+    <article class="m-card">
+      <h3><%= t("landing.benefits.b2_title") %></h3>
+      <p><%= t("landing.benefits.b2_body") %></p>
+    </article>
+    <article class="m-card">
+      <h3><%= t("landing.benefits.b3_title") %></h3>
+      <p><%= t("landing.benefits.b3_body") %></p>
+    </article>
+  </div>
+</section>
+
+<section class="m-wrap m-block">
+  <header class="m-block__head">
+    <h2><%= t("landing.roles.title") %></h2>
+  </header>
+  <div class="m-cards">
+    <article class="m-card m-card--role">
+      <h3><%= t("landing.roles.hq_title") %></h3>
+      <p><%= t("landing.roles.hq_body") %></p>
+    </article>
+    <article class="m-card m-card--role">
+      <h3><%= t("landing.roles.region_title") %></h3>
+      <p><%= t("landing.roles.region_body") %></p>
+    </article>
+    <article class="m-card m-card--role">
+      <h3><%= t("landing.roles.store_title") %></h3>
+      <p><%= t("landing.roles.store_body") %></p>
+    </article>
+  </div>
+</section>
+
+<section class="m-wrap m-block" id="fit">
+  <header class="m-block__head">
+    <h2><%= t("landing.fits.title") %></h2>
+    <p class="m-lede"><%= t("landing.fits.lede") %></p>
+  </header>
+  <%= render "marketing/fits" %>
+  <p class="m-fits__more"><%= link_to t("landing.fits.more"), resources_path %></p>
+</section>
+
+<section class="m-wrap m-block" id="faq">
+  <header class="m-block__head">
+    <h2><%= t("landing.faq.title") %></h2>
+  </header>
+  <div class="m-faq">
+    <% (1..5).each do |n| %>
+      <details>
+        <summary><%= t("landing.faq.q#{n}") %></summary>
+        <p><%= t("landing.faq.a#{n}") %></p>
+      </details>
+    <% end %>
+  </div>
+</section>
+
+<section class="m-wrap m-block" id="demo">
+  <% if @demo_request.errors.any? %>
+    <script>document.getElementById("demo")?.scrollIntoView({ block: "start" })</script>
+  <% end %>
+  <div class="m-convert">
+    <div class="m-convert__copy">
+      <h2><%= t("landing.demo.title") %></h2>
+      <p><%= t("landing.demo.lede") %></p>
+      <ul>
+        <li><%= t("landing.demo.point1") %></li>
+        <li><%= t("landing.demo.point2") %></li>
+        <li><%= t("landing.demo.point3") %></li>
+      </ul>
+    </div>
+    <%= form_with model: @demo_request, url: demo_requests_path, class: "m-form", local: true do |f| %>
+      <% if @demo_request.errors.any? %>
+        <p class="m-form__error" role="alert"><%= @demo_request.errors.full_messages.to_sentence %></p>
+      <% end %>
+      <div class="m-form__row">
+        <label>
+          <%= t("landing.demo.name") %>
+          <%= f.text_field :name, required: true, autocomplete: "name" %>
+        </label>
+        <label>
+          <%= t("landing.demo.company") %>
+          <%= f.text_field :company, required: true, autocomplete: "organization" %>
+        </label>
+      </div>
+      <p class="m-hint" id="contact-hint"><%= t("landing.demo.contact_hint") %></p>
+      <div class="m-form__row">
+        <label>
+          <%= t("landing.demo.email") %>
+          <%= f.email_field :email, autocomplete: "email", aria: { describedby: "contact-hint" } %>
+        </label>
+        <label>
+          <%= t("landing.demo.phone") %>
+          <%= f.telephone_field :phone, autocomplete: "tel", aria: { describedby: "contact-hint" } %>
+        </label>
+      </div>
+      <div class="m-form__row">
+        <label>
+          <%= t("landing.demo.stores") %>
+          <%= f.number_field :store_count, min: 1, step: 1, inputmode: "numeric" %>
+        </label>
+        <label>
+          <%= t("landing.demo.language") %>
+          <%= f.select :preferred_locale, User::LOCALES.map { |code| [t("locales.#{code}"), code] } %>
+        </label>
+      </div>
+      <button type="submit" class="m-btn m-btn--block"><%= t("landing.demo.submit") %></button>
+      <p class="m-reassure"><%= t("landing.demo.reassure") %></p>
+    <% end %>
+  </div>
+</section>

@@ -1,24 +1,235 @@
 <% content_for :title, "#{@communication.title} · Inbox" %>
+<% morocco = tenant_feature?(:morocco_ops) %>
+<% fr_body = @communication.body_fr %>
+<% ar_body = @communication.body_ar %>
+<% default_lang = I18n.locale.to_s == "ar" && ar_body.present? ? "ar" : "fr" %>
+<% langs = [] %>
+<% langs << "fr" if fr_body.present? %>
+<% langs << "ar" if ar_body.present? %>
 
-<p class="meta"><%= link_to "← Inbox", inbox_index_path %></p>
-<h1><%= @communication.title %></h1>
-<p class="lede">
-  <span class="badge badge--<%= @communication.format %>"><%= @communication.format %></span>
-  <span class="badge badge--<%= @delivery.status %>"><%= @delivery.status %></span>
-  · <%= @communication.created_at.strftime("%d %b %Y") %>
-</p>
+<p class="meta"><%= link_to t("inbox.back"), app_root_path %></p>
 
-<section class="panel">
-  <div class="prose"><%= @communication.body %></div>
-</section>
+<article class="task-card" <% if morocco %>x-data="taskLang('<%= default_lang %>', <%= langs.to_json %>)"<% end %>>
+  <header class="task-card__head">
+    <h1><%= @communication.title %></h1>
+    <p class="lede">
+      <%= localized_badge(@communication.format) %>
+      <%= priority_badge(@communication.priority) %>
+      <% if morocco %>
+        <span class="tone tone--<%= @delivery.tone %>"><%= tone_icon(@delivery.tone) %> <%= t("morocco.tone.#{@delivery.tone}") %></span>
+      <% else %>
+        <%= localized_badge(@delivery.status) %>
+      <% end %>
+    </p>
+    <% if morocco %>
+      <p class="owner-inline">
+        <span><%= @delivery.org_unit.name %></span>
+        <span><%= @delivery.assignee&.name || t("morocco.owner.unassigned") %></span>
+        <span><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(@delivery.due_at) || "-" %></span>
+      </p>
+    <% end %>
+  </header>
 
-<% if @delivery.pending? %>
-  <div class="actions">
-    <%= button_to(
-          @communication.task? ? "Mark task complete" : "Mark as read",
-          complete_inbox_path(@delivery),
-          method: :post,
-          class: "btn"
-        ) %>
-  </div>
-<% end %>
+  <% if morocco %>
+    <% current_step = @delivery.next_awareness_step %>
+    <ol class="stepper" aria-label="<%= t('morocco.awareness.title') %>">
+      <% Delivery::AWARENESS_STEPS.each do |step| %>
+        <% reached = @delivery.awareness_reached?(step) %>
+        <% is_current = current_step == step %>
+        <li class="stepper__step <%= 'is-done' if reached %> <%= 'is-current' if is_current %>">
+          <span class="stepper__dot">
+            <% if reached %><%= icon("check-circle", css_class: "icon icon--sm") %><% end %>
+          </span>
+          <span class="stepper__label"><%= t("morocco.awareness.steps.#{step}") %></span>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+
+  <% if morocco && langs.any? %>
+    <div class="lang-switch" role="tablist" aria-label="<%= t('morocco.languages.title') %>"
+         @keydown.right.prevent="nextLang()"
+         @keydown.left.prevent="prevLang()">
+      <% if fr_body.present? %>
+        <button type="button" role="tab" class="lang-switch__btn" :class="{ 'is-active': lang === 'fr' }"
+                :aria-selected="lang === 'fr'" @click="lang = 'fr'" id="lang-tab-fr">FR</button>
+      <% end %>
+      <% if ar_body.present? %>
+        <button type="button" role="tab" class="lang-switch__btn" :class="{ 'is-active': lang === 'ar' }"
+                :aria-selected="lang === 'ar'" @click="lang = 'ar'" id="lang-tab-ar">AR</button>
+      <% end %>
+    </div>
+    <div class="task-card__body prose">
+      <% if fr_body.present? %>
+        <div x-show="lang === 'fr'" x-cloak role="tabpanel" aria-labelledby="lang-tab-fr"><%= fr_body %></div>
+      <% end %>
+      <% if ar_body.present? %>
+        <div x-show="lang === 'ar'" x-cloak dir="rtl" lang="ar" role="tabpanel" aria-labelledby="lang-tab-ar"><%= ar_body %></div>
+      <% end %>
+    </div>
+  <% elsif @communication.body.present? %>
+    <div class="task-card__body prose"><%= @communication.body %></div>
+  <% end %>
+
+  <% if morocco %>
+    <% if @delivery.verdict.present? %>
+      <p class="verdict-line">
+        <strong><%= t("morocco.verdict.#{@delivery.verdict}") %></strong>
+        <% if @delivery.verdict_note.present? %>. <%= @delivery.verdict_note %><% end %>
+      </p>
+    <% end %>
+
+    <% if (step = @delivery.next_awareness_step) %>
+      <%= form_with url: advance_inbox_path(@delivery), method: :post, multipart: true, class: "task-card__action",
+            data: { turbo_submits_with: t("morocco.sending") } do %>
+        <%= hidden_field_tag :step, step %>
+        <% if step == "done" && @questions.any? %>
+          <section class="task-card__answers">
+            <h2 class="section-title"><%= t("inbox.answer_title") %></h2>
+            <% @questions.each do |question| %>
+              <% answer = @answers[question.id] %>
+              <div class="brief-answer-field">
+                <label>
+                  <span>
+                    <%= question.title %>
+                    <% if question.required? %><span class="brief-required-mark">*</span><% end %>
+                  </span>
+                  <% case question.question_type %>
+                  <% when "image" %>
+                    <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
+                    <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
+                  <% when "long_text" %>
+                    <textarea name="answers[<%= question.id %>][text]" rows="3" <%= "required" if question.required? %>><%= answer&.text_value %></textarea>
+                  <% when "single_choice" %>
+                    <div class="brief-answer-choices">
+                      <% question.option_labels.each do |label| %>
+                        <label class="brief-choice">
+                          <input type="radio" name="answers[<%= question.id %>][text]" value="<%= label %>" <%= "checked" if answer&.text_value == label %> <%= "required" if question.required? %>>
+                          <span><%= label %></span>
+                        </label>
+                      <% end %>
+                    </div>
+                  <% when "dropdown" %>
+                    <select name="answers[<%= question.id %>][text]" <%= "required" if question.required? %>>
+                      <option value=""><%= t("communications.choose_option") %></option>
+                      <% question.option_labels.each do |label| %>
+                        <option value="<%= label %>" <%= "selected" if answer&.text_value == label %>><%= label %></option>
+                      <% end %>
+                    </select>
+                  <% when "multi_choice" %>
+                    <div class="brief-answer-choices">
+                      <% question.option_labels.each do |label| %>
+                        <label class="brief-choice">
+                          <input type="checkbox" name="answers[<%= question.id %>][choices][]" value="<%= label %>" <%= "checked" if answer&.list_value.include?(label) %>>
+                          <span><%= label %></span>
+                        </label>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <input type="text" name="answers[<%= question.id %>][text]" value="<%= answer&.text_value %>" <%= "required" if question.required? %>>
+                  <% end %>
+                </label>
+              </div>
+            <% end %>
+          </section>
+        <% end %>
+        <% if step == "done" && @communication.requires_proof? %>
+          <%= render "inbox/proof_fields", delivery: @delivery %>
+        <% end %>
+        <div class="sticky-action">
+          <button type="submit" class="btn btn--primary" data-turbo-submits-with="<%= t('morocco.sending') %>">
+            <%= t("morocco.awareness.actions.#{step}") %>
+          </button>
+        </div>
+      <% end %>
+    <% elsif @questions.any? && !@delivery.pending? %>
+      <section class="task-card__answers">
+        <h2 class="section-title"><%= t("inbox.your_answers") %></h2>
+        <% @questions.each do |question| %>
+          <% answer = @answers[question.id] %>
+          <div class="brief-answer-field">
+            <strong><%= question.title %></strong>
+            <% if question.image? && answer&.image&.attached? %>
+              <%= image_tag answer.image, class: "thumb" %>
+            <% else %>
+              <div class="meta"><%= answer&.display_value.presence || "-" %></div>
+            <% end %>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+  <% elsif @delivery.pending? %>
+    <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, multipart: true, class: "brief-answer-form" do %>
+      <% if @questions.any? %>
+        <section class="task-card__answers">
+          <h2 class="section-title"><%= t("inbox.answer_title") %></h2>
+          <% @questions.each do |question| %>
+            <% answer = @answers[question.id] %>
+            <div class="brief-answer-field">
+              <label>
+                <span>
+                  <%= question.title %>
+                  <% if question.required? %><span class="brief-required-mark">*</span><% end %>
+                </span>
+                <% case question.question_type %>
+                <% when "image" %>
+                  <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
+                  <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
+                <% when "long_text" %>
+                  <textarea name="answers[<%= question.id %>][text]" rows="3" <%= "required" if question.required? %>><%= answer&.text_value %></textarea>
+                <% when "single_choice" %>
+                  <div class="brief-answer-choices">
+                    <% question.option_labels.each do |label| %>
+                      <label class="brief-choice">
+                        <input type="radio" name="answers[<%= question.id %>][text]" value="<%= label %>" <%= "checked" if answer&.text_value == label %> <%= "required" if question.required? %>>
+                        <span><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                <% when "dropdown" %>
+                  <select name="answers[<%= question.id %>][text]" <%= "required" if question.required? %>>
+                    <option value=""><%= t("communications.choose_option") %></option>
+                    <% question.option_labels.each do |label| %>
+                      <option value="<%= label %>" <%= "selected" if answer&.text_value == label %>><%= label %></option>
+                    <% end %>
+                  </select>
+                <% when "multi_choice" %>
+                  <div class="brief-answer-choices">
+                    <% question.option_labels.each do |label| %>
+                      <label class="brief-choice">
+                        <input type="checkbox" name="answers[<%= question.id %>][choices][]" value="<%= label %>" <%= "checked" if answer&.list_value.include?(label) %>>
+                        <span><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <input type="text" name="answers[<%= question.id %>][text]" value="<%= answer&.text_value %>" <%= "required" if question.required? %>>
+                <% end %>
+              </label>
+            </div>
+          <% end %>
+        </section>
+      <% end %>
+      <div class="sticky-action">
+        <button type="submit" class="btn btn--primary" data-turbo-submits-with="<%= t('morocco.sending') %>">
+          <%= @communication.task? ? t("inbox.mark_complete") : t("inbox.mark_read") %>
+        </button>
+      </div>
+    <% end %>
+  <% elsif @questions.any? %>
+    <section class="task-card__answers">
+      <h2 class="section-title"><%= t("inbox.your_answers") %></h2>
+      <% @questions.each do |question| %>
+        <% answer = @answers[question.id] %>
+        <div class="brief-answer-field">
+          <strong><%= question.title %></strong>
+          <% if question.image? && answer&.image&.attached? %>
+            <%= image_tag answer.image, class: "thumb" %>
+          <% else %>
+            <div class="meta"><%= answer&.display_value.presence || "-" %></div>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+</article>

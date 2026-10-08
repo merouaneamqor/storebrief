@@ -1,0 +1,64 @@
+<% content_for :title, "#{@checklist.title} · Vazivo" %>
+
+<p class="meta"><%= link_to t("checklists.back"), checklists_deliveries_path %></p>
+<h1><%= @checklist.title %></h1>
+<p class="lede">
+  <%= localized_badge(@delivery.status) %>
+  · <%= @store&.name || @delivery.org_unit.name %>
+</p>
+
+<% if @checklist.description.present? %>
+  <section class="panel"><div class="prose"><%= @checklist.description %></div></section>
+<% end %>
+
+<div
+  x-data="checklistFill({
+    deliveryId: <%= @delivery.id %>,
+    completed: <%= @delivery.completed? %>,
+    csrf: '<%= form_authenticity_token %>',
+    syncUrl: '<%= sync_checklist_responses_path %>',
+    submitUrlBase: '<%= checklists_delivery_path(@delivery) %>'
+  })"
+  x-init="hydrate()">
+
+  <% @items.each do |item| %>
+    <% response = @responses[item.id] %>
+    <div class="checklist-item <%= 'is-done' if response&.completed? %>" data-item-id="<%= item.id %>">
+      <strong><%= item.title %></strong>
+      <% if item.requires_photo? %>
+        <div class="meta"><%= t("checklists.requires_photo") %></div>
+      <% end %>
+
+      <% if response&.completed? %>
+        <p class="meta"><%= t("common.completed") %></p>
+        <% if response.notes.present? %><p class="prose"><%= response.notes %></p><% end %>
+        <% if response.photo.attached? %>
+          <%= image_tag response.photo, class: "thumb" %>
+        <% end %>
+      <% elsif !@delivery.completed? %>
+        <form class="form-stack" style="margin-top:0.75rem;" @submit.prevent="submitItem($event, <%= item.id %>, <%= item.requires_photo? %>)">
+          <label>
+            <%= t("checklists.notes") %>
+            <textarea name="notes" rows="2"></textarea>
+          </label>
+          <% if item.requires_photo? %>
+            <label>
+              <%= t("checklists.photo") %>
+              <input type="file" name="photo" accept="image/*" capture="environment" @change="compressPhoto($event)">
+            </label>
+            <template x-if="previews[<%= item.id %>]">
+              <img :src="previews[<%= item.id %>]" class="thumb" alt="">
+            </template>
+          <% end %>
+          <button class="btn" type="submit"><%= t("checklists.mark_done") %></button>
+        </form>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @delivery.pending? %>
+    <div class="actions">
+      <%= button_to t("checklists.complete"), complete_checklists_delivery_path(@delivery), method: :post, class: "btn btn--ghost" %>
+    </div>
+  <% end %>
+</div>

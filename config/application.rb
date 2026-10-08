@@ -18,7 +18,7 @@ require "rails/test_unit/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module StoreBrief
+module Vazivo
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
@@ -27,6 +27,8 @@ module StoreBrief
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
+    config.i18n.available_locales = %i[fr en es ar]
+    config.i18n.default_locale = :fr
 
     # Configuration for the application, engines, and railties goes here.
     #

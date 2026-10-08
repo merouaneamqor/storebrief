@@ -1,0 +1,25 @@
+<div class="pwa-install pwa-install--banner"
+     x-data="pwaInstall()"
+     x-cloak
+     x-show="open"
+     x-transition.opacity.duration.200ms
+     role="status"
+     aria-labelledby="pwa-install-title">
+  <div class="pwa-install__card">
+    <div class="pwa-install__copy">
+      <p class="pwa-install__kicker"><%= t("pwa.kicker") %></p>
+      <h2 id="pwa-install-title" class="pwa-install__title"><%= t("pwa.title") %></h2>
+      <p class="pwa-install__lede"><%= t("pwa.lede") %></p>
+    </div>
+
+    <div class="pwa-install__actions">
+      <button type="button"
+              class="btn pwa-install__btn"
+              x-show="canInstall"
+              @click="install()"><%= t("pwa.install") %></button>
+      <button type="button"
+              class="btn btn--ghost pwa-install__btn"
+              @click="dismiss()"><%= t("pwa.dismiss") %></button>
+    </div>
+  </div>
+</div>

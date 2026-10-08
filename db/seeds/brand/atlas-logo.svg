@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="40" viewBox="0 0 168 40" role="img" aria-label="Atlas">
+  <defs>
+    <linearGradient id="atlasPeak" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#86efac"/>
+      <stop offset="100%" stop-color="#fef9c3"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="4" width="32" height="32" rx="8" fill="#166534"/>
+  <path d="M6 28 L12 14 L16 22 L20 12 L26 28 Z" fill="url(#atlasPeak)"/>
+  <path d="M6 28 H26" stroke="#bbf7d0" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="42" y="26" fill="#ecfdf5" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="18" font-weight="800" letter-spacing="0.5">Atlas</text>
+</svg>
