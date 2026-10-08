@@ -48,6 +48,10 @@ en:
     tenants: "Brands"
     demo_requests: "Demos"
     billing: "Billing"
+    my_tasks: "My tasks"
+    visits: "Visits"
+    playbooks: "Playbooks"
+    ranking: "Ranking"
   billing:
     title: "Billing"
     lede: "Platform sends for %{brand}: Vazivo email and WhatsApp are billed. Push stays included."
@@ -332,6 +336,16 @@ en:
       promotions: "Promotions"
       equipment: "Equipment"
       store_visit: "Store visit"
+  my_tasks:
+    title: "My tasks"
+    lede: "Open work assigned to you."
+    filters: "Filters"
+    empty: "Nothing assigned to you in this filter."
+    filter:
+      all: "All"
+      overdue: "Overdue"
+      today: "Today"
+      upcoming: "Upcoming"
   inbox:
     title: "Inbox"
     lede: "Briefs for %{store}."

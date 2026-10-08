@@ -258,9 +258,15 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     get app_root_path
     assert_response :success
     assert_match I18n.t("morocco.radar.place_store", locale: :en), response.body
-    assert_match I18n.t("morocco.radar.now", locale: :en), response.body
+    assert_select "section.radar-priority-group"
+    assert_match I18n.t(
+      "morocco.radar.priority_section",
+      priority: I18n.t("common.priorities.routine", locale: :en),
+      count: 1,
+      locale: :en
+    ), response.body
     assert_match "Contrôle vitrine", response.body
-    assert_select "article.work-card.work-card--hero"
+    assert_select "section.radar-priority-group article.work-card.work-card--hero"
     assert_select ".work-card--hero .btn", minimum: 1
   end
 
@@ -272,7 +278,10 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
 
     get app_root_path
     assert_response :success
-    assert_select "details.later-fold:not([open])"
+    assert_select "section.radar-priority-group"
+    assert_select "section.radar-priority-group details.later-fold:not([open])"
+    assert_select "details.later-fold:not([open]) .work-card__title", text: "Contrôle vitrine"
+    assert_select "article.work-card.work-card--hero", count: 0
   end
 
   test "the store task page has one next action and no second complete button" do

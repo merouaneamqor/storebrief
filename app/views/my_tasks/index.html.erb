@@ -1,0 +1,32 @@
+<% content_for :title, "#{t('my_tasks.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <h1><%= t("my_tasks.title") %></h1>
+    <p class="lede"><%= t("my_tasks.lede") %></p>
+  </div>
+  <%= link_to t("communications.back_today"), app_root_path, class: "meta" %>
+</header>
+
+<nav class="radar-summary radar-summary--live" aria-label="<%= t('my_tasks.filters') %>">
+  <% Vazivo::MyTasks::FILTERS.each do |key| %>
+    <span class="radar-summary__pill <%= 'radar-summary__pill--late' if key == 'overdue' && @snapshot.filter == key %>">
+      <%= link_to t("my_tasks.filter.#{key}"), my_tasks_path(filter: key), class: (@snapshot.filter == key ? "is-active" : nil) %>
+    </span>
+  <% end %>
+</nav>
+
+<section>
+  <% if @snapshot.items.any? %>
+    <div class="work-cards">
+      <% @snapshot.items.each do |item| %>
+        <%= render "dashboard/work_card", item: item, lens: current_user.area? ? "area" : "store", variant: :row %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty">
+      <%= icon("check-circle", css_class: "icon empty__icon") %>
+      <p class="empty__text"><%= t("my_tasks.empty") %></p>
+    </div>
+  <% end %>
+</section>

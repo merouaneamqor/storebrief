@@ -6,6 +6,7 @@
               end %>
 <% hero = now_list.first %>
 <% rest = now_list.drop(1) %>
+<% priority_filter = params[:priority].presence_in(Communication::PRIORITIES) %>
 
 <header class="radar-hero">
   <div>
@@ -32,7 +33,28 @@
       <%= t("morocco.radar.summary_done", count: radar.done_count) %>
     </span>
   <% end %>
+  <% if radar.today_completion_percent %>
+    <span class="radar-summary__pill">
+      <%= t("morocco.radar.summary_completion", percent: radar.today_completion_percent) %>
+    </span>
+  <% end %>
 </p>
+
+<% if radar.lens == "store" && radar.priority_counts %>
+  <p class="radar-summary radar-summary--live" aria-label="<%= t('morocco.radar.priority_counts') %>">
+    <% Communication::PRIORITIES.each do |priority| %>
+      <% count = radar.priority_counts[priority] %>
+      <% next if count.zero? %>
+      <span class="radar-summary__pill radar-summary__pill--priority-<%= priority %>">
+        <%= link_to t("morocco.radar.priority_pill", priority: t("common.priorities.#{priority}"), count: count),
+              app_root_path(priority: priority) %>
+      </span>
+    <% end %>
+    <span class="radar-summary__pill">
+      <%= link_to t("nav.my_tasks"), my_tasks_path %>
+    </span>
+  </p>
+<% end %>
 
 <% if radar.area %>
   <%= render "dashboard/area_summary", radar: radar %>
@@ -47,16 +69,43 @@
   </aside>
 <% end %>
 
-<section>
-  <h2 class="section-title"><%= t("morocco.radar.now") %></h2>
-  <% if hero %>
-    <%= render "dashboard/work_card", item: hero, lens: radar.lens, variant: :hero %>
-    <% if rest.any? %>
-      <div class="work-cards" style="margin-top:0.65rem;">
-        <% rest.each do |item| %>
-          <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+<% if radar.lens == "store" && !radar.area %>
+  <% grouped = Communication::PRIORITIES.filter_map do |priority|
+       now_items = radar.now_items.select { |item| item.priority == priority }
+       later_items = radar.later_items.select { |item| item.priority == priority }
+       next if now_items.empty? && later_items.empty?
+       next if priority_filter && priority_filter != priority
+
+       [ priority, now_items, later_items ]
+     end %>
+  <% if grouped.any? %>
+    <% grouped.each do |priority, now_items, later_items| %>
+      <section class="radar-priority-group">
+        <h2 class="section-title">
+          <%= priority_badge(priority) %>
+          <%= t("morocco.radar.priority_section", priority: t("common.priorities.#{priority}"), count: now_items.size + later_items.size) %>
+        </h2>
+        <% if now_items.any? %>
+          <div class="work-cards">
+            <% now_items.each_with_index do |item, index| %>
+              <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: (index.zero? ? :hero : :row) %>
+            <% end %>
+          </div>
         <% end %>
-      </div>
+        <% if later_items.any? && filter != "late" %>
+          <details class="later-fold">
+            <summary>
+              <span><%= t("morocco.radar.later_count", count: later_items.size) %></span>
+              <%= icon("chevron-right", css_class: "icon icon--sm") %>
+            </summary>
+            <div class="later-fold__body work-cards">
+              <% later_items.each do |item| %>
+                <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+              <% end %>
+            </div>
+          </details>
+        <% end %>
+      </section>
     <% end %>
   <% else %>
     <div class="empty">
@@ -64,18 +113,37 @@
       <p class="empty__text"><%= t("morocco.radar.empty_now") %></p>
     </div>
   <% end %>
-</section>
-
-<% if radar.later_items.any? && filter != "late" %>
-  <details class="later-fold">
-    <summary>
-      <span><%= t("morocco.radar.later_count", count: radar.later_items.size) %></span>
-      <%= icon("chevron-right", css_class: "icon icon--sm") %>
-    </summary>
-    <div class="later-fold__body work-cards">
-      <% radar.later_items.each do |item| %>
-        <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+<% else %>
+  <section>
+    <h2 class="section-title"><%= t("morocco.radar.now") %></h2>
+    <% if hero %>
+      <%= render "dashboard/work_card", item: hero, lens: radar.lens, variant: :hero %>
+      <% if rest.any? %>
+        <div class="work-cards" style="margin-top:0.65rem;">
+          <% rest.each do |item| %>
+            <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+          <% end %>
+        </div>
       <% end %>
-    </div>
-  </details>
+    <% else %>
+      <div class="empty">
+        <%= icon("check-circle", css_class: "icon empty__icon") %>
+        <p class="empty__text"><%= t("morocco.radar.empty_now") %></p>
+      </div>
+    <% end %>
+  </section>
+
+  <% if radar.later_items.any? && filter != "late" %>
+    <details class="later-fold">
+      <summary>
+        <span><%= t("morocco.radar.later_count", count: radar.later_items.size) %></span>
+        <%= icon("chevron-right", css_class: "icon icon--sm") %>
+      </summary>
+      <div class="later-fold__body work-cards">
+        <% radar.later_items.each do |item| %>
+          <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
+        <% end %>
+      </div>
+    </details>
+  <% end %>
 <% end %>

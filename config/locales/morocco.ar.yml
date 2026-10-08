@@ -5,6 +5,7 @@ ar:
     playbooks: "خطط التشغيل"
     ranking: "الترتيب"
     visits: "الزيارات"
+    my_tasks: "مهامي"
   morocco:
     proof_required: "أضيفوا صورة قبل وصورة بعد."
     owner:
@@ -97,6 +98,10 @@ ar:
         few: "%{count} منتهية"
         many: "%{count} منتهية"
         other: "%{count} منتهية"
+      summary_completion: "%{percent}٪ منتهية اليوم"
+      priority_counts: "العمل المفتوح حسب الأولوية"
+      priority_pill: "%{priority} (%{count})"
+      priority_section: "%{priority} (%{count})"
       empty_now: "لا شيء للمعالجة الآن."
       attention: "انتباه"
       attention_body:
@@ -152,6 +157,20 @@ ar:
       exceptions: "الاستثناءات"
       exceptions_empty: "لا شيء يحتاج قراراً الآن."
       filter_all: "الكل"
+      task_monitoring:
+        title: "إنجاز المهام هذا الأسبوع"
+        completion: "منتهي"
+        line: "%{done} من %{total} إجراءات منتهية"
+        overdue:
+          zero: "لا متأخر"
+          one: "واحد متأخر"
+          two: "اثنان متأخران"
+          few: "%{count} متأخر"
+          many: "%{count} متأخر"
+          other: "%{count} متأخر"
+        region_line: "%{done} من %{total} (%{percent}٪)"
+        region_empty: "لا يوجد عمل نشط في هذه المنطقة بعد."
+        store_line: "%{done} من %{total} (%{percent}٪)"
       store_status:
         title: "حالة المتاجر اليوم"
         on_track: "في الموعد"

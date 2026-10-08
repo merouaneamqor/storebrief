@@ -48,6 +48,7 @@ es:
     tenants: "Enseñas"
     demo_requests: "Demos"
     billing: "Facturación"
+    my_tasks: "Mis tareas"
   billing:
     title: "Facturación"
     lede: "Envíos de plataforma para %{brand}: el correo Vazivo y WhatsApp se facturan. El push sigue incluido."
@@ -332,6 +333,16 @@ es:
       promotions: "Promociones"
       equipment: "Equipamiento"
       store_visit: "Visita de tienda"
+  my_tasks:
+    title: "Mis tareas"
+    lede: "Trabajo abierto asignado a usted."
+    filters: "Filtros"
+    empty: "Nada asignado a usted en este filtro."
+    filter:
+      all: "Todo"
+      overdue: "Con retraso"
+      today: "Hoy"
+      upcoming: "Próximo"
   inbox:
     title: "Bandeja"
     lede: "Consignas de %{store}."

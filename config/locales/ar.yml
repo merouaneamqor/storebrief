@@ -48,6 +48,7 @@ ar:
     tenants: "العلامات"
     demo_requests: "العروض"
     billing: "الفوترة"
+    my_tasks: "مهامي"
   billing:
     title: "الفوترة"
     lede: "إرسالات المنصة لـ %{brand}: بريد فازيفو وواتساب مفوتران. الإشعارات الفورية مشمولة."
@@ -340,6 +341,16 @@ ar:
       promotions: "العروض"
       equipment: "المعدات"
       store_visit: "زيارة المتجر"
+  my_tasks:
+    title: "مهامي"
+    lede: "العمل المفتوح المسند إليكم."
+    filters: "تصفية"
+    empty: "لا يوجد شيء مسند إليكم في هذا الفلتر."
+    filter:
+      all: "الكل"
+      overdue: "متأخر"
+      today: "اليوم"
+      upcoming: "قادم"
   inbox:
     title: "الوارد"
     lede: "رسائل %{store}."

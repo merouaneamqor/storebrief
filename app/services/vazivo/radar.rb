@@ -10,6 +10,7 @@ module Vazivo
       :lens, :greeting_key, :name, :place_name, :ramadan, :opens_at,
       :urgent_count, :late_count, :done_count, :now_items, :later_items,
       :attention_count, :attention_names, :campaign_title, :area,
+      :priority_counts, :today_completion_percent,
       keyword_init: true
     )
     # Monitoring summary for an area or region manager (read only).
@@ -52,6 +53,8 @@ module Vazivo
       open_items = open_records(stores)
       now_records, later_records = open_items.partition(&:now?)
       campaign_title, names = unconfirmed(attention_stores)
+      done = done_today(stores)
+      open_count = open_items.size
       Snapshot.new(
         lens: lens,
         greeting_key: Schedule.now.hour < 17 ? "morning" : "evening",
@@ -61,13 +64,15 @@ module Vazivo
         opens_at: @tenant.effective_open,
         urgent_count: open_items.count(&:urgent?),
         late_count: open_items.count(&:late?),
-        done_count: done_today(stores),
+        done_count: done,
         now_items: now_records.first(8).map { |record| to_item(record) },
         later_items: later_records.first(8).map { |record| to_item(record) },
         attention_count: names.size,
         attention_names: names,
         campaign_title: campaign_title,
-        area: area_summary ? area_summary_for(stores, open_items) : nil
+        area: area_summary ? area_summary_for(stores, open_items) : nil,
+        priority_counts: priority_counts_for(open_items),
+        today_completion_percent: completion_percent(open_count, done)
       )
     end
 
@@ -87,8 +92,26 @@ module Vazivo
         attention_count: 0,
         attention_names: [],
         campaign_title: nil,
-        area: nil
+        area: nil,
+        priority_counts: Communication::PRIORITIES.index_with { 0 },
+        today_completion_percent: nil
       )
+    end
+
+    def priority_counts_for(open_items)
+      counts = Communication::PRIORITIES.index_with { 0 }
+      open_items.each do |record|
+        key = record.is_a?(Delivery) ? record.communication.priority : Communication::DEFAULT_PRIORITY
+        counts[key] += 1
+      end
+      counts
+    end
+
+    def completion_percent(open_count, done_count)
+      total = open_count + done_count
+      return nil if total.zero?
+
+      ((done_count.to_f / total) * 100).round
     end
 
     def open_records(stores)

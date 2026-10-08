@@ -3,7 +3,26 @@
 <h1><%= t("org_units.title") %></h1>
 <p class="lede"><%= t("org_units.lede", tenant: current_tenant.name) %></p>
 
-<% if @status %>
+<% if @region %>
+  <section class="panel store-status-list">
+    <div class="store-status-list__head">
+      <strong><%= @region.name %></strong>
+      <%= link_to t("morocco.hq.store_status.all_units"), org_units_path, class: "meta" %>
+    </div>
+    <% if @region_rows.any? %>
+      <ul class="store-status-list__items">
+        <% @region_rows.each do |row| %>
+          <li>
+            <strong><%= row.store.name %></strong>
+            <span class="meta"><%= t("morocco.hq.task_monitoring.store_line", done: row.done, total: row.total, percent: row.percent) %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="empty"><%= t("morocco.hq.task_monitoring.region_empty") %></p>
+    <% end %>
+  </section>
+<% elsif @status %>
   <section class="panel store-status-list">
     <div class="store-status-list__head">
       <span class="store-status-badge store-status-badge--<%= @status %>"><%= t("morocco.hq.store_status.#{@status}") %></span>
