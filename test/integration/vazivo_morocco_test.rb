@@ -95,9 +95,9 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
 
     get app_root_path
     assert_response :success
-    assert_select ".hq-status-strip__tile", 3
-    assert_select ".hq-status-strip__tile--critical strong", text: "1"
-    assert_select "a.hq-status-strip__tile--critical[href=?]", org_units_path(status: "critical")
+    assert_select ".hq-dashboard__bar-row", 3
+    assert_select ".hq-dashboard__bar-row--critical .hq-dashboard__bar-value", text: "1"
+    assert_select "a.hq-dashboard__bar-row--critical[href=?]", org_units_path(status: "critical")
 
     get org_units_path(status: "critical")
     assert_response :success

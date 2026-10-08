@@ -1,0 +1,13 @@
+<%# Decorative trend line for KPI tiles (ERP-style). %>
+<svg class="hq-kpi-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  <% case local_assigns.fetch(:variant, :default) %>
+  <% when :up %>
+    <path d="M0 26 L20 22 L40 18 L60 14 L80 10 L100 8 L120 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <% when :down %>
+    <path d="M0 8 L20 12 L40 14 L60 18 L80 20 L100 24 L120 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <% when :volatile %>
+    <path d="M0 18 L15 10 L30 22 L45 12 L60 20 L75 8 L90 16 L105 6 L120 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <% else %>
+    <path d="M0 20 L25 18 L50 16 L75 14 L100 12 L120 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <% end %>
+</svg>
