@@ -344,9 +344,25 @@ fr:
     answer_title: "Vos réponses"
     your_answers: "Réponses"
     back: "← Boîte de réception"
+    my_tasks:
+      title: "Mes tâches"
+      lede: "Tâches ouvertes sur les magasins que vous suivez."
+      filter_label: "Filtrer les tâches"
+      assigned_to_me: "Pour moi"
+      filters:
+        all: "Toutes"
+        overdue: "En retard"
+        today: "Aujourd'hui"
+        upcoming: "À venir"
+      empty:
+        all: "Aucune tâche ouverte."
+        overdue: "Rien en retard."
+        today: "Rien pour aujourd'hui."
+        upcoming: "Aucune tâche à venir."
   errors:
     select_targets: "Sélectionnez au moins un magasin ou une région"
     no_store: "Aucun magasin associé."
+    not_assignable: "Vous pouvez consulter cette tâche mais pas la mettre à jour."
   common:
     priorities:
       urgent: "Urgent"

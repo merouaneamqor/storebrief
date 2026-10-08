@@ -44,6 +44,21 @@ class User < ApplicationRecord
     memberships.includes(:org_unit).find { |m| m.role == "area" }&.org_unit
   end
 
+  # Stores the user can act on: own store (store role), descendant stores of
+  # any area membership (area role), or every tenant store (HQ / super admin).
+  def manageable_stores
+    units = memberships.includes(:org_unit).map(&:org_unit).compact
+    scopes = units.flat_map do |unit|
+      unit.store? ? [ unit ] : unit.descendant_stores.to_a
+    end
+    scopes.concat(tenant.org_units.stores.to_a) if hq? || super_admin?
+    scopes.uniq
+  end
+
+  def manageable_store_ids
+    manageable_stores.map(&:id)
+  end
+
   def arabic?
     locale == "ar"
   end

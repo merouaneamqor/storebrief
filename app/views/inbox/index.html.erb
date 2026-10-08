@@ -1,25 +1,63 @@
-<% content_for :title, "#{t('inbox.title')} · Vazivo" %>
+<% content_for :title, "#{t('inbox.my_tasks.title')} · Vazivo" %>
+<% morocco = tenant_feature?(:morocco_ops) %>
 
-<h1><%= t("inbox.title") %></h1>
-<p class="lede"><%= t("inbox.lede", store: @store.name) %></p>
+<header class="task-list-head">
+  <h1><%= t("inbox.my_tasks.title") %></h1>
+  <p class="lede">
+    <% if @store && !@multi_store %>
+      <%= t("inbox.lede", store: @store.name) %>
+    <% else %>
+      <%= t("inbox.my_tasks.lede") %>
+    <% end %>
+  </p>
+</header>
 
-<section class="panel">
+<nav class="filter-chips" role="tablist" aria-label="<%= t('inbox.my_tasks.filter_label') %>">
+  <% Vazivo::MyTasks::SCOPES.each do |scope| %>
+    <%= link_to inbox_index_path(scope: scope),
+                role: "tab",
+                "aria-selected": (@scope == scope).to_s,
+                class: "filter-chip #{'is-active' if @scope == scope}" do %>
+      <%= t("inbox.my_tasks.filters.#{scope}") %>
+      <strong><%= @counts[scope.to_sym].to_i %></strong>
+    <% end %>
+  <% end %>
+</nav>
+
+<section class="panel task-list-panel">
   <% if @deliveries.any? %>
-    <ul class="list">
+    <ul class="task-list" role="list">
       <% @deliveries.each do |delivery| %>
-        <li>
-          <div>
-            <%= link_to delivery.communication.title, inbox_path(delivery) %>
-            <div class="meta">
-              <%= localized_badge(delivery.communication.format) %>
-              <%= priority_badge(delivery.communication.priority) %>
-              <%= localized_badge(delivery.status) %>
+        <li class="task-list__item">
+          <%= link_to inbox_path(delivery), class: "task-list__link" do %>
+            <div class="task-list__title">
+              <%= delivery.communication.title %>
             </div>
-          </div>
+            <div class="task-list__meta">
+              <%= priority_badge(delivery.communication.priority) %>
+              <% if morocco %>
+                <span class="tone tone--<%= delivery.tone %>"><%= tone_icon(delivery.tone) %> <%= t("morocco.tone.#{delivery.tone}") %></span>
+              <% else %>
+                <%= localized_badge(delivery.communication.format) %>
+              <% end %>
+              <% if @multi_store %>
+                <span class="task-list__store"><%= icon("home", css_class: "icon icon--sm") %> <%= delivery.org_unit.name %></span>
+              <% end %>
+              <% if delivery.assignee_id == current_user.id %>
+                <span class="task-list__badge"><%= t("inbox.my_tasks.assigned_to_me") %></span>
+              <% end %>
+              <% if delivery.due_at.present? %>
+                <span class="task-list__due <%= 'is-late' if delivery.late? %>">
+                  <%= icon("clock", css_class: "icon icon--sm") %>
+                  <%= morocco_due_label(delivery.due_at) || "-" %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
         </li>
       <% end %>
     </ul>
   <% else %>
-    <p class="empty"><%= t("inbox.empty") %></p>
+    <p class="empty"><%= t("inbox.my_tasks.empty.#{@scope}") %></p>
   <% end %>
 </section>

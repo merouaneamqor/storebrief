@@ -114,6 +114,12 @@
                 </div>
               </details>
             <% elsif tenant_feature?(:morocco_ops) %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox') || request.path.start_with?('/my-tasks')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                  <span><%= t("inbox.my_tasks.title") %></span>
+                <% end %>
+              <% end %>
               <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                 <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                 <span><%= t("nav.ranking") %></span>
@@ -186,6 +192,12 @@
             <%= link_to app_root_path, class: "app-bottom-nav__link #{'is-active' if current_page?(app_root_path)}" do %>
               <%= icon("home") %>
               <span><%= t("nav.today") %></span>
+            <% end %>
+            <% if tenant_feature?(:briefs) %>
+              <%= link_to inbox_index_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/inbox') || request.path.start_with?('/my-tasks')}" do %>
+                <%= icon("inbox") %>
+                <span><%= t("inbox.my_tasks.title") %></span>
+              <% end %>
             <% end %>
             <%= link_to ranking_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/classement')}" do %>
               <%= icon("trophy") %>

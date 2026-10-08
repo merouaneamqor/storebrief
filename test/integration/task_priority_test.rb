@@ -85,7 +85,7 @@ class TaskPriorityTest < ActionDispatch::IntegrationTest
 
     get inbox_index_path
     assert_response :success
-    titles = css_select(".list li a").map(&:text)
+    titles = css_select(".task-list__title").map { |node| node.text.strip }
     assert_equal [ "Urgent recent", "Important", "Routine ancienne" ], titles
     assert_select ".badge--priority-urgent", text: "Urgent"
   end
