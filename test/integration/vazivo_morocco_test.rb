@@ -84,6 +84,15 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select ".exception-list"
     assert_select ".hq-pulse__tile"
     assert_select ".hq-hero"
+    assert_select ".hq-dash"
+    assert_select ".hq-kpi", 4
+    assert_select "svg.hq-chart"
+    assert_select "svg.hq-spark", 4
+    assert_select ".hq-feed"
+    assert_match I18n.t("dashboard.title", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.execution", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.top_stores", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.activity", locale: :en), response.body
     assert_match I18n.t("communications.notify_push", locale: :en), response.body
     assert_select "form[action=?]", notify_push_communication_path(@brand.tenant.communications.sent.last)
   end

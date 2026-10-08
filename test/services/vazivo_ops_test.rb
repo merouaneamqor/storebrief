@@ -81,6 +81,14 @@ class VazivoOpsTest < ActiveSupport::TestCase
     severity = { "redo" => 0, "overdue" => 1, "unconfirmed" => 2 }
     kinds = board.exceptions.map(&:kind)
     assert_equal kinds.sort_by { |k| severity.fetch(k, 9) }, kinds
+
+    today = Vazivo::Schedule.now.to_date
+    assert_equal today.day, board.trend.points.size
+    assert_equal today.end_of_month.day, board.trend.span
+    assert_equal 14, board.sparks.fetch("on_track").points.size
+    assert_equal 14, board.sparks.fetch("decisions").points.size
+    assert_includes board.activity.map(&:kind), "open"
+    assert_equal @brand.store, board.leaders.first.store
   end
 
   private
