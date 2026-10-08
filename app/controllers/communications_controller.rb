@@ -3,7 +3,7 @@ class CommunicationsController < ApplicationController
 
   before_action :require_hq
   before_action -> { require_feature!(:briefs) }
-  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority]
+  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority save_template]
   before_action :load_target_units, only: %i[new create edit update]
 
   def index
@@ -83,6 +83,14 @@ class CommunicationsController < ApplicationController
     else
       redirect_to @communication, alert: t("communications.priority_invalid")
     end
+  end
+
+  # Snapshot the brief into the tenant template library for later reuse.
+  def save_template
+    template = BriefTemplate.capture!(@communication, name: params[:template_name])
+    redirect_to brief_templates_path, notice: t("brief_templates.saved", name: template.name)
+  rescue ActiveRecord::RecordInvalid
+    redirect_to @communication, alert: t("brief_templates.save_failed")
   end
 
   def notify_push
