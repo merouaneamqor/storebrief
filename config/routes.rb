@@ -92,6 +92,7 @@ Rails.application.routes.draw do
       patch :cancel
     end
   end
+  resources :stores, only: :show
   get "classement", to: "rankings#show", as: :ranking
   resource :billing, only: %i[show update]
   resource :ramadan, only: :update, controller: "ramadan"
