@@ -1,0 +1,149 @@
+<%
+  steps_payload = @playbook.step_list.map.with_index do |step, index|
+    {
+      clientId: "s#{index}-#{SecureRandom.hex(3)}",
+      offset_days: step[:offset_days].to_i,
+      title_fr: step[:title_fr].to_s,
+      title_ar: step[:title_ar].to_s,
+      requires_photo: ActiveModel::Type::Boolean.new.cast(step[:requires_photo])
+    }
+  end
+  if steps_payload.empty?
+    steps_payload = [ { clientId: "s0-new", offset_days: -7, title_fr: "", title_ar: "", requires_photo: false } ]
+  end
+%>
+
+<div class="pb-editor"
+     x-data="{
+       steps: <%= steps_payload.to_json %>,
+       nextOffset() {
+         if (this.steps.length === 0) return -7
+         const last = Number(this.steps[this.steps.length - 1].offset_days) || 0
+         if (this.steps.length >= 2) {
+           const prev = Number(this.steps[this.steps.length - 2].offset_days) || 0
+           const gap = last - prev
+           if (gap !== 0) return last + gap
+         }
+         return last + 1
+       },
+       addStep() {
+         this.steps.push({
+           clientId: 's' + Date.now(),
+           offset_days: this.nextOffset(),
+           title_fr: '',
+           title_ar: '',
+           requires_photo: false
+         })
+       },
+       removeStep(index) {
+         if (this.steps.length <= 1) return
+         this.steps.splice(index, 1)
+       },
+       moveStep(index, delta) {
+         const next = index + delta
+         if (next < 0 || next >= this.steps.length) return
+         const row = this.steps.splice(index, 1)[0]
+         this.steps.splice(next, 0, row)
+       },
+       dayLabel(offset) {
+         const n = Number(offset) || 0
+         if (n === 0) return 'J'
+         return n < 0 ? `J${n}` : `J+${n}`
+       }
+     }">
+
+  <%= form_with model: @playbook, local: true, class: "pb-editor__form" do |f| %>
+    <% if @playbook.errors.any? %>
+      <div class="flash flash--alert"><%= @playbook.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <section class="pb-editor__card">
+      <label>
+        <span><%= t("morocco.playbooks.fields.title_fr") %></span>
+        <%= f.text_field :title_fr, class: "billing-input", required: true, autocomplete: "off" %>
+      </label>
+      <label>
+        <span><%= t("morocco.playbooks.fields.title_ar") %></span>
+        <%= f.text_field :title_ar, class: "billing-input", dir: "rtl", lang: "ar", autocomplete: "off" %>
+      </label>
+      <label>
+        <span><%= t("morocco.playbooks.fields.description_fr") %></span>
+        <%= f.text_area :description_fr, class: "billing-input", rows: 3, required: true %>
+      </label>
+      <label>
+        <span><%= t("morocco.playbooks.fields.description_ar") %></span>
+        <%= f.text_area :description_ar, class: "billing-input", rows: 3, dir: "rtl", lang: "ar" %>
+      </label>
+    </section>
+
+    <section class="pb-editor__steps">
+      <div class="pb-editor__steps-head">
+        <h2><%= t("morocco.playbooks.steps_title") %></h2>
+        <button type="button" class="btn btn--quiet" @click="addStep()">
+          <%= icon("plus", css_class: "icon") %> <%= t("morocco.playbooks.add_step") %>
+        </button>
+      </div>
+
+      <template x-for="(step, index) in steps" :key="step.clientId">
+        <div class="pb-step-row">
+          <div class="pb-step-row__day">
+            <span class="pb-timeline__day" x-text="dayLabel(step.offset_days)"></span>
+            <label>
+              <span><%= t("morocco.playbooks.fields.offset") %></span>
+              <input type="number"
+                     class="billing-input"
+                     :name="`playbook[steps][${index}][offset_days]`"
+                     x-model.number="step.offset_days"
+                     required>
+            </label>
+          </div>
+
+          <div class="pb-step-row__body">
+            <label>
+              <span><%= t("morocco.playbooks.fields.step_fr") %></span>
+              <input type="text"
+                     class="billing-input"
+                     :name="`playbook[steps][${index}][title_fr]`"
+                     x-model="step.title_fr"
+                     required
+                     autocomplete="off">
+            </label>
+            <label>
+              <span><%= t("morocco.playbooks.fields.step_ar") %></span>
+              <input type="text"
+                     class="billing-input"
+                     dir="rtl"
+                     lang="ar"
+                     :name="`playbook[steps][${index}][title_ar]`"
+                     x-model="step.title_ar"
+                     autocomplete="off">
+            </label>
+            <label class="check pb-step-row__proof">
+              <input type="hidden" :name="`playbook[steps][${index}][requires_photo]`" value="0">
+              <input type="checkbox"
+                     value="1"
+                     :name="`playbook[steps][${index}][requires_photo]`"
+                     :checked="step.requires_photo"
+                     @change="step.requires_photo = $event.target.checked">
+              <%= t("morocco.playbooks.proof") %>
+            </label>
+          </div>
+
+          <div class="pb-step-row__tools">
+            <button type="button" class="btn btn--ghost" @click="moveStep(index, -1)" :disabled="index === 0" aria-label="<%= t('morocco.playbooks.move_up') %>">↑</button>
+            <button type="button" class="btn btn--ghost" @click="moveStep(index, 1)" :disabled="index === steps.length - 1" aria-label="<%= t('morocco.playbooks.move_down') %>">↓</button>
+            <button type="button" class="btn btn--ghost" @click="removeStep(index)" :disabled="steps.length <= 1"><%= t("morocco.playbooks.remove_step") %></button>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    <div class="pb-editor__actions sticky-action">
+      <%= link_to t("morocco.playbooks.cancel"), playbooks_path(key: @playbook.key.presence), class: "btn btn--ghost" %>
+      <button type="submit" class="btn btn--primary">
+        <%= icon("check-circle", css_class: "icon") %>
+        <%= t("morocco.playbooks.save") %>
+      </button>
+    </div>
+  <% end %>
+</div>

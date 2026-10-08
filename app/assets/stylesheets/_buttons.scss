@@ -1,0 +1,69 @@
+.m-btn,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.75rem 1.15rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white !important;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(12, 107, 88, 0.22);
+  text-decoration: none !important;
+}
+
+.m-btn:hover,
+.btn:hover {
+  background: var(--accent-deep);
+  color: white !important;
+}
+
+.m-btn--ghost,
+.btn--ghost {
+  background: transparent;
+  color: var(--ink) !important;
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+.m-btn--ghost:hover,
+.btn--ghost:hover {
+  background: white;
+  color: var(--ink) !important;
+}
+
+.m-btn--small {
+  min-height: 40px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.9rem;
+  box-shadow: none;
+}
+
+.m-btn--block,
+.btn--block {
+  width: 100%;
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white !important;
+  font-weight: 650;
+  font-size: 0.9rem;
+  text-decoration: none !important;
+  box-shadow: none;
+}
+
+.nav-cta:hover {
+  background: var(--accent-deep);
+  color: white !important;
+}

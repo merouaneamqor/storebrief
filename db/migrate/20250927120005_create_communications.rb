@@ -11,6 +11,6 @@ class CreateCommunications < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :communications, [:tenant_id, :status]
+    add_index :communications, [ :tenant_id, :status ]
   end
 end

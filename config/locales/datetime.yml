@@ -1,0 +1,288 @@
+# Formats and calendar names used by ActiveAdmin and Rails date helpers.
+en:
+  date:
+    formats:
+      default: "%Y-%m-%d"
+      long: "%B %d, %Y"
+      short: "%b %d"
+    day_names: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+    abbr_day_names: [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+    month_names: [~, January, February, March, April, May, June, July, August, September, October, November, December]
+    abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    order:
+      - :year
+      - :month
+      - :day
+  time:
+    formats:
+      default: "%a, %d %b %Y %H:%M:%S %z"
+      long: "%B %d, %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: am
+    pm: pm
+  datetime:
+    distance_in_words:
+      half_a_minute: "half a minute"
+      less_than_x_seconds:
+        one: "less than 1 second"
+        other: "less than %{count} seconds"
+      x_seconds:
+        one: "1 second"
+        other: "%{count} seconds"
+      less_than_x_minutes:
+        one: "less than a minute"
+        other: "less than %{count} minutes"
+      x_minutes:
+        one: "1 minute"
+        other: "%{count} minutes"
+      about_x_hours:
+        one: "about 1 hour"
+        other: "about %{count} hours"
+      x_days:
+        one: "1 day"
+        other: "%{count} days"
+      about_x_months:
+        one: "about 1 month"
+        other: "about %{count} months"
+      x_months:
+        one: "1 month"
+        other: "%{count} months"
+      about_x_years:
+        one: "about 1 year"
+        other: "about %{count} years"
+      over_x_years:
+        one: "over 1 year"
+        other: "over %{count} years"
+      almost_x_years:
+        one: "almost 1 year"
+        other: "almost %{count} years"
+    relative:
+      future: "in %{time}"
+      past: "%{time} ago"
+
+fr:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      long: "%d %B %Y"
+      short: "%d %b"
+    day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]
+    abbr_day_names: [dim, lun, mar, mer, jeu, ven, sam]
+    month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
+    abbr_month_names: [~, jan., fév., mar., avr., mai, juin, juil., août, sept., oct., nov., déc.]
+    order:
+      - :day
+      - :month
+      - :year
+  time:
+    formats:
+      default: "%d %B %Y %H:%M"
+      long: "%d %B %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: am
+    pm: pm
+  datetime:
+    distance_in_words:
+      half_a_minute: "une demi-minute"
+      less_than_x_seconds:
+        one: "moins d'une seconde"
+        other: "moins de %{count} secondes"
+      x_seconds:
+        one: "1 seconde"
+        other: "%{count} secondes"
+      less_than_x_minutes:
+        one: "moins d'une minute"
+        other: "moins de %{count} minutes"
+      x_minutes:
+        one: "1 minute"
+        other: "%{count} minutes"
+      about_x_hours:
+        one: "environ une heure"
+        other: "environ %{count} heures"
+      x_days:
+        one: "1 jour"
+        other: "%{count} jours"
+      about_x_months:
+        one: "environ un mois"
+        other: "environ %{count} mois"
+      x_months:
+        one: "1 mois"
+        other: "%{count} mois"
+      about_x_years:
+        one: "environ un an"
+        other: "environ %{count} ans"
+      over_x_years:
+        one: "plus d'un an"
+        other: "plus de %{count} ans"
+      almost_x_years:
+        one: "presque un an"
+        other: "presque %{count} ans"
+    relative:
+      future: "dans %{time}"
+      past: "il y a %{time}"
+
+es:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      long: "%d de %B de %Y"
+      short: "%d %b"
+    day_names: [domingo, lunes, martes, miércoles, jueves, viernes, sábado]
+    abbr_day_names: [dom, lun, mar, mié, jue, vie, sáb]
+    month_names: [~, enero, febrero, marzo, abril, mayo, junio, julio, agosto, septiembre, octubre, noviembre, diciembre]
+    abbr_month_names: [~, ene, feb, mar, abr, may, jun, jul, ago, sep, oct, nov, dic]
+    order:
+      - :day
+      - :month
+      - :year
+  time:
+    formats:
+      default: "%d de %B de %Y %H:%M"
+      long: "%d de %B de %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: am
+    pm: pm
+  datetime:
+    distance_in_words:
+      half_a_minute: "medio minuto"
+      less_than_x_seconds:
+        one: "menos de 1 segundo"
+        other: "menos de %{count} segundos"
+      x_seconds:
+        one: "1 segundo"
+        other: "%{count} segundos"
+      less_than_x_minutes:
+        one: "menos de 1 minuto"
+        other: "menos de %{count} minutos"
+      x_minutes:
+        one: "1 minuto"
+        other: "%{count} minutos"
+      about_x_hours:
+        one: "alrededor de 1 hora"
+        other: "alrededor de %{count} horas"
+      x_days:
+        one: "1 día"
+        other: "%{count} días"
+      about_x_months:
+        one: "alrededor de 1 mes"
+        other: "alrededor de %{count} meses"
+      x_months:
+        one: "1 mes"
+        other: "%{count} meses"
+      about_x_years:
+        one: "alrededor de 1 año"
+        other: "alrededor de %{count} años"
+      over_x_years:
+        one: "más de 1 año"
+        other: "más de %{count} años"
+      almost_x_years:
+        one: "casi 1 año"
+        other: "casi %{count} años"
+    relative:
+      future: "en %{time}"
+      past: "hace %{time}"
+
+ar:
+  date:
+    formats:
+      default: "%Y-%m-%d"
+      long: "%d %B %Y"
+      short: "%d %b"
+    day_names: [الأحد, الإثنين, الثلاثاء, الأربعاء, الخميس, الجمعة, السبت]
+    abbr_day_names: [أحد, إثن, ثلا, أربع, خمي, جمع, سبت]
+    month_names: [~, يناير, فبراير, مارس, أبريل, مايو, يونيو, يوليو, أغسطس, سبتمبر, أكتوبر, نوفمبر, ديسمبر]
+    abbr_month_names: [~, يناير, فبراير, مارس, أبريل, مايو, يونيو, يوليو, أغسطس, سبتمبر, أكتوبر, نوفمبر, ديسمبر]
+    order:
+      - :year
+      - :month
+      - :day
+  time:
+    formats:
+      default: "%d %B %Y %H:%M"
+      long: "%d %B %Y %H:%M"
+      short: "%d %b %H:%M"
+    am: ص
+    pm: م
+  datetime:
+    distance_in_words:
+      half_a_minute: "نصف دقيقة"
+      less_than_x_seconds:
+        zero: "أقل من ثانية"
+        one: "أقل من ثانية"
+        two: "أقل من ثانيتين"
+        few: "أقل من %{count} ثوانٍ"
+        many: "أقل من %{count} ثانية"
+        other: "أقل من %{count} ثانية"
+      x_seconds:
+        zero: "٠ ثوانٍ"
+        one: "ثانية واحدة"
+        two: "ثانيتان"
+        few: "%{count} ثوانٍ"
+        many: "%{count} ثانية"
+        other: "%{count} ثانية"
+      less_than_x_minutes:
+        zero: "أقل من دقيقة"
+        one: "أقل من دقيقة"
+        two: "أقل من دقيقتين"
+        few: "أقل من %{count} دقائق"
+        many: "أقل من %{count} دقيقة"
+        other: "أقل من %{count} دقيقة"
+      x_minutes:
+        zero: "٠ دقائق"
+        one: "دقيقة واحدة"
+        two: "دقيقتان"
+        few: "%{count} دقائق"
+        many: "%{count} دقيقة"
+        other: "%{count} دقيقة"
+      about_x_hours:
+        zero: "حوالي ٠ ساعات"
+        one: "حوالي ساعة"
+        two: "حوالي ساعتين"
+        few: "حوالي %{count} ساعات"
+        many: "حوالي %{count} ساعة"
+        other: "حوالي %{count} ساعة"
+      x_days:
+        zero: "٠ أيام"
+        one: "يوم واحد"
+        two: "يومان"
+        few: "%{count} أيام"
+        many: "%{count} يومًا"
+        other: "%{count} يوم"
+      about_x_months:
+        zero: "حوالي ٠ أشهر"
+        one: "حوالي شهر"
+        two: "حوالي شهرين"
+        few: "حوالي %{count} أشهر"
+        many: "حوالي %{count} شهرًا"
+        other: "حوالي %{count} شهر"
+      x_months:
+        zero: "٠ أشهر"
+        one: "شهر واحد"
+        two: "شهران"
+        few: "%{count} أشهر"
+        many: "%{count} شهرًا"
+        other: "%{count} شهر"
+      about_x_years:
+        zero: "حوالي ٠ سنوات"
+        one: "حوالي سنة"
+        two: "حوالي سنتين"
+        few: "حوالي %{count} سنوات"
+        many: "حوالي %{count} سنة"
+        other: "حوالي %{count} سنة"
+      over_x_years:
+        zero: "أكثر من ٠ سنوات"
+        one: "أكثر من سنة"
+        two: "أكثر من سنتين"
+        few: "أكثر من %{count} سنوات"
+        many: "أكثر من %{count} سنة"
+        other: "أكثر من %{count} سنة"
+      almost_x_years:
+        zero: "تقريبًا ٠ سنوات"
+        one: "تقريبًا سنة"
+        two: "تقريبًا سنتان"
+        few: "تقريبًا %{count} سنوات"
+        many: "تقريبًا %{count} سنة"
+        other: "تقريبًا %{count} سنة"
+    relative:
+      future: "خلال %{time}"
+      past: "منذ %{time}"

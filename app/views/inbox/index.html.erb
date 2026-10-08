@@ -1,7 +1,7 @@
-<% content_for :title, "Inbox · StoreBrief" %>
+<% content_for :title, "#{t('inbox.title')} · Vazivo" %>
 
-<h1>Inbox</h1>
-<p class="lede">Briefs for <%= @store.name %>.</p>
+<h1><%= t("inbox.title") %></h1>
+<p class="lede"><%= t("inbox.lede", store: @store.name) %></p>
 
 <section class="panel">
   <% if @deliveries.any? %>
@@ -11,15 +11,15 @@
           <div>
             <%= link_to delivery.communication.title, inbox_path(delivery) %>
             <div class="meta">
-              <span class="badge badge--<%= delivery.communication.format %>"><%= delivery.communication.format %></span>
-              <span class="badge badge--<%= delivery.status %>"><%= delivery.status %></span>
-              · <%= delivery.communication.created_at.strftime("%d %b %Y") %>
+              <%= localized_badge(delivery.communication.format) %>
+              <%= priority_badge(delivery.communication.priority) %>
+              <%= localized_badge(delivery.status) %>
             </div>
           </div>
         </li>
       <% end %>
     </ul>
   <% else %>
-    <p class="empty">Nothing in your inbox.</p>
+    <p class="empty"><%= t("inbox.empty") %></p>
   <% end %>
 </section>

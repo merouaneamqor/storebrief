@@ -1,0 +1,60 @@
+<% area = radar.area %>
+<% audits = area.audits %>
+<% campaign = area.campaign %>
+
+<section class="area-summary" aria-label="<%= t('morocco.radar.area.title') %>">
+  <p class="section-title"><%= t("morocco.radar.area.title") %> · <%= t("morocco.radar.area.stores") %>: <%= area.stores_count %></p>
+
+  <div class="hq-pulse area-pulse">
+    <div class="hq-pulse__tile">
+      <strong><%= area.compliance_percent ? "#{area.compliance_percent}%" : "-" %></strong>
+      <span><%= t("morocco.radar.area.compliance") %></span>
+      <span class="meta"><%= t("morocco.radar.area.compliance_line", done: area.tasks_done, total: area.tasks_total) %></span>
+    </div>
+    <div class="hq-pulse__tile hq-pulse__tile--late">
+      <strong><%= area.tasks_open %></strong>
+      <span><%= t("morocco.radar.area.tasks") %></span>
+      <span class="meta"><%= t("morocco.radar.area.tasks_late", count: area.tasks_late) %></span>
+    </div>
+    <div class="hq-pulse__tile hq-pulse__tile--warn">
+      <strong><%= audits["conforme"] + audits["improve"] + audits["non_conforme"] %></strong>
+      <span><%= t("morocco.radar.area.audits") %></span>
+      <span class="meta">
+        <%= t("morocco.radar.area.audit_conforme") %> <%= audits["conforme"] %>
+        · <%= t("morocco.radar.area.audit_improve") %> <%= audits["improve"] %>
+        · <%= t("morocco.radar.area.audit_non_conforme") %> <%= audits["non_conforme"] %>
+      </span>
+      <span class="meta"><%= t("morocco.radar.area.audit_awaiting") %>: <%= audits[:awaiting] %></span>
+    </div>
+    <div class="hq-pulse__tile hq-pulse__tile--urgent">
+      <strong><%= campaign ? "#{campaign.percent}%" : "-" %></strong>
+      <span><%= t("morocco.radar.area.campaign") %><%= campaign ? " · #{campaign.title}" : "" %></span>
+      <% if campaign %>
+        <span class="meta"><%= t("morocco.radar.area.campaign_line", done: campaign.received, total: campaign.total) %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="hq-exceptions area-attention">
+    <p class="section-title"><%= icon("alert-triangle", css_class: "icon icon--sm") %> <%= t("morocco.radar.area.attention") %></p>
+    <% if area.attention_stores.any? %>
+      <ul class="exception-list">
+        <% area.attention_stores.each do |row| %>
+          <li class="exception-row">
+            <div class="exception-list__main">
+              <strong class="exception-row__store"><%= row.name %></strong>
+              <div class="meta">
+                <%= row.reasons.map { |reason| t("morocco.radar.area.#{reason}", count: row.count_for(reason)) }.to_sentence(words_connector: " · ", two_words_connector: " · ", last_word_connector: " · ") %>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="empty empty--alive">
+        <%= icon("check-circle", css_class: "icon empty__icon") %>
+        <p class="empty__text"><%= t("morocco.radar.area.attention_empty") %></p>
+      </div>
+    <% end %>
+  </div>
+</section>

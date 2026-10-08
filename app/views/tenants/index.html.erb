@@ -1,0 +1,28 @@
+<% content_for :title, "#{t('tenants.title')} · Vazivo" %>
+
+<h1><%= t("tenants.title") %></h1>
+<p class="lede"><%= t("tenants.lede") %></p>
+
+<ul class="list">
+  <% @tenants.each do |tenant| %>
+    <li>
+      <div>
+        <strong><%= tenant.name %></strong>
+        <div class="meta">
+          <span class="badge"><%= tenant.slug %></span>
+          <% if tenant.id == current_tenant.id %>
+            <span class="badge badge--sent"><%= t("tenants.current") %></span>
+          <% end %>
+          <span><%= t("tenants.stores") %>: <%= @store_counts[tenant.id] || 0 %></span>
+          <span><%= t("tenants.users") %>: <%= @user_counts[tenant.id] || 0 %></span>
+          <span><%= t("tenants.briefs") %>: <%= @brief_counts[tenant.id] || 0 %></span>
+        </div>
+      </div>
+      <%= button_to t("tenants.open"),
+            switch_tenants_path,
+            method: :post,
+            params: { tenant_id: tenant.id, to: "dashboard" },
+            class: "btn" %>
+    </li>
+  <% end %>
+</ul>

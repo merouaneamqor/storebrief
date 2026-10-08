@@ -15,6 +15,10 @@ Rails.application.configure do
   # Enable server timing.
   config.server_timing = true
 
+  # Set ASSUME_SSL=1 when a tunnel terminates HTTPS in front of this server,
+  # so login forms accept the https origin.
+  config.assume_ssl = ENV["ASSUME_SSL"] == "1"
+
   # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
   # Run rails dev:cache to toggle Action Controller caching.
   if Rails.root.join("tmp/caching-dev.txt").exist?
@@ -28,8 +32,9 @@ Rails.application.configure do
   # Change to :null_store to avoid any caching.
   config.cache_store = :memory_store
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Store uploaded files on the local disk by default.
+  # Set ACTIVE_STORAGE_SERVICE=amazon (+ AWS_* env) to use S3 in development.
+  config.active_storage.service = ENV.fetch("ACTIVE_STORAGE_SERVICE", "local").to_sym
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false

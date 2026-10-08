@@ -1,0 +1,21 @@
+<% content_for :title, "#{t('checklists.store_inbox')} · Vazivo" %>
+
+<h1><%= t("checklists.store_inbox") %></h1>
+<p class="lede"><%= @store&.name %></p>
+
+<section class="panel">
+  <% if @deliveries.any? %>
+    <ul class="list">
+      <% @deliveries.each do |delivery| %>
+        <li>
+          <div>
+            <%= link_to delivery.checklist.title, checklists_delivery_path(delivery) %>
+            <div class="meta"><%= localized_badge(delivery.status) %></div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="empty"><%= t("checklists.empty") %></p>
+  <% end %>
+</section>

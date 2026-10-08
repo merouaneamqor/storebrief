@@ -1,0 +1,28 @@
+<header class="m-block__head">
+  <h2><%= t("landing.prospects.title") %></h2>
+  <p class="m-lede"><%= t("landing.prospects.lede") %></p>
+</header>
+
+<h3 class="m-prospects__label"><%= t("landing.prospects.strongest") %></h3>
+<ol class="m-prospects">
+  <% t("landing.prospects.items").each do |item| %>
+    <% item = item.symbolize_keys %>
+    <li>
+      <strong><%= item[:title] %></strong>
+      <span><%= item[:body] %></span>
+    </li>
+  <% end %>
+</ol>
+
+<h3 class="m-prospects__label"><%= t("landing.prospects.adjacent_title") %></h3>
+<ul class="m-prospects m-prospects--plain">
+  <% t("landing.prospects.adjacent").each do |item| %>
+    <% item = item.symbolize_keys %>
+    <li>
+      <strong><%= item[:title] %></strong>
+      <span><%= item[:body] %></span>
+    </li>
+  <% end %>
+</ul>
+
+<p class="m-prospects__close"><%= t("landing.prospects.close") %></p>

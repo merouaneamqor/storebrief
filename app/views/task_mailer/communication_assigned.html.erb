@@ -1,0 +1,4 @@
+<p><%= t("mailers.task.hello", name: @user.name) %></p>
+<p><%= t("mailers.task.communication_body", title: @communication.localized_value(:title, locale: I18n.locale), brand: @tenant.display_brand_name) %></p>
+<p><a href="<%= @url %>"><%= t("mailers.task.open") %></a></p>
+<p class="meta"><%= t("mailers.task.footer", brand: @tenant.display_brand_name) %></p>
