@@ -25,15 +25,32 @@ class Tenant < ApplicationRecord
     },
     whatsapp_alerts: {
       label: "WhatsApp alerts",
-      hint: "Stub WhatsApp notifications when briefs/checklists are sent.",
+      hint: "Optional WhatsApp stubs alongside push and email. Not the primary channel.",
+      default: false
+    },
+    push_alerts: {
+      label: "Push notifications",
+      hint: "Primary store alerts via the Vazivo PWA (web push).",
+      default: true
+    },
+    email_alerts: {
+      label: "Email alerts",
+      hint: "Email store users on new briefs/checklists. Uses tenant SMTP, or Vazivo SMTP (billed).",
       default: true
     },
     offline_checklists: {
       label: "Offline checklists",
       hint: "Store offline queue + sync chip for checklist responses.",
       default: true
+    },
+    morocco_ops: {
+      label: "Morocco operations",
+      hint: "Store acknowledgement, Ramadan hours, campaign playbooks, coaching verdicts, and the morning radar.",
+      default: true
     }
   }.freeze
+
+  HOUR_OF_DAY = /\A([01]\d|2[0-3]):[0-5]\d\z/
 
   BRAND_COLORS = {
     brand_color: { css: "--accent", label: "Primary", group: "Brand", default: "#0c6b58" },
@@ -66,10 +83,15 @@ class Tenant < ApplicationRecord
   attr_accessor :remove_logo, :remove_logo_mark, :remove_favicon
 
   has_one :saml_setting, class_name: "TenantSamlSetting", dependent: :destroy, inverse_of: :tenant
+  has_one :mail_setting, class_name: "TenantMailSetting", dependent: :destroy, inverse_of: :tenant
   accepts_nested_attributes_for :saml_setting
+  accepts_nested_attributes_for :mail_setting
 
+  has_many :escalation_events, dependent: :destroy
   has_many :checklists, dependent: :destroy
   has_many :communications, dependent: :destroy
+  has_many :playbooks, dependent: :destroy
+  has_many :visits, dependent: :destroy
   has_many :checklist_templates, dependent: :destroy
   has_many :notification_logs, dependent: :destroy
   has_many :users, dependent: :destroy
@@ -81,6 +103,7 @@ class Tenant < ApplicationRecord
                    format: { with: /\A[a-z0-9\-]+\z/ }
   validates :brand_name, presence: true, length: { maximum: 60 }
   validates :tagline, length: { maximum: 120 }, allow_blank: true
+  validates :opens_at, :closes_at, :ramadan_opens_at, :ramadan_closes_at, format: { with: HOUR_OF_DAY }
 
   BRAND_COLORS.each_key do |attr|
     validates attr, presence: true, format: { with: HEX_COLOR }
@@ -90,6 +113,7 @@ class Tenant < ApplicationRecord
 
   before_validation :normalize_brand_colors
   before_validation :normalize_features
+  before_validation :apply_hour_defaults
   after_save :purge_removed_brand_assets
 
   FEATURE_FLAGS.each_key do |key|
@@ -141,6 +165,22 @@ class Tenant < ApplicationRecord
     saml_setting || build_saml_setting
   end
 
+  def mail_setting_or_build
+    mail_setting || build_mail_setting(use_platform: true)
+  end
+
+  def email_delivery_mode
+    mail_setting_or_build.delivery_mode
+  end
+
+  def effective_open
+    ramadan_mode? ? ramadan_opens_at : opens_at
+  end
+
+  def effective_close
+    ramadan_mode? ? ramadan_closes_at : closes_at
+  end
+
   def brand_color_deep
     primary_deep_color
   end
@@ -158,6 +198,13 @@ class Tenant < ApplicationRecord
   end
 
   private
+
+  def apply_hour_defaults
+    self.opens_at = "09:00" if opens_at.blank?
+    self.closes_at = "21:00" if closes_at.blank?
+    self.ramadan_opens_at = "12:00" if ramadan_opens_at.blank?
+    self.ramadan_closes_at = "01:00" if ramadan_closes_at.blank?
+  end
 
   def normalize_features
     self.features = feature_hash.slice(*FEATURE_FLAGS.keys.map(&:to_s))

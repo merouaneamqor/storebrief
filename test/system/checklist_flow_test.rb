@@ -25,9 +25,8 @@ class ChecklistFlowTest < ApplicationSystemTestCase
     log_out
 
     log_in_as(brand.store_user)
-    click_link I18n.t("checklists.store_inbox", locale: :en)
+    visit checklists_delivery_path(delivery)
     assert_text "Ouverture magasin"
-    click_link "Ouverture magasin"
     # Wait for the delivery show page — Turbo can return from click_link first,
     # and wait_for_alpine alone also passes on the inbox (layout Alpine).
     assert_selector "h1", text: "Ouverture magasin"

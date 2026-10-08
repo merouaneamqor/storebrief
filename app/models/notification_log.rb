@@ -1,5 +1,5 @@
 class NotificationLog < ApplicationRecord
-  CHANNELS = %w[whatsapp web_push].freeze
+  CHANNELS = %w[web_push email whatsapp].freeze
   STATUSES = %w[stubbed sent failed gone].freeze
 
   belongs_to :tenant

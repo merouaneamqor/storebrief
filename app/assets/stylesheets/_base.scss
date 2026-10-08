@@ -39,6 +39,34 @@ a {
 
 a:hover { color: var(--accent-deep); }
 
+a,
+button,
+summary,
+[role="button"],
+label[for],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="file"],
+select {
+  cursor: pointer;
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+.btn:focus-visible,
+.app-nav-link:focus-visible,
+.lang-switch__btn:focus-visible,
+.filter-chip:focus-visible,
+.report-chip:focus-visible {
+  outline: 2px solid var(--focus-ring, #0c6b58);
+  outline-offset: 2px;
+}
+
 body.rtl h1,
 body.rtl h2,
 body.rtl h3,
@@ -56,4 +84,13 @@ body.marketing.rtl .m-brand {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

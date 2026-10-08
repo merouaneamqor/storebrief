@@ -1,0 +1,18 @@
+<% total = (rollup[:total] || rollup["total"]).to_i %>
+<% steps = Delivery::AWARENESS_STEPS %>
+<% counts = steps.map { |step| (rollup[step] || rollup[step.to_sym] || 0).to_i } %>
+<div class="progress-segments" role="img" aria-label="<%= t('morocco.awareness.title') %>">
+  <% counts.each_with_index do |count, index| %>
+    <% next if total.zero? || count.zero? %>
+    <span class="progress-segments__seg" style="flex: <%= count %> 0 0;"></span>
+  <% end %>
+</div>
+<ul class="progress-legend">
+  <% steps.each_with_index do |step, index| %>
+    <li>
+      <span class="progress-legend__swatch" aria-hidden="true"></span>
+      <%= t("morocco.awareness.steps.#{step}") %>
+      <strong><%= counts[index] %>/<%= total %></strong>
+    </li>
+  <% end %>
+</ul>

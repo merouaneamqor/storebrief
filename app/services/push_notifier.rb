@@ -24,6 +24,7 @@ class PushNotifier
   end
 
   def notify_communication!(communication)
+    return unless communication.tenant.feature?(:push_alerts)
     return unless WebPushConfig.configured?
 
     communication.deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
@@ -42,6 +43,7 @@ class PushNotifier
   end
 
   def notify_checklist!(checklist)
+    return unless checklist.tenant.feature?(:push_alerts)
     return unless WebPushConfig.configured?
 
     checklist.checklist_deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
@@ -171,7 +173,7 @@ class PushNotifier
       user: user,
       notifiable: notifiable,
       channel: "web_push",
-      message: "#{payload[:title]} — #{payload[:body]}",
+      message: "#{payload[:title]}: #{payload[:body]}",
       status: "sent"
     )
   rescue WebPush::ExpiredSubscription, WebPush::InvalidSubscription
@@ -181,7 +183,7 @@ class PushNotifier
       user: user,
       notifiable: notifiable,
       channel: "web_push",
-      message: "#{payload[:title]} — #{payload[:body]}",
+      message: "#{payload[:title]}: #{payload[:body]}",
       status: "gone"
     )
   rescue StandardError => error
@@ -191,7 +193,7 @@ class PushNotifier
       user: user,
       notifiable: notifiable,
       channel: "web_push",
-      message: "#{payload[:title]} — #{payload[:body]}",
+      message: "#{payload[:title]}: #{payload[:body]}",
       status: "failed"
     )
   end
