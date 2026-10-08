@@ -23,6 +23,15 @@
               {}, onchange: "this.form.requestSubmit()" %>
         <noscript><%= f.submit t("communications.priority_save"), class: "btn btn--ghost" %></noscript>
       <% end %>
+      <%= form_with model: @communication, url: dependency_communication_path(@communication), method: :patch,
+                    class: "priority-form" do |f| %>
+        <%= f.label :depends_on_id, t("communications.dependency.label") %>
+        <%= f.select :depends_on_id,
+              @dependency_options.map { |option| [ option.title, option.id ] },
+              { include_blank: t("communications.dependency.none") },
+              onchange: "this.form.requestSubmit()" %>
+        <noscript><%= f.submit t("communications.dependency.save"), class: "btn btn--ghost" %></noscript>
+      <% end %>
     <% end %>
   </div>
 </header>
@@ -122,6 +131,9 @@
             <div class="store-track__main">
               <strong class="store-track__name"><%= delivery.org_unit.name %></strong>
               <div class="meta">
+                <% if delivery.blocked? %>
+                  <span class="badge badge--blocked"><%= t("inbox.blocked") %></span>
+                <% end %>
                 <% if morocco %>
                   <%= delivery.assignee&.name || t("morocco.owner.unassigned") %>
                   · <%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(delivery.due_at) || "-" %>

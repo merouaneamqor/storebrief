@@ -14,6 +14,10 @@ class Communication < ApplicationRecord
   belongs_to :recurrence_parent, class_name: "Communication", optional: true, inverse_of: :occurrences
   has_many :occurrences, class_name: "Communication", foreign_key: :recurrence_parent_id,
                          inverse_of: :recurrence_parent, dependent: :nullify
+  # Dependency: stores must finish the prerequisite task before this one unlocks.
+  belongs_to :depends_on, class_name: "Communication", optional: true, inverse_of: :dependents
+  has_many :dependents, class_name: "Communication", foreign_key: :depends_on_id,
+                        inverse_of: :depends_on, dependent: :nullify
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
@@ -28,6 +32,7 @@ class Communication < ApplicationRecord
   validates :source, inclusion: { in: SOURCES }
   validates :priority, inclusion: { in: PRIORITIES }
   validate :recurrence_rule_valid
+  validate :dependency_valid
 
   bilingual_fields :title, :body
 
@@ -51,6 +56,7 @@ class Communication < ApplicationRecord
   before_validation :apply_source_default
   before_validation :apply_priority_default
   before_validation :clear_recurrence_unless_task
+  before_validation :clear_dependency_unless_task
 
   def news?
     format == "news"
@@ -133,6 +139,34 @@ class Communication < ApplicationRecord
 
   def clear_recurrence_unless_task
     self.recurrence_rule = {} unless task?
+  end
+
+  def clear_dependency_unless_task
+    self.depends_on = nil unless task?
+  end
+
+  def dependency_valid
+    return if depends_on.nil?
+
+    if depends_on.tenant_id != tenant_id || !depends_on.task?
+      errors.add(:depends_on, :invalid)
+      return
+    end
+
+    errors.add(:depends_on, :invalid) if dependency_chain_includes_self?
+  end
+
+  # Walking the chain upward must never come back to this task.
+  def dependency_chain_includes_self?
+    seen = Set.new
+    node = depends_on
+    while node
+      return true if node.id == id || seen.include?(node.id)
+
+      seen << node.id
+      node = node.depends_on
+    end
+    false
   end
 
   def recurrence_rule_valid

@@ -1007,6 +1007,20 @@ body.rtl .section-title {
 .badge--read { background: var(--accent-soft); color: var(--accent-deep); }
 .badge--draft,
 .badge--pending { background: var(--bg-deep); color: var(--muted); }
+.badge--blocked { background: var(--bg-deep); color: var(--muted); border: 1px dashed var(--muted); }
+
+.blocked-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+  color: var(--muted);
+
+  strong { color: var(--ink); }
+}
 
 .btn {
   display: inline-flex;

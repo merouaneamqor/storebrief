@@ -3,8 +3,9 @@ class CommunicationsController < ApplicationController
 
   before_action :require_hq
   before_action -> { require_feature!(:briefs) }
-  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority]
+  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority update_dependency]
   before_action :load_target_units, only: %i[new create edit update]
+  before_action :load_dependency_options, only: %i[new create edit update show]
 
   def index
     @communications = tenant_scope.communications.includes(:author, :deliveries).order(created_at: :desc)
@@ -85,6 +86,29 @@ class CommunicationsController < ApplicationController
     end
   end
 
+  # HQ can clear or reassign a dependency at any time, including after send.
+  def update_dependency
+    unless @communication.task?
+      redirect_to @communication, alert: t("communications.dependency.invalid")
+      return
+    end
+
+    raw_id = params.dig(:communication, :depends_on_id).presence
+    prerequisite = raw_id && tenant_scope.communications.where(format: "task").find_by(id: raw_id)
+    if raw_id && prerequisite.nil?
+      redirect_to @communication, alert: t("communications.dependency.invalid")
+      return
+    end
+
+    @communication.depends_on = prerequisite
+    if @communication.save
+      notice = prerequisite ? t("communications.dependency.saved") : t("communications.dependency.cleared")
+      redirect_to @communication, notice: notice
+    else
+      redirect_to @communication, alert: t("communications.dependency.invalid")
+    end
+  end
+
   def notify_push
     unless @communication.sent?
       redirect_to @communication, alert: t("communications.not_sent_yet")
@@ -126,6 +150,12 @@ class CommunicationsController < ApplicationController
     @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
   end
 
+  def load_dependency_options
+    scope = tenant_scope.communications.where(format: "task")
+    scope = scope.where.not(id: @communication.id) if @communication&.persisted?
+    @dependency_options = scope.order(created_at: :desc).limit(100)
+  end
+
   def persist_communication(failure_template)
     sending = params[:commit] == "send"
     @communication.status = "draft" unless sending
@@ -149,7 +179,7 @@ class CommunicationsController < ApplicationController
 
   def communication_params
     params.require(:communication).permit(
-      :title_fr, :title_ar, :body_fr, :body_ar, :format, :priority,
+      :title_fr, :title_ar, :body_fr, :body_ar, :format, :priority, :depends_on_id,
       recurrence_attributes: [ :frequency, :interval, :ends_on, { weekdays: [] } ],
       communication_questions_attributes: [
         :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy
