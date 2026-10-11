@@ -47,4 +47,16 @@ class User < ApplicationRecord
   def arabic?
     locale == "ar"
   end
+
+  def privacy_notice_accepted?
+    privacy_notice_accepted_at.present?
+  end
+
+  def whatsapp_alerts_consented?
+    whatsapp_alerts_consent_at.present?
+  end
+
+  def operational_email_allowed?
+    !operational_email_opt_out?
+  end
 end

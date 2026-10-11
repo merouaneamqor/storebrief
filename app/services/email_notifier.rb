@@ -18,6 +18,7 @@ class EmailNotifier
     communication.deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       store_users_for(delivery.org_unit).each do |user|
         next if user.email.blank?
+        next unless user.operational_email_allowed?
 
         mail = TaskMailer.with(tenant: tenant).communication_assigned(
           user: user,
@@ -40,6 +41,7 @@ class EmailNotifier
     checklist.checklist_deliveries.includes(org_unit: { memberships: :user }).find_each do |delivery|
       store_users_for(delivery.org_unit).each do |user|
         next if user.email.blank?
+        next unless user.operational_email_allowed?
 
         mail = TaskMailer.with(tenant: tenant).checklist_assigned(
           user: user,

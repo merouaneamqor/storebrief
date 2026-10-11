@@ -228,6 +228,14 @@
           <%= f.select :preferred_locale, User::LOCALES.map { |code| [t("locales.#{code}"), code] } %>
         </label>
       </div>
+      <label class="m-form__consent">
+        <%= check_box_tag "demo_request[privacy_consent]", "1", false, required: true %>
+        <span><%= t("landing.demo.privacy_consent", privacy_link: link_to(t("privacy.page.title"), legal_privacy_path, target: "_blank", rel: "noopener")).html_safe %></span>
+      </label>
+      <label class="m-form__consent">
+        <%= check_box_tag "demo_request[marketing_contact_consent]", "1", false %>
+        <span><%= t("landing.demo.marketing_consent") %></span>
+      </label>
       <button type="submit" class="m-btn m-btn--block"><%= t("landing.demo.submit") %></button>
       <p class="m-reassure"><%= t("landing.demo.reassure") %></p>
     <% end %>

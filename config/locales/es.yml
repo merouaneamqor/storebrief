@@ -48,6 +48,7 @@ es:
     tenants: "Enseñas"
     demo_requests: "Demos"
     billing: "Facturación"
+    privacy: "Privacidad"
   billing:
     title: "Facturación"
     lede: "Envíos de plataforma para %{brand}: el correo Vazivo y WhatsApp se facturan. El push sigue incluido."
@@ -503,6 +504,8 @@ es:
       success: "Gracias. Volvemos a usted para fijar la demo."
       contact_hint: "Correo o teléfono: basta con uno de los dos."
       reassure: "30 minutos. Una instrucción que ya envía. Nada que instalar para la demo."
+      privacy_consent: "Acepto el tratamiento de mis datos para esta solicitud de demo, según la %{privacy_link} (ley 09-08)."
+      marketing_consent: "Acepto ser contactado por correo o teléfono sobre Vazivo (opcional)."
     footer:
       tagline: "Vazivo — Operaciones de retail, conectadas."
     resources:

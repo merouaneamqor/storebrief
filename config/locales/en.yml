@@ -48,6 +48,7 @@ en:
     tenants: "Brands"
     demo_requests: "Demos"
     billing: "Billing"
+    privacy: "Privacy"
   billing:
     title: "Billing"
     lede: "Platform sends for %{brand}: Vazivo email and WhatsApp are billed. Push stays included."
@@ -503,6 +504,8 @@ en:
       success: "Thank you. We'll come back to schedule the demo."
       contact_hint: "Email or phone: one of the two is enough."
       reassure: "30 minutes. One instruction you already send. Nothing to install for the demo."
+      privacy_consent: "I agree to the processing of my contact details for this demo request, per the %{privacy_link} (Law 09-08)."
+      marketing_consent: "I agree to be contacted by email or phone about Vazivo (optional)."
     footer:
       tagline: "Vazivo — Retail operations, connected."
     resources:

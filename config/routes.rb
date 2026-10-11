@@ -17,6 +17,12 @@ Rails.application.routes.draw do
 
   patch "locale", to: "locales#update"
 
+  get "legal/privacy", to: "legal#privacy", as: :legal_privacy
+  get "legal/cookies", to: "legal#cookies", as: :legal_cookies
+  resource :privacy_preferences, only: %i[show update] do
+    post :data_request, on: :member
+  end
+
   root "marketing#show"
   post "demo_requests", to: "marketing#create_demo"
   get "resources", to: "marketing#resources"

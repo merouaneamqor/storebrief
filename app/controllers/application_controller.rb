@@ -8,8 +8,25 @@ class ApplicationController < ActionController::Base
   before_action :require_login, unless: :active_admin_controller?
   before_action :bind_session_tenant
   before_action :set_locale
+  before_action :require_privacy_acceptance, if: :privacy_gate_required?
 
   private
+
+  def privacy_gate_required?
+    current_user.present? && !active_admin_controller? && !privacy_exempt_controller?
+  end
+
+  def privacy_exempt_controller?
+    is_a?(LegalController) ||
+      is_a?(PrivacyPreferencesController) ||
+      is_a?(SessionsController)
+  end
+
+  def require_privacy_acceptance
+    return if current_user.privacy_notice_accepted?
+
+    redirect_to privacy_preferences_path, alert: t("privacy.acceptance.required")
+  end
 
   def current_user
     @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]

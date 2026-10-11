@@ -1,0 +1,105 @@
+fr:
+  activerecord:
+    errors:
+      models:
+        demo_request:
+          attributes:
+            base:
+              privacy_consent_required: "Veuillez accepter la politique de confidentialité pour envoyer la demande."
+  privacy:
+    page:
+      title: "Protection des données personnelles"
+      kicker: "Loi 09-08 et CNDP"
+      version: "Version %{version}"
+      law_link: "Texte officiel Loi 09-08"
+      contact: "Pour toute question ou exercice de vos droits : %{email}"
+    acceptance:
+      required: "Veuillez prendre connaissance de notre politique de confidentialité pour continuer."
+      title: "Information sur vos données"
+      lede: "Vazivo traite des données personnelles conformément à la loi marocaine n° 09-08 et aux décisions de la CNDP."
+      fine_print: "En continuant, vous confirmez avoir lu notre %{privacy_link}."
+      submit: "J'ai pris connaissance"
+    preferences:
+      title: "Confidentialité et préférences"
+      lede: "Gérez les canaux optionnels et exercez vos droits prévus par la loi 09-08."
+      channels_title: "Alertes opérationnelles"
+      channels_hint: "Les briefs et tâches liés à votre activité professionnelle peuvent être notifiés par e-mail professionnel. Les alertes WhatsApp nécessitent un consentement exprès."
+      email_opt_out: "Ne plus recevoir d'e-mails opérationnels (briefs, checklists)"
+      whatsapp_opt_in: "Recevoir des alertes WhatsApp sur mon numéro enregistré"
+      whatsapp_phone_missing: "Demandez à votre administrateur d'ajouter un numéro WhatsApp professionnel si vous souhaitez activer ce canal."
+      save: "Enregistrer"
+      saved: "Préférences enregistrées."
+      rights_title: "Vos droits"
+      rights_lede: "Vous pouvez demander l'accès, la rectification, l'opposition ou la suppression de vos données, dans les limites prévues par la loi et votre contrat de travail."
+      rights_toggle: "Envoyer une demande"
+      request_type: "Type de demande"
+      request_details: "Précisions (optionnel)"
+      request_submit: "Envoyer la demande"
+      data_request_sent: "Votre demande a été transmise à notre équipe confidentialité."
+      data_request_failed: "Impossible d'envoyer la demande pour le moment. Écrivez à l'adresse indiquée dans la politique de confidentialité."
+      request_types:
+        access: "Accès"
+        rectification: "Rectification"
+        opposition: "Opposition"
+        deletion: "Suppression"
+        portability: "Copie / portabilité"
+    cookies:
+      page_title: "Cookies et traceurs"
+      lede: "Nous limitons les traceurs au strict nécessaire au fonctionnement du service."
+      banner:
+        title: "Cookies essentiels"
+        body: "Nous utilisons des cookies de session et de préférences linguistiques. Consultez notre %{privacy_link} et notre page %{cookies_link}."
+        accept: "Compris"
+      sections:
+        - title: "Cookies strictement nécessaires"
+          paragraphs:
+            - "Ces cookies permettent l'authentification, la sécurité de session et le choix de langue. Ils ne nécessitent pas de consentement distinct car ils sont indispensables au service demandé."
+          list:
+            - "Cookie de session Rails (connexion sécurisée)"
+            - "Préférence de langue (session)"
+        - title: "Stockage local"
+          paragraphs:
+            - "L'application peut enregistrer localement sur votre appareil des données techniques (par exemple le consentement cookies ou des files d'attente hors ligne pour les checklists lorsque la fonctionnalité est activée)."
+        - title: "Services tiers"
+          paragraphs:
+            - "Les polices web peuvent être chargées depuis Google Fonts. Aucun cookie publicitaire ou de mesure d'audience n'est déposé par Vazivo sur les pages marketing."
+    sections:
+      - title: "Responsable du traitement"
+        paragraphs:
+          - "Pour les comptes enseigne (magasins, sièges), votre employeur ou mandant est en principe responsable du traitement des données personnelles de ses collaborateurs. %{processor} agit en tant que sous-traitant technique pour héberger et faire fonctionner la plateforme Vazivo."
+          - "Pour les demandes de démonstration sur le site public, %{processor} est responsable du traitement des coordonnées que vous transmettez."
+        list: []
+      - title: "Finalités et bases légales"
+        paragraphs:
+          - "Nous traitons les données pour fournir le service (briefs, checklists, preuves, classements, visites), assurer la sécurité, la facturation des canaux payants (e-mail et WhatsApp) et répondre à vos demandes."
+          - "Le traitement repose notamment sur l'exécution du contrat qui nous lie à l'enseigne, l'exécution de mesures précontractuelles, le respect d'obligations légales et, le cas échéant, votre consentement (démonstration commerciale, alertes WhatsApp, notifications push navigateur)."
+        list: []
+      - title: "Catégories de données"
+        paragraphs:
+          - "Identité et contact (nom, e-mail professionnel, téléphone/WhatsApp si renseigné), données d'usage (actions sur les briefs, preuves photo, réponses checklist), journaux techniques et de notification."
+        list: []
+      - title: "Durées de conservation"
+        paragraphs:
+          - "Les données sont conservées pendant la durée du contrat avec l'enseigne et selon les besoins opérationnels et légaux. Les journaux de notification facturables sont conservés pour la facturation et la preuve de service."
+        list: []
+      - title: "Destinataires et sous-traitants"
+        paragraphs:
+          - "Les données sont accessibles aux utilisateurs autorisés de votre enseigne, à %{processor} pour l'exploitation technique, et à nos prestataires d'hébergement et de messagerie dans le cadre de contrats conformes à la loi 09-08."
+        list: []
+      - title: "Transferts hors Maroc"
+        paragraphs:
+          - "Si des données sont hébergées ou traitées hors du Royaume du Maroc, l'enseigne et %{processor} doivent respecter les articles 43 et 44 de la loi 09-08 (niveau de protection adéquat et, le cas échéant, autorisation préalable de la CNDP)."
+        list: []
+      - title: "Sécurité"
+        paragraphs:
+          - "Nous mettons en œuvre des mesures techniques et organisationnelles appropriées : chiffrement des mots de passe, isolation multi-enseignes, journalisation, accès restreint."
+        list: []
+      - title: "Vos droits"
+        paragraphs:
+          - "Conformément à la loi 09-08, vous disposez notamment d'un droit d'accès, de rectification et d'opposition pour motif légitime. Vous pouvez exercer vos droits via la page Confidentialité dans l'application ou en écrivant à %{contact}."
+          - "Vous pouvez également introduire une réclamation auprès de la CNDP."
+        list: []
+      - title: "Déclarations CNDP"
+        paragraphs:
+          - "Les responsables de traitement établis au Maroc doivent effectuer les déclarations ou demandes d'autorisation préalables auprès de la CNDP avant tout traitement, selon la nature des données. Cette obligation incombe à l'enseigne pour le traitement de ses collaborateurs ; %{processor} accompagne contractuellement sur la description du service."
+        list: []
