@@ -40,7 +40,9 @@ class WhatsappNotifier
   private
 
   def recipients_for(org_unit)
-    org_unit.memberships.includes(:user).select { |m| m.role == "store" }.map(&:user).select { |u| u.whatsapp_phone.present? }
+    org_unit.memberships.includes(:user).select { |m| m.role == "store" }.map(&:user).select do |u|
+      u.whatsapp_phone.present? && u.whatsapp_alerts_consented?
+    end
   end
 
   def create_log!(tenant:, user:, notifiable:, message:)

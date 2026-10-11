@@ -1,6 +1,7 @@
 class MarketingController < ApplicationController
   skip_before_action :require_login
   skip_before_action :bind_session_tenant
+  skip_before_action :require_privacy_acceptance
   before_action :redirect_tenant_host
   layout "marketing"
 
@@ -14,6 +15,7 @@ class MarketingController < ApplicationController
 
   def create_demo
     @demo_request = DemoRequest.new(demo_request_params)
+    @demo_request.privacy_consent = params.dig(:demo_request, :privacy_consent)
 
     if @demo_request.save
       begin
@@ -30,7 +32,10 @@ class MarketingController < ApplicationController
   private
 
   def demo_request_params
-    params.require(:demo_request).permit(:name, :company, :email, :phone, :store_count, :preferred_locale)
+    params.require(:demo_request).permit(
+      :name, :company, :email, :phone, :store_count, :preferred_locale,
+      :marketing_contact_consent, :privacy_consent
+    )
   end
 
   def redirect_tenant_host

@@ -1,0 +1,78 @@
+<% content_for :title, t("privacy.preferences.title") %>
+
+<div class="privacy-prefs" x-data="{ showRights: false }">
+  <% unless current_user.privacy_notice_accepted? %>
+    <section class="card privacy-prefs__banner" role="alert">
+      <h1 class="privacy-prefs__title"><%= t("privacy.acceptance.title") %></h1>
+      <p><%= t("privacy.acceptance.lede") %></p>
+      <%= form_with url: privacy_preferences_path, method: :patch, class: "privacy-prefs__accept" do %>
+        <input type="hidden" name="accept_privacy_notice" value="1">
+        <p class="privacy-prefs__fine">
+          <%= t("privacy.acceptance.fine_print",
+                privacy_link: link_to(t("privacy.page.title"), legal_privacy_path, target: "_blank", rel: "noopener")).html_safe %>
+        </p>
+        <button type="submit" class="btn"><%= t("privacy.acceptance.submit") %></button>
+      <% end %>
+    </section>
+  <% else %>
+    <header class="privacy-prefs__head">
+      <h1><%= t("privacy.preferences.title") %></h1>
+      <p><%= t("privacy.preferences.lede") %></p>
+    </header>
+  <% end %>
+
+  <% if current_user.privacy_notice_accepted? %>
+    <%= form_with model: current_user, url: privacy_preferences_path, method: :patch, class: "privacy-prefs__form" do |f| %>
+      <section class="card">
+        <h2><%= t("privacy.preferences.channels_title") %></h2>
+        <p class="privacy-prefs__hint"><%= t("privacy.preferences.channels_hint") %></p>
+
+        <label class="privacy-prefs__check">
+          <%= check_box_tag "user[operational_email_opt_out]", "1", current_user.operational_email_opt_out? %>
+          <span><%= t("privacy.preferences.email_opt_out") %></span>
+        </label>
+
+        <label class="privacy-prefs__check">
+          <%= check_box_tag "user[whatsapp_alerts_consent]", "1", current_user.whatsapp_alerts_consented? %>
+          <span><%= t("privacy.preferences.whatsapp_opt_in") %></span>
+        </label>
+        <% if current_user.whatsapp_phone.blank? %>
+          <p class="privacy-prefs__hint"><%= t("privacy.preferences.whatsapp_phone_missing") %></p>
+        <% end %>
+      </section>
+
+      <div class="privacy-prefs__actions">
+        <button type="submit" class="btn"><%= t("privacy.preferences.save") %></button>
+        <%= link_to t("privacy.page.title"), legal_privacy_path, class: "btn btn--ghost", target: "_blank", rel: "noopener" %>
+      </div>
+    <% end %>
+
+    <section class="card privacy-prefs__rights">
+      <h2><%= t("privacy.preferences.rights_title") %></h2>
+      <p><%= t("privacy.preferences.rights_lede") %></p>
+      <button type="button" class="btn btn--ghost" @click="showRights = !showRights">
+        <%= t("privacy.preferences.rights_toggle") %>
+      </button>
+
+      <div x-show="showRights" x-cloak>
+        <%= form_with url: data_request_privacy_preferences_path, method: :post, class: "privacy-prefs__rights-form" do %>
+          <label>
+            <%= t("privacy.preferences.request_type") %>
+            <%= select_tag :request_type,
+                  options_for_select(
+                    %w[access rectification opposition deletion portability].map { |key|
+                      [t("privacy.preferences.request_types.#{key}"), key]
+                    }
+                  ),
+                  required: true %>
+          </label>
+          <label>
+            <%= t("privacy.preferences.request_details") %>
+            <%= text_area_tag :details, "", rows: 4 %>
+          </label>
+          <button type="submit" class="btn"><%= t("privacy.preferences.request_submit") %></button>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>

@@ -4,6 +4,19 @@
   gap: 0.8rem;
 }
 
+.m-form__consent {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+
+  input {
+    margin-top: 0.2rem;
+  }
+}
+
 .m-form {
   background: var(--surface);
   color: var(--ink);

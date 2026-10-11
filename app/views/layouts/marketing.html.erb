@@ -75,6 +75,8 @@
 
     <%= yield %>
 
+    <%= render "shared/cookie_consent" %>
+
     <footer class="m-footer">
       <div class="m-footer__inner">
         <% if brand %>
@@ -100,6 +102,8 @@
           <nav class="m-footer__links">
             <a href="<%= root_path %>#how"><%= t("landing.nav.how") %></a>
             <%= link_to t("landing.nav.resources"), resources_path %>
+            <%= link_to t("privacy.page.title"), legal_privacy_path %>
+            <%= link_to t("privacy.cookies.page_title"), legal_cookies_path %>
             <%= link_to t("landing.nav.sign_in"), login_path %>
           </nav>
           <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small"><%= t("landing.nav.demo") %></a>

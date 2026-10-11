@@ -1,0 +1,105 @@
+en:
+  activerecord:
+    errors:
+      models:
+        demo_request:
+          attributes:
+            base:
+              privacy_consent_required: "Please accept the privacy notice to submit your request."
+  privacy:
+    page:
+      title: "Personal data protection"
+      kicker: "Law 09-08 and CNDP"
+      version: "Version %{version}"
+      law_link: "Official Law 09-08 text"
+      contact: "Questions or rights requests: %{email}"
+    acceptance:
+      required: "Please review our privacy notice before continuing."
+      title: "Information about your data"
+      lede: "Vazivo processes personal data in line with Moroccan Law No. 09-08 and CNDP decisions."
+      fine_print: "By continuing, you confirm you have read our %{privacy_link}."
+      submit: "I have read the notice"
+    preferences:
+      title: "Privacy and preferences"
+      lede: "Manage optional channels and exercise your rights under Law 09-08."
+      channels_title: "Operational alerts"
+      channels_hint: "Work-related briefs and checklists may be sent to your work email. WhatsApp alerts require express consent."
+      email_opt_out: "Opt out of operational emails (briefs, checklists)"
+      whatsapp_opt_in: "Receive WhatsApp alerts on my registered number"
+      whatsapp_phone_missing: "Ask your administrator to add a work WhatsApp number if you want this channel."
+      save: "Save"
+      saved: "Preferences saved."
+      rights_title: "Your rights"
+      rights_lede: "You may request access, rectification, objection, or deletion within the limits of law and your employment agreement."
+      rights_toggle: "Submit a request"
+      request_type: "Request type"
+      request_details: "Details (optional)"
+      request_submit: "Send request"
+      data_request_sent: "Your request was sent to our privacy team."
+      data_request_failed: "We could not send the request. Use the email address in the privacy notice."
+      request_types:
+        access: "Access"
+        rectification: "Rectification"
+        opposition: "Objection"
+        deletion: "Deletion"
+        portability: "Copy / portability"
+    cookies:
+      page_title: "Cookies and storage"
+      lede: "We keep trackers to the minimum needed to run the service."
+      banner:
+        title: "Essential cookies"
+        body: "We use session and language preference cookies. See our %{privacy_link} and %{cookies_link}."
+        accept: "Understood"
+      sections:
+        - title: "Strictly necessary cookies"
+          paragraphs:
+            - "These cookies enable authentication, session security, and language choice. They are required for the service you request."
+          list:
+            - "Rails session cookie (secure sign-in)"
+            - "Language preference (session)"
+        - title: "Local storage"
+          paragraphs:
+            - "The app may store technical data on your device (for example cookie consent or offline checklist queues when enabled)."
+        - title: "Third-party services"
+          paragraphs:
+            - "Web fonts may load from Google Fonts. Vazivo does not set advertising or analytics cookies on marketing pages."
+    sections:
+      - title: "Data controller"
+        paragraphs:
+          - "For retailer accounts, your employer is generally the controller of employee personal data. %{processor} acts as a technical processor hosting and operating the Vazivo platform."
+          - "For demo requests on the public site, %{processor} is the controller of the contact details you submit."
+        list: []
+      - title: "Purposes and legal bases"
+        paragraphs:
+          - "We process data to provide the service (briefs, checklists, proof, rankings, visits), ensure security, bill paid channels (email and WhatsApp), and respond to your requests."
+          - "Processing is based on contract performance, pre-contractual steps, legal obligations, and where applicable your consent (sales demo, WhatsApp alerts, browser push)."
+        list: []
+      - title: "Categories of data"
+        paragraphs:
+          - "Identity and contact (name, work email, phone/WhatsApp if provided), usage data (brief actions, photo proof, checklist answers), technical and notification logs."
+        list: []
+      - title: "Retention"
+        paragraphs:
+          - "Data is kept for the term of the retailer contract and operational or legal needs. Billable notification logs are kept for billing and proof of service."
+        list: []
+      - title: "Recipients and processors"
+        paragraphs:
+          - "Data is available to authorized users in your organization, to %{processor} for technical operations, and to hosting and messaging providers under Law 09-08 compliant agreements."
+        list: []
+      - title: "Transfers outside Morocco"
+        paragraphs:
+          - "If data is hosted or processed outside Morocco, the retailer and %{processor} must comply with Articles 43 and 44 of Law 09-08 (adequate protection and, where required, prior CNDP authorization)."
+        list: []
+      - title: "Security"
+        paragraphs:
+          - "We apply appropriate technical and organizational measures: password hashing, tenant isolation, logging, restricted access."
+        list: []
+      - title: "Your rights"
+        paragraphs:
+          - "Under Law 09-08 you have rights of access, rectification, and objection on legitimate grounds. Use the Privacy page in the app or contact %{contact}."
+          - "You may also lodge a complaint with the CNDP."
+        list: []
+      - title: "CNDP filings"
+        paragraphs:
+          - "Controllers established in Morocco must file prior declarations or authorization requests with the CNDP before processing, depending on data sensitivity. This duty lies with the retailer for employee data; %{processor} describes the service contractually."
+        list: []
