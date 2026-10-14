@@ -1,0 +1,54 @@
+<%= form_with model: @mission, class: "pb-editor__form" do |f| %>
+  <% if @mission.errors.any? %>
+    <div class="flash flash--alert"><%= @mission.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <section class="pb-editor__card">
+    <label>
+      <span><%= t("morocco.vm_missions.fields.title_fr") %></span>
+      <%= f.text_field :title_fr, class: "billing-input", required: true, autocomplete: "off" %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.title_ar") %></span>
+      <%= f.text_field :title_ar, class: "billing-input", dir: "rtl", lang: "ar", autocomplete: "off" %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.instructions_fr") %></span>
+      <%= f.text_area :instructions_fr, class: "billing-input", rows: 4, required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.instructions_ar") %></span>
+      <%= f.text_area :instructions_ar, class: "billing-input", rows: 4, dir: "rtl", lang: "ar" %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.deadline") %></span>
+      <%= f.date_field :deadline_on, class: "billing-input", required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.status") %></span>
+      <%= f.select :status, VmMission::STATUSES.map { |s| [ t("morocco.vm_missions.statuses.#{s}"), s ] }, {}, class: "billing-input" %>
+    </label>
+  </section>
+
+  <section class="pb-editor__card">
+    <p class="section-title"><%= t("morocco.vm_missions.targets.title") %></p>
+    <p class="meta"><%= t("morocco.vm_missions.targets.hint") %></p>
+    <div class="pb-targets__tree">
+      <% selected_ids = @mission.org_units.map(&:id) %>
+      <% @stores.each do |store| %>
+        <label>
+          <%= check_box_tag "org_unit_ids[]", store.id, selected_ids.include?(store.id), id: "vm_store_#{store.id}" %>
+          <span><%= store.name %></span>
+        </label>
+      <% end %>
+    </div>
+  </section>
+
+  <div class="pb-editor__actions sticky-action">
+    <%= link_to t("morocco.vm_missions.back"), vm_missions_path, class: "btn btn--ghost" %>
+    <button type="submit" class="btn btn--primary">
+      <%= icon("check-circle", css_class: "icon") %>
+      <%= t("morocco.vm_missions.save") %>
+    </button>
+  </div>
+<% end %>

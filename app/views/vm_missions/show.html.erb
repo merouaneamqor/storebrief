@@ -1,0 +1,39 @@
+<% content_for :title, "#{@mission.title} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.vm_missions.back"), vm_missions_path %></p>
+    <h1><%= @mission.title %></h1>
+    <p class="meta">
+      <%= t("morocco.vm_missions.fields.deadline") %>:
+      <%= l(@mission.deadline_on, format: :long) %>
+      · <%= t("morocco.vm_missions.statuses.#{@mission.status}") %>
+    </p>
+  </div>
+  <div class="radar-head__actions">
+    <%= link_to edit_vm_mission_path(@mission), class: "btn btn--quiet" do %>
+      <%= t("morocco.vm_missions.edit") %>
+    <% end %>
+  </div>
+</header>
+
+<section class="panel">
+  <h2 class="section-title"><%= t("morocco.vm_missions.fields.instructions") %></h2>
+  <p><%= simple_format(@mission.instructions) %></p>
+  <% if @mission.instructions_ar.present? && I18n.locale.to_s != "ar" %>
+    <p class="meta" dir="rtl" lang="ar"><%= simple_format(@mission.instructions_ar) %></p>
+  <% end %>
+</section>
+
+<section class="panel">
+  <h2 class="section-title"><%= t("morocco.vm_missions.fields.stores") %></h2>
+  <% if @mission.org_units.any? %>
+    <ul>
+      <% @mission.org_units.order(:name).each do |store| %>
+        <li><%= store.name %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="meta"><%= t("morocco.vm_missions.no_stores") %></p>
+  <% end %>
+</section>
