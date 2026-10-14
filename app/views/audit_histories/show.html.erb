@@ -1,0 +1,175 @@
+<% content_for :title, "#{t('morocco.audit_history.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.visits.back"), visits_path %></p>
+    <h1><%= t("morocco.audit_history.title") %></h1>
+    <p class="meta"><%= t("morocco.audit_history.lede") %></p>
+  </div>
+  <div class="radar-head__actions">
+    <%= link_to audit_history_path(request.query_parameters.merge(format: :csv)), class: "btn btn--ghost" do %>
+      <%= t("morocco.audit_history.export_csv") %>
+    <% end %>
+  </div>
+</header>
+
+<section class="panel">
+  <%= form_with url: audit_history_path, method: :get, local: true, class: "audit-history-filters" do %>
+    <label>
+      <span class="meta"><%= t("morocco.audit_history.filter_region") %></span>
+      <select name="region_id">
+        <option value=""><%= t("morocco.audit_history.all_regions") %></option>
+        <% @regions.each do |region| %>
+          <option value="<%= region.id %>" <%= "selected" if @region&.id == region.id %>><%= region.name %></option>
+        <% end %>
+      </select>
+    </label>
+    <label>
+      <span class="meta"><%= t("morocco.audit_history.filter_store") %></span>
+      <select name="store_id">
+        <option value=""><%= t("morocco.audit_history.all_stores") %></option>
+        <% @stores.each do |store| %>
+          <option value="<%= store.id %>" <%= "selected" if @store&.id == store.id %>><%= store.name %></option>
+        <% end %>
+      </select>
+    </label>
+    <button type="submit" class="btn btn--quiet"><%= t("morocco.audit_history.apply") %></button>
+  <% end %>
+</section>
+
+<section class="panel">
+  <h2><%= t("morocco.audit_history.region_comparison") %></h2>
+  <% if @history.region_rows.any? %>
+    <table class="report-table audit-history-table">
+      <thead>
+        <tr>
+          <th><%= t("morocco.audit_history.cols.region") %></th>
+          <th><%= t("morocco.audit_history.cols.stores") %></th>
+          <th><%= t("morocco.audit_history.cols.audits") %></th>
+          <th><%= t("morocco.audit_history.cols.avg_score") %></th>
+          <th><%= t("morocco.verdict.conforme") %></th>
+          <th><%= t("morocco.verdict.improve") %></th>
+          <th><%= t("morocco.verdict.non_conforme") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @history.region_rows.each do |row| %>
+          <tr>
+            <td>
+              <% if row.region %>
+                <%= link_to row.region.name, audit_history_path(region_id: row.region.id) %>
+              <% else %>
+                <%= t("morocco.audit_history.unassigned_region") %>
+              <% end %>
+            </td>
+            <td><%= row.stores %></td>
+            <td><%= row.audits %></td>
+            <td><%= row.avg_score.nil? ? "-" : "#{row.avg_score}%" %></td>
+            <td><%= row.conforme %></td>
+            <td><%= row.improve %></td>
+            <td><%= row.non_conforme %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="meta"><%= t("morocco.audit_history.empty_regions") %></p>
+  <% end %>
+</section>
+
+<section class="panel">
+  <h2><%= t("morocco.audit_history.store_comparison") %></h2>
+  <% if @history.store_rows.any? %>
+    <table class="report-table audit-history-table">
+      <thead>
+        <tr>
+          <th><%= t("morocco.audit_history.cols.store") %></th>
+          <th><%= t("morocco.audit_history.cols.audits") %></th>
+          <th><%= t("morocco.audit_history.cols.avg_score") %></th>
+          <th><%= t("morocco.audit_history.cols.last_score") %></th>
+          <th><%= t("morocco.audit_history.cols.last_verdict") %></th>
+          <th><%= t("morocco.audit_history.cols.last_at") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @history.store_rows.each do |row| %>
+          <tr>
+            <td><%= link_to row.store.name, audit_history_path(store_id: row.store.id, region_id: @region&.id) %></td>
+            <td><%= row.audits %></td>
+            <td><%= row.avg_score.nil? ? "-" : "#{row.avg_score}%" %></td>
+            <td><%= row.last_score.nil? ? "-" : "#{row.last_score}%" %></td>
+            <td>
+              <% if row.last_verdict.present? %>
+                <%= t("morocco.verdict.#{row.last_verdict}") %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <td>
+              <% if row.last_at %>
+                <%= l(row.last_at, format: :short) %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="meta"><%= t("morocco.audit_history.empty_stores") %></p>
+  <% end %>
+</section>
+
+<section class="panel">
+  <h2>
+    <% if @store %>
+      <%= t("morocco.audit_history.store_history", store: @store.name) %>
+    <% else %>
+      <%= t("morocco.audit_history.history_list") %>
+    <% end %>
+  </h2>
+  <% if @history.entries.any? %>
+    <table class="report-table audit-history-table">
+      <thead>
+        <tr>
+          <th><%= t("morocco.audit_history.cols.when") %></th>
+          <th><%= t("morocco.audit_history.cols.store") %></th>
+          <th><%= t("morocco.audit_history.cols.title") %></th>
+          <th><%= t("morocco.audit_history.cols.score") %></th>
+          <th><%= t("morocco.audit_history.cols.verdict") %></th>
+          <th><%= t("morocco.audit_history.cols.visit") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @history.entries.each do |entry| %>
+          <tr>
+            <td>
+              <% stamp = entry.completed_at || entry.validated_at %>
+              <%= stamp ? l(stamp, format: :short) : "-" %>
+            </td>
+            <td><%= entry.store.name %></td>
+            <td><%= link_to entry.title, communication_path(entry.delivery.communication) %></td>
+            <td><%= entry.score.nil? ? "-" : "#{entry.score}%" %></td>
+            <td>
+              <% if entry.verdict.present? %>
+                <%= t("morocco.verdict.#{entry.verdict}") %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <td>
+              <% if entry.visit_id %>
+                <%= link_to t("morocco.audit_history.view_visit"), visit_path(entry.visit_id) %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="meta"><%= t("morocco.audit_history.empty_history") %></p>
+  <% end %>
+</section>

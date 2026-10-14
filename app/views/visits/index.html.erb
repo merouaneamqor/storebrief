@@ -7,6 +7,9 @@
     <p class="meta"><%= t("morocco.visits.lede") %></p>
   </div>
   <div class="radar-head__actions">
+    <%= link_to audit_history_path, class: "btn btn--ghost" do %>
+      <%= icon("activity", css_class: "icon") %> <%= t("morocco.audit_history.title") %>
+    <% end %>
     <%= link_to calendar_visits_path, class: "btn btn--ghost" do %>
       <%= icon("calendar", css_class: "icon") %> <%= t("morocco.visits.calendar.title") %>
     <% end %>

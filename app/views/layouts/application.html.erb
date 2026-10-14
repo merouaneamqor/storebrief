@@ -85,6 +85,10 @@
                   <span class="app-nav-link__icon"><%= icon("calendar") %></span>
                   <span><%= t("nav.visits") %></span>
                 <% end %>
+                <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("activity") %></span>
+                  <span><%= t("nav.audit_history") %></span>
+                <% end %>
                 <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                   <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                   <span><%= t("nav.ranking") %></span>
@@ -131,6 +135,10 @@
                 <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits')}" do %>
                   <span class="app-nav-link__icon"><%= icon("calendar") %></span>
                   <span><%= t("nav.visits") %></span>
+                <% end %>
+                <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("activity") %></span>
+                  <span><%= t("nav.audit_history") %></span>
                 <% end %>
               <% end %>
               <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
