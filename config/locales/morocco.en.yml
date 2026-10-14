@@ -82,6 +82,12 @@ en:
       summary_done:
         one: "1 done"
         other: "%{count} done"
+      summary_completion: "%{percent}% done today"
+      today_by_priority: "Today by priority"
+      priority_group:
+        urgent: "Urgent"
+        important: "Important"
+        routine: "Routine"
       empty_now: "Nothing to handle right now."
       attention: "Attention"
       attention_body:

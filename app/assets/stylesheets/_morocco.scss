@@ -127,6 +127,28 @@
   color: var(--tone-done);
 }
 
+.radar-summary__pill--pct {
+  background: var(--surface-2, #f3f4f6);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.radar-priority {
+  margin-top: 0.85rem;
+}
+
+.radar-priority__title {
+  margin: 0 0 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.radar-priority--urgent .radar-priority__title { color: var(--tone-late); }
+.radar-priority--important .radar-priority__title { color: var(--tone-urgent); }
+
 .tone {
   display: inline-flex;
   align-items: center;

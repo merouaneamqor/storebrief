@@ -102,6 +102,28 @@ class TaskPriorityTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "store radar groups today by priority and shows completion percent" do
+    travel_to Vazivo::Schedule::ZONE.local(2026, 10, 7, 11, 0) do
+      send_task("Urgent now", priority: "urgent", due_at: 1.hour.from_now)
+      send_task("Important now", priority: "important", due_at: 2.hours.from_now)
+      done = send_task("Done today", priority: "routine", due_at: 1.hour.from_now)
+      done.deliveries.first.complete!
+
+      snapshot = Vazivo::Radar.for(user: @brand.store_user, tenant: @tenant)
+      assert_equal [ "Urgent now" ], snapshot.today_by_priority["urgent"].map(&:title)
+      assert_equal [ "Important now" ], snapshot.today_by_priority["important"].map(&:title)
+      assert_equal 1, snapshot.done_count
+      assert_equal 33, snapshot.completion_percent
+
+      sign_in @brand.store_user
+      get app_root_path
+      assert_response :success
+      assert_select ".radar-priority--urgent"
+      assert_select ".radar-priority--important"
+      assert_match(/33/, response.body)
+    end
+  end
+
   test "the HQ board ranks higher priority first within a severity" do
     send_task("Retard routine", due_at: 5.hours.ago)
     send_task("Retard urgent", priority: "urgent", due_at: 1.hour.ago)
