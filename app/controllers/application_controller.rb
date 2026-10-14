@@ -2,8 +2,8 @@ class ApplicationController < ActionController::Base
   RESERVED_SUBDOMAINS = %w[www admin mail api].freeze
 
   helper_method :current_user, :current_tenant, :acting_tenant, :hq_user?, :area_user?,
-                :super_admin?, :rtl?, :apex_request?, :host_tenant?, :tenant_feature?,
-                :user_allows?
+                :store_user?, :super_admin?, :rtl?, :apex_request?, :host_tenant?,
+                :tenant_feature?, :user_allows?
 
   before_action :redirect_www
   before_action :set_tenant_from_host
@@ -48,6 +48,11 @@ class ApplicationController < ActionController::Base
 
   def area_user?
     current_user&.area? && !hq_user?
+  end
+
+  # Store chrome only: never treat HQ/area as store even if memberships are messy.
+  def store_user?
+    current_user&.store? && !hq_user? && !area_user?
   end
 
   def super_admin?
@@ -168,6 +173,7 @@ class ApplicationController < ActionController::Base
   end
 
   # Safe monitoring / escalate surfaces for area + HQ. Compose stays on require_hq.
+  # Store role is always denied (no HQ board / compose leak via area capabilities).
   def require_hq_or_area(*capabilities)
     caps = Array(capabilities).presence || [ :monitor ]
     return if hq_user?

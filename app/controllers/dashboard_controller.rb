@@ -2,7 +2,8 @@ class DashboardController < ApplicationController
   def show
     if hq_user?
       load_hq_today
-    elsif tenant_scope.feature?(:morocco_ops)
+    elsif (store_user? || area_user?) && tenant_scope.feature?(:morocco_ops)
+      # Store/area radar only — never the HQ exception board or compose actions.
       @radar = Vazivo::Radar.for(user: current_user, tenant: tenant_scope)
     else
       load_store_fallback
