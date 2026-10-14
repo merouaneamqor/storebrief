@@ -1,11 +1,17 @@
 <% selected_ids = local_assigns.fetch(:selected_ids, []) %>
 <% embedded = local_assigns.fetch(:embedded, false) %>
+<% preview_url = local_assigns.fetch(:preview_url, preview_targets_communications_path(format: :json)) %>
+<% stores = units.select(&:store?) %>
+<% format_options = stores.map(&:store_format).compact_blank.uniq.sort %>
+<% cluster_options = stores.map(&:cluster_key).compact_blank.uniq.sort %>
 <% payload = units.map { |unit| { id: unit.id.to_s, name: unit.name, type: unit.unit_type, typeLabel: t("common.#{unit.unit_type}") } } %>
 <section class="<%= embedded ? 'brief-targets-block' : 'brief-card' %>"
          x-data="briefTargets()"
          data-units="<%= h(payload.to_json) %>"
          data-selected="<%= h(selected_ids.map(&:to_s).to_json) %>"
-         data-count-label="<%= t('communications.selected_count', count: '%{count}') %>">
+         data-count-label="<%= t('communications.selected_count', count: '%{count}') %>"
+         data-preview-url="<%= preview_url %>"
+         data-preview-empty="<%= t('communications.assignment_preview_empty') %>">
   <% unless embedded %>
     <h2><%= t("communications.targets") %></h2>
   <% else %>
@@ -16,6 +22,9 @@
   <template x-for="id in selected" :key="'picked-' + id">
     <input type="hidden" name="org_unit_ids[]" :value="id">
   </template>
+  <input type="hidden" name="assignment_role" :value="role">
+  <input type="hidden" name="store_format" :value="storeFormat">
+  <input type="hidden" name="cluster" :value="cluster">
 
   <div class="brief-chips" x-show="chosen.length" x-cloak>
     <template x-for="unit in chosen" :key="'chip-' + unit.id">
@@ -35,6 +44,27 @@
     </select>
   </div>
 
+  <div class="brief-target-tools brief-target-tools--filters">
+    <select class="brief-type" x-model="role" aria-label="<%= t('communications.filter_role') %>">
+      <option value=""><%= t("communications.filter_role_all") %></option>
+      <% Membership::ROLES.each do |role_key| %>
+        <option value="<%= role_key %>"><%= t("common.roles.#{role_key}") %></option>
+      <% end %>
+    </select>
+    <select class="brief-type" x-model="storeFormat" aria-label="<%= t('communications.filter_format') %>">
+      <option value=""><%= t("communications.filter_format_all") %></option>
+      <% format_options.each do |format| %>
+        <option value="<%= format %>"><%= format %></option>
+      <% end %>
+    </select>
+    <select class="brief-type" x-model="cluster" aria-label="<%= t('communications.filter_cluster') %>">
+      <option value=""><%= t("communications.filter_cluster_all") %></option>
+      <% cluster_options.each do |cluster| %>
+        <option value="<%= cluster %>"><%= cluster %></option>
+      <% end %>
+    </select>
+  </div>
+
   <div class="brief-target-actions">
     <p class="brief-count" x-text="countLabel"></p>
     <button type="button" class="btn btn--ghost" @click="selectVisible()"><%= t("communications.select_visible") %></button>
@@ -50,5 +80,18 @@
       </label>
     </template>
     <p class="empty" x-show="visible.length === 0" x-cloak><%= t("communications.no_matches") %></p>
+  </div>
+
+  <div class="brief-assignment-preview" aria-live="polite">
+    <p class="brief-count" x-text="previewSummary"></p>
+    <ul class="brief-assignment-preview__list" x-show="previewStores.length" x-cloak>
+      <template x-for="store in previewStores" :key="'preview-' + store.id">
+        <li>
+          <strong x-text="store.name"></strong>
+          <span class="meta" x-show="store.store_format" x-text="store.store_format"></span>
+          <span class="meta" x-show="store.cluster" x-text="store.cluster"></span>
+        </li>
+      </template>
+    </ul>
   </div>
 </section>

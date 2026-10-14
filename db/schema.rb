@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_11_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -258,9 +258,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_120000) do
     t.bigint "parent_id"
     t.string "name", null: false
     t.string "unit_type", null: false
+    t.string "store_format"
+    t.string "cluster_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["parent_id"], name: "index_org_units_on_parent_id"
+    t.index ["tenant_id", "cluster_key"], name: "index_org_units_on_tenant_id_and_cluster_key"
+    t.index ["tenant_id", "store_format"], name: "index_org_units_on_tenant_id_and_store_format"
     t.index ["tenant_id", "unit_type"], name: "index_org_units_on_tenant_id_and_unit_type"
     t.index ["tenant_id"], name: "index_org_units_on_tenant_id"
   end

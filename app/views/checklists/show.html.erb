@@ -65,28 +65,10 @@
     <% end %>
   </section>
 <% else %>
-  <section class="panel" x-data="{ filter: '', type: 'all' }">
+  <section class="panel">
     <h2><%= t("communications.send") %></h2>
     <%= form_with url: send_checklist_checklist_path(@checklist), method: :post, local: true do %>
-      <div class="filter-row">
-        <input type="text" placeholder="<%= t('common.filter') %>" x-model="filter">
-        <select x-model="type">
-          <option value="all"><%= t("common.all") %></option>
-          <option value="region"><%= t("common.region") %></option>
-          <option value="store"><%= t("common.store") %></option>
-        </select>
-      </div>
-      <div class="target-list">
-        <% @target_units.each do |unit| %>
-          <label
-            x-show="(type === 'all' || type === '<%= unit.unit_type %>') && '<%= j unit.name.downcase %>'.includes(filter.toLowerCase())"
-            x-cloak>
-            <input type="checkbox" name="org_unit_ids[]" value="<%= unit.id %>">
-            <span class="badge"><%= unit.unit_type %></span>
-            <%= unit.name %>
-          </label>
-        <% end %>
-      </div>
+      <%= render "communications/targets", units: @target_units, selected_ids: Array(params[:org_unit_ids]), embedded: true %>
       <div class="actions">
         <button class="btn" type="submit"><%= t("communications.send") %></button>
       </div>
