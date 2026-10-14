@@ -63,6 +63,13 @@ en:
         understood: "Understood"
         in_progress: "In progress"
         done: "Mark done"
+    read_receipts:
+      title: "Read receipts"
+      unread_badge: "Unread"
+      read_badge: "Read"
+      you_read: "You read this"
+      hq_unread_line: "%{unread} unread · %{read} of %{total} people read"
+      store_unread: "%{unread} unread (%{read}/%{total})"
     verdict:
       invalid: "Unknown verdict."
       saved: "Verdict saved."

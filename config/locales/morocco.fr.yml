@@ -63,6 +63,13 @@ fr:
         understood: "C'est compris"
         in_progress: "C'est en cours"
         done: "C'est terminé"
+    read_receipts:
+      title: "Accusés de lecture"
+      unread_badge: "Non lu"
+      read_badge: "Lu"
+      you_read: "Vous avez lu"
+      hq_unread_line: "%{unread} non lus · %{read} sur %{total} personnes ont lu"
+      store_unread: "%{unread} non lus (%{read}/%{total})"
     verdict:
       invalid: "Avis inconnu."
       saved: "Avis enregistré."

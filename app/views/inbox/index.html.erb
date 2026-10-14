@@ -18,6 +18,11 @@
               <% else %>
                 <%= localized_badge(delivery.status) %>
               <% end %>
+              <% if !delivery.communication.task? && !delivery.read_by?(current_user) %>
+                <span class="badge"><%= t("morocco.read_receipts.unread_badge") %></span>
+              <% elsif !delivery.communication.task? && delivery.read_by?(current_user) %>
+                <span class="badge"><%= t("morocco.read_receipts.read_badge") %></span>
+              <% end %>
             </div>
             <% if delivery.dependency_blocked? %>
               <p class="meta"><%= delivery.dependency_blocked_reason %></p>

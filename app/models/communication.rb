@@ -203,6 +203,18 @@ class Communication < ApplicationRecord
     { total: total, done: done, pending: pending, percent: percent_of(done, total) }
   end
 
+  # Aggregate per-user read receipts across all stores on this brief.
+  def read_receipt_stats
+    store_ids = deliveries.pluck(:org_unit_id)
+    readers = User.joins(:memberships)
+                  .where(tenant_id: tenant_id, memberships: { org_unit_id: store_ids, role: "store" })
+                  .distinct
+    total = readers.count
+    read = DeliveryRead.where(tenant_id: tenant_id, delivery_id: deliveries.select(:id), user_id: readers.select(:id))
+                       .count
+    { total: total, read: read, unread: [ total - read, 0 ].max }
+  end
+
   private
 
   # Only tasks carry a priority; notes are always routine.

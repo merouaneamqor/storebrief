@@ -63,6 +63,13 @@ es:
         understood: "Entendido"
         in_progress: "En curso"
         done: "Marcar hecho"
+    read_receipts:
+      title: "Confirmaciones de lectura"
+      unread_badge: "No leído"
+      read_badge: "Leído"
+      you_read: "Lo leíste"
+      hq_unread_line: "%{unread} sin leer · %{read} de %{total} personas leyeron"
+      store_unread: "%{unread} sin leer (%{read}/%{total})"
     verdict:
       invalid: "Valoración desconocida."
       saved: "Valoración guardada."

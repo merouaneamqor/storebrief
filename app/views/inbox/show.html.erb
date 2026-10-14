@@ -20,6 +20,11 @@
       <% else %>
         <%= localized_badge(@delivery.status) %>
       <% end %>
+      <% if !@communication.task? && @delivery.read_by?(current_user) %>
+        <span class="badge"><%= t("morocco.read_receipts.you_read") %></span>
+      <% elsif !@communication.task? %>
+        <span class="badge"><%= t("morocco.read_receipts.unread_badge") %></span>
+      <% end %>
     </p>
     <% if morocco %>
       <p class="owner-inline">
