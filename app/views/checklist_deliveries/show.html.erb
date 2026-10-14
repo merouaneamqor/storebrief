@@ -12,14 +12,14 @@
 <% end %>
 
 <div
-  x-data="checklistFill({
-    deliveryId: <%= @delivery.id %>,
-    completed: <%= @delivery.completed? %>,
-    csrf: '<%= form_authenticity_token %>',
-    syncUrl: '<%= sync_checklist_responses_path %>',
-    submitUrlBase: '<%= checklists_delivery_path(@delivery) %>',
-    evidenceRequired: <%= t("checklists.evidence_required").to_json.html_safe %>
-  })"
+  x-data='checklistFill(<%= {
+    deliveryId: @delivery.id,
+    completed: @delivery.completed?,
+    csrf: form_authenticity_token,
+    syncUrl: sync_checklist_responses_path,
+    submitUrlBase: checklists_delivery_path(@delivery),
+    evidenceRequired: t("checklists.evidence_required")
+  }.to_json %>)'
   x-init="hydrate()">
 
   <% @items.each do |item| %>
