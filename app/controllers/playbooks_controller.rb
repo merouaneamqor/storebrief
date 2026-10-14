@@ -13,6 +13,7 @@ class PlaybooksController < ApplicationController
 
   def campaigns
     @dashboard = Vazivo::CampaignDashboard.for(current_tenant)
+    @regional = Vazivo::RegionalCampaigns.for(current_tenant)
   end
 
   def new

@@ -2523,6 +2523,19 @@ body.rtl .billing-channel em {
   gap: 1rem;
 }
 
+.cmp-board .hq-monitor__dims {
+  margin: 0;
+}
+
+.cmp-campaigns {
+  display: grid;
+  gap: 1rem;
+}
+
+.cmp-regional {
+  margin: 0;
+}
+
 .cmp-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
