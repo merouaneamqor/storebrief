@@ -148,6 +148,7 @@ ar:
         approval_submitted: "أُرسلت للموافقة"
         approval_approved: "موافق عليها"
         approval_rejected: "مرفوضة"
+        read_receipt: "مقروء"
       from_to: "%{from} → %{to}"
       proof_detail: "قبل %{before} · بعد %{after}"
       attached: "نعم"

@@ -148,6 +148,7 @@ es:
         approval_submitted: "Enviado para aprobación"
         approval_approved: "Aprobado"
         approval_rejected: "Rechazado"
+        read_receipt: "Leído"
       from_to: "%{from} → %{to}"
       proof_detail: "Antes %{before} · Después %{after}"
       attached: "sí"

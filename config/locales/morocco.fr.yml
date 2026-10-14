@@ -148,6 +148,7 @@ fr:
         approval_submitted: "Soumis pour validation"
         approval_approved: "Validé"
         approval_rejected: "Refusé"
+        read_receipt: "Lu"
       from_to: "%{from} → %{to}"
       proof_detail: "Avant %{before} · Après %{after}"
       attached: "oui"
