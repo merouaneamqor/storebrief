@@ -3,21 +3,35 @@
 <header class="radar-head">
   <div>
     <h1><%= t("morocco.kb.articles.title") %></h1>
-    <p class="lede"><%= t("morocco.kb.articles.lede", tenant: current_tenant.name) %></p>
+    <p class="lede">
+      <% if hq_user? %>
+        <%= t("morocco.kb.articles.lede", tenant: current_tenant.name) %>
+      <% else %>
+        <%= t("morocco.kb.search.lede", tenant: current_tenant.name) %>
+      <% end %>
+    </p>
   </div>
-  <div class="cluster">
-    <%= link_to t("morocco.kb.categories.title"), kb_categories_path, class: "btn btn--ghost" %>
-    <%= link_to t("morocco.kb.articles.new"), new_kb_article_path, class: "btn btn--primary" %>
-  </div>
+  <% if hq_user? %>
+    <div class="cluster">
+      <%= link_to t("morocco.kb.categories.title"), kb_categories_path, class: "btn btn--ghost" %>
+      <%= link_to t("morocco.kb.articles.new"), new_kb_article_path, class: "btn btn--primary" %>
+    </div>
+  <% end %>
 </header>
 
-<div class="cluster" style="margin-bottom:1rem;">
-  <%= link_to t("morocco.kb.articles.filters.all"), kb_articles_path, class: "btn btn--ghost #{'is-active' if @state.blank?}" %>
-  <% KbArticle::PUBLISH_STATES.each do |state| %>
-    <%= link_to t("morocco.kb.articles.states.#{state}"), kb_articles_path(state: state),
-          class: "btn btn--ghost #{'is-active' if @state == state}" %>
-  <% end %>
-</div>
+<%= render "search_form" %>
+
+<% if hq_user? && !@search_mode %>
+  <div class="cluster" style="margin-bottom:1rem;">
+    <%= link_to t("morocco.kb.articles.filters.all"), kb_articles_path, class: "btn btn--ghost #{'is-active' if @state.blank?}" %>
+    <% KbArticle::PUBLISH_STATES.each do |state| %>
+      <%= link_to t("morocco.kb.articles.states.#{state}"), kb_articles_path(state: state),
+            class: "btn btn--ghost #{'is-active' if @state == state}" %>
+    <% end %>
+  </div>
+<% elsif @q.present? %>
+  <p class="meta" style="margin-bottom:1rem;"><%= t("morocco.kb.search.results_for", query: @q) %></p>
+<% end %>
 
 <% if @articles.any? %>
   <div class="stack">
@@ -25,21 +39,38 @@
       <article class="panel">
         <div class="cluster" style="justify-content:space-between; align-items:flex-start;">
           <div>
-            <span class="badge badge--<%= article.publish_state %>"><%= t("morocco.kb.articles.states.#{article.publish_state}") %></span>
-            <span class="meta"><%= t("morocco.kb.articles.version_label", version: article.version) %></span>
+            <% if hq_user? %>
+              <span class="badge badge--<%= article.publish_state %>"><%= t("morocco.kb.articles.states.#{article.publish_state}") %></span>
+              <span class="meta"><%= t("morocco.kb.articles.version_label", version: article.version) %></span>
+            <% end %>
             <h2 style="margin:0.35rem 0 0.15rem;"><%= link_to article.title, kb_article_path(article) %></h2>
             <p class="meta">
               <%= article.kb_category&.title.presence || "-" %>
               · <%= article.updated_at.to_date %>
+              <% if article.audience_roles.present? %>
+                · <%= t("morocco.kb.search.audience",
+                      roles: article.audience_roles.map { |r| t("morocco.kb.search.roles.#{r}") }.join(", ")) %>
+              <% end %>
+              <% if article.respond_to?(:search_rank) && article.search_rank.present? && @q.present? %>
+                · <%= t("morocco.kb.search.relevance", score: number_with_precision(article.search_rank.to_f, precision: 2)) %>
+              <% end %>
             </p>
           </div>
-          <div class="cluster">
-            <%= link_to t("morocco.kb.articles.edit"), edit_kb_article_path(article), class: "btn btn--ghost" %>
-          </div>
+          <% if hq_user? %>
+            <div class="cluster">
+              <%= link_to t("morocco.kb.articles.edit"), edit_kb_article_path(article), class: "btn btn--ghost" %>
+            </div>
+          <% end %>
         </div>
       </article>
     <% end %>
   </div>
 <% else %>
-  <p class="empty"><%= t("morocco.kb.articles.empty") %></p>
+  <p class="empty">
+    <% if @q.present? %>
+      <%= t("morocco.kb.search.empty") %>
+    <% else %>
+      <%= t("morocco.kb.articles.empty") %>
+    <% end %>
+  </p>
 <% end %>

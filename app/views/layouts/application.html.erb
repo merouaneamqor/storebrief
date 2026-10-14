@@ -155,6 +155,12 @@
                 <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                 <span><%= t("nav.ranking") %></span>
               <% end %>
+              <% if tenant_feature?(:knowledge_base) %>
+                <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("book") %></span>
+                  <span><%= t("nav.knowledge_base") %></span>
+                <% end %>
+              <% end %>
               <%= link_to t("nav.privacy"), privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" %>
             <% elsif store_user? && tenant_feature?(:morocco_ops) %>
               <% if tenant_feature?(:briefs) %>
@@ -166,6 +172,12 @@
               <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                 <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                 <span><%= t("nav.ranking") %></span>
+              <% end %>
+              <% if tenant_feature?(:knowledge_base) %>
+                <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("book") %></span>
+                  <span><%= t("nav.knowledge_base") %></span>
+                <% end %>
               <% end %>
               <%= link_to t("nav.privacy"), privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" %>
             <% else %>

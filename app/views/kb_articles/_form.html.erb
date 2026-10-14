@@ -34,6 +34,18 @@
 
     <%= f.label :publish_state, t("morocco.kb.articles.fields.publish_state") %>
     <%= f.select :publish_state, KbArticle::PUBLISH_STATES.map { |s| [ t("morocco.kb.articles.states.#{s}"), s ] } %>
+
+    <fieldset class="stack" style="border:0; padding:0; margin:0;">
+      <legend class="meta"><%= t("morocco.kb.articles.fields.audience_roles") %></legend>
+      <p class="meta"><%= t("morocco.kb.articles.fields.audience_roles_hint") %></p>
+      <% Membership::ROLES.each do |role| %>
+        <label class="cluster" style="gap:0.4rem;">
+          <%= check_box_tag "kb_article[audience_roles][]", role, @article.audience_roles.include?(role), id: "kb_article_audience_#{role}" %>
+          <%= t("morocco.kb.search.roles.#{role}") %>
+        </label>
+      <% end %>
+      <%= hidden_field_tag "kb_article[audience_roles][]", "" %>
+    </fieldset>
   </div>
 
   <div class="cluster">
