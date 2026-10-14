@@ -113,7 +113,12 @@ Rails.application.routes.draw do
       patch :cancel
     end
   end
-  resources :vm_missions
+  resources :vm_missions do
+    member do
+      post :submit_proof
+      post :review
+    end
+  end
   resources :kb_categories, only: %i[index new create edit update destroy]
   resources :kb_articles, only: %i[index show new create edit update destroy] do
     member do

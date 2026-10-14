@@ -280,4 +280,180 @@ class VmMissionsTest < ActionDispatch::IntegrationTest
     assert_match mission.title_ar, response.body
     assert_match mission.instructions_ar, response.body
   end
+
+  test "store submits before and after photos for review" do
+    mission = create_mission
+    sign_in(@brand.store_user)
+
+    get vm_mission_path(mission)
+    assert_response :success
+    assert_select "input[type=file][name=photo_before]"
+    assert_select "input[type=file][name=photo_after]"
+    assert_select "button", text: I18n.t("morocco.vm_missions.proof.submit", locale: :en)
+
+    post submit_proof_vm_mission_path(mission), params: {
+      photo_before: fixture_file_upload("window.jpg", "image/jpeg"),
+      photo_after: fixture_file_upload("window.jpg", "image/jpeg")
+    }
+    assert_redirected_to vm_mission_path(mission)
+    follow_redirect!
+    assert_match I18n.t("morocco.vm_missions.proof.submitted", locale: :en), response.body
+    assert_match I18n.t("morocco.vm_missions.proof.waiting_title", locale: :en), response.body
+    assert_select "button", text: I18n.t("morocco.vm_missions.proof.submit", locale: :en), count: 0
+
+    target = mission.vm_mission_targets.find_by!(org_unit: @brand.store)
+    assert_equal "pending_approval", target.status
+    assert target.photo_before.attached?
+    assert target.photo_after.attached?
+    assert target.submitted_at.present?
+  end
+
+  test "store cannot submit without both photos" do
+    mission = create_mission
+    sign_in(@brand.store_user)
+
+    post submit_proof_vm_mission_path(mission), params: {
+      photo_before: fixture_file_upload("window.jpg", "image/jpeg")
+    }
+    assert_redirected_to vm_mission_path(mission)
+    follow_redirect!
+    assert_match I18n.t("morocco.proof_required", locale: :en), response.body
+
+    target = mission.vm_mission_targets.find_by!(org_unit: @brand.store)
+    assert_equal "pending", target.status
+    assert_not target.photo_after.attached?
+  end
+
+  test "hq approves store proof with conforme verdict" do
+    mission = create_mission
+    target = mission.vm_mission_targets.find_by!(org_unit: @brand.store)
+    target.attach_photos!(
+      before: fixture_file_upload("window.jpg", "image/jpeg"),
+      after: fixture_file_upload("window.jpg", "image/jpeg")
+    )
+    target.submit_for_review!
+
+    sign_in(@brand.hq)
+    get vm_mission_path(mission)
+    assert_response :success
+    assert_match I18n.t("morocco.vm_missions.proof.review_title", locale: :en), response.body
+    assert_select "button[name=verdict][value=conforme]"
+    assert_select "button[name=verdict][value=non_conforme]"
+
+    post review_vm_mission_path(mission), params: {
+      target_id: target.id,
+      verdict: "conforme",
+      verdict_note: "Vitrine conforme."
+    }
+    assert_redirected_to vm_mission_path(mission)
+    follow_redirect!
+    assert_match I18n.t("morocco.vm_missions.proof.approved", locale: :en), response.body
+
+    target.reload
+    assert_equal "completed", target.status
+    assert_equal "conforme", target.verdict
+    assert_equal "Vitrine conforme.", target.verdict_note
+    assert_equal @brand.hq, target.validated_by
+    assert target.validated_at.present?
+  end
+
+  test "hq rejects store proof and store can resubmit" do
+    mission = create_mission
+    target = mission.vm_mission_targets.find_by!(org_unit: @brand.store)
+    target.attach_photos!(
+      before: fixture_file_upload("window.jpg", "image/jpeg"),
+      after: fixture_file_upload("window.jpg", "image/jpeg")
+    )
+    target.submit_for_review!
+
+    sign_in(@brand.hq)
+    post review_vm_mission_path(mission), params: {
+      target_id: target.id,
+      verdict: "non_conforme",
+      verdict_note: "Reprendre l'éclairage."
+    }
+    assert_redirected_to vm_mission_path(mission)
+
+    target.reload
+    assert_equal "pending", target.status
+    assert_equal "non_conforme", target.verdict
+    assert_equal "Reprendre l'éclairage.", target.verdict_note
+
+    sign_in(@brand.store_user)
+    get vm_mission_path(mission)
+    assert_match I18n.t("morocco.vm_missions.proof.rejected_title", locale: :en), response.body
+    assert_select "button", text: I18n.t("morocco.vm_missions.proof.submit", locale: :en)
+
+    post submit_proof_vm_mission_path(mission), params: {
+      photo_before: fixture_file_upload("window.jpg", "image/jpeg"),
+      photo_after: fixture_file_upload("window.jpg", "image/jpeg")
+    }
+    assert_equal "pending_approval", target.reload.status
+    assert_nil target.verdict
+  end
+
+  test "hq review requires a note" do
+    mission = create_mission
+    target = mission.vm_mission_targets.find_by!(org_unit: @brand.store)
+    target.attach_photos!(
+      before: fixture_file_upload("window.jpg", "image/jpeg"),
+      after: fixture_file_upload("window.jpg", "image/jpeg")
+    )
+    target.submit_for_review!
+
+    sign_in(@brand.hq)
+    post review_vm_mission_path(mission), params: {
+      target_id: target.id,
+      verdict: "conforme",
+      verdict_note: " "
+    }
+    assert_redirected_to vm_mission_path(mission)
+    follow_redirect!
+    assert_match I18n.t("morocco.approval.note_required", locale: :en), response.body
+    assert_equal "pending_approval", target.reload.status
+  end
+
+  test "area manager can approve proof for a store in their area" do
+    @brand.store.update!(parent: @area)
+    area_user = create_user(@brand.tenant, org_unit: @area, role: :area, email: "area@vm-missions.test")
+    mission = create_mission
+    target = mission.vm_mission_targets.find_by!(org_unit: @brand.store)
+    target.attach_photos!(
+      before: fixture_file_upload("window.jpg", "image/jpeg"),
+      after: fixture_file_upload("window.jpg", "image/jpeg")
+    )
+    target.submit_for_review!
+
+    sign_in(area_user)
+    post review_vm_mission_path(mission), params: {
+      target_id: target.id,
+      verdict: "improve",
+      verdict_note: "Ajuster la PLV."
+    }
+    assert_redirected_to vm_mission_path(mission)
+
+    target.reload
+    assert_equal "completed", target.status
+    assert_equal "improve", target.verdict
+    assert_equal area_user, target.validated_by
+  end
+
+  test "store cannot review proof" do
+    mission = create_mission
+    target = mission.vm_mission_targets.find_by!(org_unit: @brand.store)
+    target.attach_photos!(
+      before: fixture_file_upload("window.jpg", "image/jpeg"),
+      after: fixture_file_upload("window.jpg", "image/jpeg")
+    )
+    target.submit_for_review!
+
+    sign_in(@brand.store_user)
+    post review_vm_mission_path(mission), params: {
+      target_id: target.id,
+      verdict: "conforme",
+      verdict_note: "Nope"
+    }
+    assert_redirected_to app_root_path
+    assert_equal "pending_approval", target.reload.status
+  end
 end

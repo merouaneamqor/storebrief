@@ -32,17 +32,10 @@
 
 <%= render "attachments", mission: @mission %>
 
-<% if hq_user? %>
-  <section class="panel">
-    <h2 class="section-title"><%= t("morocco.vm_missions.fields.stores") %></h2>
-    <% if @mission.org_units.any? %>
-      <ul>
-        <% @mission.org_units.order(:name).each do |store| %>
-          <li><%= store.name %></li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p class="meta"><%= t("morocco.vm_missions.no_stores") %></p>
-    <% end %>
-  </section>
+<% if store_user? && @store_target %>
+  <%= render "store_proof", mission: @mission, target: @store_target %>
+<% end %>
+
+<% if hq_user? || area_user? %>
+  <%= render "hq_proof_review", mission: @mission, targets: @targets %>
 <% end %>

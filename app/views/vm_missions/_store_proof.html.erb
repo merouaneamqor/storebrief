@@ -1,0 +1,65 @@
+<%# locals: (mission:, target:) %>
+<section class="panel" id="vm-mission-proof">
+  <h2 class="section-title"><%= t("morocco.vm_missions.proof.title") %></h2>
+  <p class="meta"><%= t("morocco.vm_missions.proof.lede") %></p>
+
+  <% if target.pending_approval? %>
+    <p>
+      <strong class="tone tone--awaiting"><%= t("morocco.vm_missions.proof.waiting_title") %></strong>
+    </p>
+    <p class="meta"><%= t("morocco.vm_missions.proof.waiting_body") %></p>
+    <div class="proof-pair proof-pair--compact">
+      <% if target.photo_before.attached? %>
+        <figure>
+          <figcaption class="meta"><%= t("morocco.proof.before") %></figcaption>
+          <%= image_tag target.photo_before, class: "thumb" %>
+        </figure>
+      <% end %>
+      <% if target.photo_after.attached? %>
+        <figure>
+          <figcaption class="meta"><%= t("morocco.proof.after") %></figcaption>
+          <%= image_tag target.photo_after, class: "thumb" %>
+        </figure>
+      <% end %>
+    </div>
+  <% elsif target.completed? %>
+    <p class="verdict-chip <%= "verdict-chip--#{target.verdict}" if target.verdict.present? %>">
+      <% if target.verdict.present? %>
+        <strong><%= t("morocco.verdict.#{target.verdict}") %></strong>
+      <% end %>
+      <% if target.verdict_note.present? %><span><%= target.verdict_note %></span><% end %>
+    </p>
+    <div class="proof-pair proof-pair--compact">
+      <% if target.photo_before.attached? %>
+        <figure>
+          <figcaption class="meta"><%= t("morocco.proof.before") %></figcaption>
+          <%= image_tag target.photo_before, class: "thumb" %>
+        </figure>
+      <% end %>
+      <% if target.photo_after.attached? %>
+        <figure>
+          <figcaption class="meta"><%= t("morocco.proof.after") %></figcaption>
+          <%= image_tag target.photo_after, class: "thumb" %>
+        </figure>
+      <% end %>
+    </div>
+  <% else %>
+    <% if target.verdict == VmMissionTarget::REJECT_VERDICT %>
+      <p><strong><%= t("morocco.vm_missions.proof.rejected_title") %></strong></p>
+      <% if target.verdict_note.present? %>
+        <p><%= target.verdict_note %></p>
+      <% end %>
+    <% end %>
+
+    <% if mission.open? %>
+      <%= form_with url: submit_proof_vm_mission_path(mission), method: :post, multipart: true do %>
+        <%= render "proof_fields", target: target %>
+        <p>
+          <button type="submit" class="btn btn--primary"><%= t("morocco.vm_missions.proof.submit") %></button>
+        </p>
+      <% end %>
+    <% else %>
+      <p class="meta"><%= t("morocco.vm_missions.proof.mission_closed") %></p>
+    <% end %>
+  <% end %>
+</section>

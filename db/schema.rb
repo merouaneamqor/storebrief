@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_15_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -542,10 +542,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_160000) do
   create_table "vm_mission_targets", force: :cascade do |t|
     t.bigint "vm_mission_id", null: false
     t.bigint "org_unit_id", null: false
+    t.string "status", default: "pending", null: false
+    t.string "verdict"
+    t.text "verdict_note"
+    t.datetime "submitted_at"
+    t.datetime "validated_at"
+    t.bigint "validated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["org_unit_id"], name: "index_vm_mission_targets_on_org_unit_id"
+    t.index ["validated_by_id"], name: "index_vm_mission_targets_on_validated_by_id"
     t.index ["vm_mission_id", "org_unit_id"], name: "index_vm_mission_targets_on_mission_and_store", unique: true
+    t.index ["vm_mission_id", "status"], name: "index_vm_mission_targets_on_vm_mission_id_and_status"
     t.index ["vm_mission_id"], name: "index_vm_mission_targets_on_vm_mission_id"
   end
 
@@ -633,6 +641,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_160000) do
   add_foreign_key "visits", "users", column: "auditor_id"
   add_foreign_key "visits", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "vm_mission_targets", "org_units"
+  add_foreign_key "vm_mission_targets", "users", column: "validated_by_id", on_delete: :nullify
   add_foreign_key "vm_mission_targets", "vm_missions"
   add_foreign_key "vm_missions", "tenants"
   add_foreign_key "vm_missions", "users", column: "created_by_id", on_delete: :nullify
