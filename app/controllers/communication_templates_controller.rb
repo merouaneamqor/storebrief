@@ -63,8 +63,9 @@ class CommunicationTemplatesController < ApplicationController
       ]
     )
     permitted[:questions] = CommunicationTemplate.normalize_questions(permitted[:questions])
-    permitted[:requires_proof] = ActiveModel::Type::Boolean.new.cast(permitted[:requires_proof])
-    permitted[:requires_approval] = ActiveModel::Type::Boolean.new.cast(permitted[:requires_approval])
+    # Unchecked checkboxes omit the key; cast(nil) is nil and would violate NOT NULL.
+    permitted[:requires_proof] = ActiveModel::Type::Boolean.new.cast(permitted[:requires_proof]) == true
+    permitted[:requires_approval] = ActiveModel::Type::Boolean.new.cast(permitted[:requires_approval]) == true
     permitted
   end
 end

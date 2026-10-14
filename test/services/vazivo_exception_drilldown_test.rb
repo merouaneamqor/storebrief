@@ -27,7 +27,9 @@ class VazivoExceptionDrilldownTest < ActiveSupport::TestCase
     assert_equal @area.id, row.area_id
     assert_equal "Nord", row.area_name
     assert row.age_seconds >= 5.hours.to_i
-    assert_match(/\d+h|\d+ h/, row.age_label)
+    I18n.with_locale(:en) do
+      assert_match(/\d+\s*h/, row.age_label)
+    end
     assert_includes row.path, "store-#{@north.id}"
     assert_equal communication_path(brief, anchor: "store-#{@north.id}"), row.path
     refute row.visit_linked?
