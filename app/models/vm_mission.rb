@@ -51,4 +51,3 @@ class VmMission < ApplicationRecord
     errors.add(:org_units, :invalid) if invalid.any?
   end
 end
-
