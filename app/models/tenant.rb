@@ -90,6 +90,7 @@ class Tenant < ApplicationRecord
   has_many :escalation_events, dependent: :destroy
   has_many :checklists, dependent: :destroy
   has_many :communications, dependent: :destroy
+  has_many :communication_templates, dependent: :destroy
   has_many :playbooks, dependent: :destroy
   has_many :visits, dependent: :destroy
   has_many :checklist_templates, dependent: :destroy

@@ -24,6 +24,13 @@
         <noscript><%= f.submit t("communications.priority_save"), class: "btn btn--ghost" %></noscript>
       <% end %>
     <% end %>
+    <% if hq_user? %>
+      <div class="template-card__actions" style="margin-top:0.75rem;">
+        <%= button_to t("task_templates.save_as"), save_as_template_communication_path(@communication),
+              method: :post, class: "btn btn--ghost" %>
+        <%= link_to t("task_templates.title"), task_templates_path, class: "btn btn--ghost" %>
+      </div>
+    <% end %>
   </div>
 </header>
 

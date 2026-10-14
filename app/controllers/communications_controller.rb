@@ -4,7 +4,7 @@ class CommunicationsController < ApplicationController
   before_action :require_compose_hq, except: %i[index show]
   before_action :require_monitor_access, only: %i[index show]
   before_action -> { require_feature!(:briefs) }
-  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority]
+  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority save_as_template]
   before_action :load_target_units, only: %i[new create edit update]
 
   def index
@@ -105,6 +105,17 @@ class CommunicationsController < ApplicationController
       redirect_to @communication, notice: t("communications.priority_saved")
     else
       redirect_to @communication, alert: t("communications.priority_invalid")
+    end
+  end
+
+  def save_as_template
+    template = CommunicationTemplate.from_communication(@communication)
+
+    if template.save
+      redirect_to task_templates_path, notice: t("task_templates.saved", title: template.title)
+    else
+      redirect_back fallback_location: communication_path(@communication),
+                    alert: t("task_templates.save_failed")
     end
   end
 
