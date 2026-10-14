@@ -9,7 +9,7 @@ module Vazivo
     Snapshot = Struct.new(
       :lens, :greeting_key, :name, :place_name, :ramadan, :opens_at,
       :urgent_count, :late_count, :done_count, :completion_percent,
-      :now_items, :later_items, :today_by_priority,
+      :now_items, :later_items, :today_by_priority, :priority_counts,
       :attention_count, :attention_names, :campaign_title, :area,
       keyword_init: true
     )
@@ -92,6 +92,7 @@ module Vazivo
         now_items: now_items,
         later_items: later_records.first(8).map { |record| to_item(record) },
         today_by_priority: group_by_priority(now_items),
+        priority_counts: count_by_priority(now_records),
         attention_count: names.size,
         attention_names: names,
         campaign_title: campaign_title,
@@ -114,6 +115,7 @@ module Vazivo
         now_items: [],
         later_items: [],
         today_by_priority: Communication::PRIORITIES.index_with { [] },
+        priority_counts: Communication::PRIORITIES.index_with { 0 },
         attention_count: 0,
         attention_names: [],
         campaign_title: nil,
@@ -125,6 +127,18 @@ module Vazivo
       Communication::PRIORITIES.index_with do |priority|
         items.select { |item| item.priority == priority }
       end
+    end
+
+    # Communication priority counts for the morning strip (not Execution#urgent?).
+    # Checklists have no priority column and count as routine.
+    def count_by_priority(records)
+      Communication::PRIORITIES.index_with do |priority|
+        records.count { |record| priority_key_for(record) == priority }
+      end
+    end
+
+    def priority_key_for(record)
+      record.is_a?(Delivery) ? record.communication.priority : Communication::DEFAULT_PRIORITY
     end
 
     def open_records(stores)
