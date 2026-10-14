@@ -77,6 +77,12 @@ class InboxController < ApplicationController
   end
 
   def set_store
+    # Inbox is store-scoped execution chrome; HQ/area must not use it as a board.
+    unless store_user?
+      redirect_to app_root_path, alert: t("auth.hq_required")
+      return
+    end
+
     @store = current_user.store_org_unit
     return if @store
 

@@ -8,8 +8,8 @@
   <div class="template-card__actions">
     <% if hq_user? %>
       <%= link_to t("task_templates.title"), task_templates_path, class: "btn btn--ghost" %>
+      <%= link_to t("communications.compose"), new_communication_path, class: "btn" %>
     <% end %>
-    <%= link_to t("communications.compose"), new_communication_path, class: "btn" %>
   </div>
 </div>
 
