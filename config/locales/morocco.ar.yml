@@ -63,6 +63,13 @@ ar:
         understood: "مفهوم"
         in_progress: "بدأ العمل"
         done: "تم"
+    read_receipts:
+      title: "إيصالات القراءة"
+      unread_badge: "غير مقروء"
+      read_badge: "مقروء"
+      you_read: "قرأته"
+      hq_unread_line: "%{unread} غير مقروء · %{read} من %{total} أشخاص قرأوا"
+      store_unread: "%{unread} غير مقروء (%{read}/%{total})"
     verdict:
       invalid: "تقييم غير معروف."
       saved: "تم حفظ التقييم."
@@ -141,6 +148,7 @@ ar:
         approval_submitted: "أُرسلت للموافقة"
         approval_approved: "موافق عليها"
         approval_rejected: "مرفوضة"
+        read_receipt: "مقروء"
       from_to: "%{from} → %{to}"
       proof_detail: "قبل %{before} · بعد %{after}"
       attached: "نعم"

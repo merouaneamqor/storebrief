@@ -5,7 +5,7 @@ class InboxController < ApplicationController
   def index
     @deliveries = Delivery.current_instances
                           .where(org_unit: @store, communications: { tenant_id: tenant_scope.id, status: "sent" })
-                          .includes(communication: :depends_on_communication)
+                          .includes(:delivery_reads, communication: :depends_on_communication)
                           .merge(Communication.by_priority)
                           .order("communications.created_at DESC")
     priority = params[:priority].to_s
@@ -28,7 +28,7 @@ class InboxController < ApplicationController
     if params[:step].to_s == "done" && @delivery.communication.questions?
       @delivery.save_answers!(params[:answers])
     end
-    @delivery.advance_awareness!(params[:step])
+    @delivery.advance_awareness!(params[:step], by: current_user)
     notice = @delivery.pending_approval? ? t("morocco.approval.submitted") : t("morocco.awareness.saved")
     redirect_to inbox_path(@delivery), notice: notice
   rescue ArgumentError, ActiveRecord::RecordInvalid => e
@@ -47,7 +47,7 @@ class InboxController < ApplicationController
         notice = @delivery.pending_approval? ? t("morocco.approval.submitted") : t("inbox.task_done")
         redirect_to inbox_path(@delivery), notice: notice
       else
-        @delivery.mark_read!
+        @delivery.mark_read!(by: current_user)
         redirect_to inbox_path(@delivery), notice: t("inbox.marked_read")
       end
     rescue ArgumentError, ActiveRecord::RecordInvalid => e
@@ -75,6 +75,7 @@ class InboxController < ApplicationController
     Delivery.joins(:communication)
             .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
             .includes(
+              :delivery_reads,
               { delivery_answers: { image_attachment: :blob } },
               { delivery_comments: :user },
               communication: [ :communication_questions, :depends_on_communication ]

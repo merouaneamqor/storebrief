@@ -23,14 +23,16 @@ class CommunicationsController < ApplicationController
     end
 
     @stats = @communication.completion_stats
+    @read_receipts = @communication.read_receipt_stats
     @deliveries = monitored_deliveries_for(@communication).includes(
       :org_unit, :assignee, :corrective_communication, :dependency_cleared_by,
+      :delivery_reads,
       photo_before_attachment: :blob,
       photo_after_attachment: :blob,
       delivery_answers: [ :communication_question, { image_attachment: :blob } ],
       delivery_events: :actor,
       delivery_comments: :user,
-      org_unit: :users
+      org_unit: { memberships: :user }
     ).order(:id)
     @mentionable_users = tenant_scope.users.order(:name).limit(50).to_a if tenant_feature?(:morocco_ops)
     @notifications = hq_user? ? @communication.notification_logs.includes(:user).order(created_at: :desc) : []

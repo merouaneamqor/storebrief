@@ -142,6 +142,14 @@
   <% else %>
     <%= render "shared/progress", stats: @stats %>
   <% end %>
+  <% if @read_receipts && @read_receipts[:total].positive? %>
+    <p class="brief-progress-card__summary meta" data-testid="hq-unread-count">
+      <%= t("morocco.read_receipts.hq_unread_line",
+            unread: @read_receipts[:unread],
+            read: @read_receipts[:read],
+            total: @read_receipts[:total]) %>
+    </p>
+  <% end %>
 
   <% if hq_user? && pending_count.positive? && current_tenant.feature?(:push_alerts) %>
     <div class="hq-push-remind">
@@ -177,6 +185,13 @@
                   <% end %>
                 <% else %>
                   <%= localized_badge(delivery.status) %>
+                <% end %>
+                <% receipts = delivery.read_receipt_counts %>
+                <% if receipts[:total].positive? %>
+                  · <%= t("morocco.read_receipts.store_unread",
+                        unread: receipts[:unread],
+                        read: receipts[:read],
+                        total: receipts[:total]) %>
                 <% end %>
               </div>
             </div>

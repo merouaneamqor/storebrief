@@ -14,6 +14,7 @@ class Delivery < ApplicationRecord
   has_many :delivery_answers, dependent: :destroy
   has_many :delivery_events, dependent: :delete_all
   has_many :delivery_comments, dependent: :delete_all
+  has_many :delivery_reads, dependent: :delete_all
   has_many :escalation_events, as: :subject, dependent: :destroy
   has_one :corrective_communication, class_name: "Communication", foreign_key: :source_delivery_id,
                                     inverse_of: :source_delivery, dependent: :nullify
@@ -81,12 +82,60 @@ class Delivery < ApplicationRecord
     self
   end
 
-  def mark_read!
+  def mark_read!(by: Current.user)
     ensure_not_dependency_blocked!
     ensure_required_answers!
     attrs = { status: "read", completed_at: Time.current, awareness: "done" }
     attrs.merge!(scored_attrs) if communication.questions?
-    update!(attrs)
+    transaction do
+      update!(attrs)
+      record_user_read!(by) if by
+    end
+    self
+  end
+
+  # Per-user read receipt (store members). Idempotent: first read wins.
+  def record_user_read!(user)
+    return if user.blank?
+
+    delivery_reads.find_or_create_by!(user_id: user.id) do |receipt|
+      receipt.tenant_id = communication.tenant_id
+      receipt.read_at = Time.current
+    end
+  end
+
+  def read_by?(user)
+    return false if user.blank?
+
+    if delivery_reads.loaded?
+      delivery_reads.any? { |receipt| receipt.user_id == user.id }
+    else
+      delivery_reads.exists?(user_id: user.id)
+    end
+  end
+
+  def store_reader_users
+    if org_unit.association(:memberships).loaded?
+      org_unit.memberships.select { |m| m.role == "store" }.filter_map(&:user).uniq
+    else
+      User.joins(:memberships)
+          .where(memberships: { org_unit_id: org_unit_id, role: "store" })
+          .where(tenant_id: communication.tenant_id)
+          .distinct
+          .to_a
+    end
+  end
+
+  def read_receipt_counts
+    readers = store_reader_users
+    reader_ids = readers.map(&:id)
+    total = reader_ids.size
+    read = if delivery_reads.loaded?
+      delivery_reads.count { |receipt| reader_ids.include?(receipt.user_id) }
+    else
+      delivery_reads.where(user_id: reader_ids).count
+    end
+    { total: total, read: read, unread: [ total - read, 0 ].max }
   end
 
   def apply_score!(actor: Current.user)
@@ -123,16 +172,19 @@ class Delivery < ApplicationRecord
     AWARENESS_STEPS[(index || -1) + 1]
   end
 
-  def advance_awareness!(step)
+  def advance_awareness!(step, by: Current.user)
     ensure_not_dependency_blocked!
     step = step.to_s
     raise ArgumentError, I18n.t("morocco.awareness.invalid") unless AWARENESS_STEPS.include?(step)
     raise ArgumentError, I18n.t("morocco.awareness.sequence") unless step == next_awareness_step
 
     if step == "done"
-      communication.task? ? complete! : mark_read!
+      communication.task? ? complete! : mark_read!(by: by)
     else
-      update!(awareness: step)
+      transaction do
+        update!(awareness: step)
+        record_user_read!(by) if by && step == "read"
+      end
     end
   end
 

@@ -63,6 +63,13 @@ en:
         understood: "Understood"
         in_progress: "In progress"
         done: "Mark done"
+    read_receipts:
+      title: "Read receipts"
+      unread_badge: "Unread"
+      read_badge: "Read"
+      you_read: "You read this"
+      hq_unread_line: "%{unread} unread · %{read} of %{total} people read"
+      store_unread: "%{unread} unread (%{read}/%{total})"
     verdict:
       invalid: "Unknown verdict."
       saved: "Verdict saved."
@@ -141,6 +148,7 @@ en:
         approval_submitted: "Submitted for approval"
         approval_approved: "Approved"
         approval_rejected: "Rejected"
+        read_receipt: "Read"
       from_to: "%{from} → %{to}"
       proof_detail: "Before %{before} · After %{after}"
       attached: "yes"
