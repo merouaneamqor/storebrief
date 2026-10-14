@@ -52,6 +52,19 @@ class CommunicationsController < ApplicationController
     persist_communication(:edit)
   end
 
+  def preview_targets
+    stores = Vazivo::Assignment.preview(
+      tenant_scope,
+      org_unit_ids: params[:org_unit_ids],
+      **assignment_filter_kwargs
+    )
+    render json: {
+      count: stores.size,
+      stores: stores.map { |store| { id: store.id, name: store.name, store_format: store.store_format, cluster: store.cluster } },
+      summary: t("communications.assignment_preview", count: stores.size)
+    }
+  end
+
   def send_brief
     if @communication.sent?
       redirect_to @communication, alert: t("communications.already_sent")
@@ -59,7 +72,10 @@ class CommunicationsController < ApplicationController
     end
 
     begin
-      @communication.send_to!(params[:org_unit_ids].presence || @communication.deliveries.pluck(:org_unit_id))
+      @communication.send_to!(
+        params[:org_unit_ids].presence || @communication.deliveries.pluck(:org_unit_id),
+        **assignment_filter_kwargs
+      )
       redirect_to @communication, notice: t("communications.sent")
     rescue ArgumentError => e
       redirect_to @communication, alert: e.message
@@ -133,7 +149,7 @@ class CommunicationsController < ApplicationController
     if @communication.save
       if sending
         begin
-          @communication.send_to!(params[:org_unit_ids])
+          @communication.send_to!(params[:org_unit_ids], **assignment_filter_kwargs)
           redirect_to @communication, notice: t("communications.sent")
         rescue ArgumentError => e
           flash.now[:alert] = e.message
@@ -145,6 +161,14 @@ class CommunicationsController < ApplicationController
     else
       render failure_template, status: :unprocessable_entity
     end
+  end
+
+  def assignment_filter_kwargs
+    {
+      role: params[:assignment_role].presence,
+      store_format: params[:store_format].presence,
+      cluster: params[:cluster].presence
+    }
   end
 
   def communication_params

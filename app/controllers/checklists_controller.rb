@@ -21,7 +21,12 @@ class ChecklistsController < ApplicationController
     end
 
     begin
-      @checklist.send_to!(params[:org_unit_ids])
+      @checklist.send_to!(
+        params[:org_unit_ids],
+        role: params[:assignment_role].presence,
+        store_format: params[:store_format].presence,
+        cluster: params[:cluster].presence
+      )
       redirect_to @checklist, notice: t("checklists.sent")
     rescue ArgumentError => e
       redirect_to @checklist, alert: e.message

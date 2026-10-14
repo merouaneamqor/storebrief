@@ -193,7 +193,15 @@ document.addEventListener("alpine:init", () => {
     selected: [],
     filter: "",
     type: "all",
+    role: "",
+    storeFormat: "",
+    cluster: "",
     countTemplate: "",
+    previewUrl: "",
+    previewEmpty: "",
+    previewSummary: "",
+    previewStores: [],
+    previewSeq: 0,
     focused: false,
 
     init() {
@@ -203,6 +211,14 @@ document.addEventListener("alpine:init", () => {
       }))
       this.selected = JSON.parse(this.$el.dataset.selected || "[]").map(String)
       this.countTemplate = this.$el.dataset.countLabel || "%{count}"
+      this.previewUrl = this.$el.dataset.previewUrl || ""
+      this.previewEmpty = this.$el.dataset.previewEmpty || ""
+      this.previewSummary = this.previewEmpty
+      this.$watch("selected", () => this.refreshPreview())
+      this.$watch("role", () => this.refreshPreview())
+      this.$watch("storeFormat", () => this.refreshPreview())
+      this.$watch("cluster", () => this.refreshPreview())
+      this.refreshPreview()
     },
 
     get visible() {
@@ -239,6 +255,32 @@ document.addEventListener("alpine:init", () => {
 
     clear() {
       this.selected = []
+    },
+
+    async refreshPreview() {
+      const seq = ++this.previewSeq
+      if (!this.previewUrl || this.selected.length === 0) {
+        this.previewStores = []
+        this.previewSummary = this.previewEmpty
+        return
+      }
+
+      const params = new URLSearchParams()
+      this.selected.forEach((id) => params.append("org_unit_ids[]", id))
+      if (this.role) params.set("assignment_role", this.role)
+      if (this.storeFormat) params.set("store_format", this.storeFormat)
+      if (this.cluster) params.set("cluster", this.cluster)
+
+      const response = await fetch(`${this.previewUrl}?${params}`, {
+        headers: { Accept: "application/json" },
+        credentials: "same-origin"
+      })
+      if (!response.ok || seq !== this.previewSeq) return
+
+      const data = await response.json()
+      if (seq !== this.previewSeq) return
+      this.previewStores = data.stores || []
+      this.previewSummary = data.summary || this.previewEmpty
     }
   }))
 })

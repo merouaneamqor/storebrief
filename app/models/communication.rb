@@ -97,8 +97,14 @@ class Communication < ApplicationRecord
     self.recurrence_rule = Vazivo::Recurrence.normalize(attrs)
   end
 
-  def send_to!(org_unit_ids)
-    store_ids = resolve_store_ids(org_unit_ids)
+  def send_to!(org_unit_ids, role: nil, store_format: nil, cluster: nil)
+    store_ids = Vazivo::Assignment.resolve_store_ids(
+      tenant,
+      org_unit_ids: org_unit_ids,
+      role: role,
+      store_format: store_format,
+      cluster: cluster
+    )
     raise ArgumentError, I18n.t("errors.select_targets") if store_ids.empty?
 
     due = Vazivo::Schedule.default_due(tenant, due_at)
@@ -159,8 +165,4 @@ class Communication < ApplicationRecord
     ((done.to_f / total) * 100).round
   end
 
-  def resolve_store_ids(org_unit_ids)
-    units = tenant.org_units.where(id: org_unit_ids)
-    units.flat_map { |unit| unit.descendant_stores.pluck(:id) }
-  end
 end

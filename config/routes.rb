@@ -37,6 +37,9 @@ Rails.application.routes.draw do
 
   resources :org_units, only: :index
   resources :communications, only: %i[index show new create edit update] do
+    collection do
+      get :preview_targets
+    end
     member do
       post :send_brief
       post :notify_push
