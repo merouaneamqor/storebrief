@@ -96,6 +96,15 @@ es:
         one: "1 terminada"
         other: "%{count} terminadas"
       summary_completion: "%{percent} % terminado hoy"
+      summary_priority_urgent:
+        one: "1 urgente"
+        other: "%{count} urgentes"
+      summary_priority_important:
+        one: "1 importante"
+        other: "%{count} importantes"
+      summary_priority_routine:
+        one: "1 rutina"
+        other: "%{count} rutinas"
       today_by_priority: "Prioridades de hoy"
       priority_group:
         urgent: "Urgente"

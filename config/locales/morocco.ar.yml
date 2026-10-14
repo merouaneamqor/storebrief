@@ -112,6 +112,27 @@ ar:
         many: "%{count} منتهية"
         other: "%{count} منتهية"
       summary_completion: "%{percent}٪ مكتمل اليوم"
+      summary_priority_urgent:
+        zero: "لا عاجل"
+        one: "واحد عاجل"
+        two: "اثنان عاجلان"
+        few: "%{count} عاجلة"
+        many: "%{count} عاجلاً"
+        other: "%{count} عاجل"
+      summary_priority_important:
+        zero: "لا مهم"
+        one: "واحد مهم"
+        two: "اثنان مهمان"
+        few: "%{count} مهمة"
+        many: "%{count} مهماً"
+        other: "%{count} مهم"
+      summary_priority_routine:
+        zero: "لا روتيني"
+        one: "واحد روتيني"
+        two: "اثنان روتينيان"
+        few: "%{count} روتينية"
+        many: "%{count} روتينياً"
+        other: "%{count} روتيني"
       today_by_priority: "أولويات اليوم"
       priority_group:
         urgent: "عاجل"

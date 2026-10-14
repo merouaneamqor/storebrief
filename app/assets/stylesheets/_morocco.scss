@@ -133,6 +133,31 @@
   font-weight: 600;
 }
 
+.radar-summary--priorities {
+  margin-top: -0.35rem;
+}
+
+.radar-summary__pill--priority-urgent {
+  background: var(--tone-late-bg);
+  color: var(--tone-late);
+}
+
+.radar-summary__pill--priority-urgent a { color: var(--tone-late); }
+
+.radar-summary__pill--priority-important {
+  background: var(--tone-urgent-bg);
+  color: var(--tone-urgent);
+}
+
+.radar-summary__pill--priority-important a { color: var(--tone-urgent); }
+
+.radar-summary__pill--priority-routine {
+  background: var(--surface-2, #f3f4f6);
+  color: var(--ink);
+}
+
+.radar-summary__pill--priority-routine a { color: var(--ink); }
+
 .radar-priority {
   margin-top: 0.85rem;
 }

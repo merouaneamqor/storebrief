@@ -8,6 +8,8 @@ class InboxController < ApplicationController
                           .includes(:communication)
                           .merge(Communication.by_priority)
                           .order("communications.created_at DESC")
+    priority = params[:priority].to_s
+    @deliveries = @deliveries.where(communications: { priority: priority }) if Communication::PRIORITIES.include?(priority)
   end
 
   def show

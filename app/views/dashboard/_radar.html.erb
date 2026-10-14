@@ -41,6 +41,17 @@
   <% end %>
 </p>
 
+<% if radar.lens == "store" %>
+  <p class="radar-summary radar-summary--priorities">
+    <% Communication::PRIORITIES.each do |priority| %>
+      <span class="radar-summary__pill radar-summary__pill--priority-<%= priority %>">
+        <%= link_to t("morocco.radar.summary_priority_#{priority}", count: radar.priority_counts.fetch(priority, 0)),
+                    inbox_index_path(priority: priority) %>
+      </span>
+    <% end %>
+  </p>
+<% end %>
+
 <% if radar.area %>
   <%= render "dashboard/area_summary", radar: radar %>
 <% elsif radar.attention_count.positive? %>
