@@ -1,30 +1,36 @@
 class CommunicationsController < ApplicationController
   layout :communications_layout
 
-  before_action :require_hq
+  before_action :require_compose_hq, except: %i[index show]
+  before_action :require_monitor_access, only: %i[index show]
   before_action -> { require_feature!(:briefs) }
   before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority]
   before_action :load_target_units, only: %i[new create edit update]
 
   def index
-    @communications = tenant_scope.communications.includes(:author, :deliveries).order(created_at: :desc)
+    @communications = monitored_communications.includes(:author, :deliveries).order(created_at: :desc)
   end
 
   def show
     if @communication.draft?
-      redirect_to edit_communication_path(@communication)
+      if hq_user?
+        redirect_to edit_communication_path(@communication)
+      else
+        redirect_to app_root_path, alert: t("auth.hq_required")
+      end
       return
     end
 
     @stats = @communication.completion_stats
-    @deliveries = @communication.deliveries.includes(
+    @deliveries = monitored_deliveries_for(@communication).includes(
       :org_unit, :assignee,
       photo_before_attachment: :blob,
       photo_after_attachment: :blob,
       delivery_answers: [ :communication_question, { image_attachment: :blob } ],
       delivery_events: :actor
     ).order(:id)
-    @notifications = @communication.notification_logs.includes(:user).order(created_at: :desc)
+    @notifications = hq_user? ? @communication.notification_logs.includes(:user).order(created_at: :desc) : []
+    @monitor_only = area_user?
   end
 
   def new
@@ -131,12 +137,44 @@ class CommunicationsController < ApplicationController
 
   private
 
+  def require_compose_hq
+    require_hq
+  end
+
+  def require_monitor_access
+    require_hq_or_area(:monitor)
+  end
+
   def communications_layout
     %w[new create edit update].include?(action_name) ? "brief_editor" : "application"
   end
 
   def set_communication
-    @communication = tenant_scope.communications.includes(:communication_questions).find(params[:id])
+    @communication = monitored_communications.includes(:communication_questions).find(params[:id])
+  end
+
+  def monitored_communications
+    scope = tenant_scope.communications
+    return scope if hq_user?
+
+    store_ids = area_store_ids
+    return scope.none if store_ids.empty?
+
+    scope.sent.where(id: Delivery.where(org_unit_id: store_ids).select(:communication_id))
+  end
+
+  def monitored_deliveries_for(communication)
+    deliveries = communication.deliveries
+    return deliveries if hq_user?
+
+    deliveries.where(org_unit_id: area_store_ids)
+  end
+
+  def area_store_ids
+    area = current_user&.area_org_unit
+    return [] unless area
+
+    area.descendant_stores.pluck(:id)
   end
 
   def load_target_units

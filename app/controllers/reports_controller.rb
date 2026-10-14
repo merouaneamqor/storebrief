@@ -1,5 +1,5 @@
 class ReportsController < ApplicationController
-  before_action :require_hq
+  before_action -> { require_hq_or_area(:reports) }
   before_action -> { require_feature!(:reports) }
 
   def show

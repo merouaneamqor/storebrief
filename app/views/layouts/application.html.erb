@@ -120,6 +120,18 @@
                   <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
                   <span><%= t("nav.my_tasks") %></span>
                 <% end %>
+                <% if user_allows?(:monitor) %>
+                  <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                    <span><%= t("nav.briefs") %></span>
+                  <% end %>
+                <% end %>
+              <% end %>
+              <% if user_allows?(:visits) %>
+                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                  <span><%= t("nav.visits") %></span>
+                <% end %>
               <% end %>
               <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                 <span class="app-nav-link__icon"><%= icon("trophy") %></span>
