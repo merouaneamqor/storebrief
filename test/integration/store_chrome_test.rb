@@ -24,6 +24,7 @@ class StoreChromeTest < ActionDispatch::IntegrationTest
     assert_select "a.app-nav-link[href=?]", app_root_path
     assert_select "a.app-nav-link[href=?]", ranking_path
     assert_select "a.app-nav-link[href=?]", my_tasks_path
+    assert_select "a.app-nav-link[href=?]", newsfeeds_path
     assert_select ".app-bottom-nav"
     assert_select ".hq-board", count: 0
   end

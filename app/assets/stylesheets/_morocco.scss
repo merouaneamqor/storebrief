@@ -2975,3 +2975,43 @@ a.clos-rank__store:hover { text-decoration: underline; }
 .hq-widgets-form .sticky-action {
   margin-top: 1rem;
 }
+
+/* Store company newsfeed (#70): chronological list, no social chrome */
+.newsfeed__excerpt {
+  margin: 0.35rem 0 0;
+  color: var(--muted, #64748b);
+  line-height: 1.45;
+}
+
+.newsfeed-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line, #e2e8f0);
+}
+
+.newsfeed-pager__link {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 8px;
+  background: var(--surface, white);
+  color: var(--ink, #0f172a);
+  text-decoration: none;
+}
+
+.newsfeed-pager__link.is-disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.newsfeed-pager__status {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted, #64748b);
+}
