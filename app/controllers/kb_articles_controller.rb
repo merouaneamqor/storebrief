@@ -19,23 +19,24 @@ class KbArticlesController < ApplicationController
       @articles = @articles.where(kb_category_id: @category.id) if @category
       @categories = KbCategory.tree_for(tenant_scope)
     else
-      result = if hq_user?
-                 Vazivo::KbSearch.call(
-                   tenant: tenant_scope,
-                   query: @q,
-                   role: @role_filter,
-                   store_tags: nil,
-                   published_only: false,
-                   bypass_access: @role_filter.blank?
-                 )
-               else
-                 Vazivo::KbSearch.call(
-                   tenant: tenant_scope,
-                   query: @q,
-                   user: current_user,
-                   published_only: true
-                 )
-               end
+      result =
+        if hq_user?
+          Vazivo::KbSearch.call(
+            tenant: tenant_scope,
+            query: @q,
+            role: @role_filter,
+            store_tags: nil,
+            published_only: false,
+            bypass_access: @role_filter.blank?
+          )
+        else
+          Vazivo::KbSearch.call(
+            tenant: tenant_scope,
+            query: @q,
+            user: current_user,
+            published_only: true
+          )
+        end
       @articles = result.articles
       @categories = KbCategory.tree_for(tenant_scope) if hq_user?
     end
