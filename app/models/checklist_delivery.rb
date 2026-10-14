@@ -54,5 +54,3 @@ class ChecklistDelivery < ApplicationRecord
     true
   end
 end
-
-
