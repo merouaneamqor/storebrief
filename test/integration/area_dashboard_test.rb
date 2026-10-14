@@ -101,6 +101,55 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "area store table sorts by score and opens that store radar" do
+    brief = send_task("Campagne Aid", [ @maarif, @diab ])
+    finish(brief, @maarif, verdict: "conforme")
+    late(brief, @diab)
+
+    sign_in(@area_user)
+    assert_select "table.area-store-table"
+    assert_select "a[href='#{store_path(@maarif)}']", text: @maarif.name
+    assert_select "a[href='#{store_path(@diab)}']", text: @diab.name
+    assert_select ".store-status-badge--critical", text: I18n.t("morocco.hq.store_status.critical", locale: :en)
+    assert_no_match(/Store Agdal/, response.body)
+    assert_equal [ @maarif.name, @diab.name ], store_table_names
+
+    get app_root_path(sort: "score_asc")
+    assert_response :success
+    assert_equal [ @diab.name, @maarif.name ], store_table_names
+
+    get store_path(@maarif)
+    assert_response :success
+    assert_match @maarif.name, response.body
+    assert_select "table.area-store-table", 0
+
+    get store_path(@agdal)
+    assert_response :not_found
+  end
+
+  test "area store radar shows the work without store inbox actions" do
+    brief = send_task("Campagne Aid", [ @maarif, @diab ])
+    late(brief, @diab)
+    sign_in(@area_user)
+
+    get app_root_path
+    assert_response :success
+    assert_select "article.work-card", minimum: 1
+    brief.deliveries.each do |delivery|
+      assert_select "a[href=?]", inbox_path(delivery), count: 0
+      assert_select "form[action=?]", advance_inbox_path(delivery), count: 0
+    end
+
+    get store_path(@diab)
+    assert_response :success
+    assert_match "Campagne Aid", response.body
+    assert_select "article.work-card", minimum: 1
+    assert_select ".work-card .btn", count: 0
+    diab = brief.deliveries.find_by!(org_unit: @diab)
+    assert_select "a[href=?]", inbox_path(diab), count: 0
+    assert_select "form[action=?]", advance_inbox_path(diab), count: 0
+  end
+
   test "head office keeps the exception board" do
     send_task("Campagne Aid", [ @maarif ])
     sign_in(@hq)
@@ -109,6 +158,10 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def store_table_names
+    css_select("table.area-store-table tbody td a").map(&:text)
+  end
 
   def send_task(title, stores)
     brief = @tenant.communications.create!(

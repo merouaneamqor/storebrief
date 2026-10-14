@@ -13,11 +13,24 @@ module Vazivo
       keyword_init: true
     )
     # Monitoring summary for an area or region manager (read only).
+    StoreRow = Struct.new(:store, :score, :status, keyword_init: true)
     AreaSummary = Struct.new(
       :stores_count, :compliance_percent, :tasks_done, :tasks_total, :tasks_open, :tasks_late,
-      :audits, :campaign, :attention_stores,
+      :audits, :campaign, :attention_stores, :store_rows,
       keyword_init: true
-    )
+    ) do
+      def sorted_store_rows(sort)
+        rows = Array(store_rows)
+        case sort.to_s
+        when "score_asc"
+          rows.sort_by { |row| [ row.score.nil? ? 1 : 0, row.score.to_i, row.store.name ] }
+        when "name"
+          rows.sort_by { |row| row.store.name }
+        else
+          rows.sort_by { |row| [ row.score.nil? ? 1 : 0, -(row.score || 0), row.store.name ] }
+        end
+      end
+    end
     Campaign = Struct.new(:title, :received, :total, :percent, keyword_init: true)
     AttentionStore = Struct.new(:name, :reasons, :late_count, :redo_count, :unconfirmed, keyword_init: true) do
       def count_for(reason)
@@ -30,9 +43,17 @@ module Vazivo
       new(user, tenant).snapshot
     end
 
+    def self.for_store(user:, tenant:, store:)
+      new(user, tenant).store_snapshot(store)
+    end
+
     def initialize(user, tenant)
       @user = user
       @tenant = tenant
+    end
+
+    def store_snapshot(store)
+      build(lens: "store", place: store.name, stores: [ store ], attention_stores: siblings_of(store))
     end
 
     def snapshot
@@ -156,8 +177,28 @@ module Vazivo
         tasks_late: open_items.count(&:late?),
         audits: audit_counts(ids),
         campaign: campaign_progress(ids),
-        attention_stores: attention_rows(stores, open_items)
+        attention_stores: attention_rows(stores, open_items),
+        store_rows: store_rows_for(stores)
       )
+    end
+
+    def store_rows_for(stores)
+      scores = Ranking.for(@tenant).rows.index_by { |row| row.store.id }
+      status_for = store_status_index
+      stores.map do |store|
+        StoreRow.new(
+          store: store,
+          score: scores[store.id]&.percent,
+          status: status_for.fetch(store.id, "on_track")
+        )
+      end
+    end
+
+    def store_status_index
+      result = StoreStatus.for(@tenant)
+      StoreStatus::BUCKETS.each_with_object({}) do |bucket, index|
+        result.stores(bucket).each { |store| index[store.id] = bucket }
+      end
     end
 
     def compliance_totals(ids)
@@ -232,20 +273,27 @@ module Vazivo
       parent.descendant_stores.where.not(id: store.id).to_a
     end
 
+    # Inbox and checklist completion belong to the store user. Area and HQ
+    # viewers still see the work, without a path they cannot open.
+    def viewer_owns?(record)
+      @user.store_org_unit&.id == record.org_unit_id
+    end
+
     def to_item(record)
       routes = Rails.application.routes.url_helpers
+      owned = viewer_owns?(record)
       if record.is_a?(Delivery)
-        step = record.next_awareness_step
+        step = owned ? record.next_awareness_step : nil
         Item.new(
           kind: "brief",
           title: record.communication.title,
           due_at: record.due_at,
           tone: record.tone,
-          path: routes.inbox_path(record),
+          path: (routes.inbox_path(record) if owned),
           store_name: record.org_unit.name,
           escalation_level: record.escalation_level.to_i,
           next_step: step,
-          next_label: step ? I18n.t("morocco.awareness.actions.#{step}") : nil,
+          next_label: (I18n.t("morocco.awareness.actions.#{step}") if step),
           record_id: record.id,
           priority: record.communication.priority
         )
@@ -255,11 +303,11 @@ module Vazivo
           title: record.checklist.title,
           due_at: record.due_at,
           tone: record.tone,
-          path: routes.checklists_delivery_path(record),
+          path: (routes.checklists_delivery_path(record) if owned),
           store_name: record.org_unit.name,
           escalation_level: record.escalation_level.to_i,
           next_step: nil,
-          next_label: I18n.t("morocco.radar.open_routine"),
+          next_label: (I18n.t("morocco.radar.open_routine") if owned),
           record_id: record.id,
           priority: Communication::DEFAULT_PRIORITY
         )
