@@ -164,5 +164,4 @@ class Communication < ApplicationRecord
 
     ((done.to_f / total) * 100).round
   end
-
 end

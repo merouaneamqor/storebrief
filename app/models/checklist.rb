@@ -95,5 +95,4 @@ class Checklist < ApplicationRecord
       Vazivo::Schedule.default_due(tenant, nil)
     end
   end
-
 end
