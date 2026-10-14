@@ -74,20 +74,42 @@ class VisitCalendarTest < ActionDispatch::IntegrationTest
   test "area users only see visits at their descendant stores" do
     own = visit_on("2026-11-12", store: @north_store, auditor: @area_user)
     elsewhere = visit_on("2026-11-13", store: @brand.store)
+    other_area = @tenant.org_units.create!(name: "Sud", unit_type: "area", parent: @brand.region)
+    other_store = @tenant.org_units.create!(name: "Agadir", unit_type: "store", parent: other_area)
+    neighbour = visit_on("2026-11-14", store: other_store)
     sign_in(@area_user)
 
     get calendar_visits_path(date: "2026-11-05")
     assert_response :success
     assert_select "a##{calendar_id(own)}"
     assert_select "a##{calendar_id(elsewhere)}", count: 0
+    assert_select "a##{calendar_id(neighbour)}", count: 0
     assert_select "select#unit_id option", text: @area.name
+    assert_select "select#unit_id option", text: other_area.name, count: 0
 
     get calendar_visits_path(date: "2026-11-05", unit_id: @brand.region.id)
     assert_select "a##{calendar_id(own)}"
     assert_select "a##{calendar_id(elsewhere)}", count: 0
+    assert_select "a##{calendar_id(neighbour)}", count: 0
 
     get visit_path(elsewhere)
     assert_response :not_found
+  end
+
+  test "area scheduled visits appear on the calendar" do
+    sign_in(@area_user)
+
+    assert_difference -> { @tenant.visits.count }, 1 do
+      post visits_path, params: { visit: {
+        org_unit_id: @north_store.id, auditor_id: @area_user.id,
+        planned_at: "2026-11-18T10:00", notes: "Area plan"
+      } }
+    end
+    visit = @tenant.visits.order(:id).last
+
+    get calendar_visits_path(date: "2026-11-18")
+    assert_response :success
+    assert_select "a##{calendar_id(visit)}[href='#{visit_path(visit)}']"
   end
 
   test "other tenants visits never appear" do

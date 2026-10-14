@@ -1,6 +1,6 @@
 class VisitsController < ApplicationController
   before_action -> { require_feature!(:morocco_ops) }
-  before_action :require_visit_manager
+  before_action -> { require_hq_or_area(:visits) }
   around_action :use_store_time_zone
   before_action :set_visit, only: %i[show edit update cancel]
   before_action :load_form_options, only: %i[new create edit update]
@@ -71,12 +71,6 @@ class VisitsController < ApplicationController
 
   private
 
-  def require_visit_manager
-    return if hq_user? || current_user.area?
-
-    redirect_to app_root_path, alert: t("morocco.visits.access_required")
-  end
-
   def use_store_time_zone(&)
     Time.use_zone(Vazivo::Schedule::ZONE, &)
   end
@@ -85,24 +79,33 @@ class VisitsController < ApplicationController
     @visit = visit_scope.find(params[:id])
   end
 
+  # HQ sees every tenant visit; area only visits at descendant stores.
   def visit_scope
     scope = tenant_scope.visits
-    hq_user? ? scope : scope.where(org_unit_id: store_scope.select(:id))
+    return scope if hq_user?
+
+    store_ids = store_scope.select(:id)
+    return scope.none if store_ids.empty?
+
+    scope.where(org_unit_id: store_ids)
   end
 
   # HQ plans for every store; area users only for stores under their area.
   def store_scope
-    stores = tenant_scope.org_units.stores
-    return stores if hq_user?
-
-    store_ids = current_user.memberships.where(role: "area").includes(:org_unit)
-                            .flat_map { |m| m.org_unit.descendant_stores.pluck(:id) }
-    stores.where(id: store_ids)
+    if hq_user?
+      tenant_scope.org_units.stores
+    elsif (area = current_user.area_org_unit)
+      area.descendant_stores.where(tenant_id: tenant_scope.id)
+    else
+      OrgUnit.none
+    end
   end
 
   # Regions and areas that contain at least one store the user can see.
   def calendar_units
     visible_ids = store_scope.pluck(:id)
+    return [] if visible_ids.empty?
+
     tenant_scope.org_units.where(unit_type: %w[region area]).order(:name).select do |unit|
       unit.descendant_stores.where(id: visible_ids).exists?
     end

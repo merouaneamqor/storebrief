@@ -211,6 +211,12 @@
               <%= icon("home") %>
               <span><%= t("nav.today") %></span>
             <% end %>
+            <% if user_allows?(:visits) %>
+              <%= link_to visits_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/visits')}" do %>
+                <%= icon("calendar") %>
+                <span><%= t("nav.visits") %></span>
+              <% end %>
+            <% end %>
             <%= link_to ranking_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/classement')}" do %>
               <%= icon("trophy") %>
               <span><%= t("nav.ranking") %></span>
