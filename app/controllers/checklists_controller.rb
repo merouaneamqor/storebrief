@@ -9,7 +9,10 @@ class ChecklistsController < ApplicationController
 
   def show
     @stats = @checklist.completion_stats
-    @deliveries = @checklist.checklist_deliveries.includes(:org_unit).order(:id)
+    @items = @checklist.checklist_items
+    @deliveries = @checklist.checklist_deliveries
+                            .includes(:org_unit, checklist_item_responses: { photo_attachment: :blob })
+                            .order(:id)
     @notifications = @checklist.notification_logs.includes(:user).order(created_at: :desc)
     @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
   end

@@ -39,11 +39,38 @@
         <p class="meta"><%= t("communications.notify_push_hint", count: pending_count) %></p>
       </div>
     <% end %>
-    <ul class="list">
+    <ul class="list checklist-hq-deliveries">
       <% @deliveries.each do |delivery| %>
-        <li id="store-<%= delivery.org_unit_id %>">
-          <span><%= delivery.org_unit.name %></span>
-          <%= localized_badge(delivery.status) %>
+        <% responses = delivery.checklist_item_responses.index_by(&:checklist_item_id) %>
+        <li id="store-<%= delivery.org_unit_id %>" class="checklist-hq-delivery">
+          <div class="checklist-hq-delivery__head">
+            <span><%= delivery.org_unit.name %></span>
+            <%= localized_badge(delivery.status) %>
+          </div>
+          <ul class="checklist-hq-evidence">
+            <% (@items || @checklist.checklist_items).each do |item| %>
+              <% response = responses[item.id] %>
+              <li class="checklist-hq-evidence__item">
+                <div class="checklist-hq-evidence__label">
+                  <span><%= item.title %></span>
+                  <% if item.requires_photo? && !response&.evidence_attached? %>
+                    <span class="badge badge--missing-evidence"><%= t("checklists.missing_evidence") %></span>
+                  <% elsif item.requires_photo? %>
+                    <span class="badge"><%= t("checklists.requires_photo") %></span>
+                  <% end %>
+                </div>
+                <% if response&.evidence_attached? %>
+                  <div class="checklist-hq-evidence__media">
+                    <%= checklist_evidence_tag(response) %>
+                  </div>
+                <% elsif response&.notes.present? %>
+                  <p class="meta"><%= response.notes %></p>
+                <% else %>
+                  <p class="meta">-</p>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
         </li>
       <% end %>
     </ul>

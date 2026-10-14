@@ -42,6 +42,7 @@ window.checklistFill = function checklistFill(config) {
   return {
     ...config,
     previews: {},
+    videoPreviews: {},
     compressed: {},
     hydrate() {
       // no-op placeholder for future cached shells
@@ -51,20 +52,30 @@ window.checklistFill = function checklistFill(config) {
       if (!file) return;
       const form = event.target.closest("form");
       const itemId = form?.closest("[data-item-id]")?.dataset?.itemId;
-      const dataUrl = await ImageCompress.toJpegDataUrl(file, 1280, 0.7);
-      if (itemId) {
-        this.previews[itemId] = dataUrl;
-        this.compressed[itemId] = dataUrl;
+      if (!itemId) return;
+
+      if (file.type.startsWith("video/")) {
+        const url = URL.createObjectURL(file);
+        this.videoPreviews[itemId] = url;
+        this.previews[itemId] = null;
+        this.compressed[itemId] = null;
+        return;
       }
+
+      const dataUrl = await ImageCompress.toJpegDataUrl(file, 1280, 0.7);
+      this.previews[itemId] = dataUrl;
+      this.compressed[itemId] = dataUrl;
+      this.videoPreviews[itemId] = null;
     },
     async submitItem(event, itemId, requiresPhoto) {
       const form = event.target;
       const notes = form.notes?.value || "";
       const clientUuid = crypto.randomUUID();
       const photoData = this.compressed[itemId] || null;
+      const hasFile = !!form.photo?.files?.length;
 
-      if (requiresPhoto && !photoData && !form.photo?.files?.length) {
-        alert("Photo required");
+      if (requiresPhoto && !photoData && !hasFile) {
+        alert(this.evidenceRequired || "Evidence required");
         return;
       }
 

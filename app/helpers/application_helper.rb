@@ -80,4 +80,20 @@ module ApplicationHelper
     public_file = Rails.root.join("public/brand", filename)
     "/brand/#{filename}" if public_file.exist?
   end
+
+  def checklist_evidence_tag(response, css_class: "thumb")
+    return unless response&.evidence_attached?
+
+    if response.evidence_video?
+      tag.video(
+        src: url_for(response.photo),
+        class: "#{css_class} thumb--video",
+        controls: true,
+        preload: "metadata"
+      )
+    else
+      image_tag(response.photo, class: css_class, alt: "")
+    end
+  end
 end
+
