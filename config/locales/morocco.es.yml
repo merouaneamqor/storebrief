@@ -405,6 +405,7 @@ es:
     vm_missions:
       title: "Misiones de merchandising"
       lede: "Crea una misión VM con fecha límite y tiendas objetivo."
+      store_lede: "Consulta planogramas y guías de exhibición de tus misiones."
       new: "Nueva misión"
       edit: "Editar misión"
       back: "Volver a misiones"
@@ -419,6 +420,19 @@ es:
       overdue: "Vencida"
       saved: "Misión %{title} guardada."
       deleted: "Misión %{title} eliminada."
+      attachments: "Planogramas y ejemplos"
+      attachments_help: "Adjunta PDF o fotos (planograma, ejemplo de escaparate)."
+      attachments_remove: "Quitar"
+      attachments_empty: "No hay archivos adjuntos."
+      attachments_offline_hint: "Descarga los archivos para consultarlos sin conexión."
+      attachments_invalid: "Los adjuntos deben ser PDF o fotos."
+      attachments_too_large: "Cada adjunto debe pesar 10 MB o menos."
+      attachments_too_many: "Puedes adjuntar hasta %{count} archivos."
+      download: "Descargar"
+      version_badge: "Versión %{version}"
+      attachment_kind:
+        pdf: "PDF"
+        photo: "Foto"
       stores_count:
         zero: "Ninguna tienda"
         one: "1 tienda"
@@ -436,6 +450,8 @@ es:
         deadline: "Fecha límite"
         stores: "Tiendas"
         status: "Estado"
+        version_label: "Versión"
+        version_label_placeholder: "ej. v3 / Aid 2026"
       targets:
         title: "Tiendas objetivo"
         hint: "Elige al menos una tienda para esta misión."

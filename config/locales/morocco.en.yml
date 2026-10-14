@@ -405,6 +405,7 @@ en:
     vm_missions:
       title: "Merchandising missions"
       lede: "Create a VM mission with a deadline and target stores."
+      store_lede: "View planograms and display guidelines for your missions."
       new: "New mission"
       edit: "Edit mission"
       back: "Back to missions"
@@ -419,6 +420,19 @@ en:
       overdue: "Overdue"
       saved: "Mission %{title} saved."
       deleted: "Mission %{title} deleted."
+      attachments: "Planograms and examples"
+      attachments_help: "Attach PDF files or photos (planogram, display example)."
+      attachments_remove: "Remove"
+      attachments_empty: "No files attached."
+      attachments_offline_hint: "Download the files to review them offline."
+      attachments_invalid: "Attachments must be PDF or photo files."
+      attachments_too_large: "Each attachment must be 10 MB or smaller."
+      attachments_too_many: "You can attach up to %{count} files."
+      download: "Download"
+      version_badge: "Version %{version}"
+      attachment_kind:
+        pdf: "PDF"
+        photo: "Photo"
       stores_count:
         zero: "No stores"
         one: "1 store"
@@ -436,6 +450,8 @@ en:
         deadline: "Deadline"
         stores: "Stores"
         status: "Status"
+        version_label: "Version"
+        version_label_placeholder: "e.g. v3 / Eid 2026"
       targets:
         title: "Target stores"
         hint: "Choose at least one store for this mission."

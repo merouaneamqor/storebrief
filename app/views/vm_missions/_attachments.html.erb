@@ -1,0 +1,36 @@
+<% if mission.attachments? || mission.versioned? %>
+  <section class="panel brief-attachments">
+    <p class="section-title"><%= t("morocco.vm_missions.attachments") %></p>
+    <% if mission.versioned? %>
+      <p class="meta"><%= t("morocco.vm_missions.version_badge", version: mission.version_label) %></p>
+    <% end %>
+    <% if mission.attachments? %>
+      <p class="meta"><%= t("morocco.vm_missions.attachments_offline_hint") %></p>
+      <ul class="list">
+        <% mission.attachments.each do |file| %>
+          <li>
+            <% if file.content_type.to_s.start_with?("image/") %>
+              <%= image_tag rails_blob_path(file, disposition: "inline"),
+                    alt: file.filename.to_s,
+                    class: "brief-attachments__image",
+                    loading: "lazy" %>
+            <% end %>
+            <div>
+              <%= link_to file.filename,
+                    rails_blob_path(file, disposition: "attachment"),
+                    download: file.filename.to_s,
+                    rel: "noopener",
+                    data: { turbo: false } %>
+              <div class="meta">
+                <%= t("morocco.vm_missions.attachment_kind.#{file.content_type.to_s.start_with?('image/') ? 'photo' : 'pdf'}") %>
+                · <%= t("morocco.vm_missions.download") %>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="meta"><%= t("morocco.vm_missions.attachments_empty") %></p>
+    <% end %>
+  </section>
+<% end %>

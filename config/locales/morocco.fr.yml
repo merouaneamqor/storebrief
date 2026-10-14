@@ -405,6 +405,7 @@ fr:
     vm_missions:
       title: "Missions merchandising"
       lede: "Créez une mission VM avec échéance et magasins ciblés."
+      store_lede: "Consultez les planogrammes et consignes d'affichage de vos missions."
       new: "Nouvelle mission"
       edit: "Modifier la mission"
       back: "Retour aux missions"
@@ -419,6 +420,19 @@ fr:
       overdue: "En retard"
       saved: "Mission %{title} enregistrée."
       deleted: "Mission %{title} supprimée."
+      attachments: "Planogrammes et exemples"
+      attachments_help: "Joignez des PDF ou des photos (planogramme, exemple de vitrine)."
+      attachments_remove: "Retirer"
+      attachments_empty: "Aucun fichier joint."
+      attachments_offline_hint: "Téléchargez les fichiers pour les consulter hors ligne."
+      attachments_invalid: "Les pièces jointes doivent être des PDF ou des photos."
+      attachments_too_large: "Chaque pièce jointe doit faire 10 Mo ou moins."
+      attachments_too_many: "Vous pouvez joindre jusqu'à %{count} fichiers."
+      download: "Télécharger"
+      version_badge: "Version %{version}"
+      attachment_kind:
+        pdf: "PDF"
+        photo: "Photo"
       stores_count:
         zero: "Aucun magasin"
         one: "1 magasin"
@@ -436,6 +450,8 @@ fr:
         deadline: "Échéance"
         stores: "Magasins"
         status: "Statut"
+        version_label: "Version"
+        version_label_placeholder: "ex. v3 / Aïd 2026"
       targets:
         title: "Magasins ciblés"
         hint: "Choisissez au moins un magasin pour cette mission."
