@@ -7,6 +7,7 @@ fr:
     visits: "Visites"
     audit_history: "Historique audits"
     my_tasks: "Mes tâches"
+    hq_widgets: "Widgets siège"
   morocco:
     proof_required: "Ajoutez la photo avant et la photo après."
     owner:
@@ -290,6 +291,31 @@ fr:
       lede: "Ce que les magasins ont reçu, qui est en retard, et les campagnes à déployer."
       chase: "Relance automatique : 24 h responsable magasin, 48 h area manager, 72 h siège."
       received_question: "Est-ce que les magasins ont reçu l'information ?"
+      widgets:
+        title: "Widgets siège"
+        lede: "Choisissez les sections du tableau Aujourd'hui visibles pour cette enseigne."
+        list_title: "Sections visibles"
+        list_lede: "Désactivez les sections inutiles. Le compteur de décisions reste toujours affiché."
+        save: "Enregistrer les widgets"
+        saved: "Préférences des widgets enregistrées."
+        save_failed: "Impossible d'enregistrer les préférences des widgets."
+        back: "Retour à aujourd'hui"
+        on: "Activé"
+        off: "Désactivé"
+        items:
+          campaign: "Dernière consigne"
+          store_status: "État des magasins"
+          compliance: "Conformité par module"
+          monitoring: "Suivi des tâches"
+          exceptions: "Exceptions"
+          podium: "Podium classement"
+        hints:
+          campaign: "Progression de prise de connaissance du dernier brief."
+          store_status: "Comptes dans les temps, à surveiller et critiques."
+          compliance: "Avancement hebdomadaire par module."
+          monitoring: "Avancement des tâches par campagne et région."
+          exceptions: "Décisions non confirmées, en retard et à refaire."
+          podium: "Meilleurs magasins du classement."
     sending: "Envoi…"
     visits:
       title: "Visites magasin"

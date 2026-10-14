@@ -117,6 +117,7 @@ Rails.application.routes.draw do
   resources :stores, only: :show
   get "classement", to: "rankings#show", as: :ranking
   resource :billing, only: %i[show update]
+  resource :hq_widgets, only: %i[show update], controller: "hq_widgets"
   resource :ramadan, only: :update, controller: "ramadan"
   post "deliveries/:delivery_id/verdict", to: "delivery_verdicts#create", as: :delivery_verdict
   post "deliveries/:delivery_id/corrective_action", to: "corrective_actions#create", as: :delivery_corrective_action

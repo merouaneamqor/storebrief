@@ -42,6 +42,9 @@
             <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
           <% end %>
         <% end %>
+        <%= link_to hq_widgets_path, class: "btn btn--quiet" do %>
+          <%= icon("activity", css_class: "icon") %> <%= t("nav.hq_widgets") %>
+        <% end %>
         <%= link_to billing_path, class: "btn btn--quiet" do %>
           <%= icon("credit-card", css_class: "icon") %> <%= t("nav.billing") %>
         <% end %>
@@ -52,7 +55,7 @@
   </div>
 </section>
 
-<% if board.awareness_brief && board.awareness_rollup %>
+<% if current_tenant.hq_widget?(:campaign) && board.awareness_brief && board.awareness_rollup %>
   <% rollup = board.awareness_rollup %>
   <% total = rollup[:total].to_i %>
   <% received = (rollup["received"] || rollup[:received] || 0).to_i %>
@@ -88,45 +91,50 @@
   </section>
 <% end %>
 
-<% status = board.store_status %>
-<section class="hq-status-strip" aria-label="<%= t('morocco.hq.store_status.title') %>">
-  <p class="section-title"><%= t("morocco.hq.store_status.title") %></p>
-  <div class="hq-status-strip__tiles">
-    <% %w[on_track attention critical].each do |bucket| %>
-      <%= link_to org_units_path(status: bucket), class: "hq-status-strip__tile hq-status-strip__tile--#{bucket}" do %>
-        <strong><%= status.count(bucket) %></strong>
-        <span><%= t("morocco.hq.store_status.#{bucket}") %></span>
-      <% end %>
-    <% end %>
-  </div>
-</section>
-
-<% rollups = board.compliance_rollups %>
-<section class="hq-compliance" aria-label="<%= t('morocco.hq.compliance.title') %>">
-  <div class="hq-compliance__head">
-    <p class="section-title"><%= t("morocco.hq.compliance.title") %></p>
-    <p class="meta"><%= t("morocco.hq.compliance.lede") %></p>
-  </div>
-  <div class="hq-compliance__tiles">
-    <% rollups.each do |mod| %>
-      <% card_class = "hq-compliance__tile hq-compliance__tile--#{mod.key}#{" is-empty" unless mod.present?}" %>
-      <% if mod.path %>
-        <%= link_to mod.path, class: card_class do %>
-          <strong><%= mod.display_percent %></strong>
-          <span><%= t("morocco.hq.compliance.modules.#{mod.key}") %></span>
+<% if current_tenant.hq_widget?(:store_status) %>
+  <% status = board.store_status %>
+  <section class="hq-status-strip" aria-label="<%= t('morocco.hq.store_status.title') %>">
+    <p class="section-title"><%= t("morocco.hq.store_status.title") %></p>
+    <div class="hq-status-strip__tiles">
+      <% %w[on_track attention critical].each do |bucket| %>
+        <%= link_to org_units_path(status: bucket), class: "hq-status-strip__tile hq-status-strip__tile--#{bucket}" do %>
+          <strong><%= status.count(bucket) %></strong>
+          <span><%= t("morocco.hq.store_status.#{bucket}") %></span>
         <% end %>
-      <% else %>
-        <div class="<%= card_class %>">
-          <strong><%= mod.display_percent %></strong>
-          <span><%= t("morocco.hq.compliance.modules.#{mod.key}") %></span>
-        </div>
       <% end %>
-    <% end %>
-  </div>
-</section>
+    </div>
+  </section>
+<% end %>
 
-<% monitoring = board.task_monitoring %>
-<% if monitoring.any? %>
+<% if current_tenant.hq_widget?(:compliance) %>
+  <% rollups = board.compliance_rollups %>
+  <section class="hq-compliance" aria-label="<%= t('morocco.hq.compliance.title') %>">
+    <div class="hq-compliance__head">
+      <p class="section-title"><%= t("morocco.hq.compliance.title") %></p>
+      <p class="meta"><%= t("morocco.hq.compliance.lede") %></p>
+    </div>
+    <div class="hq-compliance__tiles">
+      <% rollups.each do |mod| %>
+        <% card_class = "hq-compliance__tile hq-compliance__tile--#{mod.key}#{" is-empty" unless mod.present?}" %>
+        <% if mod.path %>
+          <%= link_to mod.path, class: card_class do %>
+            <strong><%= mod.display_percent %></strong>
+            <span><%= t("morocco.hq.compliance.modules.#{mod.key}") %></span>
+          <% end %>
+        <% else %>
+          <div class="<%= card_class %>">
+            <strong><%= mod.display_percent %></strong>
+            <span><%= t("morocco.hq.compliance.modules.#{mod.key}") %></span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<% if current_tenant.hq_widget?(:monitoring) %>
+  <% monitoring = board.task_monitoring %>
+  <% if monitoring.any? %>
   <section class="hq-monitor" x-data="{ dim: 'campaign', open: null }" aria-label="<%= t('morocco.hq.monitoring.title') %>">
     <div class="hq-monitor__summary">
       <div class="hq-monitor__copy">
@@ -214,8 +222,10 @@
       </div>
     <% end %>
   </section>
+  <% end %>
 <% end %>
 
+<% if current_tenant.hq_widget?(:exceptions) %>
 <section class="hq-board" x-data="{ filter: '<%= j filter %>' }" x-init="
   $watch('filter', (value) => {
     const url = new URL(window.location.href);
@@ -298,8 +308,9 @@
     <% end %>
   </div>
 </section>
+<% end %>
 
-<% if board.podium.any? %>
+<% if current_tenant.hq_widget?(:podium) && board.podium.any? %>
   <section class="hq-podium">
     <div class="hq-podium__head">
       <p class="section-title"><%= icon("trophy", css_class: "icon icon--sm") %> <%= t("morocco.ranking.podium") %></p>

@@ -1,0 +1,36 @@
+<% content_for :title, "#{t('morocco.hq.widgets.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="radar-hello"><%= current_tenant.display_brand_name %></p>
+    <h1><%= t("morocco.hq.widgets.title") %></h1>
+    <p class="meta"><%= t("morocco.hq.widgets.lede") %></p>
+  </div>
+  <div class="radar-head__actions">
+    <%= link_to t("morocco.hq.widgets.back"), app_root_path, class: "btn btn--quiet" %>
+  </div>
+</header>
+
+<section class="panel" aria-label="<%= t('morocco.hq.widgets.title') %>">
+  <p class="section-title"><%= t("morocco.hq.widgets.list_title") %></p>
+  <p class="meta"><%= t("morocco.hq.widgets.list_lede") %></p>
+
+  <%= form_with url: hq_widgets_path, method: :patch, class: "billing-form hq-widgets-form", local: true do %>
+    <div class="hq-widgets__list">
+      <% Tenant::HQ_WIDGETS.keys.each do |key| %>
+        <% on = @widgets.fetch(key.to_s) %>
+        <label class="billing-toggle hq-widgets__row">
+          <%= check_box_tag "hq_widgets[#{key}]", "1", on, id: "hq_widget_#{key}" %>
+          <span>
+            <strong><%= t("morocco.hq.widgets.items.#{key}") %></strong>
+            <span class="meta"><%= t("morocco.hq.widgets.hints.#{key}") %></span>
+          </span>
+        </label>
+      <% end %>
+    </div>
+
+    <div class="sticky-action">
+      <%= submit_tag t("morocco.hq.widgets.save"), class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>
