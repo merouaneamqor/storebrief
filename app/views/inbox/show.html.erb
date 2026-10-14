@@ -81,7 +81,19 @@
       <% end %>
     </div>
   <% elsif morocco %>
-    <% if @delivery.verdict.present? %>
+    <% if @delivery.pending_approval? %>
+      <div class="flash flash--notice" role="status">
+        <strong><%= t("morocco.approval.waiting_title") %></strong>
+        <p><%= t("morocco.approval.waiting_body") %></p>
+      </div>
+    <% elsif @delivery.verdict == Delivery::APPROVAL_REJECT_VERDICT && @delivery.pending? %>
+      <div class="flash flash--alert" role="status">
+        <strong><%= t("morocco.approval.rejected_title") %></strong>
+        <% if @delivery.verdict_note.present? %>
+          <p><%= @delivery.verdict_note %></p>
+        <% end %>
+      </div>
+    <% elsif @delivery.verdict.present? %>
       <p class="verdict-line">
         <strong><%= t("morocco.verdict.#{@delivery.verdict}") %></strong>
         <% if @delivery.verdict_note.present? %>. <%= @delivery.verdict_note %><% end %>
@@ -147,11 +159,15 @@
         <% end %>
         <div class="sticky-action">
           <button type="submit" class="btn btn--primary" data-turbo-submits-with="<%= t('morocco.sending') %>">
-            <%= t("morocco.awareness.actions.#{step}") %>
+            <% if step == "done" && @communication.requires_approval? %>
+              <%= t("morocco.approval.submit") %>
+            <% else %>
+              <%= t("morocco.awareness.actions.#{step}") %>
+            <% end %>
           </button>
         </div>
       <% end %>
-    <% elsif @questions.any? && !@delivery.pending? %>
+    <% elsif @questions.any? && !@delivery.pending? && !@delivery.pending_approval? %>
       <section class="task-card__answers">
         <h2 class="section-title"><%= t("inbox.your_answers") %></h2>
         <% @questions.each do |question| %>

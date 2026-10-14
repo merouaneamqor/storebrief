@@ -7,6 +7,7 @@ module IconHelper
   TONE_ICONS = {
     "urgent" => "alert-triangle",
     "late" => "clock",
+    "awaiting" => "send",
     "done" => "check-circle",
     "open" => "eye"
   }.freeze

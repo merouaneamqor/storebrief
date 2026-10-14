@@ -52,6 +52,7 @@ class CommunicationTemplate < ApplicationRecord
       body_ar: communication.body_ar,
       format: communication.format,
       requires_proof: communication.requires_proof,
+      requires_approval: communication.requires_approval,
       priority: communication.priority,
       questions: communication.communication_questions.map do |question|
         {

@@ -51,6 +51,12 @@ module ApplicationHelper
       to = payload["to"] || payload[:to]
       note = payload["note"] || payload[:note]
       [ to.present? ? t("morocco.verdict.#{to}", default: to.to_s) : "-", note.presence ].compact.join(" · ")
+    when "approval_submitted"
+      t("morocco.approval.waiting_title")
+    when "approval_approved", "approval_rejected"
+      verdict = payload["verdict"] || payload[:verdict]
+      note = payload["note"] || payload[:note]
+      [ verdict.present? ? t("morocco.verdict.#{verdict}", default: verdict.to_s) : "-", note.presence ].compact.join(" · ")
     when "dependency_cleared"
       t("morocco.dependency.cleared_event")
     when "comment"

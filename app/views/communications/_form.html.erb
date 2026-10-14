@@ -180,6 +180,15 @@
         </section>
 
         <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("morocco.approval.title") %></h3>
+          <p class="meta"><%= t("morocco.approval.help") %></p>
+          <label class="brief-required">
+            <%= f.check_box :requires_approval, disabled: false, "x-bind:disabled": "format !== 'task'" %>
+            <span><%= t("morocco.approval.requires") %></span>
+          </label>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
           <h3><%= t("morocco.dependency.title") %></h3>
           <p class="meta"><%= t("morocco.dependency.help") %></p>
           <label class="meta" for="depends_on_communication_id"><%= t("morocco.dependency.waits_for") %></label>

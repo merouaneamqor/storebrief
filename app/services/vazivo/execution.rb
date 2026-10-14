@@ -30,6 +30,7 @@ module Vazivo
 
     def tone
       return "done" if finished?
+      return "awaiting" if respond_to?(:pending_approval?) && pending_approval?
       return "late" if late?
       return "urgent" if urgent?
 

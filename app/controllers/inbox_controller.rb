@@ -29,7 +29,8 @@ class InboxController < ApplicationController
       @delivery.save_answers!(params[:answers])
     end
     @delivery.advance_awareness!(params[:step])
-    redirect_to inbox_path(@delivery), notice: t("morocco.awareness.saved")
+    notice = @delivery.pending_approval? ? t("morocco.approval.submitted") : t("morocco.awareness.saved")
+    redirect_to inbox_path(@delivery), notice: notice
   rescue ArgumentError, ActiveRecord::RecordInvalid => e
     message = e.is_a?(ArgumentError) ? e.message : t("inbox.answers_required")
     redirect_to inbox_path(@delivery), alert: message
@@ -43,7 +44,8 @@ class InboxController < ApplicationController
       @delivery.save_answers!(params[:answers]) if @delivery.communication.questions?
       if @delivery.communication.task?
         @delivery.complete!
-        redirect_to inbox_path(@delivery), notice: t("inbox.task_done")
+        notice = @delivery.pending_approval? ? t("morocco.approval.submitted") : t("inbox.task_done")
+        redirect_to inbox_path(@delivery), notice: notice
       else
         @delivery.mark_read!
         redirect_to inbox_path(@delivery), notice: t("inbox.marked_read")

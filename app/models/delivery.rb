@@ -1,9 +1,10 @@
 class Delivery < ApplicationRecord
   include Vazivo::Execution
 
-  STATUSES = %w[pending completed read].freeze
+  STATUSES = %w[pending pending_approval completed read].freeze
   AWARENESS_STEPS = %w[received read understood in_progress done].freeze
   VERDICTS = %w[conforme improve non_conforme].freeze
+  APPROVAL_REJECT_VERDICT = "non_conforme".freeze
 
   belongs_to :communication
   belongs_to :org_unit
@@ -45,9 +46,39 @@ class Delivery < ApplicationRecord
     ensure_not_dependency_blocked!
     ensure_required_answers!
     ensure_proof!
+    return submit_for_approval! if communication.requires_approval?
+
     attrs = { status: "completed", completed_at: Time.current, awareness: "done" }
     attrs.merge!(scored_attrs) if communication.questions?
     update!(attrs)
+  end
+
+  def submit_for_approval!
+    ensure_not_dependency_blocked!
+    ensure_required_answers!
+    ensure_proof!
+    raise ArgumentError, I18n.t("morocco.approval.not_required") unless communication.requires_approval?
+    raise ArgumentError, I18n.t("morocco.approval.already_submitted") if pending_approval?
+    raise ArgumentError, I18n.t("morocco.approval.already_done") if finished?
+
+    attrs = {
+      status: "pending_approval",
+      completed_at: nil,
+      awareness: "in_progress",
+      verdict: nil,
+      verdict_note: nil,
+      validated_by: nil,
+      validated_at: nil
+    }
+    if communication.questions?
+      result = Vazivo::AuditScorer.call(self)
+      attrs[:score] = result.score if result.score.present?
+    end
+    transaction do
+      update!(attrs)
+      record_event!("approval_submitted", {})
+    end
+    self
   end
 
   def mark_read!
@@ -86,7 +117,7 @@ class Delivery < ApplicationRecord
   end
 
   def next_awareness_step
-    return if awareness == "done" || !pending?
+    return if awareness == "done" || pending_approval? || !pending?
 
     index = AWARENESS_STEPS.index(awareness)
     AWARENESS_STEPS[(index || -1) + 1]
@@ -148,12 +179,47 @@ class Delivery < ApplicationRecord
     verdict = verdict.to_s
     raise ArgumentError, I18n.t("morocco.verdict.invalid") unless VERDICTS.include?(verdict)
 
+    if pending_approval?
+      decide_approval!(verdict, note: note, by: by)
+      return self
+    end
+
     attrs = { verdict: verdict, verdict_note: note.presence, validated_by: by, validated_at: Time.current }
-    if verdict == "non_conforme"
+    if verdict == APPROVAL_REJECT_VERDICT
       attrs.merge!(status: "pending", completed_at: nil, awareness: "in_progress")
     end
     @history_actor = by
     update!(attrs)
+  ensure
+    @history_actor = nil
+  end
+
+  def decide_approval!(verdict, note:, by:)
+    raise ArgumentError, I18n.t("morocco.approval.not_pending") unless pending_approval?
+    raise ArgumentError, I18n.t("morocco.approval.note_required") if note.to_s.strip.blank?
+
+    verdict = verdict.to_s
+    raise ArgumentError, I18n.t("morocco.verdict.invalid") unless VERDICTS.include?(verdict)
+
+    attrs = { verdict: verdict, verdict_note: note.to_s.strip, validated_by: by, validated_at: Time.current }
+    if verdict == APPROVAL_REJECT_VERDICT
+      attrs.merge!(status: "pending", completed_at: nil, awareness: "in_progress")
+      event_kind = "approval_rejected"
+    else
+      attrs.merge!(status: "completed", completed_at: Time.current, awareness: "done")
+      if communication.questions? && score.blank?
+        result = Vazivo::AuditScorer.call(self)
+        attrs[:score] = result.score if result.score.present?
+      end
+      event_kind = "approval_approved"
+    end
+
+    @history_actor = by
+    transaction do
+      update!(attrs)
+      record_event!(event_kind, { verdict: verdict, note: verdict_note }, actor: by)
+    end
+    self
   ensure
     @history_actor = nil
   end
@@ -183,6 +249,10 @@ class Delivery < ApplicationRecord
 
   def pending?
     status == "pending"
+  end
+
+  def pending_approval?
+    status == "pending_approval"
   end
 
   def answer_for(question)

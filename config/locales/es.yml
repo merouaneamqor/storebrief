@@ -343,6 +343,7 @@ es:
       format: "Formato"
       priority: "Prioridad"
       requires_proof: "Requiere fotos de prueba"
+      requires_approval: "Requiere aprobación antes de terminar"
       question_fr: "Pregunta (FR)"
       question_ar: "Pregunta (AR)"
       question_type: "Tipo"

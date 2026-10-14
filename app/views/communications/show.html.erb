@@ -160,7 +160,7 @@
   <% if @deliveries.any? %>
     <ul class="store-track">
       <% @deliveries.each do |delivery| %>
-        <% needs_coach = delivery.finished? || delivery.verdict.present? %>
+        <% needs_coach = delivery.finished? || delivery.verdict.present? || delivery.pending_approval? %>
         <li id="store-<%= delivery.org_unit_id %>" class="store-track__item">
           <div class="store-track__head">
             <div class="store-track__main">
@@ -261,7 +261,24 @@
           <% end %>
 
           <% if morocco %>
-            <% if needs_coach %>
+            <% if delivery.pending_approval? %>
+              <%= form_with url: delivery_verdict_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
+                <label class="meta" for="verdict_note_<%= delivery.id %>"><%= t("morocco.approval.decide") %></label>
+                <p class="meta"><%= t("morocco.approval.decide_help") %></p>
+                <textarea id="verdict_note_<%= delivery.id %>" name="verdict_note" rows="2" required placeholder="<%= t('morocco.verdict.note') %>"></textarea>
+                <div class="verdict-form__actions">
+                  <button type="submit" class="btn btn--primary" name="verdict" value="conforme">
+                    <%= t("morocco.approval.approve_conforme") %>
+                  </button>
+                  <button type="submit" class="btn btn--ghost" name="verdict" value="improve">
+                    <%= t("morocco.approval.approve_improve") %>
+                  </button>
+                  <button type="submit" class="btn btn--ghost" name="verdict" value="non_conforme">
+                    <%= t("morocco.approval.reject") %>
+                  </button>
+                </div>
+              <% end %>
+            <% elsif needs_coach %>
               <%= form_with url: delivery_verdict_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
                 <label class="meta" for="verdict_note_<%= delivery.id %>"><%= t("morocco.verdict.coach") %></label>
                 <textarea id="verdict_note_<%= delivery.id %>" name="verdict_note" rows="2" placeholder="<%= t('morocco.verdict.note') %>"><%= delivery.verdict_note %></textarea>

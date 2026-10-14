@@ -150,6 +150,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
     t.jsonb "questions", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "requires_approval", default: false, null: false
     t.index ["tenant_id", "title_fr"], name: "index_communication_templates_on_tenant_id_and_title_fr"
     t.index ["tenant_id"], name: "index_communication_templates_on_tenant_id"
   end
@@ -179,6 +180,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
     t.bigint "source_delivery_id"
     t.bigint "source_checklist_item_response_id"
     t.bigint "depends_on_communication_id"
+    t.boolean "requires_approval", default: false, null: false
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["communication_template_id"], name: "index_communications_on_communication_template_id"
     t.index ["depends_on_communication_id"], name: "index_communications_on_depends_on_communication_id"

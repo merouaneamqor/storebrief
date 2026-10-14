@@ -351,6 +351,7 @@ ar:
       format: "النوع"
       priority: "الأولوية"
       requires_proof: "يتطلب صور إثبات"
+      requires_approval: "تتطلب موافقة قبل الإنهاء"
       question_fr: "السؤال (FR)"
       question_ar: "السؤال (AR)"
       question_type: "النوع"

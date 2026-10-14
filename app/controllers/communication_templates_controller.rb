@@ -56,14 +56,16 @@ class CommunicationTemplatesController < ApplicationController
 
   def template_attrs
     permitted = params.require(:communication_template).permit(
-      :title_fr, :title_ar, :body_fr, :body_ar, :format, :requires_proof, :priority,
+      :title_fr, :title_ar, :body_fr, :body_ar, :format, :requires_proof, :requires_approval, :priority,
       questions: [
         :position, :question_type, :title_fr, :title_ar, :required,
         { options: %i[label_fr label_ar] }
       ]
     )
     permitted[:questions] = CommunicationTemplate.normalize_questions(permitted[:questions])
-    permitted[:requires_proof] = ActiveModel::Type::Boolean.new.cast(permitted[:requires_proof])
+    # Unchecked checkboxes omit the key; cast(nil) is nil and would violate NOT NULL.
+    permitted[:requires_proof] = ActiveModel::Type::Boolean.new.cast(permitted[:requires_proof]) == true
+    permitted[:requires_approval] = ActiveModel::Type::Boolean.new.cast(permitted[:requires_approval]) == true
     permitted
   end
 end
