@@ -98,6 +98,12 @@ ar:
         few: "%{count} منتهية"
         many: "%{count} منتهية"
         other: "%{count} منتهية"
+      summary_completion: "%{percent}٪ مكتمل اليوم"
+      today_by_priority: "أولويات اليوم"
+      priority_group:
+        urgent: "عاجل"
+        important: "مهم"
+        routine: "روتيني"
       empty_now: "لا شيء للمعالجة الآن."
       attention: "انتباه"
       attention_body:

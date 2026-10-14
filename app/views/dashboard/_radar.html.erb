@@ -4,8 +4,10 @@
               else
                 radar.now_items
               end %>
-<% hero = now_list.first %>
-<% rest = now_list.drop(1) %>
+<% priority_groups = Communication::PRIORITIES.index_with { |priority|
+     now_list.select { |item| item.priority == priority }
+   } %>
+<% hero_id = now_list.first&.record_id %>
 
 <header class="radar-hero">
   <div>
@@ -32,6 +34,11 @@
       <%= t("morocco.radar.summary_done", count: radar.done_count) %>
     </span>
   <% end %>
+  <% if radar.completion_percent %>
+    <span class="radar-summary__pill radar-summary__pill--pct">
+      <%= t("morocco.radar.summary_completion", percent: radar.completion_percent) %>
+    </span>
+  <% end %>
 </p>
 
 <% if radar.area %>
@@ -47,15 +54,22 @@
   </aside>
 <% end %>
 
-<section>
+<section class="radar-today">
   <h2 class="section-title"><%= t("morocco.radar.now") %></h2>
-  <% if hero %>
-    <%= render "dashboard/work_card", item: hero, lens: radar.lens, variant: :hero %>
-    <% if rest.any? %>
-      <div class="work-cards" style="margin-top:0.65rem;">
-        <% rest.each do |item| %>
-          <%= render "dashboard/work_card", item: item, lens: radar.lens, variant: :row %>
-        <% end %>
+  <p class="meta radar-today__hint"><%= t("morocco.radar.today_by_priority") %></p>
+  <% if now_list.any? %>
+    <% priority_groups.each do |priority, items| %>
+      <% next if items.empty? %>
+      <div class="radar-priority radar-priority--<%= priority %>">
+        <h3 class="radar-priority__title"><%= t("morocco.radar.priority_group.#{priority}") %></h3>
+        <div class="work-cards">
+          <% items.each do |item| %>
+            <%= render "dashboard/work_card",
+                  item: item,
+                  lens: radar.lens,
+                  variant: (item.record_id == hero_id ? :hero : :row) %>
+          <% end %>
+        </div>
       </div>
     <% end %>
   <% else %>

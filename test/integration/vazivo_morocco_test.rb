@@ -260,6 +260,7 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_match I18n.t("morocco.radar.place_store", locale: :en), response.body
       assert_match I18n.t("morocco.radar.now", locale: :en), response.body
+      assert_match I18n.t("morocco.radar.today_by_priority", locale: :en), response.body
       assert_match "Contrôle vitrine", response.body
       assert_select "article.work-card.work-card--hero"
       assert_select ".work-card--hero .btn", minimum: 1

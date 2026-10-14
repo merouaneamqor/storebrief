@@ -8,7 +8,8 @@ module Vazivo
     )
     Snapshot = Struct.new(
       :lens, :greeting_key, :name, :place_name, :ramadan, :opens_at,
-      :urgent_count, :late_count, :done_count, :now_items, :later_items,
+      :urgent_count, :late_count, :done_count, :completion_percent,
+      :now_items, :later_items, :today_by_priority,
       :attention_count, :attention_names, :campaign_title, :area,
       keyword_init: true
     )
@@ -72,6 +73,10 @@ module Vazivo
     def build(lens:, place:, stores:, attention_stores:, area_summary: false)
       open_items = open_records(stores)
       now_records, later_records = open_items.partition(&:now?)
+      now_items = now_records.first(12).map { |record| to_item(record) }
+      done = done_today(stores)
+      open_today = open_items.count { |record| record.now? || record.due_today? }
+      today_total = done + open_today
       campaign_title, names = unconfirmed(attention_stores)
       Snapshot.new(
         lens: lens,
@@ -82,9 +87,11 @@ module Vazivo
         opens_at: @tenant.effective_open,
         urgent_count: open_items.count(&:urgent?),
         late_count: open_items.count(&:late?),
-        done_count: done_today(stores),
-        now_items: now_records.first(8).map { |record| to_item(record) },
+        done_count: done,
+        completion_percent: today_total.zero? ? nil : ((done.to_f / today_total) * 100).round,
+        now_items: now_items,
         later_items: later_records.first(8).map { |record| to_item(record) },
+        today_by_priority: group_by_priority(now_items),
         attention_count: names.size,
         attention_names: names,
         campaign_title: campaign_title,
@@ -103,13 +110,21 @@ module Vazivo
         urgent_count: 0,
         late_count: 0,
         done_count: 0,
+        completion_percent: nil,
         now_items: [],
         later_items: [],
+        today_by_priority: Communication::PRIORITIES.index_with { [] },
         attention_count: 0,
         attention_names: [],
         campaign_title: nil,
         area: nil
       )
+    end
+
+    def group_by_priority(items)
+      Communication::PRIORITIES.index_with do |priority|
+        items.select { |item| item.priority == priority }
+      end
     end
 
     def open_records(stores)

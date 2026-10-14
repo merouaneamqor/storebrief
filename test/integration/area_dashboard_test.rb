@@ -134,7 +134,7 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
 
     get app_root_path
     assert_response :success
-    assert_select "article.work-card", minimum: 1
+    assert_select ".work-card", minimum: 1
     brief.deliveries.each do |delivery|
       assert_select "a[href=?]", inbox_path(delivery), count: 0
       assert_select "form[action=?]", advance_inbox_path(delivery), count: 0
@@ -143,7 +143,7 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
     get store_path(@diab)
     assert_response :success
     assert_match "Campagne Aid", response.body
-    assert_select "article.work-card", minimum: 1
+    assert_select ".work-card", minimum: 1
     assert_select ".work-card .btn", count: 0
     diab = brief.deliveries.find_by!(org_unit: @diab)
     assert_select "a[href=?]", inbox_path(diab), count: 0
