@@ -1,7 +1,9 @@
 class ApplicationController < ActionController::Base
   RESERVED_SUBDOMAINS = %w[www admin mail api].freeze
 
-  helper_method :current_user, :current_tenant, :acting_tenant, :hq_user?, :super_admin?, :rtl?, :apex_request?, :host_tenant?, :tenant_feature?
+  helper_method :current_user, :current_tenant, :acting_tenant, :hq_user?, :area_user?,
+                :super_admin?, :rtl?, :apex_request?, :host_tenant?, :tenant_feature?,
+                :user_allows?
 
   before_action :redirect_www
   before_action :set_tenant_from_host
@@ -44,8 +46,28 @@ class ApplicationController < ActionController::Base
     super_admin? || current_user&.hq?
   end
 
+  def area_user?
+    current_user&.area? && !hq_user?
+  end
+
   def super_admin?
     current_user&.super_admin?
+  end
+
+  # Capability check against Membership::CAPABILITIES (permission matrix).
+  def user_allows?(capability)
+    return true if super_admin?
+    return false unless current_user
+
+    if current_user.hq?
+      Membership.allows?("hq", capability)
+    elsif current_user.area?
+      Membership.allows?("area", capability)
+    elsif current_user.store?
+      Membership.allows?("store", capability)
+    else
+      false
+    end
   end
 
   def rtl?
@@ -141,6 +163,15 @@ class ApplicationController < ActionController::Base
 
   def require_hq
     return if hq_user?
+
+    redirect_to app_root_path, alert: t("auth.hq_required")
+  end
+
+  # Safe monitoring / escalate surfaces for area + HQ. Compose stays on require_hq.
+  def require_hq_or_area(*capabilities)
+    caps = Array(capabilities).presence || [ :monitor ]
+    return if hq_user?
+    return if area_user? && caps.all? { |cap| user_allows?(cap) }
 
     redirect_to app_root_path, alert: t("auth.hq_required")
   end

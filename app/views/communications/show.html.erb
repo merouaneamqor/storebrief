@@ -14,7 +14,7 @@
       <%= localized_badge(@communication.status) %>
       · <%= t("common.by") %> <%= @communication.author.name %>
     </p>
-    <% if @communication.task? %>
+    <% if @communication.task? && hq_user? %>
       <%= form_with model: @communication, url: priority_communication_path(@communication), method: :patch,
                     class: "priority-form" do |f| %>
         <%= f.label :priority, t("communications.priority") %>
@@ -97,7 +97,7 @@
     <%= render "shared/progress", stats: @stats %>
   <% end %>
 
-  <% if pending_count.positive? && current_tenant.feature?(:push_alerts) %>
+  <% if hq_user? && pending_count.positive? && current_tenant.feature?(:push_alerts) %>
     <div class="hq-push-remind">
       <%= button_to notify_push_communication_path(@communication),
             method: :post,

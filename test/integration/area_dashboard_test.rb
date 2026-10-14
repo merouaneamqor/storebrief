@@ -92,6 +92,42 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
     assert_redirected_to app_root_path
   end
 
+  test "permission matrix documents area vs hq capabilities" do
+    assert Membership.allows?("hq", :compose)
+    assert_not Membership.allows?("area", :compose)
+    assert Membership.allows?("area", :monitor)
+    assert Membership.allows?("area", :escalate)
+    assert Membership.allows?("area", :visits)
+    assert_not Membership.allows?("area", :playbooks)
+    assert_not Membership.allows?("area", :billing)
+  end
+
+  test "area can monitor briefs and escalate without compose" do
+    brief = send_task("Campagne Aid", [ @maarif, @agdal ])
+    finish(brief, @maarif)
+    sign_in(@area_user)
+
+    get communications_path
+    assert_response :success
+    assert_match "Campagne Aid", response.body
+
+    get communication_path(brief)
+    assert_response :success
+    assert_match @maarif.name, response.body
+    assert_no_match @agdal.name, response.body
+
+    get visits_path
+    assert_response :success
+
+    get new_communication_path
+    assert_redirected_to app_root_path
+
+    delivery = brief.deliveries.find_by!(org_unit: @maarif)
+    post delivery_verdict_path(delivery), params: { verdict: "improve", verdict_note: "Relancer" }
+    assert_redirected_to communication_path(brief)
+    assert_equal "improve", delivery.reload.verdict
+  end
+
   test "area dashboard copy exists in every locale without em dashes" do
     keys = I18n.t("morocco.radar.area", locale: :en).keys
     %i[fr en es ar].each do |locale|
