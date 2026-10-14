@@ -23,7 +23,11 @@ class VisitsController < ApplicationController
     @calendar = Vazivo::VisitCalendar.new(visits: visits, view: params[:view], date: params[:date])
   end
 
-  def show; end
+  def show
+    @corrective_communications = @visit.corrective_communications
+                                       .includes(:author, :deliveries)
+                                       .order(created_at: :desc)
+  end
 
   def new
     @visit = tenant_scope.visits.new(planned_at: Time.zone.now.change(hour: 10, min: 0) + 1.day, auditor: current_user_auditor)

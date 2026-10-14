@@ -11,10 +11,19 @@ class ChecklistsController < ApplicationController
     @stats = @checklist.completion_stats
     @items = @checklist.checklist_items
     @deliveries = @checklist.checklist_deliveries
-                            .includes(:org_unit, checklist_item_responses: { photo_attachment: :blob })
+                            .includes(
+                              :org_unit,
+                              checklist_item_responses: [ :corrective_communication, { photo_attachment: :blob } ]
+                            )
                             .order(:id)
     @notifications = @checklist.notification_logs.includes(:user).order(created_at: :desc)
     @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
+    if tenant_feature?(:morocco_ops)
+      @store_visits = tenant_scope.visits.active
+                                  .where(org_unit_id: @deliveries.map(&:org_unit_id))
+                                  .upcoming_first
+                                  .group_by(&:org_unit_id)
+    end
   end
 
   def send_checklist

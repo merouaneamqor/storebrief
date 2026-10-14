@@ -13,6 +13,10 @@ class ChecklistItemResponse < ApplicationRecord
 
   belongs_to :checklist_delivery
   belongs_to :checklist_item
+  has_one :corrective_communication, class_name: "Communication",
+                                     foreign_key: :source_checklist_item_response_id,
+                                     inverse_of: :source_checklist_item_response,
+                                     dependent: :nullify
   has_one_attached :photo
 
   validates :checklist_item_id, uniqueness: { scope: :checklist_delivery_id }

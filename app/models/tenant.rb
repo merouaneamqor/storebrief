@@ -105,6 +105,12 @@ class Tenant < ApplicationRecord
   validates :brand_name, presence: true, length: { maximum: 60 }
   validates :tagline, length: { maximum: 120 }, allow_blank: true
   validates :opens_at, :closes_at, :ramadan_opens_at, :ramadan_closes_at, format: { with: HOUR_OF_DAY }
+  validates :corrective_deadline_days,
+            numericality: {
+              only_integer: true,
+              greater_than_or_equal_to: Vazivo::CorrectiveAction::DEADLINE_DAYS_RANGE.min,
+              less_than_or_equal_to: Vazivo::CorrectiveAction::DEADLINE_DAYS_RANGE.max
+            }
 
   BRAND_COLORS.each_key do |attr|
     validates attr, presence: true, format: { with: HEX_COLOR }
@@ -115,6 +121,7 @@ class Tenant < ApplicationRecord
   before_validation :normalize_brand_colors
   before_validation :normalize_features
   before_validation :apply_hour_defaults
+  before_validation :apply_corrective_deadline_default
   after_save :purge_removed_brand_assets
 
   FEATURE_FLAGS.each_key do |key|
@@ -205,6 +212,10 @@ class Tenant < ApplicationRecord
     self.closes_at = "21:00" if closes_at.blank?
     self.ramadan_opens_at = "12:00" if ramadan_opens_at.blank?
     self.ramadan_closes_at = "01:00" if ramadan_closes_at.blank?
+  end
+
+  def apply_corrective_deadline_default
+    self.corrective_deadline_days = Vazivo::CorrectiveAction::DEFAULT_DEADLINE_DAYS if corrective_deadline_days.blank?
   end
 
   def normalize_features

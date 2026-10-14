@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_183000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_191000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -175,14 +175,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_183000) do
     t.date "occurrence_on"
     t.string "priority", default: "routine", null: false
     t.bigint "communication_template_id"
+    t.bigint "visit_id"
+    t.bigint "source_delivery_id"
+    t.bigint "source_checklist_item_response_id"
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["communication_template_id"], name: "index_communications_on_communication_template_id"
     t.index ["playbook_id"], name: "index_communications_on_playbook_id"
     t.index ["recurrence_next_on"], name: "index_communications_on_recurrence_next_on", where: "(recurrence_next_on IS NOT NULL)"
     t.index ["recurrence_parent_id", "occurrence_on"], name: "index_communications_on_series_occurrence", unique: true, where: "(recurrence_parent_id IS NOT NULL)"
     t.index ["recurrence_parent_id"], name: "index_communications_on_recurrence_parent_id"
+    t.index ["source_checklist_item_response_id"], name: "index_communications_on_source_checklist_item_response_id"
+    t.index ["source_checklist_item_response_id"], name: "index_communications_unique_corrective_checklist_item", unique: true, where: "((source_checklist_item_response_id IS NOT NULL) AND ((source)::text = 'corrective'::text))"
+    t.index ["source_delivery_id"], name: "index_communications_on_source_delivery_id"
+    t.index ["source_delivery_id"], name: "index_communications_unique_corrective_source_delivery", unique: true, where: "((source_delivery_id IS NOT NULL) AND ((source)::text = 'corrective'::text))"
     t.index ["tenant_id", "status"], name: "index_communications_on_tenant_id_and_status"
     t.index ["tenant_id"], name: "index_communications_on_tenant_id"
+    t.index ["visit_id"], name: "index_communications_on_visit_id"
   end
 
   create_table "deliveries", force: :cascade do |t|
@@ -392,6 +400,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_183000) do
     t.string "closes_at", default: "21:00", null: false
     t.string "ramadan_opens_at", default: "12:00", null: false
     t.string "ramadan_closes_at", default: "01:00", null: false
+    t.integer "corrective_deadline_days", default: 3, null: false
     t.index ["slug"], name: "index_tenants_on_slug", unique: true
   end
 
@@ -449,11 +458,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_183000) do
   add_foreign_key "checklists", "users", column: "author_id"
   add_foreign_key "communication_questions", "communications"
   add_foreign_key "communication_templates", "tenants"
+  add_foreign_key "communications", "checklist_item_responses", column: "source_checklist_item_response_id"
   add_foreign_key "communications", "communication_templates"
   add_foreign_key "communications", "communications", column: "recurrence_parent_id", on_delete: :nullify
+  add_foreign_key "communications", "deliveries", column: "source_delivery_id"
   add_foreign_key "communications", "playbooks", on_delete: :nullify
   add_foreign_key "communications", "tenants"
   add_foreign_key "communications", "users", column: "author_id"
+  add_foreign_key "communications", "visits"
   add_foreign_key "deliveries", "communications"
   add_foreign_key "deliveries", "org_units"
   add_foreign_key "deliveries", "users", column: "assignee_id"

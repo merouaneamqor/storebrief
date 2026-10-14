@@ -23,7 +23,7 @@ class CommunicationsController < ApplicationController
 
     @stats = @communication.completion_stats
     @deliveries = monitored_deliveries_for(@communication).includes(
-      :org_unit, :assignee,
+      :org_unit, :assignee, :corrective_communication,
       photo_before_attachment: :blob,
       photo_after_attachment: :blob,
       delivery_answers: [ :communication_question, { image_attachment: :blob } ],
@@ -31,6 +31,12 @@ class CommunicationsController < ApplicationController
     ).order(:id)
     @notifications = hq_user? ? @communication.notification_logs.includes(:user).order(created_at: :desc) : []
     @monitor_only = area_user?
+    if tenant_feature?(:morocco_ops)
+      @store_visits = tenant_scope.visits.active
+                                  .where(org_unit_id: @deliveries.map(&:org_unit_id))
+                                  .upcoming_first
+                                  .group_by(&:org_unit_id)
+    end
   end
 
   def new
@@ -161,7 +167,9 @@ class CommunicationsController < ApplicationController
   end
 
   def set_communication
-    @communication = monitored_communications.includes(:communication_questions).find(params[:id])
+    @communication = monitored_communications
+                     .includes(:communication_questions, :visit, source_delivery: :communication)
+                     .find(params[:id])
   end
 
   def monitored_communications

@@ -12,6 +12,8 @@ class Delivery < ApplicationRecord
   has_many :delivery_answers, dependent: :destroy
   has_many :delivery_events, dependent: :delete_all
   has_many :escalation_events, as: :subject, dependent: :destroy
+  has_one :corrective_communication, class_name: "Communication", foreign_key: :source_delivery_id,
+                                    inverse_of: :source_delivery, dependent: :nullify
   has_one_attached :photo_before
   has_one_attached :photo_after
 

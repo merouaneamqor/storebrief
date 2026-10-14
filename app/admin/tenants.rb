@@ -8,7 +8,7 @@ ActiveAdmin.register Tenant do
 
   permit_params do
     allowed = [
-      :brand_name, :tagline,
+      :brand_name, :tagline, :corrective_deadline_days,
       :logo, :logo_mark, :favicon,
       :remove_logo, :remove_logo_mark, :remove_favicon,
       *Tenant::BRAND_COLORS.keys,
@@ -80,6 +80,11 @@ ActiveAdmin.register Tenant do
       f.input :slug, input_html: { disabled: true }
       f.input :brand_name, hint: "Shown in the app sidebar and browser title"
       f.input :tagline, hint: "Optional short line under the brand name"
+      f.input :corrective_deadline_days,
+              as: :number,
+              label: "Corrective action deadline (days)",
+              hint: "Default due date offset when HQ/area spawn a corrective task from an audit (1–30, default 3)",
+              input_html: { min: 1, max: 30 }
     end
 
     f.inputs "Logo & icons" do
@@ -267,6 +272,7 @@ ActiveAdmin.register Tenant do
       row :slug
       row :brand_name
       row :tagline
+      row("Corrective deadline (days)") { |t| t.corrective_deadline_days }
     end
 
     panel "Logo & icons" do
