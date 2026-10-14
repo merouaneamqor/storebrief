@@ -1,5 +1,5 @@
 class DeliveryEvent < ApplicationRecord
-  KINDS = %w[status awareness assignee verdict proof].freeze
+  KINDS = %w[status awareness assignee verdict proof dependency_cleared].freeze
 
   belongs_to :tenant
   belongs_to :delivery

@@ -16,8 +16,13 @@ class Communication < ApplicationRecord
   belongs_to :source_delivery, class_name: "Delivery", optional: true
   belongs_to :source_checklist_item_response, class_name: "ChecklistItemResponse", optional: true
   belongs_to :recurrence_parent, class_name: "Communication", optional: true, inverse_of: :occurrences
+  belongs_to :depends_on_communication, class_name: "Communication", optional: true,
+             inverse_of: :dependent_communications
   has_many :occurrences, class_name: "Communication", foreign_key: :recurrence_parent_id,
                          inverse_of: :recurrence_parent, dependent: :nullify
+  has_many :dependent_communications, class_name: "Communication",
+                                      foreign_key: :depends_on_communication_id,
+                                      inverse_of: :depends_on_communication, dependent: :nullify
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
@@ -32,6 +37,7 @@ class Communication < ApplicationRecord
   validates :source, inclusion: { in: SOURCES }
   validates :priority, inclusion: { in: PRIORITIES }
   validate :recurrence_rule_valid
+  validate :depends_on_communication_valid
 
   bilingual_fields :title, :body
 
@@ -55,6 +61,7 @@ class Communication < ApplicationRecord
   before_validation :apply_source_default
   before_validation :apply_priority_default
   before_validation :clear_recurrence_unless_task
+  before_validation :clear_dependency_unless_task
 
   def news?
     format == "news"
@@ -90,6 +97,14 @@ class Communication < ApplicationRecord
 
   def corrective?
     source == "corrective"
+  end
+
+  def depends_on_another?
+    depends_on_communication_id.present?
+  end
+
+  def clear_dependency!
+    update!(depends_on_communication_id: nil)
   end
 
   def recurrence_active?
@@ -176,10 +191,29 @@ class Communication < ApplicationRecord
     self.recurrence_rule = {} unless task?
   end
 
+  def clear_dependency_unless_task
+    self.depends_on_communication_id = nil unless task?
+  end
+
   def recurrence_rule_valid
     return if recurrence_rule.blank?
 
     errors.add(:recurrence_rule, :invalid) if occurrence? || Vazivo::Recurrence.errors_for(recurrence_rule).any?
+  end
+
+  def depends_on_communication_valid
+    return if depends_on_communication_id.blank?
+
+    parent = depends_on_communication
+    if parent.nil? || parent.tenant_id != tenant_id
+      errors.add(:depends_on_communication_id, :invalid)
+      return
+    end
+    if parent.id == id
+      errors.add(:depends_on_communication_id, :invalid)
+      return
+    end
+    errors.add(:depends_on_communication_id, :invalid) unless parent.task?
   end
 
   def apply_source_default

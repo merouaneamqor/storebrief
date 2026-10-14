@@ -13,8 +13,15 @@
             <div class="meta">
               <%= localized_badge(delivery.communication.format) %>
               <%= priority_badge(delivery.communication.priority) %>
-              <%= localized_badge(delivery.status) %>
+              <% if delivery.dependency_blocked? %>
+                <span class="badge"><%= t("morocco.dependency.blocked_badge") %></span>
+              <% else %>
+                <%= localized_badge(delivery.status) %>
+              <% end %>
             </div>
+            <% if delivery.dependency_blocked? %>
+              <p class="meta"><%= delivery.dependency_blocked_reason %></p>
+            <% end %>
           </div>
         </li>
       <% end %>

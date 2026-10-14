@@ -45,6 +45,7 @@ Rails.application.routes.draw do
       post :notify_push
       post :stop_recurrence
       post :save_as_template
+      post :clear_dependency
       patch :priority, action: :update_priority
     end
   end
@@ -116,6 +117,8 @@ Rails.application.routes.draw do
   resource :ramadan, only: :update, controller: "ramadan"
   post "deliveries/:delivery_id/verdict", to: "delivery_verdicts#create", as: :delivery_verdict
   post "deliveries/:delivery_id/corrective_action", to: "corrective_actions#create", as: :delivery_corrective_action
+  post "deliveries/:delivery_id/clear_dependency", to: "delivery_dependencies#clear", as: :delivery_clear_dependency
+  patch "deliveries/:delivery_id/reassign", to: "delivery_dependencies#reassign", as: :delivery_reassign
   post "checklist_item_responses/:checklist_item_response_id/corrective_action",
        to: "corrective_actions#create", as: :checklist_item_corrective_action
 end
