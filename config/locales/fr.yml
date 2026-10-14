@@ -335,6 +335,42 @@ fr:
     lede: "Modèles prêts à l'emploi pour %{tenant}."
     use: "Utiliser"
     empty: "Aucun modèle."
+    new: "Nouveau modèle"
+    new_lede: "Construisez sections et questions pour les audits magasin."
+    edit: "Modifier le modèle"
+    delete: "Supprimer"
+    delete_confirm: "Supprimer le modèle « %{title} » ?"
+    deleted: "Modèle « %{title} » supprimé."
+    saved: "Modèle « %{title} » enregistré."
+    back: "← Modèles"
+    cancel: "Annuler"
+    save: "Enregistrer le modèle"
+    items_title: "Sections et questions"
+    add_section: "Ajouter une section"
+    add_question: "Ajouter une question"
+    remove_item: "Retirer"
+    move_up: "Monter"
+    move_down: "Descendre"
+    question_count:
+      one: "%{count} question"
+      other: "%{count} questions"
+    fields:
+      category: "Catégorie"
+      title_fr: "Titre (FR)"
+      title_ar: "Titre (AR)"
+      description_fr: "Description (FR)"
+      description_ar: "Description (AR)"
+      key: "Clé"
+      section_fr: "Titre de section (FR)"
+      section_ar: "Titre de section (AR)"
+      question_fr: "Question (FR)"
+      question_ar: "Question (AR)"
+      required: "Obligatoire"
+      requires_photo: "Photo requise"
+      conditional: "Afficher seulement si…"
+      show_if_question: "Dépend de la question"
+      show_if_pick: "Choisir une question"
+      show_if_equals: "Égale"
     categories:
       opening: "Ouverture"
       closing: "Fermeture"
@@ -420,6 +456,11 @@ fr:
   activerecord:
     errors:
       models:
+        checklist_template:
+          attributes:
+            items:
+              duplicate_question_keys: "les clés de question doivent être uniques dans le modèle"
+              invalid_item_type: "l'élément %{index} a un type invalide"
         demo_request:
           attributes:
             base:

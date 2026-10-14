@@ -335,6 +335,42 @@ es:
     lede: "Plantillas listas para %{tenant}."
     use: "Usar"
     empty: "No hay plantillas."
+    new: "Nueva plantilla"
+    new_lede: "Cree secciones y preguntas para auditorías de tienda."
+    edit: "Editar plantilla"
+    delete: "Eliminar"
+    delete_confirm: "¿Eliminar la plantilla « %{title} »?"
+    deleted: "Plantilla « %{title} » eliminada."
+    saved: "Plantilla « %{title} » guardada."
+    back: "← Plantillas"
+    cancel: "Cancelar"
+    save: "Guardar plantilla"
+    items_title: "Secciones y preguntas"
+    add_section: "Añadir sección"
+    add_question: "Añadir pregunta"
+    remove_item: "Quitar"
+    move_up: "Subir"
+    move_down: "Bajar"
+    question_count:
+      one: "%{count} pregunta"
+      other: "%{count} preguntas"
+    fields:
+      category: "Categoría"
+      title_fr: "Título (FR)"
+      title_ar: "Título (AR)"
+      description_fr: "Descripción (FR)"
+      description_ar: "Descripción (AR)"
+      key: "Clave"
+      section_fr: "Título de sección (FR)"
+      section_ar: "Título de sección (AR)"
+      question_fr: "Pregunta (FR)"
+      question_ar: "Pregunta (AR)"
+      required: "Obligatoria"
+      requires_photo: "Foto requerida"
+      conditional: "Mostrar solo si…"
+      show_if_question: "Depende de la pregunta"
+      show_if_pick: "Elegir una pregunta"
+      show_if_equals: "Igual a"
     categories:
       opening: "Apertura"
       closing: "Cierre"
@@ -420,10 +456,16 @@ es:
   activerecord:
     errors:
       models:
+        checklist_template:
+          attributes:
+            items:
+              duplicate_question_keys: "las claves de pregunta deben ser únicas en la plantilla"
+              invalid_item_type: "el elemento %{index} tiene un tipo no válido"
         demo_request:
           attributes:
             base:
               contact_required: "Indique un correo profesional o un teléfono."
+
   locales:
     fr: "Français"
     en: "English"

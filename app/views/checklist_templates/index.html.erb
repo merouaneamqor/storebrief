@@ -1,7 +1,12 @@
 <% content_for :title, "#{t('templates.title')} · Vazivo" %>
 
-<h1><%= t("templates.title") %></h1>
-<p class="lede"><%= t("templates.lede", tenant: current_tenant.name) %></p>
+<header class="radar-head">
+  <div>
+    <h1><%= t("templates.title") %></h1>
+    <p class="lede"><%= t("templates.lede", tenant: current_tenant.name) %></p>
+  </div>
+  <%= link_to t("templates.new"), new_template_path, class: "btn btn--primary" %>
+</header>
 
 <% if @templates.any? %>
   <div class="template-grid">
@@ -10,8 +15,13 @@
         <span class="badge"><%= t("templates.categories.#{template.category}") %></span>
         <h3><%= template.title %></h3>
         <p class="meta"><%= template.description %></p>
-        <p class="meta"><%= template.item_defs.size %> items</p>
-        <%= button_to t("templates.use"), use_template_path(template), method: :post, class: "btn" %>
+        <p class="meta"><%= t("templates.question_count", count: template.question_count) %></p>
+        <div class="template-card__actions">
+          <%= button_to t("templates.use"), use_template_path(template), method: :post, class: "btn" %>
+          <%= link_to t("templates.edit"), edit_template_path(template), class: "btn btn--ghost" %>
+          <%= button_to t("templates.delete"), template_path(template), method: :delete, class: "btn btn--ghost",
+                form: { data: { turbo_confirm: t("templates.delete_confirm", title: template.title) } } %>
+        </div>
       </div>
     <% end %>
   </div>

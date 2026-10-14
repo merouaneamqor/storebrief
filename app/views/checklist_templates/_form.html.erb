@@ -1,0 +1,222 @@
+<%
+  items_payload = @template.item_defs.map.with_index do |item, index|
+    type = item[:type].to_s.presence || "question"
+    type = "question" unless %w[section question].include?(type)
+    show_if = (item[:show_if] || {}).with_indifferent_access
+    {
+      clientId: "i#{index}-#{SecureRandom.hex(3)}",
+      type: type,
+      key: item[:key].to_s,
+      title_fr: item[:title_fr].to_s,
+      title_ar: item[:title_ar].to_s,
+      required: ActiveModel::Type::Boolean.new.cast(item.fetch(:required, false)),
+      requires_photo: ActiveModel::Type::Boolean.new.cast(item[:requires_photo]),
+      show_if_enabled: show_if[:question_key].present?,
+      show_if_question_key: show_if[:question_key].to_s,
+      show_if_equals: show_if[:equals].to_s
+    }
+  end
+  if items_payload.empty?
+    items_payload = [
+      { clientId: "s0-new", type: "section", key: "section_1", title_fr: "", title_ar: "", required: false, requires_photo: false, show_if_enabled: false, show_if_question_key: "", show_if_equals: "" },
+      { clientId: "q0-new", type: "question", key: "question_1", title_fr: "", title_ar: "", required: true, requires_photo: false, show_if_enabled: false, show_if_question_key: "", show_if_equals: "" }
+    ]
+  end
+  form_url = @template.persisted? ? template_path(@template) : templates_path
+%>
+
+<div class="pb-editor"
+     x-data="{
+       items: <%= items_payload.to_json %>,
+       addSection() {
+         this.items.push({
+           clientId: 's' + Date.now(),
+           type: 'section',
+           key: 'section_' + (this.items.filter(i => i.type === 'section').length + 1),
+           title_fr: '',
+           title_ar: '',
+           required: false,
+           requires_photo: false,
+           show_if_enabled: false,
+           show_if_question_key: '',
+           show_if_equals: ''
+         })
+       },
+       addQuestion() {
+         this.items.push({
+           clientId: 'q' + Date.now(),
+           type: 'question',
+           key: 'question_' + (this.items.filter(i => i.type === 'question').length + 1),
+           title_fr: '',
+           title_ar: '',
+           required: false,
+           requires_photo: false,
+           show_if_enabled: false,
+           show_if_question_key: '',
+           show_if_equals: ''
+         })
+       },
+       removeItem(index) {
+         if (this.items.length <= 1) return
+         this.items.splice(index, 1)
+       },
+       moveItem(index, delta) {
+         const next = index + delta
+         if (next < 0 || next >= this.items.length) return
+         const row = this.items.splice(index, 1)[0]
+         this.items.splice(next, 0, row)
+       },
+       questionOptions() {
+         return this.items.filter(i => i.type === 'question' && i.key)
+       }
+     }">
+
+  <%= form_with model: @template, url: form_url, scope: :checklist_template, local: true, class: "pb-editor__form" do |f| %>
+    <% if @template.errors.any? %>
+      <div class="flash flash--alert"><%= @template.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <section class="pb-editor__card">
+      <label>
+        <span><%= t("templates.fields.category") %></span>
+        <%= f.select :category, ChecklistTemplate::CATEGORIES.map { |c| [ t("templates.categories.#{c}"), c ] }, {}, class: "billing-input", required: true %>
+      </label>
+      <label>
+        <span><%= t("templates.fields.title_fr") %></span>
+        <%= f.text_field :title_fr, class: "billing-input", required: true, autocomplete: "off" %>
+      </label>
+      <label>
+        <span><%= t("templates.fields.title_ar") %></span>
+        <%= f.text_field :title_ar, class: "billing-input", dir: "rtl", lang: "ar", autocomplete: "off" %>
+      </label>
+      <label>
+        <span><%= t("templates.fields.description_fr") %></span>
+        <%= f.text_area :description_fr, class: "billing-input", rows: 3 %>
+      </label>
+      <label>
+        <span><%= t("templates.fields.description_ar") %></span>
+        <%= f.text_area :description_ar, class: "billing-input", rows: 3, dir: "rtl", lang: "ar" %>
+      </label>
+    </section>
+
+    <section class="pb-editor__steps">
+      <div class="pb-editor__steps-head">
+        <h2><%= t("templates.items_title") %></h2>
+        <div class="template-editor__tools">
+          <button type="button" class="btn btn--quiet" @click="addSection()">
+            <%= icon("plus", css_class: "icon") %> <%= t("templates.add_section") %>
+          </button>
+          <button type="button" class="btn btn--quiet" @click="addQuestion()">
+            <%= icon("plus", css_class: "icon") %> <%= t("templates.add_question") %>
+          </button>
+        </div>
+      </div>
+
+      <template x-for="(item, index) in items" :key="item.clientId">
+        <div class="pb-step-row" :class="{ 'template-item--section': item.type === 'section' }">
+          <div class="pb-step-row__day">
+            <span class="pb-timeline__day" x-text="item.type === 'section' ? '§' : (index + 1)"></span>
+            <input type="hidden" :name="`checklist_template[items][${index}][type]`" :value="item.type">
+            <label>
+              <span><%= t("templates.fields.key") %></span>
+              <input type="text"
+                     class="billing-input"
+                     :name="`checklist_template[items][${index}][key]`"
+                     x-model="item.key"
+                     autocomplete="off"
+                     pattern="[a-z][a-z0-9_]*">
+            </label>
+          </div>
+
+          <div class="pb-step-row__body">
+            <label>
+              <span x-text="item.type === 'section' ? '<%= j t("templates.fields.section_fr") %>' : '<%= j t("templates.fields.question_fr") %>'"></span>
+              <input type="text"
+                     class="billing-input"
+                     :name="`checklist_template[items][${index}][title_fr]`"
+                     x-model="item.title_fr"
+                     required
+                     autocomplete="off">
+            </label>
+            <label>
+              <span x-text="item.type === 'section' ? '<%= j t("templates.fields.section_ar") %>' : '<%= j t("templates.fields.question_ar") %>'"></span>
+              <input type="text"
+                     class="billing-input"
+                     dir="rtl"
+                     lang="ar"
+                     :name="`checklist_template[items][${index}][title_ar]`"
+                     x-model="item.title_ar"
+                     autocomplete="off">
+            </label>
+
+            <template x-if="item.type === 'question'">
+              <div class="template-item__flags">
+                <label class="check">
+                  <input type="hidden" :name="`checklist_template[items][${index}][required]`" value="0">
+                  <input type="checkbox"
+                         value="1"
+                         :name="`checklist_template[items][${index}][required]`"
+                         :checked="item.required"
+                         @change="item.required = $event.target.checked">
+                  <%= t("templates.fields.required") %>
+                </label>
+                <label class="check">
+                  <input type="hidden" :name="`checklist_template[items][${index}][requires_photo]`" value="0">
+                  <input type="checkbox"
+                         value="1"
+                         :name="`checklist_template[items][${index}][requires_photo]`"
+                         :checked="item.requires_photo"
+                         @change="item.requires_photo = $event.target.checked">
+                  <%= t("templates.fields.requires_photo") %>
+                </label>
+                <label class="check">
+                  <input type="checkbox"
+                         :checked="item.show_if_enabled"
+                         @change="item.show_if_enabled = $event.target.checked">
+                  <%= t("templates.fields.conditional") %>
+                </label>
+                <template x-if="item.show_if_enabled">
+                  <div class="template-item__show-if">
+                    <label>
+                      <span><%= t("templates.fields.show_if_question") %></span>
+                      <select class="billing-input"
+                              :name="`checklist_template[items][${index}][show_if][question_key]`"
+                              x-model="item.show_if_question_key">
+                        <option value=""><%= t("templates.fields.show_if_pick") %></option>
+                        <template x-for="opt in questionOptions()" :key="opt.clientId">
+                          <option :value="opt.key" x-text="opt.key + (opt.title_fr ? ' · ' + opt.title_fr : '')" :disabled="opt.clientId === item.clientId"></option>
+                        </template>
+                      </select>
+                    </label>
+                    <label>
+                      <span><%= t("templates.fields.show_if_equals") %></span>
+                      <input type="text"
+                             class="billing-input"
+                             :name="`checklist_template[items][${index}][show_if][equals]`"
+                             x-model="item.show_if_equals"
+                             autocomplete="off">
+                    </label>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <div class="pb-step-row__tools">
+            <button type="button" class="btn btn--ghost" @click="moveItem(index, -1)" :disabled="index === 0" aria-label="<%= t('templates.move_up') %>">↑</button>
+            <button type="button" class="btn btn--ghost" @click="moveItem(index, 1)" :disabled="index === items.length - 1" aria-label="<%= t('templates.move_down') %>">↓</button>
+            <button type="button" class="btn btn--ghost" @click="removeItem(index)" :disabled="items.length <= 1"><%= t("templates.remove_item") %></button>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    <div class="pb-editor__actions sticky-action">
+      <%= link_to t("templates.cancel"), templates_path, class: "btn btn--ghost" %>
+      <button type="submit" class="btn btn--primary">
+        <%= icon("check-circle", css_class: "icon") %>
+        <%= t("templates.save") %>
+      </button>
+    </div>
+  <% end %>
+</div>
