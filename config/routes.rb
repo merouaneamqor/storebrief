@@ -48,11 +48,12 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :templates, only: %i[index], controller: "checklist_templates" do
+  resources :templates, only: %i[index new create edit update destroy], controller: "checklist_templates" do
     member do
       post :use
     end
   end
+
 
   namespace :checklists do
     resources :deliveries, only: %i[index show], controller: "/checklist_deliveries" do

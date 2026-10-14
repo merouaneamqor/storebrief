@@ -14,7 +14,9 @@
     <% @checklist.checklist_items.each do |item| %>
       <li>
         <span><%= item.title %></span>
+        <% if item.required? %><span class="badge"><%= t("templates.fields.required") %></span><% end %>
         <% if item.requires_photo? %><span class="badge"><%= t("checklists.requires_photo") %></span><% end %>
+
       </li>
     <% end %>
   </ul>

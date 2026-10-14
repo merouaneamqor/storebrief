@@ -343,6 +343,42 @@ ar:
     lede: "قوالب جاهزة لـ %{tenant}."
     use: "استخدام"
     empty: "لا قوالب."
+    new: "قالب جديد"
+    new_lede: "أنشئ أقساماً وأسئلة لتدقيق المتاجر."
+    edit: "تعديل القالب"
+    delete: "حذف"
+    delete_confirm: "حذف القالب « %{title} »؟"
+    deleted: "تم حذف القالب « %{title} »."
+    saved: "تم حفظ القالب « %{title} »."
+    back: "← القوالب"
+    cancel: "إلغاء"
+    save: "حفظ القالب"
+    items_title: "الأقسام والأسئلة"
+    add_section: "إضافة قسم"
+    add_question: "إضافة سؤال"
+    remove_item: "إزالة"
+    move_up: "أعلى"
+    move_down: "أسفل"
+    question_count:
+      one: "سؤال واحد"
+      other: "%{count} أسئلة"
+    fields:
+      category: "الفئة"
+      title_fr: "العنوان (FR)"
+      title_ar: "العنوان (AR)"
+      description_fr: "الوصف (FR)"
+      description_ar: "الوصف (AR)"
+      key: "المفتاح"
+      section_fr: "عنوان القسم (FR)"
+      section_ar: "عنوان القسم (AR)"
+      question_fr: "السؤال (FR)"
+      question_ar: "السؤال (AR)"
+      required: "إلزامي"
+      requires_photo: "صورة مطلوبة"
+      conditional: "إظهار فقط إذا…"
+      show_if_question: "يعتمد على السؤال"
+      show_if_pick: "اختر سؤالاً"
+      show_if_equals: "يساوي"
     categories:
       opening: "الافتتاح"
       closing: "الإغلاق"
@@ -428,10 +464,16 @@ ar:
   activerecord:
     errors:
       models:
+        checklist_template:
+          attributes:
+            items:
+              duplicate_question_keys: "يجب أن تكون مفاتيح الأسئلة فريدة في القالب"
+              invalid_item_type: "العنصر %{index} له نوع غير صالح"
         demo_request:
           attributes:
             base:
               contact_required: "أدخل بريداً مهنياً أو هاتفاً."
+
   locales:
     fr: "Français"
     en: "English"

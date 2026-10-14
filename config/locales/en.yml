@@ -335,6 +335,42 @@ en:
     lede: "Ready-to-use templates for %{tenant}."
     use: "Use"
     empty: "No templates."
+    new: "New template"
+    new_lede: "Build sections and questions for store audits."
+    edit: "Edit template"
+    delete: "Delete"
+    delete_confirm: "Delete template “%{title}”?"
+    deleted: "Template “%{title}” deleted."
+    saved: "Template “%{title}” saved."
+    back: "← Templates"
+    cancel: "Cancel"
+    save: "Save template"
+    items_title: "Sections and questions"
+    add_section: "Add section"
+    add_question: "Add question"
+    remove_item: "Remove"
+    move_up: "Move up"
+    move_down: "Move down"
+    question_count:
+      one: "%{count} question"
+      other: "%{count} questions"
+    fields:
+      category: "Category"
+      title_fr: "Title (FR)"
+      title_ar: "Title (AR)"
+      description_fr: "Description (FR)"
+      description_ar: "Description (AR)"
+      key: "Key"
+      section_fr: "Section title (FR)"
+      section_ar: "Section title (AR)"
+      question_fr: "Question (FR)"
+      question_ar: "Question (AR)"
+      required: "Required"
+      requires_photo: "Photo required"
+      conditional: "Show only if…"
+      show_if_question: "Depends on question"
+      show_if_pick: "Choose a question"
+      show_if_equals: "Equals"
     categories:
       opening: "Opening"
       closing: "Closing"
@@ -420,6 +456,11 @@ en:
   activerecord:
     errors:
       models:
+        checklist_template:
+          attributes:
+            items:
+              duplicate_question_keys: "question keys must be unique across the template"
+              invalid_item_type: "item %{index} has an invalid type"
         demo_request:
           attributes:
             base:

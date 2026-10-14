@@ -1185,6 +1185,36 @@ body.rtl .section-title {
   gap: 0.75rem;
 }
 
+.template-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.template-editor__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.template-item__flags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.template-item__show-if {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0;
+}
+
+.template-item--section {
+  background: color-mix(in srgb, var(--surface-2, #f4f4f5) 80%, transparent);
+}
+
 .template-card {
   display: grid;
   gap: 0.45rem;

@@ -37,12 +37,24 @@ class Checklist < ApplicationRecord
       description_ar: template.description_ar,
       status: "draft"
     )
-    template.item_defs.each_with_index do |item, index|
+    template.question_defs.each_with_index do |item, index|
+      meta = {}
+      meta["key"] = item[:key].to_s if item[:key].present?
+      if item[:show_if].present?
+        show_if = item[:show_if].with_indifferent_access
+        meta["show_if"] = {
+          "question_key" => show_if[:question_key].to_s,
+          "equals" => show_if[:equals].to_s
+        }
+      end
+
       checklist.checklist_items.build(
         position: index,
         title_fr: item[:title_fr],
         title_ar: item[:title_ar],
-        requires_photo: ActiveModel::Type::Boolean.new.cast(item[:requires_photo])
+        requires_photo: !!ActiveModel::Type::Boolean.new.cast(item[:requires_photo]),
+        required: !!ActiveModel::Type::Boolean.new.cast(item[:required]),
+        metadata: meta
       )
     end
     checklist
