@@ -96,6 +96,8 @@ Rails.application.routes.draw do
   resources :playbooks, only: %i[index new create edit update destroy] do
     collection do
       get :campaigns
+      get :closing_reports
+      get "closing_reports/:checklist_id", action: :closing_report, as: :closing_report
     end
     member do
       post :deploy

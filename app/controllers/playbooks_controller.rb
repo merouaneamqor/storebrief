@@ -16,6 +16,18 @@ class PlaybooksController < ApplicationController
     @regional = Vazivo::RegionalCampaigns.for(current_tenant)
   end
 
+  def closing_reports
+    @snapshot = Vazivo::ClosingReport.closed_for(current_tenant)
+  end
+
+  def closing_report
+    checklist = tenant_scope.checklists.sent.where.not(playbook_id: nil).find(params[:checklist_id])
+    @report = Vazivo::ClosingReport.for(current_tenant, checklist: checklist)
+    @export = params[:export].present?
+
+    render layout: "export" if @export
+  end
+
   def new
     @playbook = tenant_scope.playbooks.new(
       title_fr: "",

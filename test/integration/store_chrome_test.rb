@@ -55,6 +55,7 @@ class StoreChromeTest < ActionDispatch::IntegrationTest
       communications_path,
       playbooks_path,
       campaigns_playbooks_path,
+      closing_reports_playbooks_path,
       billing_path,
       org_units_path,
       checklists_path,
