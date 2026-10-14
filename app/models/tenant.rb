@@ -47,6 +47,11 @@ class Tenant < ApplicationRecord
       label: "Morocco operations",
       hint: "Store acknowledgement, Ramadan hours, campaign playbooks, coaching verdicts, and the morning radar.",
       default: true
+    },
+    knowledge_base: {
+      label: "Knowledge base",
+      hint: "HQ knowledge base articles and categories for store SOPs, policies, and FAQs.",
+      default: true
     }
   }.freeze
 
@@ -106,7 +111,8 @@ class Tenant < ApplicationRecord
   has_many :visits, dependent: :destroy
   has_many :vm_missions, dependent: :destroy
   has_many :checklist_templates, dependent: :destroy
-
+  has_many :kb_categories, dependent: :destroy
+  has_many :kb_articles, dependent: :destroy
   has_many :notification_logs, dependent: :destroy
   has_many :users, dependent: :destroy
   has_many :org_units, dependent: :destroy

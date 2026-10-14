@@ -1,0 +1,45 @@
+<% content_for :title, "#{t('morocco.kb.articles.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <h1><%= t("morocco.kb.articles.title") %></h1>
+    <p class="lede"><%= t("morocco.kb.articles.lede", tenant: current_tenant.name) %></p>
+  </div>
+  <div class="cluster">
+    <%= link_to t("morocco.kb.categories.title"), kb_categories_path, class: "btn btn--ghost" %>
+    <%= link_to t("morocco.kb.articles.new"), new_kb_article_path, class: "btn btn--primary" %>
+  </div>
+</header>
+
+<div class="cluster" style="margin-bottom:1rem;">
+  <%= link_to t("morocco.kb.articles.filters.all"), kb_articles_path, class: "btn btn--ghost #{'is-active' if @state.blank?}" %>
+  <% KbArticle::PUBLISH_STATES.each do |state| %>
+    <%= link_to t("morocco.kb.articles.states.#{state}"), kb_articles_path(state: state),
+          class: "btn btn--ghost #{'is-active' if @state == state}" %>
+  <% end %>
+</div>
+
+<% if @articles.any? %>
+  <div class="stack">
+    <% @articles.each do |article| %>
+      <article class="panel">
+        <div class="cluster" style="justify-content:space-between; align-items:flex-start;">
+          <div>
+            <span class="badge badge--<%= article.publish_state %>"><%= t("morocco.kb.articles.states.#{article.publish_state}") %></span>
+            <span class="meta"><%= t("morocco.kb.articles.version_label", version: article.version) %></span>
+            <h2 style="margin:0.35rem 0 0.15rem;"><%= link_to article.title, kb_article_path(article) %></h2>
+            <p class="meta">
+              <%= article.kb_category&.title.presence || "-" %>
+              · <%= article.updated_at.to_date %>
+            </p>
+          </div>
+          <div class="cluster">
+            <%= link_to t("morocco.kb.articles.edit"), edit_kb_article_path(article), class: "btn btn--ghost" %>
+          </div>
+        </div>
+      </article>
+    <% end %>
+  </div>
+<% else %>
+  <p class="empty"><%= t("morocco.kb.articles.empty") %></p>
+<% end %>
