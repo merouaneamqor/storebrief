@@ -10,11 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
 ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
-=======
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_222000) do
->>>>>>> 74f0a13 (Add approval workflow submit → approve/reject (#36).)
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
