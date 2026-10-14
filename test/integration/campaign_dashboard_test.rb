@@ -23,6 +23,12 @@ class CampaignDashboardTest < ActionDispatch::IntegrationTest
     assert_select ".cmp-card", count: 1
     assert_select ".cmp-card__percent strong", text: /50/
     assert_match I18n.t("morocco.playbooks.campaigns.stores_done", done: 1, total: 2, locale: :en), response.body
+    assert_match I18n.t(
+      "morocco.playbooks.campaigns.date_range",
+      start: I18n.l(checklist.starts_on, format: "%d/%m/%Y", locale: :en),
+      end: I18n.l(checklist.campaign_on, format: "%d/%m/%Y", locale: :en),
+      locale: :en
+    ), response.body
     assert_select "a[href=?]", checklist_path(checklist, anchor: "store-#{late.org_unit_id}")
   end
 
@@ -43,7 +49,9 @@ class CampaignDashboardTest < ActionDispatch::IntegrationTest
     Vazivo::PlaybookDeployer.deploy!(
       playbook: other.tenant.playbooks.find_by!(key: "sale"),
       author: other.hq,
+      starts_on: Date.current,
       campaign_on: Date.current + 7,
+      brief_fr: "Other brief",
       org_unit_ids: [ other.store.id ]
     )
 
@@ -73,10 +81,13 @@ class CampaignDashboardTest < ActionDispatch::IntegrationTest
   private
 
   def deploy_campaign
+    campaign_on = Date.current + 7
     Vazivo::PlaybookDeployer.deploy!(
       playbook: @playbook,
       author: @brand.hq,
-      campaign_on: Date.current + 7,
+      starts_on: campaign_on - 7,
+      campaign_on: campaign_on,
+      brief_fr: @playbook.description_fr,
       org_unit_ids: [ @brand.store.id, @second_store.id ]
     )
     @brand.tenant.checklists.order(:id).last

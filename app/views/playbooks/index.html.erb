@@ -91,10 +91,27 @@
                 empty_text: t("morocco.playbooks.targets.empty")
               }
             } do %>
-        <label class="pb-deploy__date">
-          <span><%= t("morocco.playbooks.date") %></span>
-          <input type="date" name="campaign_on" value="<%= (Date.current + 14).iso8601 %>" required class="billing-input">
-        </label>
+        <div class="pb-deploy__dates">
+          <label class="pb-deploy__date">
+            <span><%= t("morocco.playbooks.starts_on") %></span>
+            <input type="date" name="starts_on" value="<%= Date.current.iso8601 %>" required class="billing-input">
+          </label>
+          <label class="pb-deploy__date">
+            <span><%= t("morocco.playbooks.date") %></span>
+            <input type="date" name="campaign_on" value="<%= (Date.current + 14).iso8601 %>" required class="billing-input">
+          </label>
+        </div>
+
+        <div class="pb-deploy__brief">
+          <label class="pb-deploy__date pb-deploy__date--wide">
+            <span><%= t("morocco.playbooks.brief_fr") %></span>
+            <textarea name="brief_fr" rows="3" required class="billing-input"><%= playbook.description_fr %></textarea>
+          </label>
+          <label class="pb-deploy__date pb-deploy__date--wide">
+            <span><%= t("morocco.playbooks.brief_ar") %></span>
+            <textarea name="brief_ar" rows="3" class="billing-input" dir="rtl" lang="ar"><%= playbook.description_ar %></textarea>
+          </label>
+        </div>
 
         <div class="pb-deploy__stores pb-targets">
           <p class="section-title"><%= t("morocco.playbooks.targets.title") %></p>

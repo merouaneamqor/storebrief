@@ -36,8 +36,14 @@
           <div>
             <h2><%= link_to campaign.title, campaign.path %></h2>
             <p class="meta">
-              <%= t("morocco.playbooks.campaigns.campaign_day") %>:
-              <%= campaign.campaign_on ? l(campaign.campaign_on, format: "%d/%m/%Y") : "-" %>
+              <% if campaign.starts_on.present? && campaign.campaign_on.present? %>
+                <%= t("morocco.playbooks.campaigns.date_range",
+                      start: l(campaign.starts_on, format: "%d/%m/%Y"),
+                      end: l(campaign.campaign_on, format: "%d/%m/%Y")) %>
+              <% else %>
+                <%= t("morocco.playbooks.campaigns.campaign_day") %>:
+                <%= campaign.campaign_on ? l(campaign.campaign_on, format: "%d/%m/%Y") : "-" %>
+              <% end %>
               · <%= t("morocco.playbooks.campaigns.stores_done", done: campaign.done, total: campaign.total) %>
             </p>
           </div>
