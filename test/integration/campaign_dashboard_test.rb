@@ -32,6 +32,39 @@ class CampaignDashboardTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", checklist_path(checklist, anchor: "store-#{late.org_unit_id}")
   end
 
+  test "dashboard shows regional compliance table with store drill-down links" do
+    other_region = @brand.tenant.org_units.create!(name: "Rabat", unit_type: "region")
+    rabat_store = @brand.tenant.org_units.create!(name: "Agdal", unit_type: "store", parent: other_region)
+    create_user(@brand.tenant, org_unit: rabat_store, role: :store, email: "agdal@campaigns-ma.test")
+
+    campaign_on = Date.current + 7
+    Vazivo::PlaybookDeployer.deploy!(
+      playbook: @playbook,
+      author: @brand.hq,
+      starts_on: campaign_on - 7,
+      campaign_on: campaign_on,
+      brief_fr: @playbook.description_fr,
+      org_unit_ids: [ @brand.store.id, @second_store.id, rabat_store.id ]
+    )
+    checklist = @brand.tenant.checklists.order(:id).last
+    checklist.checklist_deliveries.find_by!(org_unit: @brand.store)
+             .update!(status: "completed", completed_at: Time.current)
+    checklist.checklist_deliveries.find_by!(org_unit: rabat_store)
+             .update!(due_at: 2.hours.ago)
+
+    sign_in(@brand.hq)
+    get campaigns_playbooks_path
+    assert_response :success
+
+    assert_select ".cmp-regional"
+    assert_select ".hq-monitor__list .hq-monitor__label", text: "Casa"
+    assert_select ".hq-monitor__list .hq-monitor__label", text: "Rabat"
+    assert_match I18n.t("morocco.playbooks.campaigns.regional_title", locale: :en), response.body
+    assert_match I18n.t("morocco.playbooks.campaigns.by_region", locale: :en), response.body
+    assert_select "a[href=?]", checklist_path(checklist, anchor: "store-#{rabat_store.id}")
+    assert_select "a.exception-row__store", text: "Agdal"
+  end
+
   test "a fully completed campaign is no longer live" do
     checklist = deploy_campaign
     checklist.checklist_deliveries.update_all(status: "completed")
