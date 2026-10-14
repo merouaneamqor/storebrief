@@ -55,6 +55,18 @@ fr:
       before: "Photo avant"
       after: "Photo après"
       tap: "Appuyez pour photographier"
+    history:
+      title: "Historique"
+      kinds:
+        status: "Statut"
+        awareness: "Avancement"
+        assignee: "Responsable"
+        verdict: "Avis"
+        proof: "Preuve photo"
+      from_to: "%{from} → %{to}"
+      proof_detail: "Avant %{before} · Après %{after}"
+      attached: "oui"
+      missing: "non"
     ramadan:
       on: "Mode Ramadan activé. Ouverture à %{open}."
       off: "Mode Ramadan désactivé."

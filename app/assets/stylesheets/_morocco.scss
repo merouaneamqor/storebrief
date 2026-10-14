@@ -407,6 +407,34 @@ body.rtl .stepper__step:not(:last-child)::after {
   min-height: 2.5rem;
 }
 
+.delivery-timeline {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--ink) 2%, var(--surface));
+}
+
+.delivery-timeline summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.delivery-timeline__list {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.delivery-timeline__list li {
+  display: grid;
+  gap: 0.15rem;
+  padding-block: 0.35rem;
+  border-top: 1px solid var(--line);
+}
+
 .verdict-form--compact {
   display: grid;
   gap: 0.45rem;

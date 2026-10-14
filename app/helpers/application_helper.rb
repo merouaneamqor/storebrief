@@ -38,6 +38,26 @@ module ApplicationHelper
     record.public_send(field)
   end
 
+  def delivery_event_detail(event)
+    payload = event.payload || {}
+    case event.kind
+    when "proof"
+      t(
+        "morocco.history.proof_detail",
+        before: payload["photo_before"] || payload[:photo_before] ? t("morocco.history.attached") : t("morocco.history.missing"),
+        after: payload["photo_after"] || payload[:photo_after] ? t("morocco.history.attached") : t("morocco.history.missing")
+      )
+    when "verdict"
+      to = payload["to"] || payload[:to]
+      note = payload["note"] || payload[:note]
+      [ to.present? ? t("morocco.verdict.#{to}", default: to.to_s) : "-", note.presence ].compact.join(" · ")
+    else
+      from = payload["from"] || payload[:from] || "-"
+      to = payload["to"] || payload[:to] || "-"
+      t("morocco.history.from_to", from: from, to: to)
+    end
+  end
+
   # Prefer a live Active Storage blob; fall back to seed SVGs in public/brand/
   # when the blob points at missing ephemeral disk files (common on Render).
   def tenant_brand_asset_src(tenant, kind)

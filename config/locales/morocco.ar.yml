@@ -55,6 +55,18 @@ ar:
       before: "صورة قبل"
       after: "صورة بعد"
       tap: "اضغط للتصوير"
+    history:
+      title: "السجل"
+      kinds:
+        status: "الحالة"
+        awareness: "التقدم"
+        assignee: "المسؤول"
+        verdict: "الرأي"
+        proof: "إثبات بالصورة"
+      from_to: "%{from} → %{to}"
+      proof_detail: "قبل %{before} · بعد %{after}"
+      attached: "نعم"
+      missing: "لا"
     ramadan:
       on: "وضع رمضان مفعّل. الفتح على %{open}."
       off: "وضع رمضان متوقف."

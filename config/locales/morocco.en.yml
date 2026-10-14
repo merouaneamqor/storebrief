@@ -55,6 +55,18 @@ en:
       before: "Before photo"
       after: "After photo"
       tap: "Tap to take a photo"
+    history:
+      title: "History"
+      kinds:
+        status: "Status"
+        awareness: "Progress"
+        assignee: "Owner"
+        verdict: "Verdict"
+        proof: "Photo proof"
+      from_to: "%{from} → %{to}"
+      proof_detail: "Before %{before} · After %{after}"
+      attached: "yes"
+      missing: "no"
     ramadan:
       on: "Ramadan mode is on. Opening at %{open}."
       off: "Ramadan mode is off."

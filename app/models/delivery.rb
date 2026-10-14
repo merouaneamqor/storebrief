@@ -10,12 +10,15 @@ class Delivery < ApplicationRecord
   belongs_to :assignee, class_name: "User", optional: true
   belongs_to :validated_by, class_name: "User", optional: true
   has_many :delivery_answers, dependent: :destroy
+  has_many :delivery_events, dependent: :delete_all
   has_many :escalation_events, as: :subject, dependent: :destroy
   has_one_attached :photo_before
   has_one_attached :photo_after
 
   validates :status, inclusion: { in: STATUSES }
   validates :org_unit_id, uniqueness: { scope: :communication_id }
+
+  after_update :log_history_changes
 
   scope :pending, -> { where(status: "pending") }
   scope :for_store, ->(org_unit) { where(org_unit_id: org_unit.id) }
@@ -88,7 +91,33 @@ class Delivery < ApplicationRecord
     if verdict == "non_conforme"
       attrs.merge!(status: "pending", completed_at: nil, awareness: "in_progress")
     end
+    @history_actor = by
     update!(attrs)
+  ensure
+    @history_actor = nil
+  end
+
+  def record_proof_event!(actor: Current.user)
+    return unless photo_before.attached? || photo_after.attached?
+
+    record_event!(
+      "proof",
+      {
+        photo_before: photo_before.attached?,
+        photo_after: photo_after.attached?
+      },
+      actor: actor
+    )
+  end
+
+  def record_event!(kind, payload = {}, actor: history_actor)
+    delivery_events.create!(
+      tenant_id: communication.tenant_id,
+      kind: kind,
+      payload: payload,
+      actor: actor,
+      created_at: Time.current
+    )
   end
 
   def pending?
@@ -131,6 +160,32 @@ class Delivery < ApplicationRecord
   end
 
   private
+
+  def history_actor
+    @history_actor || Current.user
+  end
+
+  def log_history_changes
+    if saved_change_to_status?
+      record_event!("status", { from: saved_change_to_status[0], to: saved_change_to_status[1] })
+    end
+    if saved_change_to_awareness?
+      record_event!("awareness", { from: saved_change_to_awareness[0], to: saved_change_to_awareness[1] })
+    end
+    if saved_change_to_assignee_id?
+      record_event!("assignee", { from: saved_change_to_assignee_id[0], to: saved_change_to_assignee_id[1] })
+    end
+    if saved_change_to_verdict?
+      record_event!(
+        "verdict",
+        {
+          from: saved_change_to_verdict[0],
+          to: saved_change_to_verdict[1],
+          note: verdict_note
+        }
+      )
+    end
+  end
 
   def ensure_proof!
     return unless communication.requires_proof?
