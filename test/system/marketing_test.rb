@@ -9,6 +9,7 @@ class MarketingSystemTest < ApplicationSystemTestCase
       fill_in "demo_request_company", with: "Marjane Test"
       fill_in "demo_request_email", with: "salma@example.test"
       fill_in "demo_request_store_count", with: "40"
+      check "demo_request_privacy_consent"
       click_button I18n.t("landing.demo.submit", locale: :fr)
     end
 
