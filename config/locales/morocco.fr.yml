@@ -697,6 +697,10 @@ fr:
           publish_state: "Statut"
           audience_roles: "Audiences"
           audience_roles_hint: "Laissez vide pour tous les rôles. Sinon, cochez les rôles autorisés."
+          audience_store_tags: "Tags magasin"
+          audience_store_tags_hint: "Laissez vide pour tous les magasins. Sinon, limitez aux magasins dont le format ou le cluster correspond."
+          audience_store_tags_custom: "Tags supplementaires (separes par des virgules)"
+          audience_store_tags_placeholder: "ex. express, casa-nord"
       search:
         lede: "Recherchez les procédures publiées pour %{tenant}."
         query_label: "Recherche"
@@ -709,6 +713,7 @@ fr:
         results_for: "Résultats pour « %{query} »"
         relevance: "pertinence %{score}"
         audience: "pour %{roles}"
+        store_tags: "magasins %{tags}"
         unavailable: "Cet article n'est pas disponible."
         roles:
           hq: "Siège"

@@ -19,12 +19,24 @@ class KbArticlesController < ApplicationController
       @articles = @articles.where(kb_category_id: @category.id) if @category
       @categories = KbCategory.tree_for(tenant_scope)
     else
-      result = Vazivo::KbSearch.call(
-        tenant: tenant_scope,
-        query: @q,
-        role: @role_filter,
-        published_only: !hq_user?
-      )
+      result =
+        if hq_user?
+          Vazivo::KbSearch.call(
+            tenant: tenant_scope,
+            query: @q,
+            role: @role_filter,
+            store_tags: nil,
+            published_only: false,
+            bypass_access: @role_filter.blank?
+          )
+        else
+          Vazivo::KbSearch.call(
+            tenant: tenant_scope,
+            query: @q,
+            user: current_user,
+            published_only: true
+          )
+        end
       @articles = result.articles
       @categories = KbCategory.tree_for(tenant_scope) if hq_user?
     end
@@ -33,7 +45,7 @@ class KbArticlesController < ApplicationController
   def show
     @versions = @article.kb_article_versions.newest_first if hq_user?
     return if hq_user?
-    return if @article.published? && @article.visible_to_role?(viewer_role)
+    return if @article.published? && Vazivo::KbAccess.allowed?(@article, user: current_user)
 
     redirect_to kb_articles_path, alert: t("morocco.kb.search.unavailable")
   end
@@ -43,7 +55,8 @@ class KbArticlesController < ApplicationController
       kb_category_id: params[:kb_category_id],
       publish_state: "draft",
       version: 1,
-      audience_roles: []
+      audience_roles: [],
+      audience_store_tags: []
     )
   end
 
@@ -105,18 +118,22 @@ class KbArticlesController < ApplicationController
 
   def load_form_options
     @category_options = KbCategory.options_for_select(tenant_scope)
+    @store_tag_options = tenant_store_tag_options
   end
 
   def article_attrs
     attrs = params.require(:kb_article).permit(
       :title_fr, :title_ar, :body_fr, :body_ar, :kb_category_id, :publish_state,
-      audience_roles: []
+      audience_roles: [], audience_store_tags: []
     )
     attrs[:audience_roles] = Array(attrs[:audience_roles]).reject(&:blank?) if attrs.key?(:audience_roles)
+    if attrs.key?(:audience_store_tags)
+      attrs[:audience_store_tags] = Array(attrs[:audience_store_tags]).reject(&:blank?)
+    end
     attrs
   end
 
-  # Store/area are locked to their role (prepares #75). HQ may preview any role or all.
+  # Store/area are locked to their role. HQ may preview any role or all.
   def resolve_role_filter
     return viewer_role unless hq_user?
 
@@ -131,6 +148,14 @@ class KbArticlesController < ApplicationController
     elsif store_user?
       "store"
     end
+  end
+
+  def tenant_store_tag_options
+    stores = tenant_scope.org_units.stores
+    (
+      stores.where.not(store_format: [ nil, "" ]).distinct.pluck(:store_format) +
+      stores.where.not(cluster_key: [ nil, "" ]).distinct.pluck(:cluster_key)
+    ).map(&:to_s).uniq.sort
   end
 
   # Creating/updating as published records a version when content is new or changed.

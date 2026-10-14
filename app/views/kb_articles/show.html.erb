@@ -15,6 +15,9 @@
         · <%= t("morocco.kb.search.audience",
               roles: @article.audience_roles.map { |r| t("morocco.kb.search.roles.#{r}") }.join(", ")) %>
       <% end %>
+      <% if @article.audience_store_tags.present? %>
+        · <%= t("morocco.kb.search.store_tags", tags: @article.audience_store_tags.join(", ")) %>
+      <% end %>
     </p>
   </div>
   <% if hq_user? %>

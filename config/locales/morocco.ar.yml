@@ -749,6 +749,10 @@ ar:
           publish_state: "الحالة"
           audience_roles: "الجمهور"
           audience_roles_hint: "اتركوا الحقل فارغاً لكل الأدوار. وإلا حددوا الأدوار المسموح بها."
+          audience_store_tags: "وسوم المتجر"
+          audience_store_tags_hint: "اتركوا الحقل فارغاً لكل المتاجر. وإلا اقتصروا على المتاجر ذات تنسيق أو عنقود مطابق."
+          audience_store_tags_custom: "وسوم إضافية (مفصولة بفواصل)"
+          audience_store_tags_placeholder: "مثال: express, casa-nord"
       search:
         lede: "ابحثوا عن الإجراءات المنشورة لـ %{tenant}."
         query_label: "بحث"
@@ -761,6 +765,7 @@ ar:
         results_for: "نتائج «%{query}»"
         relevance: "الصلة %{score}"
         audience: "لـ %{roles}"
+        store_tags: "متاجر %{tags}"
         unavailable: "هذا المقال غير متاح."
         roles:
           hq: "المقر"
