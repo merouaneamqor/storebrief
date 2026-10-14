@@ -23,18 +23,34 @@ class ChecklistDelivery < ApplicationRecord
     status == "completed"
   end
 
-  def complete_if_ready!
-    required = checklist.checklist_items
-    responses = checklist_item_responses.index_by(&:checklist_item_id)
+  def ready_to_complete?
+    responses = checklist_item_responses.includes(photo_attachment: :blob).index_by(&:checklist_item_id)
 
-    ready = required.all? do |item|
+    checklist.checklist_items.all? do |item|
       response = responses[item.id]
       next false unless response&.completed?
-      next false if item.requires_photo? && !response.photo.attached?
+      next false if item.requires_photo? && !response.evidence_attached?
 
       true
     end
+  end
 
-    update!(status: "completed", completed_at: Time.current) if ready && pending?
+  def missing_required_evidence?
+    responses = checklist_item_responses.includes(photo_attachment: :blob).index_by(&:checklist_item_id)
+
+    checklist.checklist_items.any? do |item|
+      next false unless item.requires_photo?
+
+      response = responses[item.id]
+      !response&.evidence_attached?
+    end
+  end
+
+  def complete_if_ready!
+    return false unless pending?
+    return false unless ready_to_complete?
+
+    update!(status: "completed", completed_at: Time.current)
+    true
   end
 end
