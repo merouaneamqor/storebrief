@@ -29,8 +29,10 @@ class CommunicationsController < ApplicationController
       photo_after_attachment: :blob,
       delivery_answers: [ :communication_question, { image_attachment: :blob } ],
       delivery_events: :actor,
+      delivery_comments: :user,
       org_unit: :users
     ).order(:id)
+    @mentionable_users = tenant_scope.users.order(:name).limit(50).to_a if tenant_feature?(:morocco_ops)
     @notifications = hq_user? ? @communication.notification_logs.includes(:user).order(created_at: :desc) : []
     @monitor_only = area_user?
     if tenant_feature?(:morocco_ops)

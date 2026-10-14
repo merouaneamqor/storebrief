@@ -17,6 +17,9 @@ class InboxController < ApplicationController
     @communication = @delivery.communication
     @questions = @communication.communication_questions
     @answers = @delivery.delivery_answers.index_by(&:communication_question_id)
+    if tenant_feature?(:morocco_ops)
+      @mentionable_users = tenant_scope.users.order(:name).limit(50).to_a
+    end
   end
 
   def advance
@@ -71,6 +74,7 @@ class InboxController < ApplicationController
             .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
             .includes(
               { delivery_answers: { image_attachment: :blob } },
+              { delivery_comments: :user },
               communication: [ :communication_questions, :depends_on_communication ]
             )
             .find(params[:id])

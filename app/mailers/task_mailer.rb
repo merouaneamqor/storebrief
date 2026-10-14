@@ -31,6 +31,27 @@ class TaskMailer < ApplicationMailer
     end
   end
 
+  def comment_mention(user:, comment:)
+    @user = user
+    @comment = comment
+    @delivery = comment.delivery
+    @communication = @delivery.communication
+    @tenant = params[:tenant] || comment.tenant
+    @author = comment.user
+    @url = mention_url_for(user, @delivery, @communication)
+    I18n.with_locale(user.locale.presence || I18n.default_locale) do
+      mail(
+        to: user.email,
+        from: from_for(@tenant),
+        subject: t(
+          "mailers.task.mention_subject",
+          title: @communication.localized_value(:title, locale: I18n.locale)
+        ),
+        delivery_method_options: @tenant.mail_setting_or_build.delivery_method_options
+      )
+    end
+  end
+
   private
 
   def from_for(tenant)
@@ -47,5 +68,15 @@ class TaskMailer < ApplicationMailer
     host = ENV.fetch("APP_HOST", "localhost:3001")
     protocol = ENV.fetch("APP_PROTOCOL", Rails.env.production? ? "https" : "http")
     "#{protocol}://#{host}/checklists/deliveries/#{delivery.id}"
+  end
+
+  def mention_url_for(user, delivery, communication)
+    host = ENV.fetch("APP_HOST", "localhost:3001")
+    protocol = ENV.fetch("APP_PROTOCOL", Rails.env.production? ? "https" : "http")
+    if user.hq? || user.area?
+      "#{protocol}://#{host}/communications/#{communication.id}#delivery-comment-#{delivery.id}"
+    else
+      "#{protocol}://#{host}/inbox/#{delivery.id}#comments"
+    end
   end
 end

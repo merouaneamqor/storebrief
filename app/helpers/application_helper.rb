@@ -53,6 +53,8 @@ module ApplicationHelper
       [ to.present? ? t("morocco.verdict.#{to}", default: to.to_s) : "-", note.presence ].compact.join(" · ")
     when "dependency_cleared"
       t("morocco.dependency.cleared_event")
+    when "comment"
+      payload["body_preview"] || payload[:body_preview] || "-"
     else
       from = payload["from"] || payload[:from] || "-"
       to = payload["to"] || payload[:to] || "-"

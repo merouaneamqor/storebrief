@@ -122,6 +122,7 @@ Rails.application.routes.draw do
   post "deliveries/:delivery_id/corrective_action", to: "corrective_actions#create", as: :delivery_corrective_action
   post "deliveries/:delivery_id/clear_dependency", to: "delivery_dependencies#clear", as: :delivery_clear_dependency
   patch "deliveries/:delivery_id/reassign", to: "delivery_dependencies#reassign", as: :delivery_reassign
+  post "deliveries/:delivery_id/comments", to: "delivery_comments#create", as: :delivery_comments
   post "checklist_item_responses/:checklist_item_response_id/corrective_action",
        to: "corrective_actions#create", as: :checklist_item_corrective_action
 end

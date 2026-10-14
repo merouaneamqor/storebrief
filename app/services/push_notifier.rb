@@ -23,6 +23,10 @@ class PushNotifier
     new.remind_checklist!(checklist)
   end
 
+  def self.notify_comment_mentions!(comment)
+    new.notify_comment_mentions!(comment)
+  end
+
   def notify_communication!(communication)
     return unless communication.tenant.feature?(:push_alerts)
     return unless WebPushConfig.configured?
@@ -132,6 +136,26 @@ class PushNotifier
     end
     Rails.logger.info("[PushNotifier] remind checklist##{checklist.id} sent=#{sent} skipped=#{skipped}")
     sent
+  end
+
+  def notify_comment_mentions!(comment)
+    tenant = comment.tenant
+    return unless tenant.feature?(:push_alerts)
+    return unless WebPushConfig.configured?
+
+    delivery = comment.delivery
+    communication = delivery.communication
+    comment.mentioned_users.find_each do |user|
+      title, body = copy_for_mention(comment, user)
+      deliver_to_user!(
+        user: user,
+        tenant: tenant,
+        notifiable: comment,
+        title: title,
+        body: body,
+        url: mention_url_for(user, delivery, communication)
+      )
+    end
   end
 
   def deliver_to_user!(user:, tenant:, notifiable:, title:, body:, url:)
@@ -255,6 +279,26 @@ class PushNotifier
     when "es" then [ "Recordatorio", title.to_s ]
     when "en" then [ "Reminder", title.to_s ]
     else [ "Rappel", title.to_s ]
+    end
+  end
+
+  def copy_for_mention(comment, user)
+    locale = user.locale
+    author = comment.user.name
+    task = comment.delivery.communication.localized_value(:title, locale: locale)
+    case locale
+    when "ar" then [ "إشارة في تعليق", "#{author} أشار إليكم في « #{task} »" ]
+    when "es" then [ "Mención en un comentario", "#{author} te mencionó en “#{task}”" ]
+    when "en" then [ "Mention in a comment", "#{author} mentioned you on “#{task}”" ]
+    else [ "Mention dans un commentaire", "#{author} vous a mentionné sur « #{task} »" ]
+    end
+  end
+
+  def mention_url_for(user, delivery, communication)
+    if user.hq? || user.area?
+      "/communications/#{communication.id}#delivery-comment-#{delivery.id}"
+    else
+      "/inbox/#{delivery.id}#comments"
     end
   end
 end

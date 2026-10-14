@@ -7,6 +7,10 @@ class EmailNotifier
     new.notify_checklist!(checklist)
   end
 
+  def self.notify_comment_mentions!(comment)
+    new.notify_comment_mentions!(comment)
+  end
+
   def notify_communication!(communication)
     tenant = communication.tenant
     return unless tenant.feature?(:email_alerts)
@@ -50,6 +54,26 @@ class EmailNotifier
         )
         deliver!(mail, tenant: tenant, user: user, notifiable: checklist, billed: billed)
       end
+    end
+  end
+
+  def notify_comment_mentions!(comment)
+    tenant = comment.tenant
+    return unless tenant.feature?(:email_alerts)
+
+    setting = tenant.mail_setting_or_build
+    billed = setting.delivery_mode == :platform_billed
+    return if billed && !PlatformMail.configured?
+
+    comment.mentioned_users.find_each do |user|
+      next if user.email.blank?
+      next unless user.operational_email_allowed?
+
+      mail = TaskMailer.with(tenant: tenant).comment_mention(
+        user: user,
+        comment: comment
+      )
+      deliver!(mail, tenant: tenant, user: user, notifiable: comment, billed: billed)
     end
   end
 
