@@ -115,4 +115,7 @@ Rails.application.routes.draw do
   resource :billing, only: %i[show update]
   resource :ramadan, only: :update, controller: "ramadan"
   post "deliveries/:delivery_id/verdict", to: "delivery_verdicts#create", as: :delivery_verdict
+  post "deliveries/:delivery_id/corrective_action", to: "corrective_actions#create", as: :delivery_corrective_action
+  post "checklist_item_responses/:checklist_item_response_id/corrective_action",
+       to: "corrective_actions#create", as: :checklist_item_corrective_action
 end

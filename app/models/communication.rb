@@ -3,7 +3,7 @@ class Communication < ApplicationRecord
 
   FORMATS = %w[news task].freeze
   STATUSES = %w[draft sent].freeze
-  SOURCES = %w[compose playbook].freeze
+  SOURCES = %w[compose playbook corrective].freeze
   # Ordered most to least pressing; the index is the sort rank.
   PRIORITIES = %w[urgent important routine].freeze
   DEFAULT_PRIORITY = "routine".freeze
@@ -12,6 +12,9 @@ class Communication < ApplicationRecord
   belongs_to :author, class_name: "User"
   belongs_to :playbook, optional: true
   belongs_to :communication_template, optional: true
+  belongs_to :visit, optional: true
+  belongs_to :source_delivery, class_name: "Delivery", optional: true
+  belongs_to :source_checklist_item_response, class_name: "ChecklistItemResponse", optional: true
   belongs_to :recurrence_parent, class_name: "Communication", optional: true, inverse_of: :occurrences
   has_many :occurrences, class_name: "Communication", foreign_key: :recurrence_parent_id,
                          inverse_of: :recurrence_parent, dependent: :nullify
@@ -83,6 +86,10 @@ class Communication < ApplicationRecord
 
   def occurrence?
     recurrence_parent_id.present?
+  end
+
+  def corrective?
+    source == "corrective"
   end
 
   def recurrence_active?
