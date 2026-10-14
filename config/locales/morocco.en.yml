@@ -240,6 +240,15 @@ en:
         by_region: "By region"
         dimensions: "Monitoring breakdown"
         unassigned_region: "No region"
+      compliance:
+        title: "Module compliance"
+        lede: "Network completion this week. Missing modules show -."
+        modules:
+          tasks: "Tasks"
+          audits: "Audits"
+          campaigns: "Campaigns"
+          training: "Training"
+          vm: "VM"
       more: "More"
       title: "Network"
       lede: "What stores have received, what is late, and which campaigns to deploy."

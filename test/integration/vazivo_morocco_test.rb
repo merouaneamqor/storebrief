@@ -108,6 +108,24 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select ".empty"
   end
 
+  test "head office today shows module compliance rollups with dash for empty modules" do
+    brief = task_for(@brand, proof: false)
+    brief.deliveries.first.update!(status: "completed", completed_at: Time.current, awareness: "done")
+    sign_in(@brand.hq)
+
+    get app_root_path
+    assert_response :success
+    assert_select ".hq-compliance__tile", 5
+    assert_match I18n.t("morocco.hq.compliance.title", locale: :en), response.body
+    assert_select ".hq-compliance__tile--tasks strong", text: "100%"
+    assert_select ".hq-compliance__tile--audits strong", text: "-"
+    assert_select ".hq-compliance__tile--campaigns strong", text: "-"
+    assert_select ".hq-compliance__tile--training strong", text: "-"
+    assert_select ".hq-compliance__tile--vm strong", text: "-"
+    assert_select "a.hq-compliance__tile--tasks[href=?]", app_root_path
+    assert_select "a.hq-compliance__tile--audits[href=?]", audit_history_path
+  end
+
   test "head office today shows task monitoring completion with store drill-down" do
     second = @brand.tenant.org_units.create!(name: "Gauthier", unit_type: "store", parent: @brand.region)
     create_user(@brand.tenant, org_unit: second, role: :store, email: "gauthier@vazivo-ma.test")
@@ -138,6 +156,7 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
 
     get app_root_path
     assert_select ".hq-status-strip", 0
+    assert_select ".hq-compliance", 0
 
     get org_units_path(status: "critical")
     assert_response :success

@@ -101,6 +101,30 @@
   </div>
 </section>
 
+<% rollups = board.compliance_rollups %>
+<section class="hq-compliance" aria-label="<%= t('morocco.hq.compliance.title') %>">
+  <div class="hq-compliance__head">
+    <p class="section-title"><%= t("morocco.hq.compliance.title") %></p>
+    <p class="meta"><%= t("morocco.hq.compliance.lede") %></p>
+  </div>
+  <div class="hq-compliance__tiles">
+    <% rollups.each do |mod| %>
+      <% card_class = "hq-compliance__tile hq-compliance__tile--#{mod.key}#{" is-empty" unless mod.present?}" %>
+      <% if mod.path %>
+        <%= link_to mod.path, class: card_class do %>
+          <strong><%= mod.display_percent %></strong>
+          <span><%= t("morocco.hq.compliance.modules.#{mod.key}") %></span>
+        <% end %>
+      <% else %>
+        <div class="<%= card_class %>">
+          <strong><%= mod.display_percent %></strong>
+          <span><%= t("morocco.hq.compliance.modules.#{mod.key}") %></span>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+
 <% monitoring = board.task_monitoring %>
 <% if monitoring.any? %>
   <section class="hq-monitor" x-data="{ dim: 'campaign', open: null }" aria-label="<%= t('morocco.hq.monitoring.title') %>">

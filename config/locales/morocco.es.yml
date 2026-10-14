@@ -240,6 +240,15 @@ es:
         by_region: "Por región"
         dimensions: "Desglose del seguimiento"
         unassigned_region: "Sin región"
+      compliance:
+        title: "Cumplimiento por módulo"
+        lede: "Avance de la red esta semana. Los módulos ausentes muestran -."
+        modules:
+          tasks: "Tareas"
+          audits: "Auditorías"
+          campaigns: "Campañas"
+          training: "Formación"
+          vm: "VM"
       more: "Más"
       title: "Red"
       lede: "Lo que las tiendas han recibido, lo que va tarde y las campañas por desplegar."
