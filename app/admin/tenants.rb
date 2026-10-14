@@ -83,7 +83,7 @@ ActiveAdmin.register Tenant do
       f.input :corrective_deadline_days,
               as: :number,
               label: "Corrective action deadline (days)",
-              hint: "Default due date offset when HQ/area spawn a corrective task from an audit (1–30, default 3)",
+              hint: "Default due date offset when HQ/area spawn a corrective task from an audit (1 to 30, default 3)",
               input_html: { min: 1, max: 30 }
     end
 
