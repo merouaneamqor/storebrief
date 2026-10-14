@@ -1,12 +1,21 @@
 class Communication < ApplicationRecord
   include Bilingual
 
-  FORMATS = %w[news task].freeze
+  FORMATS = %w[news task announcement].freeze
   STATUSES = %w[draft sent].freeze
   SOURCES = %w[compose playbook corrective].freeze
   # Ordered most to least pressing; the index is the sort rank.
   PRIORITIES = %w[urgent important routine].freeze
   DEFAULT_PRIORITY = "routine".freeze
+  ATTACHMENT_TYPES = %w[
+    application/pdf
+    image/png
+    image/jpeg
+    image/jpg
+    image/webp
+  ].freeze
+  ATTACHMENT_MAX_BYTES = 10.megabytes
+  ATTACHMENT_MAX_COUNT = 10
 
   belongs_to :tenant
   belongs_to :author, class_name: "User"
@@ -27,6 +36,7 @@ class Communication < ApplicationRecord
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
   has_many :communication_questions, -> { ordered }, dependent: :destroy, inverse_of: :communication
+  has_many_attached :attachments
 
   accepts_nested_attributes_for :communication_questions, allow_destroy: true, reject_if: :reject_blank_question?
 
@@ -38,11 +48,13 @@ class Communication < ApplicationRecord
   validates :priority, inclusion: { in: PRIORITIES }
   validate :recurrence_rule_valid
   validate :depends_on_communication_valid
+  validate :acceptable_attachments
 
   bilingual_fields :title, :body
 
   scope :sent, -> { where(status: "sent") }
   scope :drafts, -> { where(status: "draft") }
+  scope :announcements, -> { where(format: "announcement") }
   scope :recurrence_due, ->(today) { sent.where("recurrence_next_on <= ?", today) }
   # The series source plus every occurrence cloned from it.
   scope :in_series, ->(source_id) { where(id: source_id).or(where(recurrence_parent_id: source_id)) }
@@ -63,6 +75,7 @@ class Communication < ApplicationRecord
   before_validation :clear_recurrence_unless_task
   before_validation :clear_dependency_unless_task
   before_validation :clear_approval_unless_task
+  before_validation :clear_attachments_unless_announcement
 
   def news?
     format == "news"
@@ -70,6 +83,14 @@ class Communication < ApplicationRecord
 
   def task?
     format == "task"
+  end
+
+  def announcement?
+    format == "announcement"
+  end
+
+  def attachments?
+    attachments.attached?
   end
 
   def sent?
@@ -199,6 +220,40 @@ class Communication < ApplicationRecord
 
   def clear_approval_unless_task
     self.requires_approval = false unless task?
+  end
+
+  def clear_attachments_unless_announcement
+    return if announcement?
+    return unless attachments.attached?
+
+    attachments.purge
+  end
+
+  def acceptable_attachments
+    return unless attachments.attached?
+
+    unless announcement?
+      errors.add(:attachments, I18n.t("communications.attachments_announcement_only"))
+      return
+    end
+
+    if attachments.count > ATTACHMENT_MAX_COUNT
+      errors.add(:attachments, I18n.t("communications.attachments_too_many", count: ATTACHMENT_MAX_COUNT))
+    end
+
+    attachments.each do |file|
+      next unless file.blob
+
+      unless ATTACHMENT_TYPES.include?(file.content_type)
+        errors.add(:attachments, I18n.t("communications.attachments_invalid"))
+        break
+      end
+
+      if file.byte_size.to_i > ATTACHMENT_MAX_BYTES
+        errors.add(:attachments, I18n.t("communications.attachments_too_large"))
+        break
+      end
+    end
   end
 
   def recurrence_rule_valid

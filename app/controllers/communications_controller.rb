@@ -50,6 +50,7 @@ class CommunicationsController < ApplicationController
   def create
     @communication = tenant_scope.communications.new(communication_params)
     @communication.author = current_user
+    apply_attachment_uploads!(@communication)
     persist_communication(:new)
   end
 
@@ -66,6 +67,8 @@ class CommunicationsController < ApplicationController
     end
 
     @communication.assign_attributes(communication_params)
+    purge_removed_attachments!(@communication)
+    apply_attachment_uploads!(@communication)
     persist_communication(:edit)
   end
 
@@ -183,7 +186,8 @@ class CommunicationsController < ApplicationController
   def set_communication
     @communication = monitored_communications
                      .includes(:communication_questions, :visit, :depends_on_communication,
-                               source_delivery: :communication)
+                               source_delivery: :communication,
+                               attachments_attachments: :blob)
                      .find(params[:id])
   end
 
@@ -259,5 +263,17 @@ class CommunicationsController < ApplicationController
         :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy
       ]
     )
+  end
+
+  def apply_attachment_uploads!(communication)
+    files = Array(params.dig(:communication, :attachments)).compact_blank
+    communication.attachments.attach(files) if files.any?
+  end
+
+  def purge_removed_attachments!(communication)
+    ids = Array(params.dig(:communication, :remove_attachment_ids)).map(&:to_i).reject(&:zero?)
+    return if ids.empty?
+
+    communication.attachments.attachments.where(id: ids).find_each(&:purge)
   end
 end

@@ -21,11 +21,12 @@
      data-format="<%= @communication.format %>"
      data-news-label="<%= t('common.news') %>"
      data-task-label="<%= t('common.task') %>"
+     data-announcement-label="<%= t('common.announcement') %>"
      data-untitled="<%= t('communications.untitled') %>"
      data-type-labels="<%= h(type_labels.to_json) %>"
      data-questions="<%= h(questions_payload.to_json) %>">
 
-  <%= form_with model: @communication, local: true, html: { class: "brief-editor-form" } do |f| %>
+  <%= form_with model: @communication, local: true, multipart: true, html: { class: "brief-editor-form" } do |f| %>
     <header class="brief-topbar" x-show="!preview">
       <div class="brief-topbar__start">
         <%= link_to t("communications.back"), communications_path, class: "brief-topbar__back" %>
@@ -133,7 +134,7 @@
         </template>
       </div>
 
-      <aside class="brief-toolbar" aria-label="<%= t('communications.toolbar') %>">
+      <aside class="brief-toolbar" x-show="format !== 'announcement'" aria-label="<%= t('communications.toolbar') %>">
         <button type="button" class="brief-toolbar__btn" @click="addQuestion()" title="<%= t('communications.add_question') %>">+</button>
         <button type="button" class="brief-toolbar__btn" @click="duplicateActive()" :disabled="!activeQuestion" title="<%= t('communications.duplicate_question') %>">⧉</button>
         <button type="button" class="brief-toolbar__btn" @click="deleteActive()" :disabled="!activeQuestion" title="<%= t('communications.delete_question') %>">×</button>
@@ -159,7 +160,32 @@
               <input type="radio" name="communication_format_ui" value="task" x-model="format">
               <span><%= t("common.task") %></span>
             </label>
+            <label class="brief-choice" :class="{ 'is-selected': format === 'announcement' }">
+              <input type="radio" name="communication_format_ui" value="announcement" x-model="format">
+              <span><%= t("common.announcement") %></span>
+            </label>
           </div>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'announcement'" x-cloak>
+          <h3><%= t("communications.attachments") %></h3>
+          <p class="meta"><%= t("communications.attachments_help") %></p>
+          <% if @communication.attachments.attached? %>
+            <ul class="list brief-attachments">
+              <% @communication.attachments.each do |file| %>
+                <li>
+                  <span><%= file.filename %></span>
+                  <label class="brief-required">
+                    <input type="checkbox" name="communication[remove_attachment_ids][]" value="<%= file.id %>">
+                    <span><%= t("communications.attachments_remove") %></span>
+                  </label>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+          <%= f.file_field :attachments, multiple: true,
+                accept: "application/pdf,image/png,image/jpeg,image/jpg,image/webp",
+                "aria-label": t("communications.attachments") %>
         </section>
 
         <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
@@ -220,7 +246,7 @@
       <div class="brief-preview__card">
         <p class="meta"><%= t("communications.preview_lede") %></p>
         <h1 x-text="titleFr || '<%= j(t('communications.title_placeholder')) %>'"></h1>
-        <p class="lede"><span class="badge" :class="format === 'task' ? 'badge--task' : 'badge--news'" x-text="formatLabel"></span></p>
+        <p class="lede"><span class="badge" :class="formatBadgeClass" x-text="formatLabel"></span></p>
         <div class="prose" x-show="bodyFr.trim() !== ''" x-cloak x-text="bodyFr"></div>
 
         <div class="brief-preview__questions">

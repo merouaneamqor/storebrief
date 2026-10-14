@@ -10,6 +10,7 @@ document.addEventListener("alpine:init", () => {
     format: "news",
     newsLabel: "",
     taskLabel: "",
+    announcementLabel: "",
     questions: [],
     activeQuestion: null,
     typeLabels: {},
@@ -23,12 +24,21 @@ document.addEventListener("alpine:init", () => {
       this.format = this.$el.dataset.format || "news"
       this.newsLabel = this.$el.dataset.newsLabel || ""
       this.taskLabel = this.$el.dataset.taskLabel || ""
+      this.announcementLabel = this.$el.dataset.announcementLabel || ""
       this.typeLabels = JSON.parse(this.$el.dataset.typeLabels || "{}")
       this.questions = JSON.parse(this.$el.dataset.questions || "[]").map((question) => this.normalizeQuestion(question))
     },
 
     get formatLabel() {
-      return this.format === "task" ? this.taskLabel : this.newsLabel
+      if (this.format === "task") return this.taskLabel
+      if (this.format === "announcement") return this.announcementLabel
+      return this.newsLabel
+    },
+
+    get formatBadgeClass() {
+      if (this.format === "task") return "badge badge--task"
+      if (this.format === "announcement") return "badge badge--announcement"
+      return "badge badge--news"
     },
 
     get visibleQuestions() {

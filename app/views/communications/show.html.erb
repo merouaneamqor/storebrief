@@ -40,6 +40,8 @@
   </section>
 <% end %>
 
+<%= render "attachments", communication: @communication %>
+
 <% if @communication.depends_on_another? %>
   <section class="panel">
     <p class="section-title"><%= t("morocco.dependency.title") %></p>

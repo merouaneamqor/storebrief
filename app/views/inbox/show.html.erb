@@ -71,6 +71,8 @@
     <div class="task-card__body prose"><%= @communication.body %></div>
   <% end %>
 
+  <%= render "communications/attachments", communication: @communication %>
+
   <% if @delivery.dependency_blocked? %>
     <div class="flash flash--alert" role="status">
       <strong><%= t("morocco.dependency.blocked_title") %></strong>
