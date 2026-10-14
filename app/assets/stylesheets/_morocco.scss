@@ -2037,6 +2037,53 @@ a.hq-compliance__tile:hover {
   box-shadow: var(--shadow-1);
 }
 
+.hq-exceptions__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.hq-exceptions__head .section-title {
+  margin-bottom: 0;
+}
+
+.hq-exceptions__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 0.85rem;
+}
+
+.hq-exceptions__filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.hq-exceptions__filters .billing-input {
+  min-width: 10rem;
+}
+
+.exception-age {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.exception-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.85rem;
+}
+
 .exception-list--rich li {
   align-items: flex-start;
   padding: 0.95rem 0;

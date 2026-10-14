@@ -244,7 +244,25 @@
   </div>
 
   <div class="hq-exceptions">
-    <p class="section-title"><%= t("morocco.hq.exceptions") %></p>
+    <div class="hq-exceptions__head">
+      <p class="section-title"><%= t("morocco.hq.exceptions") %></p>
+      <% if board.areas.any? %>
+        <%= form_with url: app_root_path, method: :get, class: "hq-exceptions__filters", local: true do %>
+          <% if filter.present? && filter != "all" %>
+            <%= hidden_field_tag :filter, filter %>
+          <% end %>
+          <label>
+            <span><%= t("morocco.hq.exception_area.filter") %></span>
+            <%= select_tag :area_id,
+                  options_from_collection_for_select(board.areas, :id, :name, board.area_id),
+                  include_blank: t("morocco.hq.exception_area.all"),
+                  class: "billing-input",
+                  onchange: "this.form.requestSubmit()" %>
+          </label>
+          <noscript><button type="submit" class="btn btn--quiet"><%= t("morocco.hq.exception_area.apply") %></button></noscript>
+        <% end %>
+      <% end %>
+    </div>
     <% if board.exceptions.any? %>
       <ul class="exception-list exception-list--rich">
         <% board.exceptions.each do |row| %>
@@ -254,15 +272,21 @@
                 <span class="exception-kind exception-kind--<%= row.kind %>"><%= t("morocco.hq.board_#{row.kind == 'redo' ? 'redo' : row.kind == 'overdue' ? 'overdue' : 'unconfirmed'}") %></span>
                 <span class="tone tone--<%= row.tone %>"><%= tone_icon(row.tone) %> <%= t("morocco.tone.#{row.tone}") %></span>
                 <%= priority_badge(row.priority) %>
+                <span class="exception-age" title="<%= t('morocco.hq.exception_age.label') %>"><%= icon("clock", css_class: "icon icon--sm") %> <%= row.age_label %></span>
               </div>
               <%= link_to row.store_name, row.path, class: "exception-row__store" %>
-              <div class="meta">
-                <%= row.owner_name %>
-                · <% if row.due_at %><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(row.due_at) %><% else %>-<% end %>
-                · <%= row.status_label %>
+              <div class="meta exception-row__meta">
+                <span><%= t("morocco.hq.exception_fields.campaign") %>: <%= row.campaign.presence || "-" %></span>
+                <span><%= t("morocco.hq.exception_fields.assignee") %>: <%= row.owner_name %></span>
+                <span><%= t("morocco.hq.exception_fields.area") %>: <%= row.area_name %></span>
+                <% if row.due_at %>
+                  <span><%= t("morocco.hq.exception_fields.due") %>: <%= morocco_due_label(row.due_at) %></span>
+                <% end %>
               </div>
             </div>
-            <%= link_to t("morocco.radar.open"), row.path, class: "btn btn--ghost" %>
+            <%= link_to row.path, class: "btn btn--ghost" do %>
+              <%= row.visit_linked? ? t("morocco.hq.exception_open.visit") : t("morocco.hq.exception_open.delivery") %>
+            <% end %>
           </li>
         <% end %>
       </ul>

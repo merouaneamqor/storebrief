@@ -14,7 +14,7 @@ class DashboardController < ApplicationController
 
   def load_hq_today
     if tenant_scope.feature?(:morocco_ops)
-      @board = Vazivo::HqBoard.for(tenant_scope)
+      @board = Vazivo::HqBoard.for(tenant_scope, area_id: params[:area_id])
     else
       @communications = tenant_scope.communications.includes(:author).order(created_at: :desc).limit(8)
       @checklists = tenant_scope.checklists.includes(:author).order(created_at: :desc).limit(5)

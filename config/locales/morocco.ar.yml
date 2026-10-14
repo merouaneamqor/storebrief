@@ -272,6 +272,35 @@ ar:
       exceptions: "الاستثناءات"
       exceptions_empty: "لا شيء يحتاج قراراً الآن."
       filter_all: "الكل"
+      exception_fields:
+        campaign: "الحملة"
+        assignee: "المسؤول"
+        area: "المنطقة"
+        due: "الاستحقاق"
+      exception_age:
+        label: "عمر المشكلة"
+        hours:
+          zero: "0 س"
+          one: "1 س"
+          two: "2 س"
+          few: "%{count} س"
+          many: "%{count} س"
+          other: "%{count} س"
+        days:
+          zero: "0 ي"
+          one: "1 ي"
+          two: "2 ي"
+          few: "%{count} ي"
+          many: "%{count} ي"
+          other: "%{count} ي"
+      exception_area:
+        filter: "المنطقة"
+        all: "كل المناطق"
+        none: "بدون منطقة"
+        apply: "تطبيق"
+      exception_open:
+        delivery: "فتح التسليم"
+        visit: "فتح الزيارة"
       store_status:
         title: "حالة المتاجر اليوم"
         on_track: "في الموعد"
