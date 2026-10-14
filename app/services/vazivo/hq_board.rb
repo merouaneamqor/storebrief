@@ -1,7 +1,8 @@
 module Vazivo
   # Head-office today board: only what needs a decision — unconfirmed stores,
   # overdue work, and redo verdicts — plus one awareness tracker for the latest brief,
-  # and task completion % with drill-down by campaign and region.
+  # task completion % with drill-down by campaign and region, and module compliance
+  # rollups (Tasks / Audits / Campaigns / Training / VM).
   class HqBoard
     SEVERITY = { "redo" => 0, "overdue" => 1, "unconfirmed" => 2 }.freeze
 
@@ -19,9 +20,29 @@ module Vazivo
         total.positive?
       end
     end
+    # One module card on the HQ compliance strip. percent is nil when empty or
+    # the module is not shipped yet — views must render "-" not "0%".
+    ModuleRollup = Struct.new(
+      :key, :percent, :done, :total, :available, :path, keyword_init: true
+    ) do
+      def display_percent
+        percent.nil? ? "-" : "#{percent}%"
+      end
+
+      def present?
+        available && !percent.nil?
+      end
+    end
+    ComplianceRollups = Struct.new(:modules, keyword_init: true) do
+      def [](key)
+        modules.find { |mod| mod.key == key.to_s }
+      end
+
+      def each(&block) = modules.each(&block)
+    end
     Snapshot = Struct.new(
       :unconfirmed, :overdue, :redo, :exceptions, :awareness_brief, :awareness_rollup,
-      :podium, :store_status, :task_monitoring, keyword_init: true
+      :podium, :store_status, :task_monitoring, :compliance_rollups, keyword_init: true
     )
 
     def self.for(tenant)
@@ -46,7 +67,8 @@ module Vazivo
         awareness_rollup: brief ? Delivery.awareness_rollup(brief.deliveries) : nil,
         podium: Ranking.for(@tenant).podium.first(3),
         store_status: StoreStatus.for(@tenant),
-        task_monitoring: build_task_monitoring
+        task_monitoring: build_task_monitoring,
+        compliance_rollups: build_compliance_rollups
       )
     end
 
@@ -149,6 +171,81 @@ module Vazivo
           priority: delivery.communication.priority
         )
       end
+    end
+
+    # Network compliance % per module for the HQ strip. Empty or unshipped modules
+    # keep percent nil so the board shows "-" rather than a misleading 0.
+    def build_compliance_rollups
+      ComplianceRollups.new(
+        modules: [
+          tasks_rollup,
+          audits_rollup,
+          campaigns_rollup,
+          unavailable_rollup("training"),
+          unavailable_rollup("vm", path: routes.ranking_path)
+        ]
+      )
+    end
+
+    def tasks_rollup
+      week = Schedule.now.all_week
+      scope = Delivery.joins(:communication)
+                      .where(communications: { tenant_id: @tenant.id, status: "sent", format: "task" })
+                      .where(created_at: week)
+      total = scope.count
+      return empty_rollup("tasks", path: routes.app_root_path) if total.zero?
+
+      done = scope.where(status: %w[completed read]).count
+      ModuleRollup.new(
+        key: "tasks",
+        percent: percent_of(done, total),
+        done: done,
+        total: total,
+        available: true,
+        path: routes.app_root_path
+      )
+    end
+
+    def audits_rollup
+      week = Schedule.now.all_week
+      scores = Delivery.joins(:communication)
+                       .where(communications: { tenant_id: @tenant.id, status: "sent" })
+                       .where.not(score: nil)
+                       .where("COALESCE(deliveries.validated_at, deliveries.completed_at, deliveries.created_at) BETWEEN ? AND ?", week.begin, week.end)
+                       .pluck(:score)
+      return empty_rollup("audits", path: routes.audit_history_path) if scores.empty?
+
+      avg = (scores.sum.to_f / scores.size).round
+      ModuleRollup.new(
+        key: "audits",
+        percent: avg,
+        done: scores.size,
+        total: scores.size,
+        available: true,
+        path: routes.audit_history_path
+      )
+    end
+
+    def campaigns_rollup
+      snapshot = CampaignDashboard.for(@tenant)
+      return empty_rollup("campaigns", path: routes.campaigns_playbooks_path) if snapshot.total.zero?
+
+      ModuleRollup.new(
+        key: "campaigns",
+        percent: snapshot.percent,
+        done: snapshot.done,
+        total: snapshot.total,
+        available: true,
+        path: routes.campaigns_playbooks_path
+      )
+    end
+
+    def unavailable_rollup(key, path: nil)
+      ModuleRollup.new(key: key, percent: nil, done: 0, total: 0, available: false, path: path)
+    end
+
+    def empty_rollup(key, path: nil)
+      ModuleRollup.new(key: key, percent: nil, done: 0, total: 0, available: true, path: path)
     end
 
     # Live sent tasks (still have at least one open store): completion % and overdue

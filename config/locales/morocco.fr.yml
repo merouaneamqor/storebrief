@@ -240,6 +240,15 @@ fr:
         by_region: "Par région"
         dimensions: "Découpage du suivi"
         unassigned_region: "Sans région"
+      compliance:
+        title: "Conformité par module"
+        lede: "Avancement réseau cette semaine. Les modules absents affichent -."
+        modules:
+          tasks: "Tâches"
+          audits: "Audits"
+          campaigns: "Campagnes"
+          training: "Formation"
+          vm: "VM"
       more: "Plus"
       title: "Réseau"
       lede: "Ce que les magasins ont reçu, qui est en retard, et les campagnes à déployer."
