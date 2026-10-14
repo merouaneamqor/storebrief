@@ -11,6 +11,7 @@ class Communication < ApplicationRecord
   belongs_to :tenant
   belongs_to :author, class_name: "User"
   belongs_to :playbook, optional: true
+  belongs_to :communication_template, optional: true
   belongs_to :recurrence_parent, class_name: "Communication", optional: true, inverse_of: :occurrences
   has_many :occurrences, class_name: "Communication", foreign_key: :recurrence_parent_id,
                          inverse_of: :recurrence_parent, dependent: :nullify
@@ -95,6 +96,33 @@ class Communication < ApplicationRecord
   # Form input: { frequency:, interval:, weekdays: [], ends_on: }
   def recurrence_attributes=(attrs)
     self.recurrence_rule = Vazivo::Recurrence.normalize(attrs)
+  end
+
+  def self.build_from_template(template, author:)
+    communication = template.tenant.communications.new(
+      author: author,
+      communication_template: template,
+      title_fr: template.title_fr,
+      title_ar: template.title_ar,
+      body_fr: template.body_fr.to_s,
+      body_ar: template.body_ar,
+      format: template.format,
+      requires_proof: template.requires_proof,
+      priority: template.priority,
+      status: "draft",
+      source: "compose"
+    )
+    template.question_defs.each_with_index do |question, index|
+      communication.communication_questions.build(
+        position: question[:position].presence || index,
+        question_type: question[:question_type].presence || "short_text",
+        title_fr: question[:title_fr],
+        title_ar: question[:title_ar],
+        required: !!ActiveModel::Type::Boolean.new.cast(question[:required]),
+        options: Array(question[:options])
+      )
+    end
+    communication
   end
 
   def send_to!(org_unit_ids, role: nil, store_format: nil, cluster: nil)

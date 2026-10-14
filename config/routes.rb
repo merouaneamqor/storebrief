@@ -44,7 +44,14 @@ Rails.application.routes.draw do
       post :send_brief
       post :notify_push
       post :stop_recurrence
+      post :save_as_template
       patch :priority, action: :update_priority
+    end
+  end
+
+  resources :task_templates, only: %i[index new create edit update destroy], controller: "communication_templates" do
+    member do
+      post :use
     end
   end
 
