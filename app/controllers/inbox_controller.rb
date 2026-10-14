@@ -52,8 +52,16 @@ class InboxController < ApplicationController
   private
 
   def attach_proof(delivery)
-    delivery.photo_before.attach(params[:photo_before]) if params[:photo_before].present?
-    delivery.photo_after.attach(params[:photo_after]) if params[:photo_after].present?
+    attached = false
+    if params[:photo_before].present?
+      delivery.photo_before.attach(params[:photo_before])
+      attached = true
+    end
+    if params[:photo_after].present?
+      delivery.photo_after.attach(params[:photo_after])
+      attached = true
+    end
+    delivery.record_proof_event!(actor: current_user) if attached
   end
 
   def find_delivery

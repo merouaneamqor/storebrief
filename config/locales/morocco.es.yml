@@ -55,6 +55,18 @@ es:
       before: "Foto antes"
       after: "Foto después"
       tap: "Toca para fotografiar"
+    history:
+      title: "Historial"
+      kinds:
+        status: "Estado"
+        awareness: "Avance"
+        assignee: "Responsable"
+        verdict: "Veredicto"
+        proof: "Prueba fotográfica"
+      from_to: "%{from} → %{to}"
+      proof_detail: "Antes %{before} · Después %{after}"
+      attached: "sí"
+      missing: "no"
     ramadan:
       on: "Modo Ramadán activado. Apertura a las %{open}."
       off: "Modo Ramadán desactivado."
