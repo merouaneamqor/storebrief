@@ -6,7 +6,27 @@ module Vazivo
   class HqBoard
     SEVERITY = { "redo" => 0, "overdue" => 1, "unconfirmed" => 2 }.freeze
 
-    Row = Struct.new(:store_name, :owner_name, :due_at, :tone, :status_label, :path, :kind, :priority, keyword_init: true)
+    # One critical exception row: store, campaign, age, assignee, deep link.
+    Row = Struct.new(
+      :store_name, :owner_name, :due_at, :tone, :status_label, :path, :kind, :priority,
+      :campaign, :issue_opened_at, :age_seconds, :area_id, :area_name, :org_unit_id, :visit_id,
+      keyword_init: true
+    ) do
+      def age_label
+        return "-" if age_seconds.nil?
+
+        hours = (age_seconds / 3600.0).floor
+        if hours < 24
+          I18n.t("morocco.hq.exception_age.hours", count: [ hours, 1 ].max)
+        else
+          I18n.t("morocco.hq.exception_age.days", count: [ (hours / 24.0).floor, 1 ].max)
+        end
+      end
+
+      def visit_linked?
+        visit_id.present?
+      end
+    end
     StoreProgress = Struct.new(
       :store_name, :owner_name, :due_at, :tone, :finished, :overdue, :path, keyword_init: true
     )
@@ -40,24 +60,27 @@ module Vazivo
 
       def each(&block) = modules.each(&block)
     end
+    AreaOption = Struct.new(:id, :name, keyword_init: true)
     Snapshot = Struct.new(
       :unconfirmed, :overdue, :redo, :exceptions, :awareness_brief, :awareness_rollup,
-      :podium, :store_status, :task_monitoring, :compliance_rollups, keyword_init: true
+      :podium, :store_status, :task_monitoring, :compliance_rollups,
+      :areas, :area_id, keyword_init: true
     )
 
-    def self.for(tenant)
-      new(tenant).snapshot
+    def self.for(tenant, area_id: nil)
+      new(tenant, area_id: area_id).snapshot
     end
 
-    def initialize(tenant)
+    def initialize(tenant, area_id: nil)
       @tenant = tenant
+      @area_id = area_id.presence&.to_i
     end
 
     def snapshot
       brief = latest_brief
-      unconfirmed = unconfirmed_rows(brief)
-      overdue = overdue_rows
-      redos = redo_rows
+      unconfirmed = filter_by_area(unconfirmed_rows(brief))
+      overdue = filter_by_area(overdue_rows)
+      redos = filter_by_area(redo_rows)
       Snapshot.new(
         unconfirmed: unconfirmed,
         overdue: overdue,
@@ -68,7 +91,9 @@ module Vazivo
         podium: Ranking.for(@tenant).podium.first(3),
         store_status: StoreStatus.for(@tenant),
         task_monitoring: build_task_monitoring,
-        compliance_rollups: build_compliance_rollups
+        compliance_rollups: build_compliance_rollups,
+        areas: area_options,
+        area_id: @area_id
       )
     end
 
@@ -78,10 +103,25 @@ module Vazivo
       Rails.application.routes.url_helpers
     end
 
+    # Urgency: severity first, then priority, then oldest issue age.
     def merge_exceptions(*lists)
       lists.flatten.sort_by do |row|
-        [ SEVERITY.fetch(row.kind, 9), Communication.priority_rank(row.priority), row.due_at || Time.at(0) ]
+        [
+          SEVERITY.fetch(row.kind, 9),
+          Communication.priority_rank(row.priority),
+          -(row.age_seconds || 0)
+        ]
       end
+    end
+
+    def filter_by_area(rows)
+      return rows if @area_id.blank?
+
+      rows.select { |row| row.area_id == @area_id }
+    end
+
+    def area_options
+      @tenant.org_units.areas.order(:name).map { |area| AreaOption.new(id: area.id, name: area.name) }
     end
 
     def latest_brief
@@ -95,15 +135,17 @@ module Vazivo
       return [] unless brief
 
       brief.deliveries.select { |d| d.awareness == "pending" }.map do |delivery|
-        Row.new(
-          store_name: delivery.org_unit.name,
-          owner_name: delivery.assignee&.name || I18n.t("morocco.owner.unassigned"),
-          due_at: delivery.due_at,
-          tone: delivery.tone,
+        opened_at = delivery.created_at || brief.created_at
+        build_row(
+          delivery: delivery,
+          campaign: brief.title,
           status_label: I18n.t("morocco.awareness.steps.received"),
-          path: routes.communication_path(brief),
+          tone: delivery.tone,
           kind: "unconfirmed",
-          priority: brief.priority
+          priority: brief.priority,
+          issue_opened_at: opened_at,
+          path: delivery_deep_link(brief, delivery),
+          visit_id: brief.visit_id
         )
       end
     end
@@ -127,26 +169,28 @@ module Vazivo
       end
       records.first(12).map do |record|
         if record.is_a?(Delivery)
-          Row.new(
-            store_name: record.org_unit.name,
-            owner_name: record.assignee&.name || I18n.t("morocco.owner.unassigned"),
-            due_at: record.due_at,
-            tone: "late",
+          build_row(
+            delivery: record,
+            campaign: record.communication.title,
             status_label: record.communication.title,
-            path: routes.communication_path(record.communication),
+            tone: "late",
             kind: "overdue",
-            priority: record.communication.priority
+            priority: record.communication.priority,
+            issue_opened_at: record.due_at,
+            path: delivery_deep_link(record.communication, record),
+            visit_id: record.communication.visit_id
           )
         else
-          Row.new(
-            store_name: record.org_unit.name,
-            owner_name: record.assignee&.name || I18n.t("morocco.owner.unassigned"),
-            due_at: record.due_at,
-            tone: "late",
+          build_row(
+            delivery: record,
+            campaign: record.checklist.title,
             status_label: record.checklist.title,
-            path: routes.checklist_path(record.checklist),
+            tone: "late",
             kind: "overdue",
-            priority: Communication::DEFAULT_PRIORITY
+            priority: Communication::DEFAULT_PRIORITY,
+            issue_opened_at: record.due_at,
+            path: checklist_deep_link(record.checklist, record),
+            visit_id: nil
           )
         end
       end
@@ -160,17 +204,68 @@ module Vazivo
               .order(validated_at: :desc)
               .limit(8)
               .map do |delivery|
-        Row.new(
-          store_name: delivery.org_unit.name,
-          owner_name: delivery.assignee&.name || I18n.t("morocco.owner.unassigned"),
-          due_at: delivery.due_at,
-          tone: "urgent",
+        opened_at = delivery.validated_at || delivery.completed_at || delivery.updated_at
+        build_row(
+          delivery: delivery,
+          campaign: delivery.communication.title,
           status_label: delivery.communication.title,
-          path: routes.communication_path(delivery.communication),
+          tone: "urgent",
           kind: "redo",
-          priority: delivery.communication.priority
+          priority: delivery.communication.priority,
+          issue_opened_at: opened_at,
+          path: delivery_deep_link(delivery.communication, delivery),
+          visit_id: delivery.communication.visit_id
         )
       end
+    end
+
+    def build_row(delivery:, campaign:, status_label:, tone:, kind:, priority:, issue_opened_at:, path:, visit_id:)
+      area = area_for(delivery.org_unit)
+      deep_path = visit_id.present? ? routes.visit_path(visit_id) : path
+      Row.new(
+        store_name: delivery.org_unit.name,
+        owner_name: delivery.assignee&.name || I18n.t("morocco.owner.unassigned"),
+        due_at: delivery.due_at,
+        tone: tone,
+        status_label: status_label,
+        path: deep_path,
+        kind: kind,
+        priority: priority,
+        campaign: campaign,
+        issue_opened_at: issue_opened_at,
+        age_seconds: age_from(issue_opened_at),
+        area_id: area&.id,
+        area_name: area&.name || I18n.t("morocco.hq.exception_area.none"),
+        org_unit_id: delivery.org_unit_id,
+        visit_id: visit_id
+      )
+    end
+
+    def delivery_deep_link(brief, delivery)
+      routes.communication_path(brief, anchor: "store-#{delivery.org_unit_id}")
+    end
+
+    def checklist_deep_link(checklist, delivery)
+      routes.checklist_path(checklist, anchor: "store-#{delivery.org_unit_id}")
+    end
+
+    def age_from(opened_at)
+      return nil if opened_at.blank?
+
+      [ (Time.current - opened_at).to_i, 0 ].max
+    end
+
+    def area_for(store)
+      units = org_units_by_id
+      current = units[store.parent_id]
+      guard = 0
+      while current && guard < 8
+        return current if current.unit_type == "area"
+
+        current = units[current.parent_id]
+        guard += 1
+      end
+      nil
     end
 
     # Network compliance % per module for the HQ strip. Empty or unshipped modules

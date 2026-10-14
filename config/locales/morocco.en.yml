@@ -236,6 +236,27 @@ en:
       exceptions: "Exceptions"
       exceptions_empty: "Nothing needs a decision right now."
       filter_all: "All"
+      exception_fields:
+        campaign: "Campaign"
+        assignee: "Assignee"
+        area: "Area"
+        due: "Due"
+      exception_age:
+        label: "Issue age"
+        hours:
+          one: "1h"
+          other: "%{count}h"
+        days:
+          one: "1d"
+          other: "%{count}d"
+      exception_area:
+        filter: "Area"
+        all: "All areas"
+        none: "No area"
+        apply: "Apply"
+      exception_open:
+        delivery: "Open delivery"
+        visit: "Open visit"
       store_status:
         title: "Store status today"
         on_track: "On track"

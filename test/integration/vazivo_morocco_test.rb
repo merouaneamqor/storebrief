@@ -88,6 +88,35 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", notify_push_communication_path(@brand.tenant.communications.sent.last)
   end
 
+  test "head office exception drill-down shows campaign age assignee and area filter" do
+    area = @brand.tenant.org_units.create!(name: "Maarif Area", unit_type: "area", parent: @brand.region)
+    @brand.store.update!(parent: area)
+    brief = task_for(@brand, proof: false)
+    delivery = brief.deliveries.first
+    delivery.update!(due_at: 3.hours.ago, awareness: "pending", assignee: @brand.store_user)
+
+    sign_in(@brand.hq)
+    get app_root_path
+    assert_response :success
+    assert_select ".hq-exceptions__filters"
+    assert_select "select[name=area_id]"
+    assert_match I18n.t("morocco.hq.exception_fields.campaign", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.exception_fields.assignee", locale: :en), response.body
+    assert_match brief.title, response.body
+    assert_match @brand.store_user.name, response.body
+    assert_select "a[href=?]", communication_path(brief, anchor: "store-#{@brand.store.id}")
+
+    get app_root_path(area_id: area.id)
+    assert_response :success
+    assert_select ".hq-exceptions .exception-row__store", text: @brand.store.name
+    assert_select "select[name=area_id] option[selected][value=?]", area.id.to_s
+
+    other = @brand.tenant.org_units.create!(name: "Other Area", unit_type: "area", parent: @brand.region)
+    get app_root_path(area_id: other.id)
+    assert_response :success
+    assert_select ".hq-exceptions .exception-row__store", count: 0
+  end
+
   test "head office today shows store status buckets linking to the store list" do
     brief = task_for(@brand, proof: false)
     brief.deliveries.first.update!(due_at: 1.hour.ago)

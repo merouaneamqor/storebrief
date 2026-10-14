@@ -236,6 +236,27 @@ es:
       exceptions: "Excepciones"
       exceptions_empty: "Nada pide una decisión ahora."
       filter_all: "Todo"
+      exception_fields:
+        campaign: "Campaña"
+        assignee: "Responsable"
+        area: "Zona"
+        due: "Vence"
+      exception_age:
+        label: "Antigüedad"
+        hours:
+          one: "1 h"
+          other: "%{count} h"
+        days:
+          one: "1 d"
+          other: "%{count} d"
+      exception_area:
+        filter: "Zona"
+        all: "Todas las zonas"
+        none: "Sin zona"
+        apply: "Aplicar"
+      exception_open:
+        delivery: "Abrir entrega"
+        visit: "Abrir visita"
       store_status:
         title: "Estado de las tiendas hoy"
         on_track: "En regla"
