@@ -161,9 +161,14 @@
             </div>
           <% end %>
 
-          <% if morocco && delivery.verdict.present? %>
-            <p class="verdict-chip verdict-chip--<%= delivery.verdict %>">
-              <strong><%= t("morocco.verdict.#{delivery.verdict}") %></strong>
+          <% if morocco && (delivery.verdict.present? || delivery.score.present?) %>
+            <p class="verdict-chip <%= "verdict-chip--#{delivery.verdict}" if delivery.verdict.present? %>">
+              <% if delivery.score.present? %>
+                <strong><%= t("morocco.verdict.score", score: delivery.score) %></strong>
+              <% end %>
+              <% if delivery.verdict.present? %>
+                <strong><%= t("morocco.verdict.#{delivery.verdict}") %></strong>
+              <% end %>
               <% if delivery.verdict_note.present? %><span><%= delivery.verdict_note %></span><% end %>
             </p>
           <% end %>

@@ -45,6 +45,7 @@ ar:
       conforme: "مطابق"
       improve: "للتحسين"
       non_conforme: "غير مطابق"
+      score: "النتيجة %{score}٪"
     escalation:
       level_1: "تصعيد إلى مسؤول المتجر"
       level_2: "تصعيد إلى مدير المنطقة"

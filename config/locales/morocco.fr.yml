@@ -45,6 +45,7 @@ fr:
       conforme: "Conforme"
       improve: "À améliorer"
       non_conforme: "Non conforme"
+      score: "Score %{score} %"
     escalation:
       level_1: "Relancé au responsable magasin"
       level_2: "Relancé à l'area manager"

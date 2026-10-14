@@ -40,12 +40,27 @@ class Delivery < ApplicationRecord
   def complete!
     ensure_required_answers!
     ensure_proof!
-    update!(status: "completed", completed_at: Time.current, awareness: "done")
+    attrs = { status: "completed", completed_at: Time.current, awareness: "done" }
+    attrs.merge!(scored_attrs) if communication.questions?
+    update!(attrs)
   end
 
   def mark_read!
     ensure_required_answers!
-    update!(status: "read", completed_at: Time.current, awareness: "done")
+    attrs = { status: "read", completed_at: Time.current, awareness: "done" }
+    attrs.merge!(scored_attrs) if communication.questions?
+    update!(attrs)
+  end
+
+  def apply_score!(actor: Current.user)
+    result = Vazivo::AuditScorer.call(self)
+    return result if result.score.nil?
+
+    @history_actor = actor
+    update!(scored_attrs(result))
+    result
+  ensure
+    @history_actor = nil
   end
 
   def self.awareness_rollup(deliveries)
@@ -160,6 +175,20 @@ class Delivery < ApplicationRecord
   end
 
   private
+
+  def scored_attrs(result = Vazivo::AuditScorer.call(self))
+    return {} if result.score.nil?
+
+    attrs = { score: result.score }
+    if verdict.blank? && result.verdict.present?
+      attrs.merge!(
+        verdict: result.verdict,
+        validated_at: Time.current,
+        validated_by: history_actor
+      )
+    end
+    attrs
+  end
 
   def history_actor
     @history_actor || Current.user

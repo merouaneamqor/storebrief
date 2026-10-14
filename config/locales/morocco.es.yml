@@ -45,6 +45,7 @@ es:
       conforme: "Conforme"
       improve: "A mejorar"
       non_conforme: "No conforme"
+      score: "Puntuación %{score} %"
     escalation:
       level_1: "Escalado al responsable de tienda"
       level_2: "Escalado al area manager"
