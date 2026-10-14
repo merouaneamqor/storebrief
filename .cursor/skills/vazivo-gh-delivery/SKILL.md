@@ -29,6 +29,8 @@ Delivery:
 - [ ] PRs open, CI green
 - [ ] Rebased if DIRTY after sibling merges
 - [ ] Squash-merged + issues closed + Done
+- [ ] Render live on expected SHA
+- [ ] Browser QA on QA tenant (pass/fail notes)
 ```
 
 ## Phase 0 — Prerequisites
@@ -102,10 +104,48 @@ When user wants ship/merge (default for “continue delivery”):
 6. Close issue if not auto-closed; set Project status **Done**
 7. `git checkout main && git pull`
 8. **Render** — follow **vazivo-render-checks**: confirm `storebrief` deploy is `live` on the new SHA; if `update_failed`, fix migrations/logs and redeploy via push
+9. **Browser QA** — follow Phase 5b before declaring the wave done
+
+## Phase 5b — Browser QA (Cursor integrated browser)
+
+After merges (or before marking Project Done on user-facing work), smoke-test on the dedicated **QA tenant**.
+
+### QA tenant
+
+Slug: `qa-vazivo` · password: `password`
+
+| Role | Email |
+|------|-------|
+| HQ | `hq@qa-vazivo.test` |
+| Area | `area@qa-vazivo.test` |
+| Store | `store@qa-vazivo.test` |
+
+Ensure / recreate locally:
+
+```bash
+docker compose run --rm --no-deps \
+  -e RAILS_ENV=development \
+  -e DATABASE_URL=postgres://store_brief:store_brief@db:5432/store_brief_development \
+  web bash -lc 'bin/rails db:migrate && bin/rails runner script/qa_tenant.rb'
+```
+
+Target URL: local `http://localhost:3001` (Compose / preview). Prefer local over Render for interactive QA; still verify Render deploy SHA separately.
+
+### Smoke checklist (Cursor browser)
+
+Use `cursor-ide-browser`: navigate → lock → snapshot → interact → screenshot on failures.
+
+1. **Login HQ** (`qa-vazivo` / `hq@qa-vazivo.test`) → accept privacy if prompted → `/app` loads without 500
+2. **My Tasks / nav** — HQ or store sees expected morocco_ops chrome (no Darija, no YOOBIC)
+3. **HQ compose targets** — filters for role / format / cluster + dry-run preview when #34-shipped
+4. **Templates** — `/templates` lists; new/edit audit template sections/questions when #43-shipped
+5. **Area login** (`area@qa-vazivo.test`) → area summary + store status table + open a store radar
+6. **Store login** (`store@qa-vazivo.test`) → radar / My Tasks / inbox open without HQ leak
+7. Note **pass / fail** per role in the delivery report; file a GitHub issue for any fail (do not silently skip)
 
 ## Phase 6 — Report
 
-Return a table: Issue | PR | Merged? | Notes. Point at next Ready items.
+Return a table: Issue | PR | Merged? | Notes. Include Browser QA pass/fail. Point at next Ready items.
 
 ## Anti-patterns
 

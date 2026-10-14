@@ -29,6 +29,9 @@ Password for all accounts: `password`
 | Atlas Retail Maroc | `atlas` | HQ | `hq@atlas.test` | FR |
 | Atlas Retail Maroc | `atlas` | Store | `store@atlas.test` | AR (+ WhatsApp stub) |
 | Contoso Shops | `contoso` | HQ | `hq@contoso.test` | FR |
+| QA Vazivo (browser smoke) | `qa-vazivo` | HQ / Area / Store | `hq@` · `area@` · `store@qa-vazivo.test` | FR |
+
+Recreate the QA tenant after migrate: `bin/rails runner script/qa_tenant.rb` (via Docker Compose).
 
 ## Morocco first-release demo
 

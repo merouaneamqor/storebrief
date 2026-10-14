@@ -80,16 +80,18 @@ docker compose exec web bin/rails db:seed
 
 Demo password: `password`. Atlas HQ: `hq@atlas.test` (slug `atlas`). See README for more accounts.
 
+**QA tenant** (browser smoke after merges): slug `qa-vazivo`, password `password`, accounts `hq@` / `area@` / `store@qa-vazivo.test`. Recreate with `bin/rails runner script/qa_tenant.rb` (Compose).
+
 ## Delivery process (GitHub)
 
-Roadmap work uses GitHub epics → Ready issues → feature branches/subagents → PR → CI → squash-merge → Project **Done**.
+Roadmap work uses GitHub epics → Ready issues → feature branches/subagents → PR → CI → squash-merge → Project **Done** → Render check → **browser QA**.
 
 - Always-on rule: [`.cursor/rules/gh-epic-delivery.mdc`](.cursor/rules/gh-epic-delivery.mdc)
-- Full skill: [`.cursor/skills/vazivo-gh-delivery/SKILL.md`](.cursor/skills/vazivo-gh-delivery/SKILL.md)
+- Full skill: [`.cursor/skills/vazivo-gh-delivery/SKILL.md`](.cursor/skills/vazivo-gh-delivery/SKILL.md) (Phase 5b = Cursor browser QA on `qa-vazivo`)
 - Render skill: [`.cursor/skills/vazivo-render-checks/SKILL.md`](.cursor/skills/vazivo-render-checks/SKILL.md)
 - Board: [Vazivo Capability Roadmap](https://github.com/users/merouaneamqor/projects/6)
 
-At session start, sync the board with `gh` before inventing work. After merges to `main`, verify the Render `storebrief` deploy.
+At session start, sync the board with `gh` before inventing work. After merges to `main`, verify the Render `storebrief` deploy, then smoke-test in the integrated browser on the QA tenant.
 
 ## Do / don't
 
