@@ -86,6 +86,7 @@ Rails.application.routes.draw do
   resource :push_subscription, only: %i[create destroy]
 
   resources :my_tasks, only: %i[index show]
+  resources :newsfeeds, only: :index, path: "newsfeed"
   resources :inbox, only: %i[index show], controller: "inbox" do
     member do
       post :complete

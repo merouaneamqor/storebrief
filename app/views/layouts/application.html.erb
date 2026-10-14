@@ -168,6 +168,10 @@
                   <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
                   <span><%= t("nav.my_tasks") %></span>
                 <% end %>
+                <%= link_to newsfeeds_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/newsfeed')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                  <span><%= t("nav.newsfeed") %></span>
+                <% end %>
               <% end %>
               <%= link_to vm_missions_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/vm_missions')}" do %>
                 <span class="app-nav-link__icon"><%= icon("camera") %></span>

@@ -9,6 +9,7 @@ en:
     audit_history: "Audit history"
     knowledge_base: "Knowledge base"
     my_tasks: "My tasks"
+    newsfeed: "News"
     hq_widgets: "HQ widgets"
   morocco:
     proof_required: "Add the before photo and the after photo."
@@ -645,6 +646,15 @@ en:
       kind:
         task: "Task"
         checklist: "Checklist"
+    newsfeed:
+      title: "Company news"
+      lede: "Notes and announcements for %{store}."
+      empty: "No news for this store yet."
+      has_attachments: "Attachment"
+      pagination: "News pages"
+      prev: "Previous"
+      next: "Next"
+      page_status: "Page %{page} of %{total}"
     kb:
       articles:
         title: "Knowledge base"

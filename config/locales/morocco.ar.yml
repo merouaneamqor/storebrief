@@ -9,6 +9,7 @@ ar:
     audit_history: "سجل التدقيق"
     knowledge_base: "قاعدة المعرفة"
     my_tasks: "مهامي"
+    newsfeed: "الأخبار"
     hq_widgets: "ودجات المقر"
   morocco:
     proof_required: "أضيفوا صورة قبل وصورة بعد."
@@ -697,6 +698,15 @@ ar:
       kind:
         task: "مهمة"
         checklist: "قائمة تحقق"
+    newsfeed:
+      title: "أخبار الشركة"
+      lede: "ملاحظات وإعلانات لمتجر %{store}."
+      empty: "لا توجد أخبار لهذا المتجر بعد."
+      has_attachments: "مرفق"
+      pagination: "صفحات الأخبار"
+      prev: "السابق"
+      next: "التالي"
+      page_status: "صفحة %{page} من %{total}"
     kb:
       articles:
         title: "قاعدة المعرفة"
