@@ -1,28 +1,49 @@
 class KbArticlesController < ApplicationController
-  before_action :require_hq
   before_action -> { require_feature!(:morocco_ops) }
   before_action -> { require_feature!(:knowledge_base) }
+  before_action :require_hq, except: %i[index show]
+  before_action :require_kb_reader, only: %i[index show]
   before_action :set_article, only: %i[show edit update destroy publish archive unpublish]
   before_action :load_form_options, only: %i[new create edit update]
 
   def index
-    @state = params[:state].presence_in(KbArticle::PUBLISH_STATES)
-    @category = tenant_scope.kb_categories.find_by(id: params[:kb_category_id]) if params[:kb_category_id].present?
-    @articles = tenant_scope.kb_articles.includes(:kb_category, :author).ordered
-    @articles = @articles.with_state(@state) if @state
-    @articles = @articles.where(kb_category_id: @category.id) if @category
-    @categories = KbCategory.tree_for(tenant_scope)
+    @q = params[:q].to_s.strip
+    @role_filter = resolve_role_filter
+    @search_mode = @q.present? || !hq_user? || params[:role].present?
+
+    if hq_user? && !@search_mode
+      @state = params[:state].presence_in(KbArticle::PUBLISH_STATES)
+      @category = tenant_scope.kb_categories.find_by(id: params[:kb_category_id]) if params[:kb_category_id].present?
+      @articles = tenant_scope.kb_articles.includes(:kb_category, :author).ordered
+      @articles = @articles.with_state(@state) if @state
+      @articles = @articles.where(kb_category_id: @category.id) if @category
+      @categories = KbCategory.tree_for(tenant_scope)
+    else
+      result = Vazivo::KbSearch.call(
+        tenant: tenant_scope,
+        query: @q,
+        role: @role_filter,
+        published_only: !hq_user?
+      )
+      @articles = result.articles
+      @categories = KbCategory.tree_for(tenant_scope) if hq_user?
+    end
   end
 
   def show
-    @versions = @article.kb_article_versions.newest_first
+    @versions = @article.kb_article_versions.newest_first if hq_user?
+    return if hq_user?
+    return if @article.published? && @article.visible_to_role?(viewer_role)
+
+    redirect_to kb_articles_path, alert: t("morocco.kb.search.unavailable")
   end
 
   def new
     @article = tenant_scope.kb_articles.new(
       kb_category_id: params[:kb_category_id],
       publish_state: "draft",
-      version: 1
+      version: 1,
+      audience_roles: []
     )
   end
 
@@ -72,6 +93,12 @@ class KbArticlesController < ApplicationController
 
   private
 
+  def require_kb_reader
+    return if hq_user? || area_user? || store_user?
+
+    redirect_to app_root_path, alert: t("auth.hq_required")
+  end
+
   def set_article
     @article = tenant_scope.kb_articles.find(params[:id])
   end
@@ -81,9 +108,29 @@ class KbArticlesController < ApplicationController
   end
 
   def article_attrs
-    params.require(:kb_article).permit(
-      :title_fr, :title_ar, :body_fr, :body_ar, :kb_category_id, :publish_state
+    attrs = params.require(:kb_article).permit(
+      :title_fr, :title_ar, :body_fr, :body_ar, :kb_category_id, :publish_state,
+      audience_roles: []
     )
+    attrs[:audience_roles] = Array(attrs[:audience_roles]).reject(&:blank?) if attrs.key?(:audience_roles)
+    attrs
+  end
+
+  # Store/area are locked to their role (prepares #75). HQ may preview any role or all.
+  def resolve_role_filter
+    return viewer_role unless hq_user?
+
+    params[:role].to_s.presence_in(Membership::ROLES)
+  end
+
+  def viewer_role
+    if hq_user?
+      "hq"
+    elsif area_user?
+      "area"
+    elsif store_user?
+      "store"
+    end
   end
 
   # Creating/updating as published records a version when content is new or changed.

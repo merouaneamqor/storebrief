@@ -64,10 +64,22 @@ class KbArticlesTest < ActionDispatch::IntegrationTest
     assert_match "Ouverture", response.body
   end
 
-  test "store users cannot manage kb" do
+  test "store users can browse but cannot manage kb" do
+    published = @brand.tenant.kb_articles.create!(
+      kb_category: @category,
+      title_fr: "Visible store",
+      body_fr: "Publie.",
+      author: @brand.hq,
+      publish_state: "published",
+      published_at: Time.current
+    )
     sign_in(@brand.store_user)
 
     get kb_articles_path
+    assert_response :success
+    assert_match "Visible store", response.body
+
+    get new_kb_article_path
     assert_redirected_to app_root_path
 
     assert_no_difference -> { KbArticle.count } do
@@ -75,6 +87,9 @@ class KbArticlesTest < ActionDispatch::IntegrationTest
         kb_article: { kb_category_id: @category.id, title_fr: "Nope", body_fr: "Nope" }
       }
     end
+
+    get kb_article_path(published)
+    assert_response :success
   end
 
   test "morocco_ops and knowledge_base flags gate the pages" do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_15_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -324,8 +324,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_120000) do
     t.datetime "published_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "audience_roles", default: [], null: false, array: true
+    t.tsvector "search_vector"
+    t.index ["audience_roles"], name: "index_kb_articles_on_audience_roles", using: :gin
     t.index ["author_id"], name: "index_kb_articles_on_author_id"
     t.index ["kb_category_id"], name: "index_kb_articles_on_kb_category_id"
+    t.index ["search_vector"], name: "index_kb_articles_on_search_vector", using: :gin
     t.index ["tenant_id", "kb_category_id"], name: "index_kb_articles_on_tenant_id_and_kb_category_id"
     t.index ["tenant_id", "publish_state"], name: "index_kb_articles_on_tenant_id_and_publish_state"
     t.index ["tenant_id", "title_fr"], name: "index_kb_articles_on_tenant_id_and_title_fr"

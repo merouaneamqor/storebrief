@@ -5,26 +5,35 @@
     <p class="meta"><%= link_to t("morocco.kb.articles.back"), kb_articles_path %></p>
     <h1><%= @article.title %></h1>
     <p class="meta">
-      <span class="badge badge--<%= @article.publish_state %>"><%= t("morocco.kb.articles.states.#{@article.publish_state}") %></span>
-      <%= t("morocco.kb.articles.version_label", version: @article.version) %>
-      · <%= @article.kb_category&.title.presence || "-" %>
+      <% if hq_user? %>
+        <span class="badge badge--<%= @article.publish_state %>"><%= t("morocco.kb.articles.states.#{@article.publish_state}") %></span>
+        <%= t("morocco.kb.articles.version_label", version: @article.version) %>
+        ·
+      <% end %>
+      <%= @article.kb_category&.title.presence || "-" %>
+      <% if @article.audience_roles.present? %>
+        · <%= t("morocco.kb.search.audience",
+              roles: @article.audience_roles.map { |r| t("morocco.kb.search.roles.#{r}") }.join(", ")) %>
+      <% end %>
     </p>
   </div>
-  <div class="cluster">
-    <%= link_to t("morocco.kb.articles.edit"), edit_kb_article_path(@article), class: "btn" %>
-    <% if @article.published? %>
-      <%= button_to t("morocco.kb.articles.publish"), publish_kb_article_path(@article), method: :post, class: "btn btn--primary" %>
-      <%= button_to t("morocco.kb.articles.unpublish"), unpublish_kb_article_path(@article), method: :post, class: "btn btn--ghost" %>
-      <%= button_to t("morocco.kb.articles.archive"), archive_kb_article_path(@article), method: :post, class: "btn btn--ghost" %>
-    <% elsif @article.archived? %>
-      <%= button_to t("morocco.kb.articles.publish"), publish_kb_article_path(@article), method: :post, class: "btn btn--primary" %>
-    <% else %>
-      <%= button_to t("morocco.kb.articles.publish"), publish_kb_article_path(@article), method: :post, class: "btn btn--primary" %>
-      <%= button_to t("morocco.kb.articles.archive"), archive_kb_article_path(@article), method: :post, class: "btn btn--ghost" %>
-    <% end %>
-    <%= button_to t("morocco.kb.articles.delete"), kb_article_path(@article), method: :delete, class: "btn btn--ghost",
-          form: { data: { turbo_confirm: t("morocco.kb.articles.delete_confirm", title: @article.title) } } %>
-  </div>
+  <% if hq_user? %>
+    <div class="cluster">
+      <%= link_to t("morocco.kb.articles.edit"), edit_kb_article_path(@article), class: "btn" %>
+      <% if @article.published? %>
+        <%= button_to t("morocco.kb.articles.publish"), publish_kb_article_path(@article), method: :post, class: "btn btn--primary" %>
+        <%= button_to t("morocco.kb.articles.unpublish"), unpublish_kb_article_path(@article), method: :post, class: "btn btn--ghost" %>
+        <%= button_to t("morocco.kb.articles.archive"), archive_kb_article_path(@article), method: :post, class: "btn btn--ghost" %>
+      <% elsif @article.archived? %>
+        <%= button_to t("morocco.kb.articles.publish"), publish_kb_article_path(@article), method: :post, class: "btn btn--primary" %>
+      <% else %>
+        <%= button_to t("morocco.kb.articles.publish"), publish_kb_article_path(@article), method: :post, class: "btn btn--primary" %>
+        <%= button_to t("morocco.kb.articles.archive"), archive_kb_article_path(@article), method: :post, class: "btn btn--ghost" %>
+      <% end %>
+      <%= button_to t("morocco.kb.articles.delete"), kb_article_path(@article), method: :delete, class: "btn btn--ghost",
+            form: { data: { turbo_confirm: t("morocco.kb.articles.delete_confirm", title: @article.title) } } %>
+    </div>
+  <% end %>
 </header>
 
 <section class="panel stack">
@@ -38,7 +47,7 @@
   <% end %>
 </section>
 
-<% if @versions.any? %>
+<% if hq_user? && @versions&.any? %>
   <section class="panel stack">
     <h2><%= t("morocco.kb.articles.versions_title") %></h2>
     <ul class="stack" style="list-style:none; padding:0; margin:0;">
