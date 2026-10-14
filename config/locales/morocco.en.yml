@@ -144,6 +144,18 @@ en:
       open: "Open"
       instructions: "Instructions"
       routines: "Routines"
+      timed_checklist:
+        title: "Today's checklist"
+        lede: "Opening, merch, stock, and campaign items ordered by due time."
+        empty: "No checklist items due today."
+        mark_done: "Mark done"
+        progress: "%{done} / %{total}"
+        offline_hint: "Offline answers are saved and sync when you are back online."
+        buckets:
+          opening: "Opening"
+          merch: "Merch"
+          stock: "Stock"
+          campaign: "Campaign"
       area:
         title: "Area overview"
         stores: "Stores in your area"

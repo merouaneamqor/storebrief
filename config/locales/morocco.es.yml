@@ -144,6 +144,18 @@ es:
       open: "Abrir"
       instructions: "Instrucciones"
       routines: "Rutinas"
+      timed_checklist:
+        title: "Checklist de hoy"
+        lede: "Apertura, merch, stock y campaña, ordenados por hora."
+        empty: "No hay checklist para hoy."
+        mark_done: "Marcar hecho"
+        progress: "%{done} / %{total}"
+        offline_hint: "Sin conexión, las respuestas se guardan y se sincronizan al volver."
+        buckets:
+          opening: "Apertura"
+          merch: "Merch"
+          stock: "Stock"
+          campaign: "Campaña"
       area:
         title: "Resumen de la zona"
         stores: "Tiendas de tu zona"

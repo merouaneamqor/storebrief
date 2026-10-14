@@ -65,6 +65,10 @@
   </aside>
 <% end %>
 
+<% if radar.lens == "store" %>
+  <%= render "dashboard/timed_checklist", radar: radar %>
+<% end %>
+
 <section class="radar-today">
   <h2 class="section-title"><%= t("morocco.radar.now") %></h2>
   <p class="meta radar-today__hint"><%= t("morocco.radar.today_by_priority") %></p>
