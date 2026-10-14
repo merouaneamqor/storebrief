@@ -425,10 +425,12 @@ fr:
       demo_short: "Démo"
       sign_in: "Connexion"
       explore: "Voir comment ça marche"
+      roles: "Rôles"
     hero:
       brand: "Vazivo"
       kicker: "Moins de relances. Plus d’exécution."
       title: "Pilotez tous vos magasins depuis un seul endroit."
+      accent: "un seul endroit"
       lede: "Vazivo aide les équipes retail à organiser, assigner, exécuter et suivre les opérations quotidiennes des magasins — sur tous les sites."
       demo: "Réserver une démo"
       explore: "Voir comment ça marche"

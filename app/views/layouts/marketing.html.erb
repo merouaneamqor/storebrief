@@ -49,6 +49,7 @@
           <nav class="m-nav__links" :class="{ 'is-open': open }">
             <a href="<%= root_path %>#problems" @click="open = false"><%= t("landing.nav.solutions") %></a>
             <a href="<%= root_path %>#how" @click="open = false"><%= t("landing.nav.how") %></a>
+            <a href="<%= root_path %>#roles" @click="open = false"><%= t("landing.nav.roles") %></a>
             <%= link_to t("landing.nav.resources"), resources_path %>
             <%= link_to t("landing.nav.sign_in"), login_path, class: "m-link m-nav__signin" %>
           </nav>
@@ -95,12 +96,14 @@
           </div>
           <p class="m-footer__powered"><%= t("auth.powered_by") %></p>
         <% else %>
-          <div>
+          <div class="m-footer__brand">
             <a href="<%= root_path %>" class="m-brand"><span class="m-mark" aria-hidden="true"></span><%= t("landing.hero.brand") %></a>
             <p><%= t("landing.footer.tagline") %></p>
           </div>
           <nav class="m-footer__links">
+            <a href="<%= root_path %>#problems"><%= t("landing.nav.solutions") %></a>
             <a href="<%= root_path %>#how"><%= t("landing.nav.how") %></a>
+            <a href="<%= root_path %>#roles"><%= t("landing.nav.roles") %></a>
             <%= link_to t("landing.nav.resources"), resources_path %>
             <%= link_to t("privacy.page.title"), legal_privacy_path %>
             <%= link_to t("privacy.cookies.page_title"), legal_cookies_path %>

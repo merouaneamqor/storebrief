@@ -148,6 +148,18 @@
   text-decoration: underline;
 }
 
+@media (min-width: 1021px) {
+  body.marketing .m-nav__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+
+  body.marketing .m-nav__tools {
+    justify-self: end;
+  }
+}
+
 @media (max-width: 1020px) {
   .m-nav__toggle { display: inline-block; }
 

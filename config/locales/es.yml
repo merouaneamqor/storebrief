@@ -425,10 +425,12 @@ es:
       demo_short: "Demo"
       sign_in: "Entrar"
       explore: "Ver cómo funciona"
+      roles: "Roles"
     hero:
       brand: "Vazivo"
       kicker: "Menos perseguir. Más hacer."
       title: "Gestione todas sus tiendas desde un solo lugar."
+      accent: "un solo lugar"
       lede: "Vazivo ayuda a los equipos de retail a organizar, asignar, ejecutar y seguir las operaciones diarias de tienda — en todas sus ubicaciones."
       demo: "Reservar una demo"
       explore: "Ver cómo funciona"
