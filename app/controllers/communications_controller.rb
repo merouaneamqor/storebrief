@@ -253,6 +253,7 @@ class CommunicationsController < ApplicationController
   def communication_params
     params.require(:communication).permit(
       :title_fr, :title_ar, :body_fr, :body_ar, :format, :priority, :depends_on_communication_id,
+      :requires_approval,
       recurrence_attributes: [ :frequency, :interval, :ends_on, { weekdays: [] } ],
       communication_questions_attributes: [
         :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy

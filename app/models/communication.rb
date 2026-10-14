@@ -62,6 +62,7 @@ class Communication < ApplicationRecord
   before_validation :apply_priority_default
   before_validation :clear_recurrence_unless_task
   before_validation :clear_dependency_unless_task
+  before_validation :clear_approval_unless_task
 
   def news?
     format == "news"
@@ -130,6 +131,7 @@ class Communication < ApplicationRecord
       body_ar: template.body_ar,
       format: template.format,
       requires_proof: template.requires_proof,
+      requires_approval: template.requires_approval,
       priority: template.priority,
       status: "draft",
       source: "compose"
@@ -193,6 +195,10 @@ class Communication < ApplicationRecord
 
   def clear_dependency_unless_task
     self.depends_on_communication_id = nil unless task?
+  end
+
+  def clear_approval_unless_task
+    self.requires_approval = false unless task?
   end
 
   def recurrence_rule_valid

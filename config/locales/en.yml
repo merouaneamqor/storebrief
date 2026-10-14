@@ -343,6 +343,7 @@ en:
       format: "Format"
       priority: "Priority"
       requires_proof: "Requires proof photos"
+      requires_approval: "Requires approval before done"
       question_fr: "Question (FR)"
       question_ar: "Question (AR)"
       question_type: "Type"
