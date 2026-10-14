@@ -50,6 +50,17 @@ class Tenant < ApplicationRecord
     }
   }.freeze
 
+  # HQ today board sections the brand can show or hide. Defaults keep the full
+  # decision surface visible for new tenants.
+  HQ_WIDGETS = {
+    campaign: { default: true },
+    store_status: { default: true },
+    compliance: { default: true },
+    monitoring: { default: true },
+    exceptions: { default: true },
+    podium: { default: true }
+  }.freeze
+
   HOUR_OF_DAY = /\A([01]\d|2[0-3]):[0-5]\d\z/
 
   BRAND_COLORS = {
@@ -120,6 +131,7 @@ class Tenant < ApplicationRecord
 
   before_validation :normalize_brand_colors
   before_validation :normalize_features
+  before_validation :normalize_preferences
   before_validation :apply_hour_defaults
   before_validation :apply_corrective_deadline_default
   after_save :purge_removed_brand_assets
@@ -159,6 +171,43 @@ class Tenant < ApplicationRecord
   def feature_hash
     value = features
     value.is_a?(Hash) ? value.stringify_keys : {}
+  end
+
+  def preferences_hash
+    value = preferences
+    value.is_a?(Hash) ? value.deep_stringify_keys : {}
+  end
+
+  def hq_widgets
+    stored = preferences_hash["hq_widgets"]
+    stored = stored.is_a?(Hash) ? stored : {}
+    HQ_WIDGETS.each_with_object({}) do |(key, meta), hash|
+      raw = stored[key.to_s]
+      hash[key.to_s] = raw.nil? ? meta[:default] : ActiveModel::Type::Boolean.new.cast(raw)
+    end
+  end
+
+  def hq_widget?(key)
+    key = key.to_sym
+    return false unless HQ_WIDGETS.key?(key)
+
+    hq_widgets.fetch(key.to_s)
+  end
+
+  def hq_widgets=(values)
+    incoming = values.is_a?(Hash) ? values.stringify_keys : {}
+    cleaned = HQ_WIDGETS.keys.map(&:to_s).index_with do |key|
+      if incoming.key?(key)
+        ActiveModel::Type::Boolean.new.cast(incoming[key])
+      else
+        false
+      end
+    end
+    self.preferences = preferences_hash.merge("hq_widgets" => cleaned)
+  end
+
+  def self.default_hq_widgets
+    HQ_WIDGETS.transform_values { |meta| meta[:default] }.transform_keys(&:to_s)
   end
 
   def saml_sso_enabled?
@@ -220,6 +269,18 @@ class Tenant < ApplicationRecord
 
   def normalize_features
     self.features = feature_hash.slice(*FEATURE_FLAGS.keys.map(&:to_s))
+  end
+
+  def normalize_preferences
+    prefs = preferences_hash
+    widgets = prefs["hq_widgets"]
+    widgets = widgets.is_a?(Hash) ? widgets : {}
+    cleaned_widgets = HQ_WIDGETS.keys.map(&:to_s).each_with_object({}) do |key, hash|
+      next unless widgets.key?(key)
+
+      hash[key] = ActiveModel::Type::Boolean.new.cast(widgets[key])
+    end
+    self.preferences = prefs.slice("hq_widgets").merge("hq_widgets" => cleaned_widgets)
   end
 
   def normalize_brand_colors

@@ -7,6 +7,7 @@ en:
     visits: "Visits"
     audit_history: "Audit history"
     my_tasks: "My tasks"
+    hq_widgets: "HQ widgets"
   morocco:
     proof_required: "Add the before photo and the after photo."
     owner:
@@ -290,6 +291,31 @@ en:
       lede: "What stores have received, what is late, and which campaigns to deploy."
       chase: "Automatic chase: 24h store manager, 48h area manager, 72h head office."
       received_question: "Have the stores received this?"
+      widgets:
+        title: "HQ widgets"
+        lede: "Choose which today-board sections this brand shows."
+        list_title: "Visible sections"
+        list_lede: "Turn off sections you do not need. The hero decision pulse always stays."
+        save: "Save widgets"
+        saved: "Widget preferences saved."
+        save_failed: "Could not save widget preferences."
+        back: "Back to today"
+        on: "On"
+        off: "Off"
+        items:
+          campaign: "Latest instruction"
+          store_status: "Store status"
+          compliance: "Module compliance"
+          monitoring: "Task monitoring"
+          exceptions: "Exceptions"
+          podium: "Ranking podium"
+        hints:
+          campaign: "Awareness progress for the latest brief."
+          store_status: "On track, attention, and critical store counts."
+          compliance: "Weekly completion by module."
+          monitoring: "Task completion by campaign and region."
+          exceptions: "Unconfirmed, overdue, and redo decisions."
+          podium: "Top stores from the ranking."
     sending: "Sending…"
     visits:
       title: "Store visits"

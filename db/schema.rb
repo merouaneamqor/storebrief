@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -423,6 +423,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_210000) do
     t.string "ramadan_opens_at", default: "12:00", null: false
     t.string "ramadan_closes_at", default: "01:00", null: false
     t.integer "corrective_deadline_days", default: 3, null: false
+    t.jsonb "preferences", default: {}, null: false
     t.index ["slug"], name: "index_tenants_on_slug", unique: true
   end
 

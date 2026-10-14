@@ -7,6 +7,7 @@ es:
     visits: "Visitas"
     audit_history: "Historial de auditorías"
     my_tasks: "Mis tareas"
+    hq_widgets: "Widgets sede"
   morocco:
     proof_required: "Añade la foto de antes y la foto de después."
     owner:
@@ -290,6 +291,31 @@ es:
       lede: "Lo que las tiendas han recibido, lo que va tarde y las campañas por desplegar."
       chase: "Seguimiento automático: 24 h responsable de tienda, 48 h area manager, 72 h sede."
       received_question: "¿Las tiendas han recibido la información?"
+      widgets:
+        title: "Widgets sede"
+        lede: "Elija qué secciones del tablero de hoy muestra esta marca."
+        list_title: "Secciones visibles"
+        list_lede: "Desactive las secciones que no necesite. El pulso de decisiones siempre permanece."
+        save: "Guardar widgets"
+        saved: "Preferencias de widgets guardadas."
+        save_failed: "No se pudieron guardar las preferencias de widgets."
+        back: "Volver a hoy"
+        on: "Activo"
+        off: "Inactivo"
+        items:
+          campaign: "Última instrucción"
+          store_status: "Estado de tiendas"
+          compliance: "Cumplimiento por módulo"
+          monitoring: "Seguimiento de tareas"
+          exceptions: "Excepciones"
+          podium: "Podio de clasificación"
+        hints:
+          campaign: "Progreso de recepción del último brief."
+          store_status: "Conteo en regla, atención y crítico."
+          compliance: "Avance semanal por módulo."
+          monitoring: "Avance de tareas por campaña y región."
+          exceptions: "Decisiones sin confirmar, con retraso y a rehacer."
+          podium: "Mejores tiendas del ranking."
     sending: "Enviando…"
     visits:
       title: "Visitas a tienda"
