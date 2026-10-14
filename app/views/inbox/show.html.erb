@@ -241,4 +241,10 @@
       <% end %>
     </section>
   <% end %>
+
+  <% if morocco %>
+    <%= render "deliveries/comments",
+          delivery: @delivery,
+          mentionable_users: @mentionable_users %>
+  <% end %>
 </article>

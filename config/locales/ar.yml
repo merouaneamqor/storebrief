@@ -472,6 +472,8 @@ ar:
       communication_body: "أرسل لكم %{brand} « %{title} ». افتحوا Vazivo للاطلاع عليها وإنجازها."
       checklist_subject: "قائمة تحقق جديدة: %{title}"
       checklist_body: "أرسل لكم %{brand} قائمة التحقق « %{title} ». افتحوا Vazivo لإنجازها."
+      mention_subject: "أُشير إليكم: %{title}"
+      mention_body: "أشار إليكم %{author} في « %{title} » (%{brand}). افتحوا Vazivo للرد."
   pwa:
     kicker: "على الهاتف"
     title: "تثبيت Vazivo"

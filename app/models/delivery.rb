@@ -12,6 +12,7 @@ class Delivery < ApplicationRecord
   belongs_to :dependency_cleared_by, class_name: "User", optional: true
   has_many :delivery_answers, dependent: :destroy
   has_many :delivery_events, dependent: :delete_all
+  has_many :delivery_comments, dependent: :delete_all
   has_many :escalation_events, as: :subject, dependent: :destroy
   has_one :corrective_communication, class_name: "Communication", foreign_key: :source_delivery_id,
                                     inverse_of: :source_delivery, dependent: :nullify

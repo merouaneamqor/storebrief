@@ -464,6 +464,8 @@ es:
       communication_body: "%{brand} le envió “%{title}”. Abra Vazivo para acusar recibo y completarla."
       checklist_subject: "Nueva checklist: %{title}"
       checklist_body: "%{brand} le envió la checklist “%{title}”. Abra Vazivo para completarla."
+      mention_subject: "Le mencionaron: %{title}"
+      mention_body: "%{author} le mencionó en “%{title}” (%{brand}). Abra Vazivo para responder."
   pwa:
     kicker: "En el teléfono"
     title: "Instalar Vazivo"

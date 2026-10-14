@@ -313,6 +313,11 @@
                 <% end %>
               <% end %>
             <% end %>
+
+            <%= render "deliveries/comments",
+                  delivery: delivery,
+                  mentionable_users: @mentionable_users,
+                  section_id: "delivery-comment-#{delivery.id}" %>
           <% end %>
         </li>
       <% end %>

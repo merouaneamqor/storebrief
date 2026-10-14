@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,6 +232,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_200000) do
     t.index ["communication_question_id"], name: "index_delivery_answers_on_communication_question_id"
     t.index ["delivery_id", "communication_question_id"], name: "index_delivery_answers_on_delivery_and_question", unique: true
     t.index ["delivery_id"], name: "index_delivery_answers_on_delivery_id"
+  end
+
+  create_table "delivery_comments", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "delivery_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "parent_id"
+    t.text "body", null: false
+    t.jsonb "mentioned_user_ids", default: [], null: false
+    t.datetime "created_at", null: false
+    t.index ["delivery_id", "created_at"], name: "index_delivery_comments_on_delivery_id_and_created_at"
+    t.index ["delivery_id"], name: "index_delivery_comments_on_delivery_id"
+    t.index ["parent_id", "created_at"], name: "index_delivery_comments_on_parent_id_and_created_at"
+    t.index ["parent_id"], name: "index_delivery_comments_on_parent_id"
+    t.index ["tenant_id", "created_at"], name: "index_delivery_comments_on_tenant_id_and_created_at"
+    t.index ["tenant_id"], name: "index_delivery_comments_on_tenant_id"
+    t.index ["user_id"], name: "index_delivery_comments_on_user_id"
   end
 
   create_table "delivery_events", force: :cascade do |t|
@@ -479,6 +496,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_200000) do
   add_foreign_key "deliveries", "users", column: "validated_by_id"
   add_foreign_key "delivery_answers", "communication_questions"
   add_foreign_key "delivery_answers", "deliveries"
+  add_foreign_key "delivery_comments", "deliveries"
+  add_foreign_key "delivery_comments", "delivery_comments", column: "parent_id"
+  add_foreign_key "delivery_comments", "tenants"
+  add_foreign_key "delivery_comments", "users"
   add_foreign_key "delivery_events", "deliveries"
   add_foreign_key "delivery_events", "tenants"
   add_foreign_key "delivery_events", "users", column: "actor_id"

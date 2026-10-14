@@ -464,6 +464,8 @@ en:
       communication_body: "%{brand} sent you “%{title}”. Open Vazivo to acknowledge and complete it."
       checklist_subject: "New checklist: %{title}"
       checklist_body: "%{brand} sent you the checklist “%{title}”. Open Vazivo to complete it."
+      mention_subject: "You were mentioned: %{title}"
+      mention_body: "%{author} mentioned you on “%{title}” (%{brand}). Open Vazivo to reply."
   pwa:
     kicker: "On your phone"
     title: "Install Vazivo"

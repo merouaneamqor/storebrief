@@ -7,6 +7,10 @@ class WhatsappNotifier
     new.notify_checklist!(checklist)
   end
 
+  def self.notify_comment_mentions!(comment)
+    new.notify_comment_mentions!(comment)
+  end
+
   def notify_communication!(communication)
     return unless communication.tenant.feature?(:whatsapp_alerts)
 
@@ -34,6 +38,21 @@ class WhatsappNotifier
           message: message_for_checklist(checklist, user, delivery)
         )
       end
+    end
+  end
+
+  def notify_comment_mentions!(comment)
+    return unless comment.tenant.feature?(:whatsapp_alerts)
+
+    comment.mentioned_users.find_each do |user|
+      next unless user.whatsapp_phone.present? && user.whatsapp_alerts_consented?
+
+      create_log!(
+        tenant: comment.tenant,
+        user: user,
+        notifiable: comment,
+        message: message_for_mention(comment, user)
+      )
     end
   end
 
@@ -76,6 +95,17 @@ class WhatsappNotifier
       "قائمة تحقق جديدة: #{title}\nالرابط: #{path}"
     else
       "Nouvelle checklist: #{title}\nLien: #{path}"
+    end
+  end
+
+  def message_for_mention(comment, user)
+    locale = user.locale
+    author = comment.user.name
+    title = comment.delivery.communication.localized_value(:title, locale: locale)
+    if locale == "ar"
+      "#{author} أشار إليكم في تعليق على « #{title} ».\nافتحوا Vazivo للرد."
+    else
+      "#{author} vous a mentionné dans un commentaire sur « #{title} ».\nOuvrez Vazivo pour répondre."
     end
   end
 end

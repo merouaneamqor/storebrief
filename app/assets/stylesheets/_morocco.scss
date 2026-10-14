@@ -576,6 +576,58 @@ body.rtl .stepper__step:not(:last-child)::after {
   min-height: 2.5rem;
 }
 
+.delivery-comments {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+.delivery-comments__list {
+  margin: 0.65rem 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.delivery-comments__item,
+.delivery-comments__reply {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.delivery-comments__reply {
+  margin-inline-start: 1rem;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid var(--line);
+}
+
+.delivery-comments__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: baseline;
+}
+
+.delivery-comments__mentions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.delivery-comments__reply-form {
+  margin-top: 0.35rem;
+}
+
+.delivery-comments__reply-form summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .delivery-timeline {
   margin-top: 0.75rem;
   padding: 0.65rem 0.75rem;

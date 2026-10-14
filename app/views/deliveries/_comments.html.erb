@@ -1,0 +1,78 @@
+<%# locals: delivery, mentionable_users (optional), section_id (optional) %>
+<% if tenant_feature?(:morocco_ops) %>
+  <% comments = delivery.delivery_comments.select { |c| c.parent_id.nil? }.sort_by { |c| [ c.created_at, c.id ] } %>
+  <% replies_by_parent = delivery.delivery_comments.select { |c| c.parent_id.present? }.group_by(&:parent_id) %>
+  <% mentionables = (local_assigns[:mentionable_users] || delivery.org_unit.users.to_a).reject { |u| u.id == current_user&.id } %>
+  <% mentioned_names = delivery.delivery_comments.flat_map { |c| Array(c.mentioned_user_ids) }.uniq %>
+  <% mentioned_by_id = mentioned_names.any? ? User.where(id: mentioned_names, tenant_id: delivery.communication.tenant_id).index_by(&:id) : {} %>
+
+  <section class="delivery-comments" id="<%= local_assigns[:section_id].presence || 'comments' %>">
+    <h2 class="section-title"><%= t("morocco.comments.title") %></h2>
+    <p class="meta"><%= t("morocco.comments.lede") %></p>
+
+    <% if comments.any? %>
+      <ol class="delivery-comments__list">
+        <% comments.each do |comment| %>
+          <li class="delivery-comments__item" id="comment-<%= comment.id %>">
+            <div class="delivery-comments__meta">
+              <strong><%= comment.user.name %></strong>
+              <span class="meta">
+                <%= comment.created_at.in_time_zone(Vazivo::Schedule::ZONE).strftime("%d/%m %H:%M") %>
+              </span>
+            </div>
+            <div class="delivery-comments__body prose"><%= simple_format(comment.body) %></div>
+            <% if comment.mentioned_user_ids.any? %>
+              <p class="meta"><%= t("morocco.comments.mentions_label") %>:
+                <%= Array(comment.mentioned_user_ids).filter_map { |id| mentioned_by_id[id.to_i]&.name }.join(", ").presence || "-" %>
+              </p>
+            <% end %>
+
+            <% (replies_by_parent[comment.id] || []).sort_by { |c| [ c.created_at, c.id ] }.each do |reply| %>
+              <div class="delivery-comments__reply" id="comment-<%= reply.id %>">
+                <div class="delivery-comments__meta">
+                  <strong><%= reply.user.name %></strong>
+                  <span class="meta">
+                    <%= reply.created_at.in_time_zone(Vazivo::Schedule::ZONE).strftime("%d/%m %H:%M") %>
+                  </span>
+                </div>
+                <div class="delivery-comments__body prose"><%= simple_format(reply.body) %></div>
+              </div>
+            <% end %>
+
+            <details class="delivery-comments__reply-form">
+              <summary><%= t("morocco.comments.reply") %></summary>
+              <%= form_with url: delivery_comments_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
+                <%= hidden_field_tag "delivery_comment[parent_id]", comment.id %>
+                <label class="visually-hidden" for="reply_body_<%= comment.id %>"><%= t("morocco.comments.reply") %></label>
+                <textarea id="reply_body_<%= comment.id %>" name="delivery_comment[body]" rows="2" required
+                          placeholder="<%= t('morocco.comments.placeholder') %>"></textarea>
+                <button type="submit" class="btn btn--ghost"><%= t("morocco.comments.reply_submit") %></button>
+              <% end %>
+            </details>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p class="meta"><%= t("morocco.comments.empty") %></p>
+    <% end %>
+
+    <%= form_with url: delivery_comments_path(delivery), method: :post, class: "verdict-form verdict-form--compact delivery-comments__compose" do %>
+      <label class="meta" for="comment_body_<%= delivery.id %>"><%= t("morocco.comments.write") %></label>
+      <textarea id="comment_body_<%= delivery.id %>" name="delivery_comment[body]" rows="3" required
+                placeholder="<%= t('morocco.comments.placeholder') %>"></textarea>
+      <% if mentionables.any? %>
+        <fieldset class="delivery-comments__mentions">
+          <legend class="meta"><%= t("morocco.comments.mention") %></legend>
+          <% mentionables.first(12).each do |user| %>
+            <label class="brief-choice">
+              <input type="checkbox" name="delivery_comment[mentioned_user_ids][]" value="<%= user.id %>">
+              <span><%= user.name %></span>
+            </label>
+          <% end %>
+        </fieldset>
+        <p class="meta"><%= t("morocco.comments.mention_hint") %></p>
+      <% end %>
+      <button type="submit" class="btn btn--primary"><%= t("morocco.comments.submit") %></button>
+    <% end %>
+  </section>
+<% end %>
