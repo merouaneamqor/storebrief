@@ -117,4 +117,3 @@ class ChecklistTemplate < ApplicationRecord
     errors.add(:items, :duplicate_question_keys)
   end
 end
-
