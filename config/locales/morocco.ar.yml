@@ -176,6 +176,18 @@ ar:
       open: "فتح"
       instructions: "التعليمات"
       routines: "الروتينات"
+      timed_checklist:
+        title: "قائمة اليوم"
+        lede: "افتتاح، عرض، مخزون وحملة مرتبة حسب الوقت."
+        empty: "لا توجد قائمة مطلوبة اليوم."
+        mark_done: "تعليم كمكتمل"
+        progress: "%{done} / %{total}"
+        offline_hint: "بدون شبكة تُحفظ الإجابات وتُزامَن عند العودة."
+        buckets:
+          opening: "افتتاح"
+          merch: "عرض"
+          stock: "مخزون"
+          campaign: "حملة"
       area:
         title: "نظرة على المنطقة"
         stores: "متاجر منطقتكم"

@@ -10,7 +10,7 @@ module Vazivo
       :lens, :greeting_key, :name, :place_name, :ramadan, :opens_at,
       :urgent_count, :late_count, :done_count, :completion_percent,
       :now_items, :later_items, :today_by_priority, :priority_counts,
-      :attention_count, :attention_names, :campaign_title, :area,
+      :timed_checklist, :attention_count, :attention_names, :campaign_title, :area,
       keyword_init: true
     )
     # Monitoring summary for an area or region manager (read only).
@@ -93,6 +93,7 @@ module Vazivo
         later_items: later_records.first(8).map { |record| to_item(record) },
         today_by_priority: group_by_priority(now_items),
         priority_counts: count_by_priority(now_records),
+        timed_checklist: timed_checklist_for(lens, stores),
         attention_count: names.size,
         attention_names: names,
         campaign_title: campaign_title,
@@ -116,10 +117,24 @@ module Vazivo
         later_items: [],
         today_by_priority: Communication::PRIORITIES.index_with { [] },
         priority_counts: Communication::PRIORITIES.index_with { 0 },
+        timed_checklist: [],
         attention_count: 0,
         attention_names: [],
         campaign_title: nil,
         area: nil
+      )
+    end
+
+    # Store surface only: time-ordered checklist deliveries for today.
+    def timed_checklist_for(lens, stores)
+      return [] unless lens == "store" && stores.size == 1
+      return [] unless @tenant.feature?(:checklists)
+
+      TimedChecklist.for(
+        store: stores.first,
+        tenant: @tenant,
+        user: @user,
+        offline: @tenant.feature?(:offline_checklists)
       )
     end
 
