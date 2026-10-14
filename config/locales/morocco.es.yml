@@ -168,6 +168,18 @@ es:
         critical: "Crítico"
         empty: "No hay tiendas en esta categoría."
         all_units: "Todas las unidades"
+      monitoring:
+        title: "Seguimiento de tareas"
+        lede: "Avance y retrasos por campaña y por región."
+        completion: "Hecho"
+        done_line: "%{done} de %{total} hechas"
+        overdue_line:
+          one: "1 con retraso"
+          other: "%{count} con retraso"
+        by_campaign: "Por campaña"
+        by_region: "Por región"
+        dimensions: "Desglose del seguimiento"
+        unassigned_region: "Sin región"
       more: "Más"
       title: "Red"
       lede: "Lo que las tiendas han recibido, lo que va tarde y las campañas por desplegar."

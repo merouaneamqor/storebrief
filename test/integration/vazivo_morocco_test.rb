@@ -108,6 +108,30 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select ".empty"
   end
 
+  test "head office today shows task monitoring completion with store drill-down" do
+    second = @brand.tenant.org_units.create!(name: "Gauthier", unit_type: "store", parent: @brand.region)
+    create_user(@brand.tenant, org_unit: second, role: :store, email: "gauthier@vazivo-ma.test")
+    brief = task_for(@brand, proof: false)
+    brief.send_to!([ @brand.store.id, second.id ])
+    done, late = brief.deliveries.order(:id).to_a
+    done.update!(status: "completed", completed_at: Time.current, awareness: "done")
+    late.update!(due_at: 1.hour.ago)
+
+    sign_in(@brand.hq)
+    get app_root_path
+    assert_response :success
+    assert_select ".hq-monitor"
+    assert_match I18n.t("morocco.hq.monitoring.title", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.monitoring.by_campaign", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.monitoring.by_region", locale: :en), response.body
+    assert_select ".hq-monitor .hq-campaign__ring strong", text: /50/
+    assert_select ".hq-monitor__row .hq-monitor__pct", text: "50%"
+    assert_select "a[href=?]", communication_path(brief, anchor: "store-#{late.org_unit_id}")
+
+    get communication_path(brief)
+    assert_select "li#store-#{late.org_unit_id}"
+  end
+
   test "store status strip is hidden and ignored without morocco_ops" do
     brand = build_brand("status-off", features: { morocco_ops: false })
     sign_in(brand.hq)

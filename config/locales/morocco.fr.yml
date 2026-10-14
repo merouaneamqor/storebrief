@@ -168,6 +168,18 @@ fr:
         critical: "Critique"
         empty: "Aucun magasin dans cette catégorie."
         all_units: "Toutes les unités"
+      monitoring:
+        title: "Suivi des tâches"
+        lede: "Avancement et retards par campagne et par région."
+        completion: "Terminé"
+        done_line: "%{done} sur %{total} terminées"
+        overdue_line:
+          one: "1 en retard"
+          other: "%{count} en retard"
+        by_campaign: "Par campagne"
+        by_region: "Par région"
+        dimensions: "Découpage du suivi"
+        unassigned_region: "Sans région"
       more: "Plus"
       title: "Réseau"
       lede: "Ce que les magasins ont reçu, qui est en retard, et les campagnes à déployer."

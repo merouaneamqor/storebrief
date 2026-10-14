@@ -124,7 +124,7 @@
     <ul class="store-track">
       <% @deliveries.each do |delivery| %>
         <% needs_coach = delivery.finished? || delivery.verdict.present? %>
-        <li class="store-track__item">
+        <li id="store-<%= delivery.org_unit_id %>" class="store-track__item">
           <div class="store-track__head">
             <div class="store-track__main">
               <strong class="store-track__name"><%= delivery.org_unit.name %></strong>

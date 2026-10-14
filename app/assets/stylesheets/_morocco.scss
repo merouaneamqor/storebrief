@@ -1587,6 +1587,117 @@ body.rtl .work-card--row .work-card__chevron {
   background: var(--tone-urgent-bg);
 }
 
+.hq-monitor {
+  margin: 0 0 1.15rem;
+  padding: 1.1rem 1.1rem 1.15rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  animation: hq-rise 540ms ease both;
+  animation-delay: 75ms;
+}
+
+.hq-monitor__summary {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+@media (min-width: 800px) {
+  .hq-monitor__summary {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+.hq-monitor__lede {
+  margin: 0.25rem 0 0.35rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.hq-monitor__dims {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.hq-monitor__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.hq-monitor__row {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 92%, var(--canvas));
+}
+
+.hq-monitor__toggle {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.hq-monitor__expand {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.75rem 0.85rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.hq-monitor__expand:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.hq-monitor__toggle-main {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.hq-monitor__label {
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.hq-monitor__pct {
+  flex-shrink: 0;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-deep);
+}
+
+.hq-monitor__late {
+  color: var(--tone-late);
+  font-weight: 650;
+}
+
+.hq-monitor__open {
+  align-self: center;
+  margin-inline-end: 0.45rem;
+}
+
+.hq-monitor__stores {
+  padding: 0 0.65rem 0.65rem;
+  border-top: 1px solid var(--line);
+}
+
 .hq-status-strip { margin-bottom: 0.85rem; }
 
 .hq-status-strip__tiles {
