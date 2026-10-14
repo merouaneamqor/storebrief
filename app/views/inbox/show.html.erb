@@ -71,7 +71,16 @@
     <div class="task-card__body prose"><%= @communication.body %></div>
   <% end %>
 
-  <% if morocco %>
+  <% if @delivery.dependency_blocked? %>
+    <div class="flash flash--alert" role="status">
+      <strong><%= t("morocco.dependency.blocked_title") %></strong>
+      <p><%= @delivery.dependency_blocked_reason %></p>
+      <% parent_delivery = @delivery.blocking_parent_delivery %>
+      <% if parent_delivery %>
+        <p class="meta"><%= link_to @communication.depends_on_communication.title, inbox_path(parent_delivery) %></p>
+      <% end %>
+    </div>
+  <% elsif morocco %>
     <% if @delivery.verdict.present? %>
       <p class="verdict-line">
         <strong><%= t("morocco.verdict.#{@delivery.verdict}") %></strong>
@@ -158,7 +167,7 @@
         <% end %>
       </section>
     <% end %>
-  <% elsif @delivery.pending? %>
+  <% elsif @delivery.pending? && !@delivery.dependency_blocked? %>
     <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, multipart: true, class: "brief-answer-form" do %>
       <% if @questions.any? %>
         <section class="task-card__answers">

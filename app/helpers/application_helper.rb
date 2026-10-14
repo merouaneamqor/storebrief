@@ -51,6 +51,8 @@ module ApplicationHelper
       to = payload["to"] || payload[:to]
       note = payload["note"] || payload[:note]
       [ to.present? ? t("morocco.verdict.#{to}", default: to.to_s) : "-", note.presence ].compact.join(" · ")
+    when "dependency_cleared"
+      t("morocco.dependency.cleared_event")
     else
       from = payload["from"] || payload[:from] || "-"
       to = payload["to"] || payload[:to] || "-"

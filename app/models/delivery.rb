@@ -9,6 +9,7 @@ class Delivery < ApplicationRecord
   belongs_to :org_unit
   belongs_to :assignee, class_name: "User", optional: true
   belongs_to :validated_by, class_name: "User", optional: true
+  belongs_to :dependency_cleared_by, class_name: "User", optional: true
   has_many :delivery_answers, dependent: :destroy
   has_many :delivery_events, dependent: :delete_all
   has_many :escalation_events, as: :subject, dependent: :destroy
@@ -40,6 +41,7 @@ class Delivery < ApplicationRecord
   }
 
   def complete!
+    ensure_not_dependency_blocked!
     ensure_required_answers!
     ensure_proof!
     attrs = { status: "completed", completed_at: Time.current, awareness: "done" }
@@ -48,6 +50,7 @@ class Delivery < ApplicationRecord
   end
 
   def mark_read!
+    ensure_not_dependency_blocked!
     ensure_required_answers!
     attrs = { status: "read", completed_at: Time.current, awareness: "done" }
     attrs.merge!(scored_attrs) if communication.questions?
@@ -89,6 +92,7 @@ class Delivery < ApplicationRecord
   end
 
   def advance_awareness!(step)
+    ensure_not_dependency_blocked!
     step = step.to_s
     raise ArgumentError, I18n.t("morocco.awareness.invalid") unless AWARENESS_STEPS.include?(step)
     raise ArgumentError, I18n.t("morocco.awareness.sequence") unless step == next_awareness_step
@@ -98,6 +102,45 @@ class Delivery < ApplicationRecord
     else
       update!(awareness: step)
     end
+  end
+
+  def dependency_blocked?
+    return false if finished?
+    return false if dependency_cleared_at.present?
+    return false unless communication.depends_on_another?
+
+    parent = blocking_parent_delivery
+    parent.nil? || !parent.finished?
+  end
+
+  def blocking_parent_delivery
+    parent_id = communication.depends_on_communication_id
+    return if parent_id.blank?
+
+    Delivery.find_by(communication_id: parent_id, org_unit_id: org_unit_id)
+  end
+
+  def dependency_blocked_reason
+    return unless dependency_blocked?
+
+    parent = communication.depends_on_communication
+    title = parent&.title.presence || I18n.t("morocco.dependency.unknown_parent")
+    I18n.t("morocco.dependency.blocked_reason", title: title)
+  end
+
+  def clear_dependency_block!(by:)
+    @history_actor = by
+    update!(dependency_cleared_at: Time.current, dependency_cleared_by: by)
+    record_event!("dependency_cleared", {}, actor: by)
+  ensure
+    @history_actor = nil
+  end
+
+  def reassign!(user:, by:)
+    @history_actor = by
+    update!(assignee: user)
+  ensure
+    @history_actor = nil
   end
 
   def apply_verdict!(verdict, note:, by:)
@@ -216,6 +259,12 @@ class Delivery < ApplicationRecord
         }
       )
     end
+  end
+
+  def ensure_not_dependency_blocked!
+    return unless dependency_blocked?
+
+    raise ArgumentError, dependency_blocked_reason
   end
 
   def ensure_proof!

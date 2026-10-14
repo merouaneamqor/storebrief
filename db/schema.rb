@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_191000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -178,8 +178,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_191000) do
     t.bigint "visit_id"
     t.bigint "source_delivery_id"
     t.bigint "source_checklist_item_response_id"
+    t.bigint "depends_on_communication_id"
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["communication_template_id"], name: "index_communications_on_communication_template_id"
+    t.index ["depends_on_communication_id"], name: "index_communications_on_depends_on_communication_id"
     t.index ["playbook_id"], name: "index_communications_on_playbook_id"
     t.index ["recurrence_next_on"], name: "index_communications_on_recurrence_next_on", where: "(recurrence_next_on IS NOT NULL)"
     t.index ["recurrence_parent_id", "occurrence_on"], name: "index_communications_on_series_occurrence", unique: true, where: "(recurrence_parent_id IS NOT NULL)"
@@ -210,9 +212,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_191000) do
     t.bigint "validated_by_id"
     t.datetime "validated_at"
     t.integer "score"
+    t.datetime "dependency_cleared_at"
+    t.bigint "dependency_cleared_by_id"
     t.index ["assignee_id"], name: "index_deliveries_on_assignee_id"
     t.index ["communication_id", "org_unit_id"], name: "index_deliveries_on_communication_id_and_org_unit_id", unique: true
     t.index ["communication_id"], name: "index_deliveries_on_communication_id"
+    t.index ["dependency_cleared_by_id"], name: "index_deliveries_on_dependency_cleared_by_id"
     t.index ["org_unit_id"], name: "index_deliveries_on_org_unit_id"
     t.index ["score"], name: "index_deliveries_on_score"
     t.index ["validated_by_id"], name: "index_deliveries_on_validated_by_id"
@@ -460,6 +465,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_191000) do
   add_foreign_key "communication_templates", "tenants"
   add_foreign_key "communications", "checklist_item_responses", column: "source_checklist_item_response_id"
   add_foreign_key "communications", "communication_templates"
+  add_foreign_key "communications", "communications", column: "depends_on_communication_id"
   add_foreign_key "communications", "communications", column: "recurrence_parent_id", on_delete: :nullify
   add_foreign_key "communications", "deliveries", column: "source_delivery_id"
   add_foreign_key "communications", "playbooks", on_delete: :nullify
@@ -469,6 +475,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_191000) do
   add_foreign_key "deliveries", "communications"
   add_foreign_key "deliveries", "org_units"
   add_foreign_key "deliveries", "users", column: "assignee_id"
+  add_foreign_key "deliveries", "users", column: "dependency_cleared_by_id"
   add_foreign_key "deliveries", "users", column: "validated_by_id"
   add_foreign_key "delivery_answers", "communication_questions"
   add_foreign_key "delivery_answers", "deliveries"

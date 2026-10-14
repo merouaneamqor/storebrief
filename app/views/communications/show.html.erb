@@ -40,6 +40,21 @@
   </section>
 <% end %>
 
+<% if @communication.depends_on_another? %>
+  <section class="panel">
+    <p class="section-title"><%= t("morocco.dependency.title") %></p>
+    <p>
+      <%= t("morocco.dependency.waits_for") %>
+      <%= link_to @communication.depends_on_communication.title, communication_path(@communication.depends_on_communication) %>
+    </p>
+    <% if hq_user? %>
+      <%= button_to t("morocco.dependency.clear_task"), clear_dependency_communication_path(@communication),
+            method: :post, class: "btn btn--ghost",
+            data: { turbo_confirm: t("morocco.dependency.clear_task_confirm") } %>
+    <% end %>
+  </section>
+<% end %>
+
 <% if morocco && @communication.corrective? %>
   <section class="panel">
     <p class="section-title"><%= t("morocco.corrective.source_title") %></p>
@@ -218,6 +233,31 @@
                 <% end %>
               </ol>
             </details>
+          <% end %>
+
+          <% if delivery.dependency_blocked? %>
+            <p class="flash flash--alert"><%= delivery.dependency_blocked_reason %></p>
+          <% elsif delivery.dependency_cleared_at.present? && @communication.depends_on_another? %>
+            <p class="meta"><%= t("morocco.dependency.cleared_for_store") %></p>
+          <% end %>
+
+          <% if hq_user? && @communication.depends_on_another? && delivery.pending? %>
+            <div class="verdict-form verdict-form--compact">
+              <% if delivery.dependency_blocked? %>
+                <%= button_to t("morocco.dependency.clear_store"), delivery_clear_dependency_path(delivery),
+                      method: :post, class: "btn btn--ghost" %>
+              <% end %>
+              <%= form_with url: delivery_reassign_path(delivery), method: :patch, class: "verdict-form verdict-form--compact" do %>
+                <label class="meta" for="assignee_id_<%= delivery.id %>"><%= t("morocco.dependency.reassign") %></label>
+                <select id="assignee_id_<%= delivery.id %>" name="assignee_id">
+                  <option value=""><%= t("morocco.owner.unassigned") %></option>
+                  <% delivery.org_unit.users.each do |user| %>
+                    <option value="<%= user.id %>" <%= "selected" if delivery.assignee_id == user.id %>><%= user.name %></option>
+                  <% end %>
+                </select>
+                <button type="submit" class="btn btn--ghost"><%= t("morocco.dependency.reassign_save") %></button>
+              <% end %>
+            </div>
           <% end %>
 
           <% if morocco %>

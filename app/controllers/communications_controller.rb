@@ -4,8 +4,9 @@ class CommunicationsController < ApplicationController
   before_action :require_compose_hq, except: %i[index show]
   before_action :require_monitor_access, only: %i[index show]
   before_action -> { require_feature!(:briefs) }
-  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority save_as_template]
+  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority save_as_template clear_dependency]
   before_action :load_target_units, only: %i[new create edit update]
+  before_action :load_dependency_candidates, only: %i[new create edit update]
 
   def index
     @communications = monitored_communications.includes(:author, :deliveries).order(created_at: :desc)
@@ -23,11 +24,12 @@ class CommunicationsController < ApplicationController
 
     @stats = @communication.completion_stats
     @deliveries = monitored_deliveries_for(@communication).includes(
-      :org_unit, :assignee, :corrective_communication,
+      :org_unit, :assignee, :corrective_communication, :dependency_cleared_by,
       photo_before_attachment: :blob,
       photo_after_attachment: :blob,
       delivery_answers: [ :communication_question, { image_attachment: :blob } ],
-      delivery_events: :actor
+      delivery_events: :actor,
+      org_unit: :users
     ).order(:id)
     @notifications = hq_user? ? @communication.notification_logs.includes(:user).order(created_at: :desc) : []
     @monitor_only = area_user?
@@ -125,6 +127,16 @@ class CommunicationsController < ApplicationController
     end
   end
 
+  def clear_dependency
+    unless @communication.depends_on_another?
+      redirect_to @communication, alert: t("morocco.dependency.none")
+      return
+    end
+
+    @communication.clear_dependency!
+    redirect_to @communication, notice: t("morocco.dependency.cleared_task")
+  end
+
   def notify_push
     unless @communication.sent?
       redirect_to @communication, alert: t("communications.not_sent_yet")
@@ -168,7 +180,8 @@ class CommunicationsController < ApplicationController
 
   def set_communication
     @communication = monitored_communications
-                     .includes(:communication_questions, :visit, source_delivery: :communication)
+                     .includes(:communication_questions, :visit, :depends_on_communication,
+                               source_delivery: :communication)
                      .find(params[:id])
   end
 
@@ -198,6 +211,12 @@ class CommunicationsController < ApplicationController
 
   def load_target_units
     @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
+  end
+
+  def load_dependency_candidates
+    scope = tenant_scope.communications.sent.where(format: "task").order(created_at: :desc).limit(50)
+    scope = scope.where.not(id: @communication.id) if @communication&.persisted?
+    @dependency_candidates = scope
   end
 
   def persist_communication(failure_template)
@@ -231,7 +250,7 @@ class CommunicationsController < ApplicationController
 
   def communication_params
     params.require(:communication).permit(
-      :title_fr, :title_ar, :body_fr, :body_ar, :format, :priority,
+      :title_fr, :title_ar, :body_fr, :body_ar, :format, :priority, :depends_on_communication_id,
       recurrence_attributes: [ :frequency, :interval, :ends_on, { weekdays: [] } ],
       communication_questions_attributes: [
         :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy
