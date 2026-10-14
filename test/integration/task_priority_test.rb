@@ -91,13 +91,15 @@ class TaskPriorityTest < ActionDispatch::IntegrationTest
   end
 
   test "the radar sorts by priority before deadline" do
-    send_task("Routine en retard", due_at: 2.hours.ago)
-    send_task("Urgent plus tard", priority: "urgent", due_at: 5.hours.from_now)
-    snapshot = Vazivo::Radar.for(user: @brand.store_user, tenant: @tenant)
+    travel_to Vazivo::Schedule::ZONE.local(2026, 10, 7, 11, 0) do
+      send_task("Routine en retard", due_at: 2.hours.ago)
+      send_task("Urgent plus tard", priority: "urgent", due_at: 5.hours.from_now)
+      snapshot = Vazivo::Radar.for(user: @brand.store_user, tenant: @tenant)
 
-    items = snapshot.now_items + snapshot.later_items
-    assert_equal [ "Urgent plus tard", "Routine en retard" ], items.map(&:title)
-    assert_equal "urgent", items.first.priority
+      items = snapshot.now_items + snapshot.later_items
+      assert_equal [ "Urgent plus tard", "Routine en retard" ], items.map(&:title)
+      assert_equal "urgent", items.first.priority
+    end
   end
 
   test "the HQ board ranks higher priority first within a severity" do

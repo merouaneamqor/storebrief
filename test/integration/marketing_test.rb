@@ -47,7 +47,8 @@ class MarketingTest < ActionDispatch::IntegrationTest
           company: "Atlas Retail",
           phone: "0612345678",
           preferred_locale: "fr",
-          store_count: 12
+          store_count: 12,
+          privacy_consent: "1"
         }
       }
     end

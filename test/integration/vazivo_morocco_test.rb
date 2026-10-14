@@ -252,16 +252,18 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
   end
 
   test "the store morning screen is the radar" do
-    task_for(@brand, proof: false)
-    sign_in(@brand.store_user)
+    travel_to Vazivo::Schedule::ZONE.local(2026, 10, 7, 11, 0) do
+      task_for(@brand, proof: false)
+      sign_in(@brand.store_user)
 
-    get app_root_path
-    assert_response :success
-    assert_match I18n.t("morocco.radar.place_store", locale: :en), response.body
-    assert_match I18n.t("morocco.radar.now", locale: :en), response.body
-    assert_match "Contrôle vitrine", response.body
-    assert_select "article.work-card.work-card--hero"
-    assert_select ".work-card--hero .btn", minimum: 1
+      get app_root_path
+      assert_response :success
+      assert_match I18n.t("morocco.radar.place_store", locale: :en), response.body
+      assert_match I18n.t("morocco.radar.now", locale: :en), response.body
+      assert_match "Contrôle vitrine", response.body
+      assert_select "article.work-card.work-card--hero"
+      assert_select ".work-card--hero .btn", minimum: 1
+    end
   end
 
   test "the store later section stays collapsed" do

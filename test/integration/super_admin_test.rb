@@ -74,7 +74,8 @@ class SuperAdminTest < ActionDispatch::IntegrationTest
       email: "fatima@marjan.test",
       phone: "+212600000000",
       store_count: 12,
-      preferred_locale: "fr"
+      preferred_locale: "fr",
+      privacy_consent: "1"
     )
 
     post login_path, params: { email: admin.email, password: "password" }

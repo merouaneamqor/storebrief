@@ -20,6 +20,15 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 6 }, allow_nil: true
   validates :password, confirmation: true, if: -> { password.present? }
 
+  # Integration tests often create users outside TenantHelpers; accept the
+  # privacy notice by default so the CNDP gate does not redirect the suite.
+  before_validation :default_test_privacy_acceptance, on: :create, if: -> { Rails.env.test? }
+
+  def default_test_privacy_acceptance
+    self.privacy_notice_accepted_at ||= Time.current
+  end
+  private :default_test_privacy_acceptance
+
   def hq?
     memberships.exists?(role: "hq")
   end
