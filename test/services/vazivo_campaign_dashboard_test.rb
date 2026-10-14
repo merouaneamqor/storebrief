@@ -22,7 +22,12 @@ class VazivoCampaignDashboardTest < ActiveSupport::TestCase
 
   test "campaign reports completion, late stores and step progress" do
     Vazivo::PlaybookDeployer.deploy!(
-      playbook: @playbook, author: @brand.hq, campaign_on: Date.current + 3, org_unit_ids: [ @brand.store.id ]
+      playbook: @playbook,
+      author: @brand.hq,
+      starts_on: Date.current - 11,
+      campaign_on: Date.current + 3,
+      brief_fr: @playbook.description_fr,
+      org_unit_ids: [ @brand.store.id ]
     )
     checklist = @brand.tenant.checklists.order(:id).last
     delivery = checklist.checklist_deliveries.first

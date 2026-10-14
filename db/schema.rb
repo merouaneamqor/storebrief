@@ -114,6 +114,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_183000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "campaign_on"
+    t.date "starts_on"
     t.bigint "playbook_id"
     t.jsonb "target_snapshot", default: {}, null: false
     t.index ["author_id"], name: "index_checklists_on_author_id"

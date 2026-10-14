@@ -132,10 +132,15 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     Playbook.ensure_defaults!(@brand.tenant)
     playbook = @brand.tenant.playbooks.find_by!(key: "aid")
     sign_in(@brand.hq)
+    campaign_on = Date.new(2026, 6, 16)
+    starts_on = Date.new(2026, 6, 2)
 
     assert_difference -> { @brand.tenant.checklists.count }, 1 do
       post deploy_playbook_path(playbook), params: {
-        campaign_on: Date.new(2026, 6, 16).iso8601,
+        starts_on: starts_on.iso8601,
+        campaign_on: campaign_on.iso8601,
+        brief_fr: "Brief AID maison",
+        brief_ar: "موجز العيد",
         org_unit_ids: [ @brand.store.id ]
       }
     end
@@ -144,11 +149,35 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     checklist = @brand.tenant.checklists.order(:id).last
     assert_equal playbook, checklist.playbook
     assert_equal "sent", checklist.status
+    assert_equal starts_on, checklist.starts_on
+    assert_equal campaign_on, checklist.campaign_on
     assert_equal 7, checklist.checklist_items.count
+    assert_equal "Brief AID maison", checklist.description_fr
     assert_equal @brand.store_user, checklist.checklist_deliveries.first.assignee
 
     confirmation = @brand.tenant.communications.where(source: "playbook").order(:id).last
+    assert_equal "Brief AID maison", confirmation.body_fr
+    assert_equal "موجز العيد", confirmation.body_ar
     assert_equal "pending", confirmation.deliveries.first.awareness
+  end
+
+  test "deploy rejects an inverted campaign date range" do
+    Playbook.ensure_defaults!(@brand.tenant)
+    playbook = @brand.tenant.playbooks.find_by!(key: "aid")
+    sign_in(@brand.hq)
+
+    assert_no_difference -> { @brand.tenant.checklists.count } do
+      post deploy_playbook_path(playbook), params: {
+        starts_on: Date.new(2026, 6, 20).iso8601,
+        campaign_on: Date.new(2026, 6, 16).iso8601,
+        brief_fr: "Brief",
+        org_unit_ids: [ @brand.store.id ]
+      }
+    end
+
+    assert_redirected_to playbooks_path(key: playbook.key)
+    follow_redirect!
+    assert_match I18n.t("morocco.playbooks.invalid_range", locale: :en), response.body
   end
 
   test "playbook targets preview resolves stores under a region within the tenant" do
@@ -175,12 +204,18 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     sign_in(@brand.hq)
 
     assert_no_difference -> { @brand.tenant.checklists.count } do
-      post deploy_playbook_path(playbook), params: { campaign_on: Date.new(2026, 6, 16).iso8601 }
+      post deploy_playbook_path(playbook), params: {
+        starts_on: Date.new(2026, 6, 2).iso8601,
+        campaign_on: Date.new(2026, 6, 16).iso8601,
+        brief_fr: playbook.description_fr
+      }
     end
     assert_redirected_to playbooks_path(key: playbook.key)
 
     post deploy_playbook_path(playbook), params: {
+      starts_on: Date.new(2026, 6, 2).iso8601,
       campaign_on: Date.new(2026, 6, 16).iso8601,
+      brief_fr: playbook.description_fr,
       org_unit_ids: [ @brand.region.id ]
     }
 
@@ -200,6 +235,10 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.region.id}']"
     assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.store.id}']"
     assert_select "form.pb-deploy[x-data=campaignTargets]"
+    assert_select "input[type=date][name=starts_on]"
+    assert_select "input[type=date][name=campaign_on]"
+    assert_select "textarea[name=brief_fr]"
+    assert_select "textarea[name=brief_ar]"
   end
 
   test "hq can customize and create playbooks" do

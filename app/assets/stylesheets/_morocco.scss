@@ -770,12 +770,29 @@ body.rtl .stepper__step:not(:last-child)::after {
   border-top: 1px solid var(--line);
 }
 
+.pb-deploy__dates,
+.pb-deploy__brief {
+  display: grid;
+  gap: 0.75rem 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
 .pb-deploy__date {
   display: grid;
   gap: 0.35rem;
   max-width: 16rem;
   font-weight: 650;
   font-size: 0.85rem;
+}
+
+.pb-deploy__date--wide {
+  max-width: none;
+}
+
+.pb-deploy__date textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+  font-weight: 450;
 }
 
 .pb-deploy__stores .section-title {

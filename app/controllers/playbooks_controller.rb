@@ -71,16 +71,33 @@ class PlaybooksController < ApplicationController
   end
 
   def deploy
+    starts_on = parse_date(params[:starts_on])
     campaign_on = parse_date(params[:campaign_on])
-    if campaign_on.nil?
+    brief_fr = params[:brief_fr].to_s.strip.presence || @playbook.description_fr
+    brief_ar = params[:brief_ar].to_s.strip.presence || @playbook.description_ar
+
+    if starts_on.nil? || campaign_on.nil?
       redirect_to playbooks_path(key: @playbook.key), alert: t("morocco.playbooks.date_required")
+      return
+    end
+
+    if starts_on > campaign_on
+      redirect_to playbooks_path(key: @playbook.key), alert: t("morocco.playbooks.invalid_range")
+      return
+    end
+
+    if brief_fr.blank?
+      redirect_to playbooks_path(key: @playbook.key), alert: t("morocco.playbooks.brief_required")
       return
     end
 
     Vazivo::PlaybookDeployer.deploy!(
       playbook: @playbook,
       author: current_user,
+      starts_on: starts_on,
       campaign_on: campaign_on,
+      brief_fr: brief_fr,
+      brief_ar: brief_ar,
       org_unit_ids: params[:org_unit_ids]
     )
     redirect_to playbooks_path(key: @playbook.key), notice: t("morocco.playbooks.deployed", title: @playbook.title)

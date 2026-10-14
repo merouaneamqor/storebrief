@@ -4,7 +4,7 @@ module Vazivo
   class CampaignDashboard
     StoreRow = Struct.new(:store_name, :owner_name, :due_at, :tone, :steps_done, :steps_total, :path, keyword_init: true)
     Campaign = Struct.new(
-      :checklist, :playbook, :campaign_on, :total, :done, :percent, :exceptions, :path,
+      :checklist, :playbook, :starts_on, :campaign_on, :total, :done, :percent, :exceptions, :path,
       keyword_init: true
     ) do
       def pending = total - done
@@ -54,6 +54,7 @@ module Vazivo
       Campaign.new(
         checklist: checklist,
         playbook: checklist.playbook,
+        starts_on: checklist.starts_on,
         campaign_on: checklist.campaign_on,
         total: deliveries.size,
         done: done,
