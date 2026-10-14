@@ -697,6 +697,10 @@ en:
           publish_state: "Status"
           audience_roles: "Audiences"
           audience_roles_hint: "Leave empty for all roles. Otherwise check the allowed roles."
+          audience_store_tags: "Store tags"
+          audience_store_tags_hint: "Leave empty for all stores. Otherwise limit to stores with matching format or cluster tags."
+          audience_store_tags_custom: "Extra tags (comma-separated)"
+          audience_store_tags_placeholder: "e.g. express, casa-nord"
       search:
         lede: "Search published procedures for %{tenant}."
         query_label: "Search"
@@ -709,6 +713,7 @@ en:
         results_for: "Results for \"%{query}\""
         relevance: "relevance %{score}"
         audience: "for %{roles}"
+        store_tags: "stores %{tags}"
         unavailable: "This article is not available."
         roles:
           hq: "HQ"

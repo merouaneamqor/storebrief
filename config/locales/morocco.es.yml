@@ -697,6 +697,10 @@ es:
           publish_state: "Estado"
           audience_roles: "Audiencias"
           audience_roles_hint: "Deje vacio para todos los roles. Si no, marque los roles permitidos."
+          audience_store_tags: "Etiquetas de tienda"
+          audience_store_tags_hint: "Deje vacio para todas las tiendas. Si no, limite a tiendas con formato o cluster coincidente."
+          audience_store_tags_custom: "Etiquetas extra (separadas por comas)"
+          audience_store_tags_placeholder: "ej. express, casa-nord"
       search:
         lede: "Busque procedimientos publicados para %{tenant}."
         query_label: "Busqueda"
@@ -709,6 +713,7 @@ es:
         results_for: "Resultados para \"%{query}\""
         relevance: "relevancia %{score}"
         audience: "para %{roles}"
+        store_tags: "tiendas %{tags}"
         unavailable: "Este articulo no esta disponible."
         roles:
           hq: "Sede"

@@ -75,4 +75,14 @@ class KbArticleTest < ActiveSupport::TestCase
       assert_equal "قائمة الفتح.", article.body
     end
   end
+
+  test "normalizes audience store tags and combines with role access" do
+    article = build_article(audience_roles: %w[store], audience_store_tags: [ " express ", "flagship,casa-center", "" ])
+    assert_equal %w[casa-center express flagship], article.audience_store_tags.sort
+
+    assert article.accessible_to?(role: "store", store_tags: %w[express])
+    assert_not article.accessible_to?(role: "hq", store_tags: %w[express])
+    assert_not article.accessible_to?(role: "store", store_tags: %w[mall])
+    assert article.accessible_to?(role: "store", store_tags: %w[mall casa-center])
+  end
 end

@@ -339,7 +339,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_170000) do
     t.datetime "updated_at", null: false
     t.string "audience_roles", default: [], null: false, array: true
     t.tsvector "search_vector"
+    t.string "audience_store_tags", default: [], null: false, array: true
     t.index ["audience_roles"], name: "index_kb_articles_on_audience_roles", using: :gin
+    t.index ["audience_store_tags"], name: "index_kb_articles_on_audience_store_tags", using: :gin
     t.index ["author_id"], name: "index_kb_articles_on_author_id"
     t.index ["kb_category_id"], name: "index_kb_articles_on_kb_category_id"
     t.index ["search_vector"], name: "index_kb_articles_on_search_vector", using: :gin

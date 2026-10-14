@@ -46,6 +46,23 @@
       <% end %>
       <%= hidden_field_tag "kb_article[audience_roles][]", "" %>
     </fieldset>
+
+    <fieldset class="stack" style="border:0; padding:0; margin:0;">
+      <legend class="meta"><%= t("morocco.kb.articles.fields.audience_store_tags") %></legend>
+      <p class="meta"><%= t("morocco.kb.articles.fields.audience_store_tags_hint") %></p>
+      <% Array(@store_tag_options).each do |tag| %>
+        <label class="cluster" style="gap:0.4rem;">
+          <%= check_box_tag "kb_article[audience_store_tags][]", tag, @article.audience_store_tags.include?(tag), id: "kb_article_store_tag_#{tag.to_s.parameterize}" %>
+          <%= tag %>
+        </label>
+      <% end %>
+      <%= label_tag "kb_article_audience_store_tags_custom", t("morocco.kb.articles.fields.audience_store_tags_custom"), class: "meta" %>
+      <%= text_field_tag "kb_article[audience_store_tags][]",
+            (@article.audience_store_tags - Array(@store_tag_options)).join(", "),
+            id: "kb_article_audience_store_tags_custom",
+            placeholder: t("morocco.kb.articles.fields.audience_store_tags_placeholder") %>
+      <%= hidden_field_tag "kb_article[audience_store_tags][]", "" %>
+    </fieldset>
   </div>
 
   <div class="cluster">

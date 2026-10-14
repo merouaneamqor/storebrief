@@ -2,7 +2,7 @@ class KbArticle < ApplicationRecord
   include Bilingual
 
   PUBLISH_STATES = %w[draft published archived].freeze
-  # Empty audience_roles = visible to every role (default). Non-empty = allow-list for #75.
+  # Empty audience_* arrays = unrestricted for that dimension (role or store tags).
   AUDIENCE_ROLES = Membership::ROLES
 
   belongs_to :tenant
@@ -31,11 +31,30 @@ class KbArticle < ApplicationRecord
       where("cardinality(audience_roles) = 0 OR ? = ANY(audience_roles)", role)
     end
   }
+  # nil tags → skip filter (HQ role preview). [] → only unrestricted articles.
+  # Non-empty → unrestricted OR overlap with viewer tags (PG &&).
+  scope :visible_to_store_tags, lambda { |tags|
+    next all if tags.nil?
+
+    tags = Array(tags).map { |t| t.to_s.strip }.reject(&:blank?).uniq
+    if tags.empty?
+      where("cardinality(audience_store_tags) = 0")
+    else
+      where(
+        "cardinality(audience_store_tags) = 0 OR audience_store_tags && ARRAY[?]::varchar[]",
+        tags
+      )
+    end
+  }
+  scope :visible_to_access, lambda { |role:, store_tags:|
+    visible_to_role(role).visible_to_store_tags(store_tags)
+  }
 
   bilingual_fields :title, :body
 
   before_validation :apply_defaults
   before_validation :normalize_audience_roles
+  before_validation :normalize_audience_store_tags
   after_save :refresh_search_vector!
 
   def draft?
@@ -55,6 +74,19 @@ class KbArticle < ApplicationRecord
     return true if roles.empty?
 
     roles.include?(role.to_s)
+  end
+
+  def visible_to_store_tags?(tags)
+    allowed = Array(audience_store_tags).map(&:to_s).reject(&:blank?)
+    return true if allowed.empty?
+
+    viewer = Array(tags).map(&:to_s).reject(&:blank?)
+    (allowed & viewer).any?
+  end
+
+  # Combined role + store-tag gate used by store/area readers.
+  def accessible_to?(role:, store_tags: [])
+    visible_to_role?(role) && visible_to_store_tags?(store_tags)
   end
 
   def publish!(by: nil)
@@ -107,6 +139,14 @@ class KbArticle < ApplicationRecord
 
   def normalize_audience_roles
     self.audience_roles = Array(audience_roles).map(&:to_s).map(&:strip).reject(&:blank?).uniq & AUDIENCE_ROLES
+  end
+
+  def normalize_audience_store_tags
+    self.audience_store_tags = Array(audience_store_tags)
+      .flat_map { |t| t.to_s.split(/[,;\n]/) }
+      .map(&:strip)
+      .reject(&:blank?)
+      .uniq
   end
 
   def audience_roles_allowed
