@@ -168,6 +168,18 @@ en:
         critical: "Critical"
         empty: "No stores in this bucket."
         all_units: "All units"
+      monitoring:
+        title: "Task monitoring"
+        lede: "Completion and overdue by campaign and region."
+        completion: "Done"
+        done_line: "%{done} of %{total} done"
+        overdue_line:
+          one: "1 overdue"
+          other: "%{count} overdue"
+        by_campaign: "By campaign"
+        by_region: "By region"
+        dimensions: "Monitoring breakdown"
+        unassigned_region: "No region"
       more: "More"
       title: "Network"
       lede: "What stores have received, what is late, and which campaigns to deploy."

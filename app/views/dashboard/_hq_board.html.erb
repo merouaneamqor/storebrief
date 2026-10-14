@@ -101,6 +101,97 @@
   </div>
 </section>
 
+<% monitoring = board.task_monitoring %>
+<% if monitoring.any? %>
+  <section class="hq-monitor" x-data="{ dim: 'campaign', open: null }" aria-label="<%= t('morocco.hq.monitoring.title') %>">
+    <div class="hq-monitor__summary">
+      <div class="hq-monitor__copy">
+        <p class="section-title"><%= t("morocco.hq.monitoring.title") %></p>
+        <p class="hq-monitor__lede"><%= t("morocco.hq.monitoring.lede") %></p>
+        <p class="meta">
+          <%= t("morocco.hq.monitoring.done_line", done: monitoring.done, total: monitoring.total) %>
+          · <%= t("morocco.hq.monitoring.overdue_line", count: monitoring.overdue) %>
+        </p>
+      </div>
+      <div class="hq-campaign__meter" role="img" aria-label="<%= monitoring.percent %>%">
+        <div class="hq-campaign__ring" style="--pct: <%= monitoring.percent %>;">
+          <strong><%= monitoring.percent %><span>%</span></strong>
+          <em><%= t("morocco.hq.monitoring.completion") %></em>
+        </div>
+      </div>
+    </div>
+
+    <div class="hq-monitor__dims" role="tablist" aria-label="<%= t('morocco.hq.monitoring.dimensions') %>">
+      <button type="button" class="hq-pulse__tile" role="tab" :aria-selected="dim === 'campaign'" :class="{ 'is-active': dim === 'campaign' }" @click="dim = 'campaign'; open = null">
+        <strong><%= monitoring.by_campaign.size %></strong>
+        <span><%= t("morocco.hq.monitoring.by_campaign") %></span>
+      </button>
+      <button type="button" class="hq-pulse__tile" role="tab" :aria-selected="dim === 'region'" :class="{ 'is-active': dim === 'region' }" @click="dim = 'region'; open = null">
+        <strong><%= monitoring.by_region.size %></strong>
+        <span><%= t("morocco.hq.monitoring.by_region") %></span>
+      </button>
+    </div>
+
+    <% [
+      [ "campaign", monitoring.by_campaign ],
+      [ "region", monitoring.by_region ]
+    ].each do |dim_key, groups| %>
+      <div class="hq-monitor__groups" x-show="dim === '<%= dim_key %>'" x-cloak>
+        <ul class="hq-monitor__list">
+          <% groups.each do |group| %>
+            <li class="hq-monitor__row">
+              <div class="hq-monitor__toggle">
+                <button type="button"
+                        class="hq-monitor__expand"
+                        :aria-expanded="open === '<%= group.id %>'"
+                        @click="open = open === '<%= group.id %>' ? null : '<%= group.id %>'">
+                  <div class="hq-monitor__toggle-main">
+                    <strong class="hq-monitor__label"><%= group.label %></strong>
+                    <span class="meta">
+                      <%= t("morocco.hq.monitoring.done_line", done: group.done, total: group.total) %>
+                      <% if group.overdue.positive? %>
+                        · <span class="hq-monitor__late"><%= t("morocco.hq.monitoring.overdue_line", count: group.overdue) %></span>
+                      <% end %>
+                    </span>
+                  </div>
+                  <span class="hq-monitor__pct" aria-hidden="true"><%= group.percent %>%</span>
+                </button>
+                <% if group.path %>
+                  <%= link_to t("morocco.radar.open"), group.path, class: "btn btn--ghost hq-monitor__open" %>
+                <% end %>
+              </div>
+              <div class="hq-monitor__stores" x-show="open === '<%= group.id %>'" x-cloak x-transition.opacity.duration.150ms>
+                <ul class="exception-list exception-list--rich">
+                  <% group.stores.each do |store| %>
+                    <li class="exception-row exception-row--<%= store.tone %>">
+                      <div class="exception-list__main">
+                        <div class="exception-row__top">
+                          <span class="tone tone--<%= store.tone %>"><%= tone_icon(store.tone) %> <%= t("morocco.tone.#{store.tone}") %></span>
+                          <% if store.overdue %>
+                            <span class="exception-kind exception-kind--overdue"><%= t("morocco.hq.board_overdue") %></span>
+                          <% elsif store.finished %>
+                            <span class="exception-kind"><%= t("morocco.tone.done") %></span>
+                          <% end %>
+                        </div>
+                        <%= link_to store.store_name, store.path, class: "exception-row__store" %>
+                        <div class="meta">
+                          <%= store.owner_name %>
+                          · <% if store.due_at %><%= icon("clock", css_class: "icon icon--sm") %> <%= morocco_due_label(store.due_at) %><% else %>-<% end %>
+                        </div>
+                      </div>
+                      <%= link_to t("morocco.radar.open"), store.path, class: "btn btn--ghost" %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </section>
+<% end %>
+
 <section class="hq-board" x-data="{ filter: '<%= j filter %>' }" x-init="
   $watch('filter', (value) => {
     const url = new URL(window.location.href);
