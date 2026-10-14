@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_240000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_15_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -294,6 +294,60 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_240000) do
     t.index ["tenant_id"], name: "index_escalation_events_on_tenant_id"
   end
 
+  create_table "kb_article_versions", force: :cascade do |t|
+    t.bigint "kb_article_id", null: false
+    t.bigint "author_id"
+    t.integer "version", null: false
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.text "body_fr", default: "", null: false
+    t.text "body_ar"
+    t.string "publish_state", null: false
+    t.datetime "published_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_kb_article_versions_on_author_id"
+    t.index ["kb_article_id", "version"], name: "index_kb_article_versions_on_article_and_version", unique: true
+    t.index ["kb_article_id"], name: "index_kb_article_versions_on_kb_article_id"
+  end
+
+  create_table "kb_articles", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "kb_category_id", null: false
+    t.bigint "author_id"
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.text "body_fr", default: "", null: false
+    t.text "body_ar"
+    t.string "publish_state", default: "draft", null: false
+    t.integer "version", default: 1, null: false
+    t.datetime "published_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_kb_articles_on_author_id"
+    t.index ["kb_category_id"], name: "index_kb_articles_on_kb_category_id"
+    t.index ["tenant_id", "kb_category_id"], name: "index_kb_articles_on_tenant_id_and_kb_category_id"
+    t.index ["tenant_id", "publish_state"], name: "index_kb_articles_on_tenant_id_and_publish_state"
+    t.index ["tenant_id", "title_fr"], name: "index_kb_articles_on_tenant_id_and_title_fr"
+    t.index ["tenant_id"], name: "index_kb_articles_on_tenant_id"
+  end
+
+  create_table "kb_categories", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "parent_id"
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.text "description_fr"
+    t.text "description_ar"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_kb_categories_on_parent_id"
+    t.index ["tenant_id", "parent_id", "position"], name: "index_kb_categories_on_tenant_parent_position"
+    t.index ["tenant_id", "title_fr"], name: "index_kb_categories_on_tenant_id_and_title_fr"
+    t.index ["tenant_id"], name: "index_kb_categories_on_tenant_id"
+  end
+
   create_table "memberships", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "org_unit_id", null: false
@@ -534,6 +588,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_240000) do
   add_foreign_key "delivery_events", "tenants"
   add_foreign_key "delivery_events", "users", column: "actor_id"
   add_foreign_key "escalation_events", "tenants"
+  add_foreign_key "kb_article_versions", "kb_articles"
+  add_foreign_key "kb_article_versions", "users", column: "author_id", on_delete: :nullify
+  add_foreign_key "kb_articles", "kb_categories"
+  add_foreign_key "kb_articles", "tenants"
+  add_foreign_key "kb_articles", "users", column: "author_id", on_delete: :nullify
+  add_foreign_key "kb_categories", "kb_categories", column: "parent_id", on_delete: :nullify
+  add_foreign_key "kb_categories", "tenants"
   add_foreign_key "memberships", "org_units"
   add_foreign_key "memberships", "users"
   add_foreign_key "notification_logs", "tenants"

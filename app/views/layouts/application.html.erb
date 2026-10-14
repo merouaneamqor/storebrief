@@ -93,6 +93,12 @@
                   <span class="app-nav-link__icon"><%= icon("activity") %></span>
                   <span><%= t("nav.audit_history") %></span>
                 <% end %>
+                <% if tenant_feature?(:knowledge_base) %>
+                  <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("book") %></span>
+                    <span><%= t("nav.knowledge_base") %></span>
+                  <% end %>
+                <% end %>
                 <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                   <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                   <span><%= t("nav.ranking") %></span>
@@ -104,7 +110,7 @@
                 <span class="app-nav-link__icon"><%= icon("credit-card") %></span>
                 <span><%= t("nav.billing") %></span>
               <% end %>
-              <details class="app-nav-more" <%= "open" if request.path.start_with?("/org_units", "/templates", "/checklists", "/reports", "/admin") %>>
+              <details class="app-nav-more" <%= "open" if request.path.start_with?("/org_units", "/templates", "/checklists", "/reports", "/admin", "/kb_") %>>
                 <summary class="app-nav-link">
                   <span class="app-nav-link__icon"><%= icon("more-horizontal") %></span>
                   <span><%= t("nav.more") %></span>

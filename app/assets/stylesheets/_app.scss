@@ -1016,7 +1016,9 @@ body.rtl .section-title {
 .badge--completed,
 .badge--read { background: var(--accent-soft); color: var(--accent-deep); }
 .badge--draft,
-.badge--pending { background: var(--bg-deep); color: var(--muted); }
+.badge--pending,
+.badge--archived { background: var(--bg-deep); color: var(--muted); }
+.badge--published { background: var(--accent-soft); color: var(--accent-deep); }
 
 .btn {
   display: inline-flex;

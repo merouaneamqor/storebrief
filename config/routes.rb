@@ -114,6 +114,14 @@ Rails.application.routes.draw do
     end
   end
   resources :vm_missions
+  resources :kb_categories, only: %i[index new create edit update destroy]
+  resources :kb_articles, only: %i[index show new create edit update destroy] do
+    member do
+      post :publish
+      post :archive
+      post :unpublish
+    end
+  end
   resource :audit_history, only: :show
   resources :stores, only: :show
 
