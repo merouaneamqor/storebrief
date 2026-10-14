@@ -58,8 +58,9 @@ class CommunicationQuestion < ApplicationRecord
     option = option.to_h if option.respond_to?(:to_h)
     {
       "label_fr" => option["label_fr"].presence || option[:label_fr].to_s,
-      "label_ar" => option["label_ar"].presence || option[:label_ar].to_s
-    }
+      "label_ar" => option["label_ar"].presence || option[:label_ar].to_s,
+      "correct" => option["correct"] == true || option[:correct] == true
+    }.tap { |normalized| normalized.delete("correct") unless normalized["correct"] }
   end
 
   def options_shape

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -182,7 +182,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
     t.text "verdict_note"
     t.bigint "validated_by_id"
     t.datetime "validated_at"
+    t.integer "score"
     t.index ["assignee_id"], name: "index_deliveries_on_assignee_id"
+    t.index ["score"], name: "index_deliveries_on_score"
     t.index ["communication_id", "org_unit_id"], name: "index_deliveries_on_communication_id_and_org_unit_id", unique: true
     t.index ["communication_id"], name: "index_deliveries_on_communication_id"
     t.index ["org_unit_id"], name: "index_deliveries_on_org_unit_id"

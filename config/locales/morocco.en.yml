@@ -45,6 +45,7 @@ en:
       conforme: "Compliant"
       improve: "Needs improvement"
       non_conforme: "Not compliant"
+      score: "Score %{score}%"
     escalation:
       level_1: "Chased with the store manager"
       level_2: "Chased with the area manager"
