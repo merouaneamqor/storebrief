@@ -118,11 +118,39 @@ class VmMissionsTest < ActionDispatch::IntegrationTest
     assert_no_match(/#{Regexp.escape(open_mission.title_fr)}/, response.body.split("<main").last)
   end
 
-  test "store users cannot manage missions" do
+  test "store users can view targeted missions with downloadable attachments" do
+    mission = create_mission(version_label: "v2")
+    mission.attachments.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/notice.pdf")),
+      filename: "notice.pdf",
+      content_type: "application/pdf"
+    )
+    mission.attachments.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/window.jpg")),
+      filename: "window.jpg",
+      content_type: "image/jpeg"
+    )
+    other = create_mission(store_ids: [ @north_store.id ], title_fr: "Autre magasin")
+
     sign_in(@brand.store_user)
 
     get vm_missions_path
-    assert_redirected_to app_root_path
+    assert_response :success
+    assert_select "a.app-nav-link[href='#{vm_missions_path}']"
+    assert_match mission.title_fr, response.body
+    assert_match "v2", response.body
+    assert_no_match(/#{Regexp.escape(other.title_fr)}/, response.body.split("<main").last)
+
+    get vm_mission_path(mission)
+    assert_response :success
+    assert_match "v2", response.body
+    assert_select ".brief-attachments a[download]", text: /notice\.pdf/
+    assert_select ".brief-attachments a[href*='disposition=attachment']", minimum: 1
+    assert_select "a[href='#{edit_vm_mission_path(mission)}']", count: 0
+
+    get vm_mission_path(other)
+    assert_response :not_found
+
     assert_no_difference -> { VmMission.count } do
       post vm_missions_path, params: {
         vm_mission: {
@@ -134,6 +162,62 @@ class VmMissionsTest < ActionDispatch::IntegrationTest
         org_unit_ids: [ @brand.store.id ]
       }
     end
+    assert_redirected_to app_root_path
+  end
+
+  test "hq attaches planogram files and version label" do
+    sign_in(@brand.hq)
+
+    get new_vm_mission_path
+    assert_response :success
+    assert_select "input[type=file][name='vm_mission[attachments][]']"
+    assert_select "input[name='vm_mission[version_label]']"
+
+    assert_difference -> { @brand.tenant.vm_missions.count }, 1 do
+      post vm_missions_path, params: {
+        vm_mission: {
+          title_fr: "Planogramme Aïd",
+          instructions_fr: "Suivre le planogramme joint.",
+          deadline_on: "2026-11-20",
+          status: "open",
+          version_label: "v3",
+          attachments: [
+            fixture_file_upload("notice.pdf", "application/pdf"),
+            fixture_file_upload("window.jpg", "image/jpeg")
+          ]
+        },
+        org_unit_ids: [ @brand.store.id ]
+      }
+    end
+
+    mission = @brand.tenant.vm_missions.order(:id).last
+    assert_equal "v3", mission.version_label
+    assert_equal 2, mission.attachments.count
+    assert_redirected_to vm_mission_path(mission)
+
+    follow_redirect!
+    assert_match "v3", response.body
+    assert_select ".brief-attachments a", text: /notice\.pdf/
+    assert_select ".brief-attachments a", text: /window\.jpg/
+  end
+
+  test "rejects non PDF or photo attachments on missions" do
+    sign_in(@brand.hq)
+
+    assert_no_difference -> { @brand.tenant.vm_missions.count } do
+      post vm_missions_path, params: {
+        vm_mission: {
+          title_fr: "Bad file",
+          instructions_fr: "Should fail",
+          deadline_on: "2026-11-15",
+          status: "open",
+          version_label: "v1",
+          attachments: [ fixture_file_upload("notes.txt", "text/plain") ]
+        },
+        org_unit_ids: [ @brand.store.id ]
+      }
+    end
+    assert_response :unprocessable_entity
   end
 
   test "morocco_ops flag gates the mission pages" do

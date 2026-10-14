@@ -453,6 +453,7 @@ ar:
     vm_missions:
       title: "مهام العرض البصري"
       lede: "أنشئوا مهمة عرض مع أجل ومتاجر مستهدفة."
+      store_lede: "اطلعوا على المخططات وإرشادات العرض لمهامكم."
       new: "مهمة جديدة"
       edit: "تعديل المهمة"
       back: "العودة إلى المهام"
@@ -467,6 +468,19 @@ ar:
       overdue: "متأخرة"
       saved: "تم حفظ مهمة %{title}."
       deleted: "تم حذف مهمة %{title}."
+      attachments: "المخططات والأمثلة"
+      attachments_help: "أرفقوا ملفات PDF أو صوراً (مخطط عرض، مثال واجهة)."
+      attachments_remove: "إزالة"
+      attachments_empty: "لا توجد مرفقات."
+      attachments_offline_hint: "حمّلوا الملفات لمراجعتها دون اتصال."
+      attachments_invalid: "يجب أن تكون المرفقات ملفات PDF أو صوراً."
+      attachments_too_large: "يجب ألا يتجاوز حجم كل مرفق 10 ميغابايت."
+      attachments_too_many: "يمكنكم إرفاق حتى %{count} ملفات."
+      download: "تحميل"
+      version_badge: "الإصدار %{version}"
+      attachment_kind:
+        pdf: "PDF"
+        photo: "صورة"
       stores_count:
         zero: "لا متاجر"
         one: "متجر واحد"
@@ -484,6 +498,8 @@ ar:
         deadline: "الأجل"
         stores: "المتاجر"
         status: "الحالة"
+        version_label: "الإصدار"
+        version_label_placeholder: "مثال ن3 / عيد 2026"
       targets:
         title: "المتاجر المستهدفة"
         hint: "اختاروا متجراً واحداً على الأقل لهذه المهمة."

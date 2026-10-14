@@ -8,13 +8,18 @@
       <%= t("morocco.vm_missions.fields.deadline") %>:
       <%= l(@mission.deadline_on, format: :long) %>
       · <%= t("morocco.vm_missions.statuses.#{@mission.status}") %>
+      <% if @mission.versioned? %>
+        · <%= t("morocco.vm_missions.version_badge", version: @mission.version_label) %>
+      <% end %>
     </p>
   </div>
-  <div class="radar-head__actions">
-    <%= link_to edit_vm_mission_path(@mission), class: "btn btn--quiet" do %>
-      <%= t("morocco.vm_missions.edit") %>
-    <% end %>
-  </div>
+  <% if hq_user? %>
+    <div class="radar-head__actions">
+      <%= link_to edit_vm_mission_path(@mission), class: "btn btn--quiet" do %>
+        <%= t("morocco.vm_missions.edit") %>
+      <% end %>
+    </div>
+  <% end %>
 </header>
 
 <section class="panel">
@@ -25,15 +30,19 @@
   <% end %>
 </section>
 
-<section class="panel">
-  <h2 class="section-title"><%= t("morocco.vm_missions.fields.stores") %></h2>
-  <% if @mission.org_units.any? %>
-    <ul>
-      <% @mission.org_units.order(:name).each do |store| %>
-        <li><%= store.name %></li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="meta"><%= t("morocco.vm_missions.no_stores") %></p>
-  <% end %>
-</section>
+<%= render "attachments", mission: @mission %>
+
+<% if hq_user? %>
+  <section class="panel">
+    <h2 class="section-title"><%= t("morocco.vm_missions.fields.stores") %></h2>
+    <% if @mission.org_units.any? %>
+      <ul>
+        <% @mission.org_units.order(:name).each do |store| %>
+          <li><%= store.name %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="meta"><%= t("morocco.vm_missions.no_stores") %></p>
+    <% end %>
+  </section>
+<% end %>
