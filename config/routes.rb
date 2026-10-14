@@ -113,8 +113,10 @@ Rails.application.routes.draw do
       patch :cancel
     end
   end
+  resources :vm_missions
   resource :audit_history, only: :show
   resources :stores, only: :show
+
   get "classement", to: "rankings#show", as: :ranking
   resource :billing, only: %i[show update]
   resource :hq_widgets, only: %i[show update], controller: "hq_widgets"

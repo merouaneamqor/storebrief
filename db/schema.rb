@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_240000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -114,9 +114,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "campaign_on"
-    t.date "starts_on"
     t.bigint "playbook_id"
     t.jsonb "target_snapshot", default: {}, null: false
+    t.date "starts_on"
     t.index ["author_id"], name: "index_checklists_on_author_id"
     t.index ["checklist_template_id"], name: "index_checklists_on_checklist_template_id"
     t.index ["playbook_id"], name: "index_checklists_on_playbook_id"
@@ -468,6 +468,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
     t.index ["tenant_id"], name: "index_visits_on_tenant_id"
   end
 
+  create_table "vm_mission_targets", force: :cascade do |t|
+    t.bigint "vm_mission_id", null: false
+    t.bigint "org_unit_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["org_unit_id"], name: "index_vm_mission_targets_on_org_unit_id"
+    t.index ["vm_mission_id", "org_unit_id"], name: "index_vm_mission_targets_on_mission_and_store", unique: true
+    t.index ["vm_mission_id"], name: "index_vm_mission_targets_on_vm_mission_id"
+  end
+
+  create_table "vm_missions", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "created_by_id"
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.text "instructions_fr", null: false
+    t.text "instructions_ar"
+    t.date "deadline_on", null: false
+    t.string "status", default: "open", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_vm_missions_on_created_by_id"
+    t.index ["tenant_id", "deadline_on"], name: "index_vm_missions_on_tenant_id_and_deadline_on"
+    t.index ["tenant_id", "status"], name: "index_vm_missions_on_tenant_id_and_status"
+    t.index ["tenant_id"], name: "index_vm_missions_on_tenant_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "checklist_deliveries", "checklists"
@@ -523,4 +550,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_223000) do
   add_foreign_key "visits", "tenants"
   add_foreign_key "visits", "users", column: "auditor_id"
   add_foreign_key "visits", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "vm_mission_targets", "org_units"
+  add_foreign_key "vm_mission_targets", "vm_missions"
+  add_foreign_key "vm_missions", "tenants"
+  add_foreign_key "vm_missions", "users", column: "created_by_id", on_delete: :nullify
 end
