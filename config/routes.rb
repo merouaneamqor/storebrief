@@ -111,6 +111,7 @@ Rails.application.routes.draw do
       patch :cancel
     end
   end
+  resource :audit_history, only: :show
   resources :stores, only: :show
   get "classement", to: "rankings#show", as: :ranking
   resource :billing, only: %i[show update]
