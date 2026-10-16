@@ -1365,9 +1365,8 @@ body.rtl .section-title {
     overflow: hidden;
   }
 
+  // dir="rtl" already flips inset-inline-start to the right edge; only the slide direction changes.
   body.rtl .app-sidebar {
-    inset-inline-start: auto;
-    inset-inline-end: 0;
     transform: translateX(105%);
   }
 

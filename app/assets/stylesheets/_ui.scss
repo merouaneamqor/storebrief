@@ -105,7 +105,9 @@
 .check,
 label.check,
 .m-form label.check,
-.form-stack label.check {
+.form-stack label.check,
+label:has(> input[type="checkbox"]),
+label:has(> input[type="radio"]) {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -191,4 +193,54 @@ li > .badge {
     color: var(--ink);
     font-weight: 600;
   }
+}
+
+// Checkbox groups inside a fieldset read as a plain list with a visible legend.
+fieldset > legend.meta {
+  padding: 0;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+// The sidebar nav scrolls when "More" is open; the fade tells people there is more below.
+.app-sidebar__nav {
+  padding-bottom: 1.5rem;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.5rem), transparent);
+}
+
+// Comment composer stays folded until someone wants to write; keeps long store lists scannable.
+.delivery-comments__compose-wrap {
+  margin-top: 0.75rem;
+
+  > summary {
+    display: inline-flex;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  > summary::-webkit-details-marker { display: none; }
+
+  &[open] > summary { margin-bottom: 0.6rem; }
+}
+
+// Ranking podium: the rank reads as a badge and the score carries the weight.
+.podium__rank {
+  display: inline-grid;
+  place-items: center;
+  justify-self: start;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.podium__score {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink);
 }
