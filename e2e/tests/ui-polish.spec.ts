@@ -6,7 +6,7 @@ test.describe("HQ pages", () => {
     await signIn(page, "hq");
   });
 
-  for (const path of ["/visits", "/vm_missions", "/playbooks", "/communications", "/checklists"]) {
+  for (const path of ["/visits", "/visits/calendar", "/vm_missions", "/playbooks", "/communications", "/checklists"]) {
     test(`${path} has one primary action in the page header`, async ({ page }) => {
       await page.goto(path);
       await expect(page.locator("header.radar-head a.btn--primary")).toHaveCount(1);
@@ -23,6 +23,28 @@ test.describe("HQ pages", () => {
     } else {
       await expect(page.locator("table tbody tr").first()).toBeVisible();
     }
+  });
+
+  test("checkbox lists show the box beside its label", async ({ page }) => {
+    await page.goto("/kb_articles/new");
+    const row = page.locator("fieldset label:has(input[type=checkbox])").first();
+    const box = await row.locator("input[type=checkbox]").boundingBox();
+    const text = await row.boundingBox();
+    expect(box && text).toBeTruthy();
+    // The box is inside the label's first line, not stacked above it or pushed to the far edge.
+    expect(box!.x - text!.x).toBeLessThan(24);
+    expect(text!.height).toBeLessThan(60);
+  });
+
+  test("the comment composer is folded until opened", async ({ page }) => {
+    await page.goto("/communications");
+    // The sidebar also links to /communications/new, so look only inside the page body.
+    await page.locator("main a[href^='/communications/']:not([href$='/new']):not([href$='/edit'])").first().click();
+    const fold = page.locator("details.delivery-comments__compose-wrap").first();
+    await expect(fold).toBeVisible();
+    await expect(fold.locator("textarea")).toBeHidden();
+    await fold.locator("summary").click();
+    await expect(fold.locator("textarea")).toBeVisible();
   });
 
   test("knowledge base search is laid out as one filter row", async ({ page }) => {
@@ -97,6 +119,15 @@ test.describe("Store on a phone", () => {
     await expect(page.locator(".app-bottom-nav")).toBeVisible();
   });
 
+  test("the tab bar reaches My tasks", async ({ page }) => {
+    await signIn(page, "store");
+    const tab = page.locator(".app-bottom-nav a[href='/my_tasks']");
+    await expect(tab).toBeVisible();
+    await tab.click();
+    await expect(page).toHaveURL(/\/my_tasks/);
+    await expect(page.locator(".app-bottom-nav a.is-active")).toContainText(/.+/);
+  });
+
   test("a store user never sees HQ actions in an empty state", async ({ page }) => {
     await signIn(page, "store");
     await page.goto("/newsfeed");
@@ -126,5 +157,18 @@ test.describe("Arabic (RTL)", () => {
     // In RTL the title block starts on the right, so actions sit to its left.
     expect(action!.x).toBeLessThan(title!.x);
     await expectNoHorizontalOverflow(page);
+  });
+  test("the closed navigation drawer stays off screen on a phone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "hq");
+    await setLocale(page, "ar");
+    await page.goto("/visits");
+    const sidebar = page.locator("#app-sidebar");
+    // Closed: entirely beyond the right edge (the inline-start edge in RTL).
+    expect((await sidebar.boundingBox())!.x).toBeGreaterThanOrEqual(390);
+    await page.locator(".app-menu-btn").click();
+    // The drawer slides in over 200ms, so wait for it to settle inside the viewport.
+    await expect.poll(async () => (await sidebar.boundingBox())!.x + (await sidebar.boundingBox())!.width).toBeLessThanOrEqual(391);
+    expect((await sidebar.boundingBox())!.x).toBeGreaterThan(0);
   });
 });

@@ -11,9 +11,9 @@
     <ol class="podium">
       <% @ranking.podium.each_with_index do |row, index| %>
         <li class="podium__card">
-          <span class="meta"><%= index + 1 %></span>
+          <span class="podium__rank"><%= index + 1 %></span>
           <strong><%= row.store.name %></strong>
-          <span><%= row.percent %>%</span>
+          <span class="podium__score"><%= row.percent %>%</span>
           <div class="meta"><%= t("morocco.ranking.progress", done: row.done, total: row.total) %></div>
         </li>
       <% end %>
