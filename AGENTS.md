@@ -81,6 +81,10 @@ docker compose exec web bin/rails db:seed
 docker compose exec -T web bash -lc \
   'RAILS_ENV=test DATABASE_URL=postgres://store_brief:store_brief@db:5432/store_brief_test \
    bundle exec cucumber --tags "not @javascript"'
+
+# Browser tests (Playwright, e2e/): needs the app on :3001 and the QA tenant
+docker run --rm --network host --ipc=host --user 1000:1000 -e HOME=/tmp -v "$PWD/e2e:/e2e" -w /e2e \
+  mcr.microsoft.com/playwright:v1.57.0-noble bash -lc 'npm ci && npx playwright test'
 ```
 
 Demo password: `password`. Atlas HQ: `hq@atlas.test` (slug `atlas`). See README for more accounts.
