@@ -258,6 +258,7 @@ fr:
     settings: "Paramètres"
     close_settings: "Fermer les paramètres"
     untitled: "Formulaire sans titre"
+    untitled_brief: "Brief sans titre"
     drag_question: "Glisser pour réordonner"
     preview_back: "Retour à l'édition"
     preview_lede: "Voici ce que verra un magasin."

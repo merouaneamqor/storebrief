@@ -1,0 +1,194 @@
+// Shared UI layer: utilities and patterns used across HQ, area and store pages.
+// Keep this file small and token-driven. Page-specific styles stay in _app / _morocco.
+
+// The `hidden` attribute must win over component display rules (e.g. .empty { display: grid }).
+[hidden] { display: none !important; }
+
+// ---- Layout utilities (used by KB, templates, forms) ----
+.stack {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// ---- Page header ----
+// One header pattern: crumb, title, lede on the start side; actions on the end side.
+.radar-head {
+  align-items: flex-start;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.1rem;
+
+  // Title block takes the free width; actions stay on the end side instead of wrapping under it.
+  > div:first-child {
+    flex: 1 1 22rem;
+    min-width: 0;
+  }
+
+  > .radar-head__actions,
+  > .cluster,
+  > div:last-child:not(:first-child) {
+    flex: 0 0 auto;
+  }
+
+  h1 {
+    margin: 0.2rem 0 0.4rem;
+    font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+    line-height: 1.2;
+  }
+
+  .meta,
+  .lede {
+    margin: 0;
+    max-width: 46rem;
+  }
+
+  // Back link / breadcrumb sits above the title and reads as navigation, not body text.
+  > div > .meta:first-child {
+    margin-bottom: 0.2rem;
+    font-weight: 600;
+  }
+}
+
+.radar-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// ---- Filter bar (search and select filters above a list) ----
+.filter-bar,
+.audit-history-filters,
+.kb-search-form > .cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 1rem;
+
+  label,
+  .stack {
+    flex: 1 1 12rem;
+    min-width: 10rem;
+    max-width: 22rem;
+  }
+
+  .btn { flex: 0 0 auto; }
+}
+
+.kb-search-form {
+  margin-bottom: 1rem;
+
+  input[type="search"],
+  input[type="text"],
+  select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+  }
+}
+
+// ---- Checkbox / radio rows ----
+// The global `label { display: grid }` stacks the box above its text; check rows stay inline.
+.check,
+label.check,
+.m-form label.check,
+.form-stack label.check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+  min-height: 36px;
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    flex: 0 0 auto;
+    width: 1.1rem;
+    height: 1.1rem;
+    min-height: 0;
+    margin: 0;
+    accent-color: var(--accent);
+  }
+}
+
+// ---- Empty state ----
+// Says what the page is for and offers the next action. Markup: shared/_empty_state.
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty-state__icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+
+  .icon { width: 1.4rem; height: 1.4rem; }
+}
+
+.empty-state__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.empty-state__text {
+  margin: 0;
+  max-width: 28rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.empty-state .btn { margin-top: 0.4rem; }
+
+// Inside a card the empty state stays compact so it does not dwarf the card title.
+.panel .empty-state { padding: 1.1rem 1rem; }
+
+// ---- Section rhythm on the HQ and area boards ----
+// Section labels that sit outside a card need space above them and a gap below.
+.app-content > .section-title,
+.hq-status-strip,
+.hq-compliance,
+.area-summary > .section-title {
+  margin-top: 1.1rem;
+}
+
+.app-content > .section-title { margin-bottom: 0.5rem; }
+
+// Status pills inside list rows keep their own shape instead of stretching to the row height.
+li > .badge {
+  align-self: center;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+// Exception rows: muted field labels, stronger values, so each row scans as label/value pairs.
+.exception-row__meta {
+  gap: 0.2rem 1.1rem;
+
+  strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+}

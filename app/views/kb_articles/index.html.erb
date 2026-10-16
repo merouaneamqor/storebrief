@@ -69,11 +69,8 @@
     <% end %>
   </div>
 <% else %>
-  <p class="empty">
-    <% if @q.present? %>
-      <%= t("morocco.kb.search.empty") %>
-    <% else %>
-      <%= t("morocco.kb.articles.empty") %>
-    <% end %>
-  </p>
+  <%= render "shared/empty_state", icon: "book",
+        text: (@q.present? ? t("morocco.kb.search.empty") : t("morocco.kb.articles.empty")),
+        action_label: (hq_user? && @q.blank? ? t("morocco.kb.articles.new") : nil),
+        action_path: (hq_user? && @q.blank? ? new_kb_article_path : nil) %>
 <% end %>

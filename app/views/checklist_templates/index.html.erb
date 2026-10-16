@@ -26,5 +26,6 @@
     <% end %>
   </div>
 <% else %>
-  <p class="empty"><%= t("templates.empty") %></p>
+  <%= render "shared/empty_state", icon: "check-circle", text: t("templates.empty"),
+        action_label: t("templates.new"), action_path: new_template_path %>
 <% end %>

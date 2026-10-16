@@ -8,13 +8,13 @@
     <p class="meta"><%= t("morocco.playbooks.lede") %></p>
   </div>
   <div class="radar-head__actions">
-    <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+    <%= link_to campaigns_playbooks_path, class: "btn btn--ghost" do %>
       <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
     <% end %>
-    <%= link_to closing_reports_playbooks_path, class: "btn btn--quiet" do %>
+    <%= link_to closing_reports_playbooks_path, class: "btn btn--ghost" do %>
       <%= icon("trophy", css_class: "icon") %> <%= t("morocco.playbooks.closing.nav") %>
     <% end %>
-    <%= link_to new_playbook_path, class: "btn btn--quiet" do %>
+    <%= link_to new_playbook_path, class: "btn btn--primary" do %>
       <%= icon("plus", css_class: "icon") %> <%= t("morocco.playbooks.new") %>
     <% end %>
   </div>

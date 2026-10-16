@@ -258,6 +258,7 @@ es:
     settings: "Ajustes"
     close_settings: "Cerrar ajustes"
     untitled: "Formulario sin título"
+    untitled_brief: "Brief sin título"
     drag_question: "Arrastrar para reordenar"
     preview_back: "Volver a editar"
     preview_lede: "Esto es lo que verá una tienda."

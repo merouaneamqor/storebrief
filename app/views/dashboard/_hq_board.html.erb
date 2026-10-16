@@ -286,11 +286,11 @@
               </div>
               <%= link_to row.store_name, row.path, class: "exception-row__store" %>
               <div class="meta exception-row__meta">
-                <span><%= t("morocco.hq.exception_fields.campaign") %>: <%= row.campaign.presence || "-" %></span>
-                <span><%= t("morocco.hq.exception_fields.assignee") %>: <%= row.owner_name %></span>
-                <span><%= t("morocco.hq.exception_fields.area") %>: <%= row.area_name %></span>
+                <span><%= t("morocco.hq.exception_fields.campaign") %>: <strong><%= row.campaign.presence || "-" %></strong></span>
+                <span><%= t("morocco.hq.exception_fields.assignee") %>: <strong><%= row.owner_name %></strong></span>
+                <span><%= t("morocco.hq.exception_fields.area") %>: <strong><%= row.area_name %></strong></span>
                 <% if row.due_at %>
-                  <span><%= t("morocco.hq.exception_fields.due") %>: <%= morocco_due_label(row.due_at) %></span>
+                  <span><%= t("morocco.hq.exception_fields.due") %>: <strong><%= morocco_due_label(row.due_at) %></strong></span>
                 <% end %>
               </div>
             </div>

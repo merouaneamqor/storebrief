@@ -27,5 +27,6 @@
     <% end %>
   </div>
 <% else %>
-  <p class="empty"><%= t("morocco.kb.categories.empty") %></p>
+  <%= render "shared/empty_state", icon: "book", text: t("morocco.kb.categories.empty"),
+        action_label: t("morocco.kb.categories.new"), action_path: new_kb_category_path %>
 <% end %>

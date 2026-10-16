@@ -8,7 +8,7 @@
   </div>
   <% if hq_user? %>
     <div class="radar-head__actions">
-      <%= link_to new_vm_mission_path, class: "btn btn--quiet" do %>
+      <%= link_to new_vm_mission_path, class: "btn btn--primary" do %>
         <%= icon("plus", css_class: "icon") %> <%= t("morocco.vm_missions.new") %>
       <% end %>
     </div>
@@ -75,6 +75,8 @@
       </tbody>
     </table>
   <% else %>
-    <p class="meta"><%= t("morocco.vm_missions.empty") %></p>
+    <%= render "shared/empty_state", icon: "camera", text: t("morocco.vm_missions.empty"),
+                 action_label: (hq_user? ? t("morocco.vm_missions.new") : nil),
+                 action_path: (hq_user? ? new_vm_mission_path : nil) %>
   <% end %>
 </section>
