@@ -76,6 +76,11 @@ docker compose exec -T web bash -lc \
 
 # Seeds
 docker compose exec web bin/rails db:seed
+
+# Acceptance features (Cucumber, features/); add SELENIUM_REMOTE_URL for @javascript scenarios
+docker compose exec -T web bash -lc \
+  'RAILS_ENV=test DATABASE_URL=postgres://store_brief:store_brief@db:5432/store_brief_test \
+   bundle exec cucumber --tags "not @javascript"'
 ```
 
 Demo password: `password`. Atlas HQ: `hq@atlas.test` (slug `atlas`). See README for more accounts.

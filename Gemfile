@@ -67,6 +67,9 @@ group :test do
   gem "selenium-webdriver"
   # Minitest 6 ships Object#stub / Minitest::Mock as a separate gem
   gem "minitest-mock"
+  # Acceptance scenarios in features/ (run with: bundle exec cucumber)
+  gem "cucumber-rails", require: false
+  gem "database_cleaner-active_record"
 end
 
 gem "dartsass-rails", "~> 0.5.1"
