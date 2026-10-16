@@ -37,6 +37,6 @@
       <% end %>
     </ul>
   <% else %>
-    <p class="empty"><%= t("morocco.my_tasks.empty") %></p>
+    <%= render "shared/empty_state", icon: "check-circle", text: t("morocco.my_tasks.empty") %>
   <% end %>
 </section>

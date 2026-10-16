@@ -13,7 +13,7 @@
     <%= link_to calendar_visits_path, class: "btn btn--ghost" do %>
       <%= icon("calendar", css_class: "icon") %> <%= t("morocco.visits.calendar.title") %>
     <% end %>
-    <%= link_to new_visit_path, class: "btn btn--quiet" do %>
+    <%= link_to new_visit_path, class: "btn btn--primary" do %>
       <%= icon("plus", css_class: "icon") %> <%= t("morocco.visits.new") %>
     <% end %>
   </div>
@@ -67,6 +67,7 @@
       </tbody>
     </table>
   <% else %>
-    <p class="meta"><%= t("morocco.visits.empty") %></p>
+    <%= render "shared/empty_state", icon: "calendar", text: t("morocco.visits.empty"),
+                 action_label: t("morocco.visits.new"), action_path: new_visit_path %>
   <% end %>
 </section>

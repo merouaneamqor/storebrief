@@ -46,7 +46,7 @@ document.addEventListener("alpine:init", () => {
     },
 
     get headerTitle() {
-      return this.titleFr.trim() || this.$el.dataset.untitled || "Untitled"
+      return this.titleFr.trim() || this.$root.dataset.untitled || ""
     },
 
     normalizeQuestion(question = {}) {

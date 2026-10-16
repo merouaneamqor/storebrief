@@ -56,6 +56,6 @@
       </nav>
     <% end %>
   <% else %>
-    <p class="empty"><%= t("morocco.newsfeed.empty") %></p>
+    <%= render "shared/empty_state", icon: "message-circle", text: t("morocco.newsfeed.empty") %>
   <% end %>
 </section>

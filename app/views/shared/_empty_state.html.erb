@@ -1,0 +1,10 @@
+<%# Empty list: icon, one sentence on what belongs here, optional next action.
+    locals: text (required), icon (default "inbox"), action_label, action_path %>
+<% icon_name = local_assigns.fetch(:icon, "inbox") %>
+<div class="empty empty-state">
+  <span class="empty-state__icon" aria-hidden="true"><%= icon(icon_name) %></span>
+  <p class="empty-state__text"><%= text %></p>
+  <% if local_assigns[:action_path].present? && local_assigns[:action_label].present? %>
+    <%= link_to action_label, action_path, class: "btn btn--primary" %>
+  <% end %>
+</div>

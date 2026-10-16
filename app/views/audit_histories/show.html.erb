@@ -33,7 +33,7 @@
         <% end %>
       </select>
     </label>
-    <button type="submit" class="btn btn--quiet"><%= t("morocco.audit_history.apply") %></button>
+    <button type="submit" class="btn btn--primary"><%= t("morocco.audit_history.apply") %></button>
   <% end %>
 </section>
 
@@ -73,7 +73,7 @@
       </tbody>
     </table>
   <% else %>
-    <p class="meta"><%= t("morocco.audit_history.empty_regions") %></p>
+    <%= render "shared/empty_state", icon: "activity", text: t("morocco.audit_history.empty_regions") %>
   <% end %>
 </section>
 
@@ -117,7 +117,7 @@
       </tbody>
     </table>
   <% else %>
-    <p class="meta"><%= t("morocco.audit_history.empty_stores") %></p>
+    <%= render "shared/empty_state", icon: "activity", text: t("morocco.audit_history.empty_stores") %>
   <% end %>
 </section>
 
@@ -170,6 +170,6 @@
       </tbody>
     </table>
   <% else %>
-    <p class="meta"><%= t("morocco.audit_history.empty_history") %></p>
+    <%= render "shared/empty_state", icon: "activity", text: t("morocco.audit_history.empty_history") %>
   <% end %>
 </section>

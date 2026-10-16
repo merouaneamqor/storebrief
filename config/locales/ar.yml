@@ -266,6 +266,7 @@ ar:
     settings: "الإعدادات"
     close_settings: "إغلاق الإعدادات"
     untitled: "نموذج بلا عنوان"
+    untitled_brief: "موجز بلا عنوان"
     drag_question: "اسحب لإعادة الترتيب"
     preview_back: "العودة للتحرير"
     preview_lede: "هذا ما سيراه المتجر."

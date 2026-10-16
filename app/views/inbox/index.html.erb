@@ -32,6 +32,6 @@
       <% end %>
     </ul>
   <% else %>
-    <p class="empty"><%= t("inbox.empty") %></p>
+    <%= render "shared/empty_state", icon: "inbox", text: t("inbox.empty") %>
   <% end %>
 </section>

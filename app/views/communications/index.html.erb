@@ -8,7 +8,7 @@
   <div class="template-card__actions">
     <% if hq_user? %>
       <%= link_to t("task_templates.title"), task_templates_path, class: "btn btn--ghost" %>
-      <%= link_to t("communications.compose"), new_communication_path, class: "btn" %>
+      <%= link_to t("communications.compose"), new_communication_path, class: "btn btn--primary" %>
     <% end %>
   </div>
 </div>
@@ -34,6 +34,8 @@
       <% end %>
     </ul>
   <% else %>
-    <p class="empty"><%= t("communications.empty") %></p>
+    <%= render "shared/empty_state", icon: "inbox", text: t("communications.empty"),
+                   action_label: (hq_user? ? t("communications.compose") : nil),
+                   action_path: (hq_user? ? new_communication_path : nil) %>
   <% end %>
 </section>

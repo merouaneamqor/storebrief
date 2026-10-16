@@ -258,6 +258,7 @@ en:
     settings: "Settings"
     close_settings: "Close settings"
     untitled: "Untitled form"
+    untitled_brief: "Untitled brief"
     drag_question: "Drag to reorder"
     preview_back: "Back to edit"
     preview_lede: "This is what a store will see."
