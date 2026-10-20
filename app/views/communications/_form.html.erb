@@ -167,7 +167,7 @@
           </div>
         </section>
 
-        <section class="brief-settings__block" x-show="format === 'announcement'" x-cloak>
+        <section class="brief-settings__block" x-show="format === 'announcement' || format === 'task'" x-cloak>
           <h3><%= t("communications.attachments") %></h3>
           <p class="meta"><%= t("communications.attachments_help") %></p>
           <% if @communication.attachments.attached? %>
@@ -186,6 +186,15 @@
           <%= f.file_field :attachments, multiple: true,
                 accept: "application/pdf,image/png,image/jpeg,image/jpg,image/webp",
                 "aria-label": t("communications.attachments") %>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("communications.due_at") %></h3>
+          <p class="meta"><%= t("communications.due_at_help") %></p>
+          <%= f.datetime_local_field :due_at,
+                value: @communication.due_at&.in_time_zone(Vazivo::Schedule::ZONE)&.strftime("%Y-%m-%dT%H:%M"),
+                "aria-label": t("communications.due_at"),
+                ":disabled": "format !== 'task'" %>
         </section>
 
         <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
