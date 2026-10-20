@@ -114,7 +114,7 @@ class TaskDeadlineAttachmentsTest < ActionDispatch::IntegrationTest
     sign_in(@brand.hq)
     original = Communication::ATTACHMENT_MAX_BYTES
     Communication.send(:remove_const, :ATTACHMENT_MAX_BYTES)
-    Communication.const_set(:ATTACHMENT_MAX_BYTES, 1.kilobyte)
+    Communication.const_set(:ATTACHMENT_MAX_BYTES, 100)
     begin
       assert_no_difference -> { @brand.tenant.communications.count } do
         post communications_path, params: {
