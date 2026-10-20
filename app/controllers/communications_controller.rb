@@ -257,14 +257,17 @@ class CommunicationsController < ApplicationController
   end
 
   def communication_params
-    params.require(:communication).permit(
+    permitted = params.require(:communication).permit(
       :title_fr, :title_ar, :body_fr, :body_ar, :format, :priority, :depends_on_communication_id,
-      :requires_approval,
+      :requires_approval, :due_at,
       recurrence_attributes: [ :frequency, :interval, :ends_on, { weekdays: [] } ],
       communication_questions_attributes: [
         :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy
       ]
     )
+    # Deadline is entered in store local time (Africa/Casablanca); blank falls back to Schedule.default_due.
+    permitted[:due_at] = Vazivo::Schedule.parse_local(permitted[:due_at]) if permitted.key?(:due_at)
+    permitted
   end
 
   def apply_attachment_uploads!(communication)

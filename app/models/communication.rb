@@ -75,7 +75,7 @@ class Communication < ApplicationRecord
   before_validation :clear_recurrence_unless_task
   before_validation :clear_dependency_unless_task
   before_validation :clear_approval_unless_task
-  before_validation :clear_attachments_unless_announcement
+  before_validation :clear_attachments_unless_allowed
 
   def news?
     format == "news"
@@ -234,8 +234,12 @@ class Communication < ApplicationRecord
     self.requires_approval = false unless task?
   end
 
-  def clear_attachments_unless_announcement
-    return if announcement?
+  def attachments_allowed?
+    announcement? || task?
+  end
+
+  def clear_attachments_unless_allowed
+    return if attachments_allowed?
     return unless attachments.attached?
 
     attachments.purge
@@ -244,7 +248,7 @@ class Communication < ApplicationRecord
   def acceptable_attachments
     return unless attachments.attached?
 
-    unless announcement?
+    unless attachments_allowed?
       errors.add(:attachments, I18n.t("communications.attachments_announcement_only"))
       return
     end
