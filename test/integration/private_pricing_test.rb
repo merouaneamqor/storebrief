@@ -20,9 +20,9 @@ class PrivatePricingTest < ActionDispatch::IntegrationTest
   test "super admin can view and update default prices with history and audit" do
     sign_in @super
     plan = PricingPlan.find_by!(key: "starter")
-    get admin_pricing_plans_path
+    get admin_pricing_plans_path(format: :json)
     assert_response :success
-    assert_match "199", response.body
+    assert_includes JSON.parse(response.body).map { |p| p["unit_price"].to_i }, 199
 
     assert_difference -> { plan.versions.count } => 1, -> { PricingAuditLog.count } => 1 do
       patch admin_pricing_plan_path(plan), params: { pricing_plan: { unit_price: "210" } }
