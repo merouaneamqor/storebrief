@@ -24,6 +24,7 @@
               <%= localized_badge(brief.format) %>
               <%= priority_badge(brief.priority) %>
               <%= localized_badge(brief.status) %>
+              <% if brief.review_pending? %><span class="badge badge--improve"><%= t("approval.statuses.pending_review") %></span><% end %>
               · <%= t("common.by") %> <%= brief.author.name %>
             </div>
           </div>

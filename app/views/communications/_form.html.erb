@@ -9,6 +9,7 @@
       options: question.options
     }
   end
+  send_label = Vazivo::Approval.gate?(@communication) && !@communication.review_approved? ? t("approval.submit") : t("communications.send")
   type_labels = CommunicationQuestion::TYPES.index_with { |type| t("communications.question_types.#{type}") }
 %>
 
@@ -36,7 +37,7 @@
         <button type="button" class="btn btn--ghost" @click="preview = true"><%= t("communications.preview") %></button>
         <button type="button" class="btn btn--ghost" @click="openSettings()"><%= t("communications.settings") %></button>
         <button type="submit" class="btn btn--ghost" name="commit" value="draft"><%= t("communications.save_draft") %></button>
-        <button type="button" class="btn" @click="openSettings()"><%= t("communications.send") %></button>
+        <button type="button" class="btn" @click="openSettings()"><%= send_label %></button>
       </div>
     </header>
 
@@ -243,7 +244,7 @@
 
         <div class="brief-settings__actions">
           <button type="submit" class="btn btn--ghost" name="commit" value="draft"><%= t("communications.save_draft") %></button>
-          <button type="submit" class="btn" name="commit" value="send"><%= t("communications.send") %></button>
+          <button type="submit" class="btn" name="commit" value="send"><%= send_label %></button>
         </div>
       </div>
     </div>

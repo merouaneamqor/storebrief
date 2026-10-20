@@ -1,5 +1,6 @@
 class Communication < ApplicationRecord
   include Bilingual
+  include Reviewable
 
   FORMATS = %w[news task announcement].freeze
   STATUSES = %w[draft sent].freeze
@@ -76,6 +77,7 @@ class Communication < ApplicationRecord
   before_validation :clear_dependency_unless_task
   before_validation :clear_approval_unless_task
   before_validation :clear_attachments_unless_allowed
+  before_update :reset_review_after_edit
 
   def news?
     format == "news"
@@ -170,7 +172,15 @@ class Communication < ApplicationRecord
     communication
   end
 
+  # An approved (or pending) review only covers the content that was reviewed.
+  def reset_review!
+    return if review_status.blank? || sent?
+
+    update_columns(review_status: nil, reviewed_by_id: nil, reviewed_at: nil, review_note: nil)
+  end
+
   def send_to!(org_unit_ids, role: nil, store_format: nil, cluster: nil)
+    Vazivo::Approval.ensure_sendable!(self)
     store_ids = Vazivo::Assignment.resolve_store_ids(
       tenant,
       org_unit_ids: org_unit_ids,
@@ -216,6 +226,19 @@ class Communication < ApplicationRecord
   end
 
   private
+
+  def reset_review_after_edit
+    return if review_status.blank? || status_changed?
+
+    content_changed = (changed - Reviewable::REVIEW_COLUMNS - %w[updated_at]).any? ||
+                      communication_questions.any?(&:changed_for_autosave?)
+    return unless content_changed
+
+    self.review_status = nil
+    self.reviewed_by_id = nil
+    self.reviewed_at = nil
+    self.review_note = nil
+  end
 
   # Only tasks carry a priority; notes are always routine.
   def apply_priority_default

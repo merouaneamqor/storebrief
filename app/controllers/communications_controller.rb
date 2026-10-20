@@ -1,10 +1,11 @@
 class CommunicationsController < ApplicationController
   layout :communications_layout
 
-  before_action :require_compose_hq, except: %i[index show]
+  before_action :require_compose_hq, except: %i[index show approve reject]
+  before_action :require_approver, only: %i[approve reject]
   before_action :require_monitor_access, only: %i[index show]
   before_action -> { require_feature!(:briefs) }
-  before_action :set_communication, only: %i[show edit update send_brief notify_push stop_recurrence update_priority save_as_template clear_dependency]
+  before_action :set_communication, only: %i[show edit update send_brief approve reject notify_push stop_recurrence update_priority save_as_template clear_dependency]
   before_action :load_target_units, only: %i[new create edit update]
   before_action :load_dependency_candidates, only: %i[new create edit update]
 
@@ -69,8 +70,9 @@ class CommunicationsController < ApplicationController
     end
 
     @communication.assign_attributes(communication_params)
-    purge_removed_attachments!(@communication)
-    apply_attachment_uploads!(@communication)
+    attachments_touched = purge_removed_attachments!(@communication)
+    attachments_touched = apply_attachment_uploads!(@communication) || attachments_touched
+    @communication.reset_review! if attachments_touched
     persist_communication(:edit)
   end
 
@@ -93,6 +95,11 @@ class CommunicationsController < ApplicationController
       return
     end
 
+    if approval_pending_for_send?
+      submit_for_review
+      return
+    end
+
     begin
       @communication.send_to!(
         params[:org_unit_ids].presence || @communication.deliveries.pluck(:org_unit_id),
@@ -102,6 +109,14 @@ class CommunicationsController < ApplicationController
     rescue ArgumentError => e
       redirect_to @communication, alert: e.message
     end
+  end
+
+  def approve
+    decide_review("approved")
+  end
+
+  def reject
+    decide_review("rejected")
   end
 
   def stop_recurrence
@@ -181,6 +196,30 @@ class CommunicationsController < ApplicationController
     require_hq_or_area(:monitor)
   end
 
+  def require_approver
+    return if hq_user? && user_allows?(:approve)
+
+    redirect_to app_root_path, alert: t("approval.errors.not_allowed")
+  end
+
+  # Approval is required for this brief and it has not been approved yet.
+  def approval_pending_for_send?
+    Vazivo::Approval.gate?(@communication) && !@communication.review_approved?
+  end
+
+  def submit_for_review(redirect: nil)
+    Vazivo::Approval.submit!(@communication, actor: current_user) unless @communication.review_pending?
+    redirect_to redirect || edit_communication_path(@communication), notice: t("approval.submitted")
+  end
+
+  def decide_review(decision)
+    Vazivo::Approval.decide!(@communication, approver: current_user, decision: decision,
+                                             note: params[:review_note])
+    redirect_to edit_communication_path(@communication), notice: t("approval.#{decision}")
+  rescue Vazivo::Approval::Error => e
+    redirect_to edit_communication_path(@communication), alert: e.message
+  end
+
   def communications_layout
     %w[new create edit update].include?(action_name) ? "brief_editor" : "application"
   end
@@ -232,7 +271,9 @@ class CommunicationsController < ApplicationController
     @communication.status = "draft" unless sending
 
     if @communication.save
-      if sending
+      if sending && approval_pending_for_send?
+        submit_for_review(redirect: edit_communication_path(@communication))
+      elsif sending
         begin
           @communication.send_to!(params[:org_unit_ids], **assignment_filter_kwargs)
           redirect_to @communication, notice: t("communications.sent")
@@ -273,12 +314,14 @@ class CommunicationsController < ApplicationController
   def apply_attachment_uploads!(communication)
     files = Array(params.dig(:communication, :attachments)).compact_blank
     communication.attachments.attach(files) if files.any?
+    files.any?
   end
 
   def purge_removed_attachments!(communication)
     ids = Array(params.dig(:communication, :remove_attachment_ids)).map(&:to_i).reject(&:zero?)
-    return if ids.empty?
+    return false if ids.empty?
 
     communication.attachments.attachments.where(id: ids).find_each(&:purge)
+    true
   end
 end

@@ -104,6 +104,25 @@ class PlaybooksController < ApplicationController
       return
     end
 
+    if Vazivo::Approval.required?(tenant_scope)
+      raise ArgumentError, t("errors.select_targets") if Vazivo::CampaignTargets.new(tenant_scope, params[:org_unit_ids]).empty?
+
+      request = tenant_scope.playbook_deploy_requests.create!(
+        playbook: @playbook,
+        author: current_user,
+        deploy_params: {
+          starts_on: starts_on.iso8601,
+          campaign_on: campaign_on.iso8601,
+          brief_fr: brief_fr,
+          brief_ar: brief_ar,
+          org_unit_ids: Array(params[:org_unit_ids]).map(&:to_i)
+        }
+      )
+      Vazivo::Approval.submit!(request, actor: current_user)
+      redirect_to playbook_deploy_requests_path, notice: t("approval.submitted")
+      return
+    end
+
     Vazivo::PlaybookDeployer.deploy!(
       playbook: @playbook,
       author: current_user,
