@@ -1,0 +1,21 @@
+fr:
+  home:
+    kicker:
+      problems: "Le constat"
+      how: "Comment ça marche"
+      benefits: "Les bénéfices"
+      roles: "Pour chaque rôle"
+      fit: "Pour votre réseau"
+      plans: "Nos offres"
+      faq: "Questions fréquentes"
+    plans:
+      title: "Une offre pour chaque taille de réseau"
+      lede: "Du premier magasin aux grandes enseignes. Les conditions sont établies sur mesure."
+      cta: "Découvrir les offres"
+    how:
+      lede: "Quatre étapes, du siège jusqu’au téléphone du magasin, puis retour au siège avec la preuve."
+      who:
+        w1: "Siège"
+        w2: "Siège et région"
+        w3: "Équipe du magasin"
+        w4: "Siège et région"

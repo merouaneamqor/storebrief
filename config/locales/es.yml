@@ -541,7 +541,7 @@ es:
       kicker: "Menos perseguir. Más hacer."
       title: "Gestione todas sus tiendas desde un solo lugar."
       accent: "un solo lugar"
-      lede: "Vazivo ayuda a los equipos de retail a organizar, asignar, ejecutar y seguir las operaciones diarias de tienda — en todas sus ubicaciones."
+      lede: "Vazivo ayuda a los equipos de retail a organizar, asignar, ejecutar y seguir las operaciones diarias de tienda, en todas sus ubicaciones."
       demo: "Reservar una demo"
       explore: "Ver cómo funciona"
       example: "Ejemplo · esta mañana"
@@ -564,7 +564,7 @@ es:
       d: "Funciona sin conexión si hace falta"
     trust:
       title: "El tejido conectivo del retail."
-      body: "En checo, vazivo significa tejido conectivo — lo que mantiene unido un cuerpo. Vazivo hace lo mismo en retail: conecta la sede, las regiones, las tiendas, los equipos, las tareas y los resultados en un solo flujo. Un solo lugar para convertir instrucciones en ejecución — no es una caja ni un sistema de stock."
+      body: "En checo, vazivo significa tejido conectivo, lo que mantiene unido un cuerpo. Vazivo hace lo mismo en retail: conecta la sede, las regiones, las tiendas, los equipos, las tareas y los resultados en un solo flujo. Un solo lugar para convertir instrucciones en ejecución, no es una caja ni un sistema de stock."
     problems:
       title: "Deje de gestionar tiendas por chat y hojas de cálculo."
       p1_title: "Las tareas se pierden"
@@ -583,7 +583,7 @@ es:
       step3: "Ejecutar"
       step3_body: "Los equipos hacen el trabajo en el sitio, en el teléfono. Si se corta la red, la checklist se termina igual y se sincroniza cuando vuelve."
       step4: "Verificar"
-      step4_body: "Las fotos y el avance muestran lo hecho — y lo que falta. La sede y la región ven a qué tiendas hacer seguimiento."
+      step4_body: "Las fotos y el avance muestran lo hecho, y lo que falta. La sede y la región ven a qué tiendas hacer seguimiento."
     benefits:
       title: "Lo que cambia cuando las operaciones están conectadas"
       b1_title: "Cada tarea. Cada tienda."
@@ -595,7 +595,7 @@ es:
     roles:
       title: "El mensaje adecuado para cada rol"
       hq_title: "Sede y dirección"
-      hq_body: "Estandarice las operaciones en todas las ubicaciones — y sepa lo que pasa en cada tienda."
+      hq_body: "Estandarice las operaciones en todas las ubicaciones, y sepa lo que pasa en cada tienda."
       region_title: "Responsables regionales"
       region_body: "Gestione decenas de tiendas sin perseguir a nadie."
       store_title: "Equipos de tienda"
@@ -619,7 +619,7 @@ es:
       privacy_consent: "Acepto el tratamiento de mis datos para esta solicitud de demo, según la %{privacy_link} (ley 09-08)."
       marketing_consent: "Acepto ser contactado por correo o teléfono sobre Vazivo (opcional)."
     footer:
-      tagline: "Vazivo — Operaciones de retail, conectadas."
+      tagline: "Vazivo. Operaciones de retail, conectadas."
     resources:
       title: "Reconocerá su red."
       lede: "Muchas tiendas. Procedimientos que se repiten. Demasiados canales. Un solo sistema operativo."
@@ -648,7 +648,7 @@ es:
       close_body: "Díganos cuántas tiendas gestiona. Llevamos una instrucción real hasta la prueba."
       cta: "Reservar una demo"
     fits:
-      title: "Si esta mañana es la suya"
+      title: "Pensado para redes multitienda"
       lede: "Varias tiendas, procedimientos que se repiten, y un equipo de sede o de región."
       more: "Ver otros formatos"
     faq:
