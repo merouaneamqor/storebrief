@@ -72,27 +72,17 @@
   <li><%= t("landing.proof.d") %></li>
 </ul>
 
-<section class="m-gap" id="problems">
+<section class="m-home m-home--problems" id="problems">
   <div class="m-wrap">
-    <header class="m-center">
-      <h2><%= t("landing.problems.title") %></h2>
-    </header>
-    <div class="m-gap__grid">
-      <article>
-        <span>01</span>
-        <h3><%= t("landing.problems.p1_title") %></h3>
-        <p><%= t("landing.problems.p1_body") %></p>
-      </article>
-      <article>
-        <span>02</span>
-        <h3><%= t("landing.problems.p2_title") %></h3>
-        <p><%= t("landing.problems.p2_body") %></p>
-      </article>
-      <article>
-        <span>03</span>
-        <h3><%= t("landing.problems.p3_title") %></h3>
-        <p><%= t("landing.problems.p3_body") %></p>
-      </article>
+    <%= render "marketing/section_head", kicker: t("home.kicker.problems"), title: t("landing.problems.title") %>
+    <div class="m-cards m-cards--3">
+      <% (1..3).each do |n| %>
+        <article class="m-card">
+          <span class="m-card__num"><%= format("%02d", n) %></span>
+          <h3><%= t("landing.problems.p#{n}_title") %></h3>
+          <p><%= t("landing.problems.p#{n}_body") %></p>
+        </article>
+      <% end %>
     </div>
   </div>
 </section>
@@ -104,61 +94,38 @@
   </div>
 </section>
 
-<section class="m-platform" id="how">
+<section class="m-home m-home--band" id="how">
   <div class="m-wrap">
-    <header class="m-center">
-      <h2><%= t("landing.walkthrough.title") %></h2>
-      <p class="m-lede"><%= t("landing.walkthrough.example") %></p>
-    </header>
-    <ol class="m-flow">
-      <li>
-        <span>1</span>
-        <h3><%= t("landing.walkthrough.step1") %></h3>
-        <p><%= t("landing.walkthrough.step1_body") %></p>
-      </li>
-      <li>
-        <span>2</span>
-        <h3><%= t("landing.walkthrough.step2") %></h3>
-        <p><%= t("landing.walkthrough.step2_body") %></p>
-      </li>
-      <li>
-        <span>3</span>
-        <h3><%= t("landing.walkthrough.step3") %></h3>
-        <p><%= t("landing.walkthrough.step3_body") %></p>
-      </li>
-      <li>
-        <span>4</span>
-        <h3><%= t("landing.walkthrough.step4") %></h3>
-        <p><%= t("landing.walkthrough.step4_body") %></p>
-      </li>
+    <%= render "marketing/section_head", kicker: t("home.kicker.how"), title: t("landing.walkthrough.title"), lede: t("home.how.lede") %>
+    <ol class="m-cards m-cards--4 m-steps">
+      <% (1..4).each do |n| %>
+        <li class="m-card">
+          <span class="m-card__num m-card__num--chip"><%= n %></span>
+          <p class="m-card__who"><%= t("home.how.who.w#{n}") %></p>
+          <h3><%= t("landing.walkthrough.step#{n}") %></h3>
+          <p><%= t("landing.walkthrough.step#{n}_body") %></p>
+        </li>
+      <% end %>
     </ol>
   </div>
 </section>
 
-<section class="m-show">
+<section class="m-home" id="benefits">
   <div class="m-wrap">
-    <header class="m-center">
-      <h2><%= t("landing.benefits.title") %></h2>
-    </header>
-    <div class="m-show__grid">
-      <article class="m-showcard">
-        <div class="m-art m-art--list" aria-hidden="true">
-          <span class="is-on"></span>
-          <span class="is-on"></span>
-          <span></span>
-        </div>
+    <%= render "marketing/section_head", kicker: t("home.kicker.benefits"), title: t("landing.benefits.title") %>
+    <div class="m-cards m-cards--3">
+      <article class="m-card m-card--art">
+        <div class="m-art m-art--list" aria-hidden="true"><span class="is-on"></span><span class="is-on"></span><span></span></div>
         <h3><%= t("landing.benefits.b1_title") %></h3>
         <p><%= t("landing.benefits.b1_body") %></p>
       </article>
-      <article class="m-showcard">
+      <article class="m-card m-card--art">
         <div class="m-art m-art--photo" aria-hidden="true"><span></span></div>
         <h3><%= t("landing.benefits.b2_title") %></h3>
         <p><%= t("landing.benefits.b2_body") %></p>
       </article>
-      <article class="m-showcard">
-        <div class="m-art m-art--bars" aria-hidden="true">
-          <i></i><i></i><i></i>
-        </div>
+      <article class="m-card m-card--art">
+        <div class="m-art m-art--bars" aria-hidden="true"><i></i><i></i><i></i></div>
         <h3><%= t("landing.benefits.b3_title") %></h3>
         <p><%= t("landing.benefits.b3_body") %></p>
       </article>
@@ -166,53 +133,55 @@
   </div>
 </section>
 
-<section class="m-roles" id="roles" x-data="{ role: 'store' }">
+<section class="m-home m-home--band" id="roles">
   <div class="m-wrap">
-    <header class="m-center">
-      <h2><%= t("landing.roles.title") %></h2>
-    </header>
-    <div class="m-roles__tabs" role="tablist">
-      <button type="button" role="tab" id="role-tab-store" aria-controls="role-panel-store" :aria-selected="(role === 'store').toString()" :class="{ 'is-on': role === 'store' }" @click="role = 'store'"><%= t("landing.roles.store_title") %></button>
-      <button type="button" role="tab" id="role-tab-region" aria-controls="role-panel-region" :aria-selected="(role === 'region').toString()" :class="{ 'is-on': role === 'region' }" @click="role = 'region'"><%= t("landing.roles.region_title") %></button>
-      <button type="button" role="tab" id="role-tab-hq" aria-controls="role-panel-hq" :aria-selected="(role === 'hq').toString()" :class="{ 'is-on': role === 'hq' }" @click="role = 'hq'"><%= t("landing.roles.hq_title") %></button>
-    </div>
-    <div class="m-roles__stage">
-      <article role="tabpanel" id="role-panel-store" aria-labelledby="role-tab-store" x-show="role === 'store'">
-        <h3><%= t("landing.roles.store_title") %></h3>
-        <p><%= t("landing.roles.store_body") %></p>
-      </article>
-      <article role="tabpanel" id="role-panel-region" aria-labelledby="role-tab-region" x-show="role === 'region'" x-cloak>
-        <h3><%= t("landing.roles.region_title") %></h3>
-        <p><%= t("landing.roles.region_body") %></p>
-      </article>
-      <article role="tabpanel" id="role-panel-hq" aria-labelledby="role-tab-hq" x-show="role === 'hq'" x-cloak>
-        <h3><%= t("landing.roles.hq_title") %></h3>
-        <p><%= t("landing.roles.hq_body") %></p>
-      </article>
+    <%= render "marketing/section_head", kicker: t("home.kicker.roles"), title: t("landing.roles.title") %>
+    <div class="m-cards m-cards--3">
+      <% %w[hq region store].each do |role| %>
+        <article class="m-card">
+          <h3><%= t("landing.roles.#{role}_title") %></h3>
+          <p><%= t("landing.roles.#{role}_body") %></p>
+        </article>
+      <% end %>
     </div>
   </div>
 </section>
 
-<section class="m-wrap m-block" id="fit">
-  <header class="m-center">
-    <h2><%= t("landing.fits.title") %></h2>
-    <p class="m-lede"><%= t("landing.fits.lede") %></p>
-  </header>
-  <%= render "marketing/fits" %>
-  <p class="m-fits__more"><%= link_to t("landing.fits.more"), resources_path %></p>
+<section class="m-home" id="fit">
+  <div class="m-wrap">
+    <%= render "marketing/section_head", kicker: t("home.kicker.fit"), title: t("landing.fits.title"), lede: t("landing.fits.lede") %>
+    <%= render "marketing/fits" %>
+    <p class="m-fits__more"><%= link_to t("landing.fits.more"), resources_path %></p>
+  </div>
 </section>
 
-<section class="m-wrap m-block" id="faq">
-  <header class="m-center">
-    <h2><%= t("landing.faq.title") %></h2>
-  </header>
-  <div class="m-faq">
-    <% (1..5).each do |n| %>
-      <details>
-        <summary><%= t("landing.faq.q#{n}") %></summary>
-        <p><%= t("landing.faq.a#{n}") %></p>
-      </details>
-    <% end %>
+<section class="m-home m-home--band" id="plans">
+  <div class="m-wrap">
+    <%= render "marketing/section_head", kicker: t("home.kicker.plans"), title: t("home.plans.title"), lede: t("home.plans.lede") %>
+    <div class="m-cards m-cards--4">
+      <% PricingPlan.ordered.where(active_for_sales: true).pluck(:key).each do |key| %>
+        <article class="m-card<%= ' is-featured' if key == 'business' %>">
+          <p class="m-card__eyebrow"><%= t("pricing.plans.#{key}.segment") %></p>
+          <h3><%= t("pricing.plans.#{key}.name") %></h3>
+          <p><%= t("pricing.plans.#{key}.tagline") %></p>
+        </article>
+      <% end %>
+    </div>
+    <p class="m-center-cta"><%= link_to t("home.plans.cta"), plans_path, class: "m-btn" %></p>
+  </div>
+</section>
+
+<section class="m-home" id="faq">
+  <div class="m-wrap">
+    <%= render "marketing/section_head", kicker: t("home.kicker.faq"), title: t("landing.faq.title") %>
+    <div class="m-faq">
+      <% (1..5).each do |n| %>
+        <details>
+          <summary><%= t("landing.faq.q#{n}") %></summary>
+          <p><%= t("landing.faq.a#{n}") %></p>
+        </details>
+      <% end %>
+    </div>
   </div>
 </section>
 

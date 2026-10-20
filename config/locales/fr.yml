@@ -540,7 +540,7 @@ fr:
       kicker: "Moins de relances. Plus d’exécution."
       title: "Pilotez tous vos magasins depuis un seul endroit."
       accent: "un seul endroit"
-      lede: "Vazivo aide les équipes retail à organiser, assigner, exécuter et suivre les opérations quotidiennes des magasins — sur tous les sites."
+      lede: "Vazivo aide les équipes retail à organiser, assigner, exécuter et suivre les opérations quotidiennes des magasins, sur tous les sites."
       demo: "Réserver une démo"
       explore: "Voir comment ça marche"
       example: "Exemple · ce matin"
@@ -563,7 +563,7 @@ fr:
       d: "Fonctionne hors ligne si besoin"
     trust:
       title: "Le tissu conjonctif du retail."
-      body: "En tchèque, vazivo signifie tissu conjonctif — ce qui tient un corps ensemble. Vazivo fait de même pour le retail : il relie siège, régions, magasins, équipes, tâches et résultats dans un seul flux. Un seul endroit pour transformer les consignes en exécution — ni une caisse, ni un outil de stock."
+      body: "En tchèque, vazivo signifie tissu conjonctif, ce qui tient un corps ensemble. Vazivo fait de même pour le retail : il relie siège, régions, magasins, équipes, tâches et résultats dans un seul flux. Un seul endroit pour transformer les consignes en exécution, ni une caisse, ni un outil de stock."
     problems:
       title: "Arrêtez de piloter vos magasins par messagerie et tableurs."
       p1_title: "Les tâches se perdent"
@@ -582,7 +582,7 @@ fr:
       step3: "Exécuter"
       step3_body: "Les équipes réalisent le travail sur place, sur le téléphone. Si le réseau coupe, la checklist se termine quand même et se synchronise dès qu’il revient."
       step4: "Vérifier"
-      step4_body: "Photos et avancement montrent ce qui est fait — et ce qui reste. Le siège et la région voient quels magasins relancer."
+      step4_body: "Photos et avancement montrent ce qui est fait, et ce qui reste. Le siège et la région voient quels magasins relancer."
     benefits:
       title: "Ce qui change quand les opérations sont connectées"
       b1_title: "Chaque tâche. Chaque magasin."
@@ -594,7 +594,7 @@ fr:
     roles:
       title: "Le bon message pour chaque rôle"
       hq_title: "Siège et direction"
-      hq_body: "Standardisez les opérations sur tous les sites — et sachez ce qui se passe dans chaque magasin."
+      hq_body: "Standardisez les opérations sur tous les sites, et sachez ce qui se passe dans chaque magasin."
       region_title: "Managers régionaux"
       region_body: "Pilotez des dizaines de magasins sans courir après les équipes."
       store_title: "Équipes en magasin"
@@ -618,7 +618,7 @@ fr:
       privacy_consent: "J'accepte le traitement de mes coordonnées pour traiter ma demande de démo, conformément à la %{privacy_link} (loi 09-08)."
       marketing_consent: "J'accepte d'être recontacté par e-mail ou téléphone à propos de Vazivo (facultatif)."
     footer:
-      tagline: "Vazivo — Les opérations retail, connectées."
+      tagline: "Vazivo. Les opérations retail, connectées."
     resources:
       title: "Vous reconnaissez votre réseau."
       lede: "Beaucoup de magasins. Des procédures qui se répètent. Trop de canaux. Un seul système opérationnel."
@@ -647,7 +647,7 @@ fr:
       close_body: "Dites-nous combien de magasins vous gérez. Nous suivons une vraie consigne jusqu’à la preuve."
       cta: "Réserver une démo"
     fits:
-      title: "Si cette matinée est la vôtre"
+      title: "Pensé pour les réseaux multi-magasins"
       lede: "Plusieurs magasins, des procédures qui se répètent, et une équipe au siège ou en région."
       more: "Voir les autres formats"
     faq:
