@@ -10,7 +10,14 @@ class DemoRequest < ApplicationRecord
   validate :email_or_phone_present
   validate :privacy_consent_given
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
+  validates :country, length: { maximum: 80 }
+  validates :requirements, length: { maximum: 2000 }
+  validates :requested_plan, inclusion: { in: ->(_) { sellable_plan_keys } }, allow_blank: true
   validates :store_count, numericality: { only_integer: true, greater_than: 0, allow_nil: true }
+
+  def self.sellable_plan_keys
+    PricingPlan.where(active_for_sales: true).pluck(:key)
+  end
 
   before_validation :stamp_privacy_consent
 

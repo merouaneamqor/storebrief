@@ -122,3 +122,55 @@ textarea {
 @media (max-width: 960px) {
   .m-form__row { grid-template-columns: 1fr; }
 }
+
+/* Marketing forms: uniform, full-width controls */
+.m-form label {
+  min-width: 0;
+}
+
+.m-form input:not([type="checkbox"]):not([type="radio"]),
+.m-form select,
+.m-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.m-form input[type="checkbox"],
+.m-form input[type="radio"] {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  padding: 0;
+  border-radius: 4px;
+  accent-color: var(--accent);
+}
+
+.m-form select {
+  appearance: none;
+  padding-inline-end: 2.25rem;
+  background:
+    white
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5b6a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 0.8rem center / 1rem;
+}
+
+body.rtl .m-form select {
+  background-position: left 0.8rem center;
+}
+
+.m-form input[type="number"] {
+  appearance: textfield;
+}
+
+.m-form textarea {
+  min-height: 92px;
+  line-height: 1.45;
+}
+
+.m-form input:hover:not(:focus),
+.m-form select:hover:not(:focus),
+.m-form textarea:hover:not(:focus) {
+  border-color: #c9c0b2;
+}

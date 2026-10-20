@@ -4,7 +4,7 @@
     <% brand = host_tenant? ? current_tenant : nil %>
     <title><%= content_for?(:title) ? yield(:title) : (brand&.display_brand_name || "Vazivo") %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<%= brand&.tagline.presence || t('landing.hero.lede') %>">
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : (brand&.tagline.presence || t('landing.hero.lede')) %>">
     <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -46,15 +46,15 @@
             <%= render "shared/locale_switch" %>
           </div>
         <% else %>
-          <nav class="m-nav__links" :class="{ 'is-open': open }">
-            <a href="<%= root_path %>#problems" @click="open = false"><%= t("landing.nav.solutions") %></a>
+          <nav class="m-nav__links" :class="{ 'is-open': open }" aria-label="<%= t('pricing.nav_label') %>">
             <a href="<%= root_path %>#how" @click="open = false"><%= t("landing.nav.how") %></a>
-            <a href="<%= root_path %>#roles" @click="open = false"><%= t("landing.nav.roles") %></a>
-            <%= link_to t("landing.nav.resources"), resources_path %>
-            <%= link_to t("landing.nav.sign_in"), login_path, class: "m-link m-nav__signin" %>
+            <%= link_to t("landing.nav.resources"), resources_path, aria: { current: (current_page?(resources_path) ? "page" : nil) } %>
+            <%= link_to t("pricing.nav"), plans_path, aria: { current: (current_page?(plans_path) ? "page" : nil) } %>
+            <%= link_to t("landing.nav.sign_in"), login_path, class: "m-link m-nav__signin m-nav__signin--menu" %>
           </nav>
           <div class="m-nav__tools">
             <%= render "shared/locale_switch" %>
+            <%= link_to t("landing.nav.sign_in"), login_path, class: "m-link m-nav__signin m-nav__signin--bar" %>
             <a href="<%= root_path(anchor: 'demo') %>" class="m-btn m-btn--small m-nav__demo">
               <span class="m-nav__demo-full"><%= t("landing.nav.demo") %></span>
               <span class="m-nav__demo-short"><%= t("landing.nav.demo_short") %></span>
@@ -105,6 +105,7 @@
             <a href="<%= root_path %>#how"><%= t("landing.nav.how") %></a>
             <a href="<%= root_path %>#roles"><%= t("landing.nav.roles") %></a>
             <%= link_to t("landing.nav.resources"), resources_path %>
+            <%= link_to t("pricing.nav"), plans_path %>
             <%= link_to t("privacy.page.title"), legal_privacy_path %>
             <%= link_to t("privacy.cookies.page_title"), legal_cookies_path %>
             <%= link_to t("landing.nav.sign_in"), login_path %>

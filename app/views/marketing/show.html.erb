@@ -230,40 +230,69 @@
         <li><%= t("landing.demo.point3") %></li>
       </ul>
     </div>
-    <%= form_with model: @demo_request, url: demo_requests_path, class: "m-form", local: true do |f| %>
+    <%= form_with model: @demo_request, url: demo_requests_path, class: "m-form m-form--demo", local: true do |f| %>
       <% if @demo_request.errors.any? %>
         <p class="m-form__error" role="alert"><%= @demo_request.errors.full_messages.to_sentence %></p>
       <% end %>
-      <div class="m-form__row">
+      <% if @demo_request.requested_plan.present? %>
+        <p class="m-form__plan"><span><%= t("pricing.form.selected_plan") %></span> <strong><%= t("pricing.plans.#{@demo_request.requested_plan}.name") %></strong></p>
+      <% end %>
+
+      <fieldset class="m-form__group">
+        <legend><%= t("pricing.form.about_you") %></legend>
+        <div class="m-form__row">
+          <label>
+            <%= t("landing.demo.name") %>
+            <%= f.text_field :name, required: true, autocomplete: "name" %>
+          </label>
+          <label>
+            <%= t("landing.demo.company") %>
+            <%= f.text_field :company, required: true, autocomplete: "organization" %>
+          </label>
+        </div>
+        <p class="m-hint" id="contact-hint"><%= t("landing.demo.contact_hint") %></p>
+        <div class="m-form__row">
+          <label>
+            <%= t("landing.demo.email") %>
+            <%= f.email_field :email, autocomplete: "email", aria: { describedby: "contact-hint" } %>
+          </label>
+          <label>
+            <%= t("landing.demo.phone") %>
+            <%= f.telephone_field :phone, autocomplete: "tel", aria: { describedby: "contact-hint" } %>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="m-form__group">
+        <legend><%= t("pricing.form.about_network") %></legend>
+        <div class="m-form__row">
+          <label>
+            <%= t("landing.demo.stores") %>
+            <%= f.number_field :store_count, min: 1, step: 1, inputmode: "numeric" %>
+          </label>
+          <label>
+            <%= t("pricing.form.country") %>
+            <%= f.text_field :country, autocomplete: "country-name", maxlength: 80 %>
+          </label>
+        </div>
+        <div class="m-form__row">
+          <label>
+            <%= t("pricing.form.plan") %>
+            <%= f.select :requested_plan, [[t("pricing.form.no_preference"), ""]] + DemoRequest.sellable_plan_keys.map { |k| [t("pricing.plans.#{k}.name"), k] } %>
+          </label>
+          <label>
+            <%= t("landing.demo.language") %>
+            <%= f.select :preferred_locale, User::LOCALES.map { |code| [t("locales.#{code}"), code] } %>
+          </label>
+        </div>
         <label>
-          <%= t("landing.demo.name") %>
-          <%= f.text_field :name, required: true, autocomplete: "name" %>
+          <%= t("pricing.form.requirements") %>
+          <%= f.text_area :requirements, rows: 3, maxlength: 2000 %>
         </label>
-        <label>
-          <%= t("landing.demo.company") %>
-          <%= f.text_field :company, required: true, autocomplete: "organization" %>
-        </label>
-      </div>
-      <p class="m-hint" id="contact-hint"><%= t("landing.demo.contact_hint") %></p>
-      <div class="m-form__row">
-        <label>
-          <%= t("landing.demo.email") %>
-          <%= f.email_field :email, autocomplete: "email", aria: { describedby: "contact-hint" } %>
-        </label>
-        <label>
-          <%= t("landing.demo.phone") %>
-          <%= f.telephone_field :phone, autocomplete: "tel", aria: { describedby: "contact-hint" } %>
-        </label>
-      </div>
-      <div class="m-form__row">
-        <label>
-          <%= t("landing.demo.stores") %>
-          <%= f.number_field :store_count, min: 1, step: 1, inputmode: "numeric" %>
-        </label>
-        <label>
-          <%= t("landing.demo.language") %>
-          <%= f.select :preferred_locale, User::LOCALES.map { |code| [t("locales.#{code}"), code] } %>
-        </label>
+      </fieldset>
+
+      <div aria-hidden="true" style="position:absolute;left:-10000px">
+        <label>Website <%= text_field_tag :website, nil, tabindex: -1, autocomplete: "off" %></label>
       </div>
       <label class="m-form__consent">
         <%= check_box_tag "demo_request[privacy_consent]", "1", false, required: true %>

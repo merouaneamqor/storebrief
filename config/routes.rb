@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   root "marketing#show"
   post "demo_requests", to: "marketing#create_demo"
   get "resources", to: "marketing#resources"
+  get "plans", to: "plans#show"
   get "app", to: "dashboard#show", as: :app_root
   resources :tenants, only: :index do
     collection do

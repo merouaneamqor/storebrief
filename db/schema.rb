@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -221,7 +221,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.index ["communication_id"], name: "index_deliveries_on_communication_id"
     t.index ["dependency_cleared_by_id"], name: "index_deliveries_on_dependency_cleared_by_id"
     t.index ["org_unit_id"], name: "index_deliveries_on_org_unit_id"
-    t.index ["score"], name: "index_deliveries_on_score"
     t.index ["validated_by_id"], name: "index_deliveries_on_validated_by_id"
   end
 
@@ -253,19 +252,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.index ["user_id"], name: "index_delivery_comments_on_user_id"
   end
 
-  create_table "delivery_reads", force: :cascade do |t|
-    t.bigint "tenant_id", null: false
-    t.bigint "delivery_id", null: false
-    t.bigint "user_id", null: false
-    t.datetime "read_at", null: false
-    t.datetime "created_at", null: false
-    t.index ["delivery_id", "user_id"], name: "index_delivery_reads_on_delivery_id_and_user_id", unique: true
-    t.index ["delivery_id"], name: "index_delivery_reads_on_delivery_id"
-    t.index ["tenant_id", "read_at"], name: "index_delivery_reads_on_tenant_id_and_read_at"
-    t.index ["tenant_id"], name: "index_delivery_reads_on_tenant_id"
-    t.index ["user_id"], name: "index_delivery_reads_on_user_id"
-  end
-
   create_table "delivery_events", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.bigint "delivery_id", null: false
@@ -280,6 +266,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.index ["tenant_id"], name: "index_delivery_events_on_tenant_id"
   end
 
+  create_table "delivery_reads", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "delivery_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "read_at", null: false
+    t.datetime "created_at", null: false
+    t.index ["delivery_id", "user_id"], name: "index_delivery_reads_on_delivery_id_and_user_id", unique: true
+    t.index ["delivery_id"], name: "index_delivery_reads_on_delivery_id"
+    t.index ["tenant_id", "read_at"], name: "index_delivery_reads_on_tenant_id_and_read_at"
+    t.index ["tenant_id"], name: "index_delivery_reads_on_tenant_id"
+    t.index ["user_id"], name: "index_delivery_reads_on_user_id"
+  end
+
   create_table "demo_requests", force: :cascade do |t|
     t.string "name", null: false
     t.string "company", null: false
@@ -292,6 +291,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.datetime "updated_at", null: false
     t.datetime "privacy_consent_at"
     t.boolean "marketing_contact_consent", default: false, null: false
+    t.string "country"
+    t.string "requested_plan"
+    t.text "requirements"
     t.index ["created_at"], name: "index_demo_requests_on_created_at"
   end
 
@@ -400,10 +402,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.bigint "parent_id"
     t.string "name", null: false
     t.string "unit_type", null: false
-    t.string "store_format"
-    t.string "cluster_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "store_format"
+    t.string "cluster_key"
     t.index ["parent_id"], name: "index_org_units_on_parent_id"
     t.index ["tenant_id", "cluster_key"], name: "index_org_units_on_tenant_id_and_cluster_key"
     t.index ["tenant_id", "store_format"], name: "index_org_units_on_tenant_id_and_store_format"
@@ -425,6 +427,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.index ["tenant_id"], name: "index_playbooks_on_tenant_id"
   end
 
+  create_table "pricing_audit_logs", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "action", null: false
+    t.string "subject_type", null: false
+    t.bigint "subject_id", null: false
+    t.jsonb "changes_made", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["subject_type", "subject_id"], name: "index_pricing_audit_logs_on_subject_type_and_subject_id"
+    t.index ["user_id"], name: "index_pricing_audit_logs_on_user_id"
+  end
+
+  create_table "pricing_plan_versions", force: :cascade do |t|
+    t.bigint "pricing_plan_id", null: false
+    t.decimal "unit_price", precision: 10, scale: 2
+    t.string "currency", null: false
+    t.boolean "active_for_sales", null: false
+    t.bigint "changed_by_id"
+    t.datetime "created_at", null: false
+    t.index ["changed_by_id"], name: "index_pricing_plan_versions_on_changed_by_id"
+    t.index ["pricing_plan_id"], name: "index_pricing_plan_versions_on_pricing_plan_id"
+  end
+
+  create_table "pricing_plans", force: :cascade do |t|
+    t.string "key", null: false
+    t.integer "position", default: 0, null: false
+    t.decimal "unit_price", precision: 10, scale: 2
+    t.string "currency", default: "MAD", null: false
+    t.boolean "active_for_sales", default: true, null: false
+    t.integer "max_stores"
+    t.decimal "max_discount_percent", precision: 5, scale: 2, default: "0.0", null: false
+    t.jsonb "volume_tiers", default: [], null: false
+    t.jsonb "limits", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_pricing_plans_on_key", unique: true
+  end
+
   create_table "push_subscriptions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "tenant_id", null: false
@@ -437,6 +476,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
     t.index ["tenant_id"], name: "index_push_subscriptions_on_tenant_id"
     t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
+  create_table "quotations", force: :cascade do |t|
+    t.string "reference", null: false
+    t.bigint "pricing_plan_id", null: false
+    t.string "customer_name", null: false
+    t.string "customer_email"
+    t.integer "store_count", null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.decimal "discount_percent", precision: 5, scale: 2, default: "0.0", null: false
+    t.string "currency", default: "MAD", null: false
+    t.text "terms"
+    t.date "valid_until"
+    t.string "status", default: "draft", null: false
+    t.datetime "issued_at"
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_quotations_on_created_by_id"
+    t.index ["pricing_plan_id"], name: "index_quotations_on_pricing_plan_id"
+    t.index ["reference"], name: "index_quotations_on_reference", unique: true
+    t.index ["status"], name: "index_quotations_on_status"
   end
 
   create_table "tenant_mail_settings", force: :cascade do |t|
@@ -544,14 +605,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
   create_table "vm_mission_targets", force: :cascade do |t|
     t.bigint "vm_mission_id", null: false
     t.bigint "org_unit_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "status", default: "pending", null: false
     t.string "verdict"
     t.text "verdict_note"
     t.datetime "submitted_at"
     t.datetime "validated_at"
     t.bigint "validated_by_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.index ["org_unit_id"], name: "index_vm_mission_targets_on_org_unit_id"
     t.index ["validated_by_id"], name: "index_vm_mission_targets_on_validated_by_id"
     t.index ["vm_mission_id", "org_unit_id"], name: "index_vm_mission_targets_on_mission_and_store", unique: true
@@ -568,9 +629,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
     t.text "instructions_ar"
     t.date "deadline_on", null: false
     t.string "status", default: "open", null: false
-    t.string "version_label"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "version_label"
     t.index ["created_by_id"], name: "index_vm_missions_on_created_by_id"
     t.index ["tenant_id", "deadline_on"], name: "index_vm_missions_on_tenant_id_and_deadline_on"
     t.index ["tenant_id", "status"], name: "index_vm_missions_on_tenant_id_and_status"
@@ -612,12 +673,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
   add_foreign_key "delivery_comments", "delivery_comments", column: "parent_id"
   add_foreign_key "delivery_comments", "tenants"
   add_foreign_key "delivery_comments", "users"
-  add_foreign_key "delivery_reads", "deliveries"
-  add_foreign_key "delivery_reads", "tenants"
-  add_foreign_key "delivery_reads", "users"
   add_foreign_key "delivery_events", "deliveries"
   add_foreign_key "delivery_events", "tenants"
   add_foreign_key "delivery_events", "users", column: "actor_id"
+  add_foreign_key "delivery_reads", "deliveries"
+  add_foreign_key "delivery_reads", "tenants"
+  add_foreign_key "delivery_reads", "users"
   add_foreign_key "escalation_events", "tenants"
   add_foreign_key "kb_article_versions", "kb_articles"
   add_foreign_key "kb_article_versions", "users", column: "author_id", on_delete: :nullify
@@ -633,8 +694,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_180000) do
   add_foreign_key "org_units", "org_units", column: "parent_id"
   add_foreign_key "org_units", "tenants"
   add_foreign_key "playbooks", "tenants"
+  add_foreign_key "pricing_audit_logs", "users"
+  add_foreign_key "pricing_plan_versions", "pricing_plans"
+  add_foreign_key "pricing_plan_versions", "users", column: "changed_by_id"
   add_foreign_key "push_subscriptions", "tenants"
   add_foreign_key "push_subscriptions", "users"
+  add_foreign_key "quotations", "pricing_plans"
+  add_foreign_key "quotations", "users", column: "created_by_id"
   add_foreign_key "tenant_mail_settings", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
