@@ -36,7 +36,7 @@ Rails.application.routes.draw do
   resources :demo_requests, only: %i[index update]
   get "reports", to: "reports#show"
 
-  resources :org_units, only: :index
+  resources :org_units, only: %i[index edit update]
   resources :communications, only: %i[index show new create edit update] do
     collection do
       get :preview_targets
