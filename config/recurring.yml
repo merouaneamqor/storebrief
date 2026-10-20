@@ -1,0 +1,24 @@
+# Solid Queue recurring schedule (read by the `bin/jobs` worker supervisor).
+# Both jobs are idempotent and sweep every tenant, scoping each query by tenant_id.
+# Times are in the app time zone (see config.time_zone).
+default: &default
+  recurring_task_brief:
+    class: RecurringTaskJob
+    queue: default
+    schedule: every hour
+    description: Send the next occurrence of every recurring task brief that is due
+
+  escalation_sweep:
+    class: EscalationJob
+    queue: default
+    schedule: every 30 minutes
+    description: Chase overdue store work up the line (24h store, 48h area, 72h HQ)
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
