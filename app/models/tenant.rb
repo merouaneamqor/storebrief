@@ -48,6 +48,11 @@ class Tenant < ApplicationRecord
       hint: "Store acknowledgement, Ramadan hours, campaign playbooks, coaching verdicts, and the morning radar.",
       default: true
     },
+    send_approval: {
+      label: "Approval before send",
+      hint: "HQ briefs and playbook deploys must be approved by another HQ user before they reach stores.",
+      default: false
+    },
     knowledge_base: {
       label: "Knowledge base",
       hint: "HQ knowledge base articles and categories for store SOPs, policies, and FAQs.",
@@ -108,6 +113,8 @@ class Tenant < ApplicationRecord
   has_many :communications, dependent: :destroy
   has_many :communication_templates, dependent: :destroy
   has_many :playbooks, dependent: :destroy
+  has_many :playbook_deploy_requests, dependent: :destroy
+  has_many :approval_events, dependent: :destroy
   has_many :visits, dependent: :destroy
   has_many :vm_missions, dependent: :destroy
   has_many :checklist_templates, dependent: :destroy

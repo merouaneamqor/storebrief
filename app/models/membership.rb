@@ -5,7 +5,7 @@ class Membership < ApplicationRecord
   # Area may monitor, escalate (coach verdicts), plan visits, and read scoped reports.
   CAPABILITIES = {
     "hq" => %i[
-      compose monitor escalate visits playbooks billing manage_org reports verdicts admin
+      compose monitor escalate visits playbooks billing manage_org reports verdicts admin approve
     ].freeze,
     "area" => %i[
       monitor escalate visits reports verdicts

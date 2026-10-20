@@ -6,4 +6,9 @@
     <%= link_to t("task_templates.title"), task_templates_path, class: "btn btn--ghost" %>
   </div>
 <% end %>
+<% if @communication.persisted? %>
+  <%= render "approvals/status", subject: @communication,
+        approve_path: approve_communication_path(@communication),
+        reject_path: reject_communication_path(@communication) %>
+<% end %>
 <%= render "form" %>

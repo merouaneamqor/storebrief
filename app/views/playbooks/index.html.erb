@@ -14,6 +14,9 @@
     <%= link_to closing_reports_playbooks_path, class: "btn btn--ghost" do %>
       <%= icon("trophy", css_class: "icon") %> <%= t("morocco.playbooks.closing.nav") %>
     <% end %>
+    <% if tenant_feature?(:send_approval) %>
+      <%= link_to t("approval.deploy_requests.nav"), playbook_deploy_requests_path, class: "btn btn--ghost" %>
+    <% end %>
     <%= link_to new_playbook_path, class: "btn btn--primary" do %>
       <%= icon("plus", css_class: "icon") %> <%= t("morocco.playbooks.new") %>
     <% end %>
@@ -149,7 +152,7 @@
         <div class="sticky-action">
           <button type="submit" class="btn btn--primary btn--block" :disabled="count === 0">
             <%= icon("send", css_class: "icon") %>
-            <%= t("morocco.playbooks.deploy") %>
+            <%= tenant_feature?(:send_approval) ? t("approval.submit") : t("morocco.playbooks.deploy") %>
           </button>
         </div>
       <% end %>

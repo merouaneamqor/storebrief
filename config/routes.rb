@@ -43,6 +43,8 @@ Rails.application.routes.draw do
     end
     member do
       post :send_brief
+      post :approve
+      post :reject
       post :notify_push
       post :stop_recurrence
       post :save_as_template
@@ -95,6 +97,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :playbook_deploy_requests, only: :index do
+    member do
+      post :approve
+      post :reject
+    end
+  end
   resources :playbooks, only: %i[index new create edit update destroy] do
     collection do
       get :campaigns

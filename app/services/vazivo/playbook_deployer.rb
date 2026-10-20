@@ -1,7 +1,9 @@
 module Vazivo
   class PlaybookDeployer
-    def self.deploy!(playbook:, author:, campaign_on:, org_unit_ids:, starts_on: nil, brief_fr: nil, brief_ar: nil)
+    def self.deploy!(playbook:, author:, campaign_on:, org_unit_ids:, starts_on: nil, brief_fr: nil, brief_ar: nil,
+                    request: nil)
       tenant = playbook.tenant
+      Approval.ensure_deployable!(tenant, request, playbook)
       targets = CampaignTargets.new(tenant, org_unit_ids)
       raise ArgumentError, I18n.t("errors.select_targets") if targets.empty?
 

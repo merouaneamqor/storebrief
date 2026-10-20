@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -155,6 +155,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
     t.index ["tenant_id"], name: "index_communication_templates_on_tenant_id"
   end
 
+  create_table "approval_events", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "subject_type", null: false
+    t.bigint "subject_id", null: false
+    t.bigint "actor_id"
+    t.string "kind", null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_approval_events_on_actor_id"
+    t.index ["subject_type", "subject_id"], name: "index_approval_events_on_subject"
+    t.index ["tenant_id"], name: "index_approval_events_on_tenant_id"
+  end
+
   create_table "communications", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.bigint "author_id", null: false
@@ -181,6 +194,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
     t.bigint "source_checklist_item_response_id"
     t.bigint "depends_on_communication_id"
     t.boolean "requires_approval", default: false, null: false
+    t.string "review_status"
+    t.bigint "reviewed_by_id"
+    t.datetime "reviewed_at"
+    t.text "review_note"
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["communication_template_id"], name: "index_communications_on_communication_template_id"
     t.index ["depends_on_communication_id"], name: "index_communications_on_depends_on_communication_id"
@@ -193,6 +210,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
     t.index ["source_delivery_id"], name: "index_communications_on_source_delivery_id"
     t.index ["source_delivery_id"], name: "index_communications_unique_corrective_source_delivery", unique: true, where: "((source_delivery_id IS NOT NULL) AND ((source)::text = 'corrective'::text))"
     t.index ["tenant_id", "status"], name: "index_communications_on_tenant_id_and_status"
+    t.index ["reviewed_by_id"], name: "index_communications_on_reviewed_by_id"
     t.index ["tenant_id"], name: "index_communications_on_tenant_id"
     t.index ["visit_id"], name: "index_communications_on_visit_id"
   end
@@ -411,6 +429,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
     t.index ["tenant_id", "store_format"], name: "index_org_units_on_tenant_id_and_store_format"
     t.index ["tenant_id", "unit_type"], name: "index_org_units_on_tenant_id_and_unit_type"
     t.index ["tenant_id"], name: "index_org_units_on_tenant_id"
+  end
+
+  create_table "playbook_deploy_requests", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "playbook_id", null: false
+    t.bigint "author_id", null: false
+    t.bigint "reviewed_by_id"
+    t.bigint "communication_id"
+    t.jsonb "deploy_params", default: {}, null: false
+    t.string "review_status", default: "pending_review", null: false
+    t.datetime "reviewed_at"
+    t.text "review_note"
+    t.datetime "deployed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_playbook_deploy_requests_on_author_id"
+    t.index ["communication_id"], name: "index_playbook_deploy_requests_on_communication_id"
+    t.index ["playbook_id"], name: "index_playbook_deploy_requests_on_playbook_id"
+    t.index ["reviewed_by_id"], name: "index_playbook_deploy_requests_on_reviewed_by_id"
+    t.index ["tenant_id"], name: "index_playbook_deploy_requests_on_tenant_id"
   end
 
   create_table "playbooks", force: :cascade do |t|
@@ -640,6 +678,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "approval_events", "tenants"
+  add_foreign_key "approval_events", "users", column: "actor_id", on_delete: :nullify
   add_foreign_key "checklist_deliveries", "checklists"
   add_foreign_key "checklist_deliveries", "org_units"
   add_foreign_key "checklist_deliveries", "users", column: "assignee_id"
@@ -661,6 +701,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
   add_foreign_key "communications", "playbooks", on_delete: :nullify
   add_foreign_key "communications", "tenants"
   add_foreign_key "communications", "users", column: "author_id"
+  add_foreign_key "communications", "users", column: "reviewed_by_id", on_delete: :nullify
   add_foreign_key "communications", "visits"
   add_foreign_key "deliveries", "communications"
   add_foreign_key "deliveries", "org_units"
@@ -693,6 +734,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_090000) do
   add_foreign_key "notification_logs", "users"
   add_foreign_key "org_units", "org_units", column: "parent_id"
   add_foreign_key "org_units", "tenants"
+  add_foreign_key "playbook_deploy_requests", "communications", on_delete: :nullify
+  add_foreign_key "playbook_deploy_requests", "playbooks"
+  add_foreign_key "playbook_deploy_requests", "tenants"
+  add_foreign_key "playbook_deploy_requests", "users", column: "author_id"
+  add_foreign_key "playbook_deploy_requests", "users", column: "reviewed_by_id", on_delete: :nullify
   add_foreign_key "playbooks", "tenants"
   add_foreign_key "pricing_audit_logs", "users"
   add_foreign_key "pricing_plan_versions", "pricing_plans"
