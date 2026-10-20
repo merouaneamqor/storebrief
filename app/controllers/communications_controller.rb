@@ -218,7 +218,7 @@ class CommunicationsController < ApplicationController
   end
 
   def load_target_units
-    @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
+    @target_units = tenant_scope.org_units.where(unit_type: %w[region area store]).order(:unit_type, :name)
   end
 
   def load_dependency_candidates

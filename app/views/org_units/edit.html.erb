@@ -1,0 +1,25 @@
+<% content_for :title, "#{t('org_units.edit_title')} · Vazivo" %>
+
+<h1><%= t("org_units.edit_title") %></h1>
+<p class="lede"><%= @org_unit.name %></p>
+
+<section class="panel">
+  <%= form_with model: @org_unit, url: org_unit_path(@org_unit), method: :patch do |f| %>
+    <% if @org_unit.errors.any? %>
+      <p class="flash flash--alert"><%= @org_unit.errors.full_messages.to_sentence %></p>
+    <% end %>
+    <p class="meta"><%= t("org_units.hint") %></p>
+    <p>
+      <%= f.label :store_format, t("org_units.format") %><br>
+      <%= f.text_field :store_format, maxlength: 60, placeholder: t("org_units.format_placeholder") %>
+    </p>
+    <p>
+      <%= f.label :cluster_key, t("org_units.cluster") %><br>
+      <%= f.text_field :cluster_key, maxlength: 60, placeholder: t("org_units.cluster_placeholder") %>
+    </p>
+    <p>
+      <%= f.submit t("org_units.save"), class: "btn" %>
+      <%= link_to t("org_units.cancel"), org_units_path, class: "btn btn--ghost" %>
+    </p>
+  <% end %>
+</section>

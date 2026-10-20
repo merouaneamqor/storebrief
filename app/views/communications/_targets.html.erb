@@ -4,7 +4,7 @@
 <% stores = units.select(&:store?) %>
 <% format_options = stores.map(&:store_format).compact_blank.uniq.sort %>
 <% cluster_options = stores.map(&:cluster_key).compact_blank.uniq.sort %>
-<% payload = units.map { |unit| { id: unit.id.to_s, name: unit.name, type: unit.unit_type, typeLabel: t("common.#{unit.unit_type}") } } %>
+<% payload = units.map { |unit| { id: unit.id.to_s, name: unit.name, type: unit.unit_type, typeLabel: t("common.#{unit.unit_type}"), storeFormat: unit.store_format.to_s, cluster: unit.cluster_key.to_s } } %>
 <section class="<%= embedded ? 'brief-targets-block' : 'brief-card' %>"
          x-data="briefTargets()"
          data-units="<%= h(payload.to_json) %>"
@@ -40,6 +40,7 @@
     <select class="brief-type" x-model="type" aria-label="<%= t('communications.filter_type') %>">
       <option value="all"><%= t("common.all") %></option>
       <option value="region"><%= t("common.region") %></option>
+      <option value="area"><%= t("common.area") %></option>
       <option value="store"><%= t("common.store") %></option>
     </select>
   </div>
@@ -77,6 +78,8 @@
         <input type="checkbox" :value="unit.id" x-model="selected">
         <span class="badge" x-text="unit.typeLabel"></span>
         <span x-text="unit.name"></span>
+        <span class="meta" x-show="unit.storeFormat" x-text="unit.storeFormat"></span>
+        <span class="meta" x-show="unit.cluster" x-text="unit.cluster"></span>
       </label>
     </template>
     <p class="empty" x-show="visible.length === 0" x-cloak><%= t("communications.no_matches") %></p>

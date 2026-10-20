@@ -11,7 +11,9 @@ class OrgUnit < ApplicationRecord
 
   validates :name, presence: true
   validates :unit_type, inclusion: { in: UNIT_TYPES }
+  validates :store_format, :cluster_key, length: { maximum: 60 }
   validate :parent_same_tenant
+  before_validation :normalize_store_attributes
 
   scope :regions, -> { where(unit_type: "region") }
   scope :areas, -> { where(unit_type: "area") }
@@ -31,6 +33,16 @@ class OrgUnit < ApplicationRecord
   end
 
   private
+
+  # Format and cluster only apply to stores; blank values are stored as nil.
+  def normalize_store_attributes
+    self.store_format = store_format.to_s.strip.presence
+    self.cluster_key = cluster_key.to_s.strip.presence
+    return if store?
+
+    self.store_format = nil
+    self.cluster_key = nil
+  end
 
   def collect_store_ids
     ids = []

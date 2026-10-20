@@ -17,7 +17,7 @@ class ChecklistsController < ApplicationController
                             )
                             .order(:id)
     @notifications = @checklist.notification_logs.includes(:user).order(created_at: :desc)
-    @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
+    @target_units = tenant_scope.org_units.where(unit_type: %w[region area store]).order(:unit_type, :name)
     if tenant_feature?(:morocco_ops)
       @store_visits = tenant_scope.visits.active
                                   .where(org_unit_id: @deliveries.map(&:org_unit_id))
