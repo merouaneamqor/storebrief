@@ -6,7 +6,7 @@ module Vazivo
       :store, :percent, :done, :total, :on_time_percent, :conforme, :previous_percent, :delta,
       keyword_init: true
     )
-    Result = Struct.new(:rows, :podium, :awards, :week_start, keyword_init: true)
+    Result = Struct.new(:rows, :podium, :awards, :week_start, :vm_rows, :vm_areas, keyword_init: true)
 
     def self.for(tenant, on: Schedule.now)
       new(tenant, on).call
@@ -40,11 +40,15 @@ module Vazivo
         )
       end
       active = rows.select { |row| row.total.positive? }
+      vm = VmScore.new(@tenant, week_start.to_date..(week_start + 6.days).to_date)
+      vm_rows = vm.call.values.sort_by { |score| [ -score.percent, score.store.name ] }
       Result.new(
         rows: active.sort_by { |row| [ -row.percent.to_i, row.store.name ] },
         podium: active.sort_by { |row| [ -row.percent.to_i, row.store.name ] }.first(3),
-        awards: awards_for(active),
-        week_start: week_start.to_date
+        awards: awards_for(active).merge(merchandising: vm_rows.first),
+        week_start: week_start.to_date,
+        vm_rows: vm_rows,
+        vm_areas: vm.areas
       )
     end
 
