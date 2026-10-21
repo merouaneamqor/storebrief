@@ -626,8 +626,18 @@ fr:
       awards:
         execution: "Meilleure exécution"
         vm: "Meilleure conformité"
+        merchandising: "Meilleur merchandising"
         improvement: "Meilleure progression"
         team: "Meilleure équipe"
+      vm:
+        title: "Score merchandising"
+        rules: "Conforme 100, à améliorer 60, non conforme 0. Une preuve rendue après l'échéance perd %{late} points ; une mission échue sans preuve validée vaut 0."
+        regional_title: "Comparaison régionale"
+        col_store: "Magasin"
+        col_score: "Score"
+        col_missions: "Missions"
+        col_area: "Zone"
+        col_stores: "Magasins"
     my_tasks:
       title: "Mes tâches"
       lede: "Travail ouvert pour les magasins que vous suivez."

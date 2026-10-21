@@ -626,8 +626,18 @@ en:
       awards:
         execution: "Best execution"
         vm: "Best compliance"
+        merchandising: "Best merchandising"
         improvement: "Best improvement"
         team: "Best team"
+      vm:
+        title: "Merchandising score"
+        rules: "Compliant 100, to improve 60, non-compliant 0. Proof after the deadline loses %{late} points; a mission past its deadline without approved proof scores 0."
+        regional_title: "Regional comparison"
+        col_store: "Store"
+        col_score: "Score"
+        col_missions: "Missions"
+        col_area: "Area"
+        col_stores: "Stores"
     my_tasks:
       title: "My tasks"
       lede: "Open work for the stores you manage."

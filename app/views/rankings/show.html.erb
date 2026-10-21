@@ -3,9 +3,10 @@
 <h1><%= t("morocco.ranking.title") %></h1>
 <p class="lede"><%= t("morocco.ranking.lede", week: l(@ranking.week_start, format: :short)) %></p>
 
-<% if @ranking.podium.empty? %>
+<% if @ranking.podium.empty? && @ranking.vm_rows.empty? %>
   <p class="empty"><%= t("morocco.ranking.empty") %></p>
 <% else %>
+  <% if @ranking.podium.any? %>
   <section class="panel">
     <h2><%= t("morocco.ranking.podium") %></h2>
     <ol class="podium">
@@ -19,11 +20,12 @@
       <% end %>
     </ol>
   </section>
+  <% end %>
 
   <section class="panel">
     <h2><%= t("morocco.ranking.awards_title") %></h2>
     <div class="award-grid">
-      <% %i[execution vm improvement team].each do |key| %>
+      <% %i[execution vm merchandising improvement team].each do |key| %>
         <% row = @ranking.awards[key] %>
         <% next unless row %>
         <article class="award-card">
@@ -32,6 +34,8 @@
           <span>
             <% if key == :improvement %>
               +<%= row.delta %>%
+            <% elsif key == :merchandising %>
+              <%= row.percent %>%
             <% elsif key == :vm %>
               <%= t("morocco.ranking.conforme_count", count: row.conforme) %>
             <% else %>
@@ -42,4 +46,55 @@
       <% end %>
     </div>
   </section>
+
+  <% if @ranking.vm_rows.any? %>
+    <section class="panel">
+      <h2><%= t("morocco.ranking.vm.title") %></h2>
+      <p class="meta"><%= t("morocco.ranking.vm.rules", late: Vazivo::VmScore::LATE_PENALTY) %></p>
+      <div class="table-scroll">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th><%= t("morocco.ranking.vm.col_store") %></th>
+              <th><%= t("morocco.ranking.vm.col_score") %></th>
+              <th><%= t("morocco.ranking.vm.col_missions") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @ranking.vm_rows.each do |score| %>
+              <tr>
+                <td><%= score.store.name %></td>
+                <td class="num"><%= score.percent %>%</td>
+                <td class="num"><%= score.scored %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2><%= t("morocco.ranking.vm.regional_title") %></h2>
+      <div class="table-scroll">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th><%= t("morocco.ranking.vm.col_area") %></th>
+              <th><%= t("morocco.ranking.vm.col_score") %></th>
+              <th><%= t("morocco.ranking.vm.col_stores") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @ranking.vm_areas.each do |area| %>
+              <tr>
+                <td><%= area.unit.name %></td>
+                <td class="num"><%= area.percent %>%</td>
+                <td class="num"><%= area.stores_count %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <% end %>
 <% end %>
