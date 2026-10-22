@@ -3,8 +3,10 @@ class Reports::Snapshot
   AGING_AFTER = 1.day
   CHART_LIMIT = 8
 
-  def initialize(tenant)
+  def initialize(tenant, date_range: nil, store_ids: nil)
     @tenant = tenant
+    @date_range = date_range
+    @store_ids = store_ids
   end
 
   def store_rows
@@ -140,7 +142,7 @@ class Reports::Snapshot
   end
 
   def stores
-    @stores ||= units.values.select(&:store?).sort_by(&:name)
+    @stores ||= units.values.select { |unit| unit.store? && (@store_ids.nil? || @store_ids.include?(unit.id)) }.sort_by(&:name)
   end
 
   def units
@@ -193,19 +195,24 @@ class Reports::Snapshot
   end
 
   def pending_briefs
-    Delivery.joins(:communication).where(communications: { tenant_id: @tenant.id, status: "sent" }, deliveries: { status: "pending" })
+    sent_briefs.where(deliveries: { status: "pending" })
   end
 
   def pending_checks
-    ChecklistDelivery.joins(:checklist).where(checklists: { tenant_id: @tenant.id, status: "sent" }, checklist_deliveries: { status: "pending" })
+    sent_checks.where(checklist_deliveries: { status: "pending" })
   end
 
   def sent_briefs
-    @sent_briefs ||= Delivery.joins(:communication).where(communications: { tenant_id: @tenant.id, status: "sent" })
+    @sent_briefs ||= filtered(Delivery.joins(:communication).where(communications: { tenant_id: @tenant.id, status: "sent" }))
   end
 
   def sent_checks
-    @sent_checks ||= ChecklistDelivery.joins(:checklist).where(checklists: { tenant_id: @tenant.id, status: "sent" })
+    @sent_checks ||= filtered(ChecklistDelivery.joins(:checklist).where(checklists: { tenant_id: @tenant.id, status: "sent" }))
+  end
+
+  def filtered(scope)
+    scope = scope.where(org_unit_id: stores.map(&:id))
+    @date_range ? scope.where(created_at: @date_range.times) : scope
   end
 
   def brief_total

@@ -2,6 +2,12 @@ class RankingsController < ApplicationController
   before_action -> { require_feature!(:morocco_ops) }
 
   def show
-    @ranking = Vazivo::Ranking.for(tenant_scope)
+    @date_range = Reports::DateRange.new(from: params[:from], to: params[:to],
+      default_from: Vazivo::Schedule.now.beginning_of_week.to_date,
+      default_to: Vazivo::Schedule.now.end_of_week.to_date)
+    store_ids = unless hq_user?
+      current_user.memberships.includes(:org_unit).flat_map { |membership| membership.org_unit.descendant_stores.ids }.uniq
+    end
+    @ranking = Vazivo::Ranking.for(tenant_scope, date_range: @date_range, store_ids: store_ids)
   end
 end

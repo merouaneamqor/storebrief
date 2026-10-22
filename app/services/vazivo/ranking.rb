@@ -8,20 +8,31 @@ module Vazivo
     )
     Result = Struct.new(:rows, :podium, :awards, :week_start, :vm_rows, :vm_areas, keyword_init: true)
 
-    def self.for(tenant, on: Schedule.now)
-      new(tenant, on).call
+    def self.for(tenant, on: Schedule.now, date_range: nil, store_ids: nil)
+      new(tenant, on, date_range: date_range, store_ids: store_ids).call
     end
 
-    def initialize(tenant, on)
+    def initialize(tenant, on, date_range: nil, store_ids: nil)
       @tenant = tenant
+      @date_range = date_range
+      @store_ids = store_ids
       @on = on.in_time_zone(Schedule::ZONE)
     end
 
     def call
       week_start = @on.beginning_of_week
-      current = scores(week_start...(week_start + 1.week))
-      previous = scores((week_start - 1.week)...week_start)
+      range = @date_range&.times || (week_start...(week_start + 1.week))
+      previous_range = if @date_range
+        days = (@date_range.to - @date_range.from).to_i + 1
+        Reports::DateRange.new(from: (@date_range.from - days).iso8601, to: (@date_range.from - 1).iso8601).times
+      else
+        (week_start - 1.week)...week_start
+      end
+      current = scores(range)
+      previous = scores(previous_range)
       rows = @tenant.org_units.stores.order(:name).filter_map do |store|
+        next if @store_ids && !@store_ids.include?(store.id)
+
         now_score = current.fetch(store.id, nil)
         next if now_score.nil?
 
@@ -40,13 +51,13 @@ module Vazivo
         )
       end
       active = rows.select { |row| row.total.positive? }
-      vm = VmScore.new(@tenant, week_start.to_date..(week_start + 6.days).to_date)
+      vm = VmScore.new(@tenant, @date_range&.dates || (week_start.to_date..(week_start + 6.days).to_date), store_ids: @store_ids)
       vm_rows = vm.call.values.sort_by { |score| [ -score.percent, score.store.name ] }
       Result.new(
         rows: active.sort_by { |row| [ -row.percent.to_i, row.store.name ] },
         podium: active.sort_by { |row| [ -row.percent.to_i, row.store.name ] }.first(3),
         awards: awards_for(active).merge(merchandising: vm_rows.first),
-        week_start: week_start.to_date,
+        week_start: range.begin.to_date,
         vm_rows: vm_rows,
         vm_areas: vm.areas
       )

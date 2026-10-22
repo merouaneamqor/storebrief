@@ -12,8 +12,9 @@ class PlaybooksController < ApplicationController
   end
 
   def campaigns
-    @dashboard = Vazivo::CampaignDashboard.for(current_tenant)
-    @regional = Vazivo::RegionalCampaigns.for(current_tenant)
+    @date_range = Reports::DateRange.new(from: params[:from], to: params[:to])
+    @dashboard = Vazivo::CampaignDashboard.for(current_tenant, date_range: @date_range)
+    @regional = Vazivo::RegionalCampaigns.for(current_tenant, date_range: @date_range)
   end
 
   def closing_reports
