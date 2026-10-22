@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>
+    <% if current_user && current_tenant %>
+      <meta name="task-proof-owner" content="<%= current_tenant.id %>:<%= current_user.id %>">
+    <% end %>
     <%= csp_meta_tag %>
     <%= yield :head %>
     <% if (favicon_src = tenant_brand_asset_src(current_tenant, :favicon)) %>
@@ -218,6 +221,8 @@
                 <span><%= t("nav.compose") %></span>
               <% end %>
             <% end %>
+            <p class="task-proof-sync meta" role="status" hidden
+               data-pending="<%= t('task_proof.queued') %>" data-error="<%= t('task_proof.sync_error') %>"></p>
             <div class="app-sidebar__foot"<% if tenant_feature?(:offline_checklists) %> x-data="offlineSync()" x-init="init()"<% end %>>
               <span class="app-sidebar__avatar" aria-hidden="true"><%= current_user.name.to_s.first(1).upcase %></span>
               <div class="app-sidebar__who">

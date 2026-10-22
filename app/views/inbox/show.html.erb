@@ -77,6 +77,7 @@
   <% end %>
 
   <%= render "communications/attachments", communication: @communication %>
+  <%= render "inbox/proof_gallery", delivery: @delivery %>
 
   <% if @delivery.dependency_blocked? %>
     <div class="flash flash--alert" role="status">
@@ -109,7 +110,7 @@
 
     <% if (step = @delivery.next_awareness_step) %>
       <%= form_with url: advance_inbox_path(@delivery), method: :post, multipart: true, class: "task-card__action",
-            data: { turbo_submits_with: t("morocco.sending") } do %>
+            data: { turbo_submits_with: t("morocco.sending"), task_proof: (step == "done" && @communication.task?), turbo: !(step == "done" && @communication.task?) } do %>
         <%= hidden_field_tag :step, step %>
         <% if step == "done" && @questions.any? %>
           <section class="task-card__answers">
@@ -161,7 +162,7 @@
             <% end %>
           </section>
         <% end %>
-        <% if step == "done" && @communication.requires_proof? %>
+        <% if step == "done" && @communication.task? %>
           <%= render "inbox/proof_fields", delivery: @delivery %>
         <% end %>
         <div class="sticky-action">
@@ -191,7 +192,8 @@
       </section>
     <% end %>
   <% elsif @delivery.pending? && !@delivery.dependency_blocked? %>
-    <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, multipart: true, class: "brief-answer-form" do %>
+    <%= form_with url: complete_inbox_path(@delivery), method: :post, local: true, multipart: true, class: "brief-answer-form", data: { task_proof: @communication.task?, turbo: !@communication.task? } do %>
+      <% if @communication.task? %><%= render "inbox/proof_fields", delivery: @delivery %><% end %>
       <% if @questions.any? %>
         <section class="task-card__answers">
           <h2 class="section-title"><%= t("inbox.answer_title") %></h2>

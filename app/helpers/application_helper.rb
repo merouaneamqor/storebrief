@@ -42,6 +42,9 @@ module ApplicationHelper
     payload = event.payload || {}
     case event.kind
     when "proof"
+      if payload["files"].to_i.positive?
+        return t("task_proof.file_count", count: payload["files"].to_i)
+      end
       t(
         "morocco.history.proof_detail",
         before: payload["photo_before"] || payload[:photo_before] ? t("morocco.history.attached") : t("morocco.history.missing"),

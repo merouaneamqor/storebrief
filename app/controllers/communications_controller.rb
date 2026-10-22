@@ -30,6 +30,7 @@ class CommunicationsController < ApplicationController
       :delivery_reads,
       photo_before_attachment: :blob,
       photo_after_attachment: :blob,
+      proof_files_attachments: :blob,
       delivery_answers: [ :communication_question, { image_attachment: :blob } ],
       delivery_events: :actor,
       delivery_comments: :user,
