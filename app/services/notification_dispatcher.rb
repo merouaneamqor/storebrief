@@ -15,8 +15,12 @@ class NotificationDispatcher
   def notify_communication!(communication)
     tenant = communication.tenant
     PushNotifier.notify_communication!(communication) if tenant.feature?(:push_alerts)
-    EmailNotifier.notify_communication!(communication) if tenant.feature?(:email_alerts)
-    WhatsappNotifier.notify_communication!(communication) if tenant.feature?(:whatsapp_alerts) && communication.task?
+    if tenant.feature?(:email_alerts) && (!communication.critical_broadcast? || communication.broadcast_email?)
+      EmailNotifier.notify_communication!(communication)
+    end
+    if tenant.feature?(:whatsapp_alerts) && (communication.task? || communication.critical_broadcast? && communication.broadcast_whatsapp?)
+      WhatsappNotifier.notify_communication!(communication)
+    end
   end
 
   def notify_checklist!(checklist)

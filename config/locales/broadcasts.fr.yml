@@ -1,0 +1,21 @@
+fr:
+  broadcasts:
+    title: "Diffusion critique"
+    help: "Épinglez cette annonce sur le radar du magasin jusqu’à sa lecture ou sa confirmation explicite. Le push est gratuit. Les emails de la plateforme et WhatsApp suivent les paramètres et la facturation de l’enseigne."
+    enable: "Envoyer comme diffusion critique"
+    require_ack: "Exiger une confirmation explicite du magasin"
+    email: "Envoyer aussi par email (envoi plateforme éventuellement facturé)"
+    whatsapp: "Envoyer aussi par WhatsApp (facturé, consentement requis)"
+    pinned: "Diffusions critiques"
+    pending_ack: "Confirmation du magasin attendue"
+    pending_read: "Lire cette annonce critique"
+    ack_help: "Confirmez que votre magasin a reçu et compris cette annonce. La lecture seule ne vaut pas confirmation."
+    acknowledge: "Confirmer pour mon magasin"
+    acknowledged: "Confirmé par le magasin"
+    not_allowed: "Cet utilisateur ne peut pas confirmer cette annonce."
+    notification: "Diffusion critique : %{title}\nOuvrez Vazivo pour lire et confirmer."
+    subject: "Diffusion critique : %{title}"
+  morocco:
+    history:
+      kinds:
+        acknowledged: "Confirmé par le magasin"

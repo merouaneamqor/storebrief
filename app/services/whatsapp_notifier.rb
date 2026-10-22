@@ -80,7 +80,9 @@ class WhatsappNotifier
   def message_for_communication(communication, user)
     locale = user.locale
     title = communication.localized_value(:title, locale: locale)
-    if locale == "ar"
+    if communication.critical_broadcast?
+      I18n.t("broadcasts.notification", title: title, locale: locale)
+    elsif locale == "ar"
       "مهمة جديدة: #{title}\nافتح Vazivo لإكمالها."
     else
       "Nouvelle tâche: #{title}\nOuvrez Vazivo pour la terminer."

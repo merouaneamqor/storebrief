@@ -1,7 +1,7 @@
 class DeliveryEvent < ApplicationRecord
   KINDS = %w[
     status awareness assignee verdict proof dependency_cleared comment
-    approval_submitted approval_approved approval_rejected read_receipt
+    approval_submitted approval_approved approval_rejected read_receipt acknowledged
   ].freeze
 
   belongs_to :tenant

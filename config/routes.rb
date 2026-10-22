@@ -88,6 +88,8 @@ Rails.application.routes.draw do
   get "push/vapid_public_key", to: "push_subscriptions#vapid_public_key"
   resource :push_subscription, only: %i[create destroy]
 
+  post "inbox/:delivery_id/acknowledgement", to: "broadcast_acknowledgements#create", as: :broadcast_acknowledgement
+
   resources :my_tasks, only: %i[index show]
   resources :newsfeeds, only: :index, path: "newsfeed"
   resources :inbox, only: %i[index show], controller: "inbox" do

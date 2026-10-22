@@ -175,6 +175,12 @@
           <div class="store-track__head">
             <div class="store-track__main">
               <strong class="store-track__name"><%= delivery.org_unit.name %></strong>
+              <% if morocco && @communication.acknowledgement_required? %>
+                <p class="meta">
+                  <%= t(delivery.acknowledged_at? ? "broadcasts.acknowledged" : "broadcasts.pending_ack") %>
+                  <% if delivery.acknowledged_at? %> · <%= l(delivery.acknowledged_at, format: :short) %><% end %>
+                </p>
+              <% end %>
               <div class="meta">
                 <% if morocco %>
                   <%= delivery.assignee&.name || t("morocco.owner.unassigned") %>
