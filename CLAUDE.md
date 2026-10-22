@@ -45,7 +45,11 @@ docker compose exec -T web bash -lc \
 
 ## Roadmap delivery
 
-Each session: sync GitHub Project/epics, pick Ready issues, implement (agents/worktrees), open PRs, merge when CI is green, verify Render `storebrief` deploys, then browser-QA on the `qa-vazivo` tenant (Cursor integrated browser). See `.cursor/rules/gh-epic-delivery.mdc`, `.cursor/skills/vazivo-gh-delivery/SKILL.md` (Phase 5b), and `.cursor/skills/vazivo-render-checks/SKILL.md`.
+Follow [vazivo-gh-delivery](.cursor/skills/vazivo-gh-delivery/SKILL.md).
+Sync once per batch, reuse setup and passing evidence, and default to one agent.
+Project access failures do not block user-authorized priority work. Preserve CI
+and merge checks; verify the final wave's deployment and report access limits.
+Load [browser setup](.cursor/skills/vazivo-gh-delivery/qa.md) only when needed.
 
 ## When unsure
 

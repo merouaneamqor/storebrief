@@ -1,108 +1,47 @@
 ---
 name: vazivo-render-checks
 description: >-
-  Checks and troubleshoots Render deploys for Vazivo/storebrief using the Render
-  CLI: list services, inspect deploy status, fetch failure logs, fix common
-  migration deploy breaks, and confirm live commits. Use when the user asks about
-  Render, deploys, production, live status, deploy failures, or after merging to
-  main.
+  Verify the final Vazivo/storebrief deployment SHA and diagnose observed Render
+  failures. Use for production questions or after a delivery wave's final merge.
 ---
 
-# Vazivo Render checks
+# Vazivo Render verification
 
-Primary app: **storebrief** on Render (auto-deploys from `main`).  
-CLI: `render` (v2+). Auth: `render whoami` / `render login`.
+App: `storebrief`, auto-deployed from `main`. Check once after the final merge in
+an authorized wave; repeat only for a failure, relevant change or user request.
+Load [reference.md](reference.md) for resource IDs or migration failure guidance.
 
-Resource IDs and status meanings: [reference.md](reference.md).
+## Access and status
 
-## When to run
-
-- User asks to check Render / deploys / production
-- After squash-merge to `main` (pair with **vazivo-gh-delivery**)
-- Deploy shows `update_failed` / `build_failed`
-
-## Checklist
-
-```
-Render:
-- [ ] render whoami OK
-- [ ] Latest storebrief deploy status + commit
-- [ ] If failed: pull logs, identify root cause
-- [ ] Fix on main (prefer idempotent migrations)
-- [ ] Confirm new deploy is live on expected SHA
-```
-
-## Phase 1 — Status
+Prefer configured Render tools; otherwise use the CLI. Probe access once. Install
+a CLI only if needed and credentials are known available; never print secrets or
+start interactive login automatically. If access is unavailable, report once,
+cache that result and continue repository work. Retry on an access change or
+explicit user retry.
 
 ```bash
+# CLI fallback, when configured:
 render whoami
-render services -o text
 render deploys list srv-dat4n4p42hec73fg8ksg -o json
 ```
 
-Summarize the latest few deploys: **status**, commit SHA + subject, trigger, finishedAt.
+Compare the latest deployment's SHA with the intended final `main` SHA. Summarize
+status and SHA only. For an active build/deploy, use one watcher or 30–60s polling;
+avoid repeated service discovery. Slow startup alone does not justify cancellation,
+restart or redeploy.
 
-Healthy after a merge: newest deploy `live` (or `build_in_progress` / `update_in_progress` then poll) on the expected `main` SHA.
+## Diagnose an observed failure
 
-## Phase 2 — Failure logs
+On `build_failed` / `update_failed`, fetch bounded logs for that deploy's time
+window. Identify the cause before editing or retrying. Inspect deployed migration
+versions when relevant; preserve existing data and avoid renaming applied migrations.
+Use the normal branch/PR/CI workflow for fixes, then verify the resulting deploy.
+Manual redeploy needs a concrete reason and existing authorization.
 
-On `update_failed` / `build_failed`:
+## Report evidence precisely
 
-```bash
-# Window around deploy start/finish from the deploy JSON
-render logs -r srv-dat4n4p42hec73fg8ksg \
-  --start <ISO> --end <ISO> --limit 200 -o text
-```
-
-Search for: `Migrating to`, `rails aborted`, `PG::`, `DuplicateColumn`, `DuplicateMigration`, `Exited with status`.
-
-Also check cron if relevant: `storebrief-push-reminders` (`crn-datptpmk1f9s7397mo90`).
-
-## Phase 3 — Common fixes (this app)
-
-### Duplicate migration timestamp / rename
-
-Renaming a migration that **already ran in prod** makes Rails treat it as new → `PG::DuplicateColumn` (or similar).
-
-**Do:**
-
-1. Make the renamed migration **idempotent** (`return if column_exists?(:table, :col)`).
-2. If another migration reused the old version number, give it a **new** timestamp so it is not skipped behind the existing `schema_migrations` row.
-3. Bump `db/schema.rb` version; commit; push `main`; poll deploy until `live`.
-
-### Migration already applied under old version
-
-Never rely on filename alone. Check whether the **version** is already in `schema_migrations` on Render (symptoms: column exists but new file with same version never runs, or renamed file re-runs).
-
-### Build failures
-
-Read build logs the same way; fix Dockerfile / assets / `dartsass` / bundle as indicated. Do not force-push `main`.
-
-## Phase 4 — Poll until settled
-
-```bash
-# Repeat until status is live | update_failed | build_failed | canceled
-render deploys list srv-dat4n4p42hec73fg8ksg -o json
-```
-
-Report: live SHA vs `git rev-parse origin/main`, and whether the merge is actually in production.
-
-## Phase 5 — Optional actions
-
-```bash
-# Manual redeploy (only if user asks or auto-deploy stuck)
-render deploys create srv-dat4n4p42hec73fg8ksg
-
-# Recent app logs
-render logs -r srv-dat4n4p42hec73fg8ksg --limit 100 -o text
-```
-
-Do **not** restart/redeploy destructively without a clear reason.
-
-## Report format
-
-| Service | Latest status | Commit | Note |
-|---------|---------------|--------|------|
-| storebrief | live / failed / in progress | `abc1234` subject | … |
-
-If failed: root cause one-liner + fix PR/commit link.
+Report `live` only for a confirmed matching deployment SHA. A public `/up` response
+or new asset does not establish which commit is live. A timed-out health request
+alone does not establish an outage; use a bounded retry when needed. Distinguish
+merged code, local/CI results, public health and production verification. If access
+is missing, state that the production commit remains unverified.

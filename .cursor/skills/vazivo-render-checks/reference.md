@@ -69,3 +69,16 @@ end
 - Repo: `merouaneamqor/storebrief`
 - Auto-deploy on push to `main`
 - After merge wave: compare `origin/main` tip to the `live` deploy commit id
+
+## Migration failure diagnosis
+
+- Read the failed deployment's bounded logs before changing a migration.
+- A renamed, already-applied migration can rerun and cause `DuplicateColumn`.
+  Check actual `schema_migrations` versions; do not infer history from filenames.
+- If a timestamp was reused for a different migration, give the new migration a
+  unique timestamp so Rails does not silently skip it.
+- An intentional correction for a previously applied schema change may need
+  `column_exists?` / `table_exists?` guards. Do not use guards to hide an unknown
+  schema mismatch. Regenerate `db/schema.rb` and test the correction.
+- Deliver fixes through a feature branch and PR with required CI; verify the new
+  deployment against its expected SHA. Do not push directly to `main` by default.

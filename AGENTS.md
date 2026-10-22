@@ -82,9 +82,8 @@ docker compose exec -T web bash -lc \
   'RAILS_ENV=test DATABASE_URL=postgres://store_brief:store_brief@db:5432/store_brief_test \
    bundle exec cucumber --tags "not @javascript"'
 
-# Browser tests (Playwright, e2e/): needs the app on :3001 and the QA tenant
-docker run --rm --network host --ipc=host --user 1000:1000 -e HOME=/tmp -v "$PWD/e2e:/e2e" -w /e2e \
-  mcr.microsoft.com/playwright:v1.57.0-noble bash -lc 'npm ci && npx playwright test'
+# Browser tests (Playwright, e2e/): reuse an installed browser/runtime;
+# setup and role checks: .cursor/skills/vazivo-gh-delivery/qa.md
 ```
 
 Demo password: `password`. Atlas HQ: `hq@atlas.test` (slug `atlas`). See README for more accounts.
@@ -93,14 +92,18 @@ Demo password: `password`. Atlas HQ: `hq@atlas.test` (slug `atlas`). See README 
 
 ## Delivery process (GitHub)
 
-Roadmap work uses GitHub epics → Ready issues → feature branches/subagents → PR → CI → squash-merge → Project **Done** → Render check → **browser QA**.
+Roadmap work follows the delivery skill below. Reuse session state and runtime setup;
+default to one agent, with optional parallel work for substantial independent issues.
 
 - Always-on rule: [`.cursor/rules/gh-epic-delivery.mdc`](.cursor/rules/gh-epic-delivery.mdc)
-- Full skill: [`.cursor/skills/vazivo-gh-delivery/SKILL.md`](.cursor/skills/vazivo-gh-delivery/SKILL.md) (Phase 5b = Cursor browser QA on `qa-vazivo`)
+- Full skill: [`.cursor/skills/vazivo-gh-delivery/SKILL.md`](.cursor/skills/vazivo-gh-delivery/SKILL.md)
+- Browser setup: [`.cursor/skills/vazivo-gh-delivery/qa.md`](.cursor/skills/vazivo-gh-delivery/qa.md)
 - Render skill: [`.cursor/skills/vazivo-render-checks/SKILL.md`](.cursor/skills/vazivo-render-checks/SKILL.md)
 - Board: [Vazivo Capability Roadmap](https://github.com/users/merouaneamqor/projects/6)
 
-At session start, sync the board with `gh` before inventing work. After merges to `main`, verify the Render `storebrief` deploy, then smoke-test in the integrated browser on the QA tenant.
+Sync GitHub once per batch; cache inaccessible services and follow user-authorized
+priorities when Project access is unavailable. Run relevant QA once for validated
+content and verify the final wave's Render SHA. Report unavailable checks accurately.
 
 ## Do / don't
 
@@ -124,4 +127,5 @@ At session start, sync the board with `gh` before inventing work. After merges t
 
 - Commit only when asked; message focuses on **why**.
 - Do not amend commits you did not create in the current session, or already-pushed commits, unless asked.
-- After substantive Ruby/ERB/SCSS changes, run the relevant tests and `dartsass:build` locally via Compose.
+- Run relevant application tests via Compose; build assets when inputs change or artifacts are missing.
+- For documentation-only edits, validate accuracy, links, commands and whitespace without running application suites.
