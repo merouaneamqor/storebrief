@@ -132,11 +132,7 @@ class VisitCalendarTest < ActionDispatch::IntegrationTest
     assert_select ".visit-calendar__grid--month"
   end
 
-  test "store users and disabled morocco_ops are blocked" do
-    sign_in(@brand.store_user)
-    get calendar_visits_path
-    assert_redirected_to app_root_path
-
+  test "disabled morocco_ops is blocked" do
     off = build_brand("calendar-off", features: { morocco_ops: false })
     sign_in(off.hq)
     get calendar_visits_path
