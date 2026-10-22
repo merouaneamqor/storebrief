@@ -1,156 +1,96 @@
 ---
 name: vazivo-gh-delivery
 description: >-
-  Runs the Vazivo GitHub epic delivery loop: sync Project/epics/issues with gh,
-  pick Ready tasks, launch parallel subagents per issue, open PRs, rebase through
-  conflicts, squash-merge when CI is green, and mark Project Done. Use at session
-  start, when continuing roadmap/P0/P1/P2 work, when organizing epics, or when
-  the user asks to check tickets, ship issues, or merge PRs.
+  Deliver Vazivo roadmap issues through scoped implementation, verification,
+  PRs and authorized merges. Reuse session state and runtime setup; delegate
+  only when useful. Use for continuing roadmap work or shipping tracked issues.
 ---
 
-# Vazivo GitHub epic delivery
+# Vazivo delivery
 
-Repo: `merouaneamqor/storebrief`  
-Project: [Vazivo Capability Roadmap](https://github.com/users/merouaneamqor/projects/6) (owner `merouaneamqor`, number `6`)
+Repo: `merouaneamqor/storebrief` · [Project #6](https://github.com/users/merouaneamqor/projects/6).
+Read `AGENTS.md` once for product constraints. Reuse instructions already in context.
+Load [reference.md](reference.md) only for commands or Project IDs, and
+[qa.md](qa.md) only for browser setup. This workflow adds no approval gates;
+honor the user's scope and existing authorization.
 
-For field IDs, labels, and issue body templates see [reference.md](reference.md).
+## 1. Sync once, then read changes
 
-## Session checklist
+- Reuse the confirmed checkout, runtime and ongoing task state on follow-ups.
+- Fetch compact open issue/PR metadata and Project items once. Fetch full bodies
+  only for candidates. Cache issue/PR IDs, heads, checks and access failures.
+  Refresh affected records after pushes/merges; resync the backlog for a new batch.
+- Probe each required service once. Cache permission denials; retry after an
+  access change or an explicit user retry. Prefer an available connector; use
+  `gh`/REST when the required operation is unavailable there. Never print secrets
+  or start interactive authentication automatically.
+- If Project access is denied, continue authorized repository work. Follow a
+  user-named issue or priority instruction without inventing a `Ready` status.
+  Ask only if a missing decision actually blocks selection.
 
-Copy and track:
+GitHub is the source of truth. Keep local state small; avoid a second backlog.
 
-```
-Delivery:
-- [ ] Auth/scopes OK (repo + project)
-- [ ] Synced epics/Ready/In progress/open PRs
-- [ ] Chose N Ready issues (no file overlap)
-- [ ] Agents/branches/worktrees started
-- [ ] Each issue: comment + In progress
-- [ ] PRs open, CI green
-- [ ] Rebased if DIRTY after sibling merges
-- [ ] Squash-merged + issues closed + Done
-- [ ] Render live on expected SHA
-- [ ] Browser QA on QA tenant (pass/fail notes)
-```
+## 2. Select and implement
 
-## Phase 0 — Prerequisites
+- Prefer Ready children, ordered P0 → P1 → P2, then dependencies and impact.
+  Before coding, compare acceptance criteria with current code and merged PRs.
+  Close already-fulfilled tickets with evidence; close an epic only when all its
+  requirements and children are complete.
+- Default to one agent. Delegate only substantial, independent issues when the
+  benefit exceeds setup/review cost; normally at most 2–3 concurrent issues.
+- One issue per feature branch. Use separate worktrees and test databases for
+  parallel work. Plan shared files, migration timestamps and merge order first.
+- A delegate receives the issue, acceptance criteria, owned paths, branch,
+  shared runtime/test commands and finish line. Return a concise diff summary,
+  test evidence, SHA and PR URL; avoid full-history duplication when a focused
+  handoff suffices.
+- Record pickup once; set Project `In progress` when accessible. Extend existing
+  services and follow `AGENTS.md`. Reuse one dependency image across worktrees.
 
-```bash
-gh auth status
-gh project list --owner merouaneamqor
-# If project write fails:
-# gh auth refresh -h github.com -s read:project,project
-```
+## 3. Verify proportionately
 
-## Phase 1 — Sync (every session)
+- Documentation-only edits: check accuracy, links, commands and whitespace.
+  Application changes: focused behavior tests and lint for changed code; build
+  assets when affected. Exercise tenant/role boundaries and relevant locales.
+- For a multi-issue wave, run combined regression/browser coverage once after
+  integration when cross-module risk warrants it. Skip a full baseline unless
+  needed to diagnose existing failures. Reuse valid passing evidence; rerun
+  only checks affected by subsequent changes or unresolved failures.
+- For UI/permission changes, check affected HQ/area/store flows, FR/AR RTL and
+  phone layout. Prefer existing Playwright coverage or the available browser.
+  Capture screenshots for failures or visual review, not every passing step.
 
-```bash
-gh issue list --repo merouaneamqor/storebrief --state open --label epic --limit 30
-gh issue list --repo merouaneamqor/storebrief --state open --label P0 --limit 40
-gh pr list --repo merouaneamqor/storebrief --state open --limit 20
-gh project item-list 6 --owner merouaneamqor --limit 50
-```
+## 4. PR, CI and merge
 
-Summarize for the user: epics open, Ready count, In progress, open PRs, blockers.
+- Open a focused PR with `Closes #N` and actual validation. Follow the requested
+  finish line; continue an established delivery workflow through authorized merge.
+- Monitor CI once per head with one watcher (30–60s interval), not repeated full
+  status dumps. Inspect failed-job logs before changing code or retrying.
+- Slow dependency downloads are not proof of a hang. Do not cancel based on
+  elapsed time alone. Retry only a failed/cancelled job, or recover a confirmed
+  infrastructure stall; preserve successful jobs and avoid competing reruns.
+- Before squash-merge, verify the expected head and mergeability; require all
+  applicable CI checks to pass, including every required check.
+  Wait for expected jobs to register; missing checks are not passing CI.
+  Merge sequentially. Wait for GitHub to recalculate an unknown/stale state.
+  Update a branch only for a real conflict or required base update; prefer merging
+  `origin/main` to rewriting published history. Preserve additive changes and
+  regenerate schema when appropriate; run affected checks after resolution.
 
-**Do not** create a shadow backlog in chat-only todos. GitHub is source of truth.
+## 5. Close and report
 
-## Phase 2 — Organize (only if board empty / user asks)
+Confirm issue closure and Project `Done` when accessible; sync the local checkout.
+After the final merge in a wave, use `vazivo-render-checks` once for the final SHA.
+Reuse browser evidence when the merged result matches the validated content.
+Report merged PRs, test results and actual blockers concisely. Distinguish local
+QA, GitHub CI, public health and a verified production commit. Never claim
+inaccessible Project updates or production verification; continue independent
+work when a service is unavailable.
 
-1. Ensure labels: `P0` `P1` `P2` `epic` `task` `module:*` `status:exists|partial|missing`
-2. Milestones: `P0 — Core Vazivo`, `P1 — Competitive parity`, `P2 — Platform`
-3. Epics = parent issues (`epic` label); children = `task` with Parent `#epic` in body
-4. Add all to Project; set Priority + Module fields; Status `Backlog` or `Ready`
-5. Capability parity only — no YOOBIC branding/UI/copy
+## 6. Improve from evidence
 
-## Phase 3 — Select work
-
-Pick **3–4 independent Ready** children (prefer P0). Avoid overlapping files:
-
-| Safe parallel slices | Avoid colliding on |
-|----------------------|--------------------|
-| New models/controllers | Same `schema.rb` migration time |
-| Distinct `Vazivo::` services | Same locale keys / same partial |
-| Separate view trees | `icon_helper.rb` / `_morocco.scss` without merge plan |
-
-Mark each **In progress** on Project; comment: `Picked up by agent for implementation.`
-
-## Phase 4 — Execute (subagents)
-
-One Task subagent (or one focused thread) **per issue**:
-
-- Branch: `feature/<issue>-short-slug` from latest `main`
-- Prefer **git worktree** (`../draft-wt-<n>`) when multiple agents share the machine
-- Implement MVP matching acceptance criteria; extend `Vazivo::` / existing models
-- Tests: Docker Compose (see AGENTS.md); locales FR/EN/ES/AR; tenant_scope; `morocco_ops` when needed
-- `gh pr create` with body `Closes #<n>` or `Fixes #<n>`
-- Comment PR URL on the issue
-
-Subagent prompt must include: issue number, acceptance criteria, code anchors, out-of-scope, branch name, worktree note, “do not touch sibling agents’ files.”
-
-## Phase 5 — Merge path (do not stop early)
-
-When user wants ship/merge (default for “continue delivery”):
-
-1. `gh pr checks <n>` — all SUCCESS
-2. `mergeable` + `mergeStateStatus: CLEAN`
-3. If `DIRTY`/`CONFLICTING` after another merge:
-   - `git fetch && git rebase origin/main`
-   - Resolve keeping **both** sides when additive (icons, SCSS blocks, locale keys, schema columns)
-   - For `schema.rb`: keep latest `version`, union tables/columns/FKs from both
-   - `git push --force-with-lease`
-4. `gh pr merge <n> --squash --delete-branch`
-5. Merge **sequentially** when PRs touch shared files; wait for GitHub to recalculate between merges
-6. Close issue if not auto-closed; set Project status **Done**
-7. `git checkout main && git pull`
-8. **Render** — follow **vazivo-render-checks**: confirm `storebrief` deploy is `live` on the new SHA; if `update_failed`, fix migrations/logs and redeploy via push
-9. **Browser QA** — follow Phase 5b before declaring the wave done
-
-## Phase 5b — Browser QA (Cursor integrated browser)
-
-After merges (or before marking Project Done on user-facing work), smoke-test on the dedicated **QA tenant**.
-
-### QA tenant
-
-Slug: `qa-vazivo` · password: `password`
-
-| Role | Email |
-|------|-------|
-| HQ | `hq@qa-vazivo.test` |
-| Area | `area@qa-vazivo.test` |
-| Store | `store@qa-vazivo.test` |
-
-Ensure / recreate locally:
-
-```bash
-docker compose run --rm --no-deps \
-  -e RAILS_ENV=development \
-  -e DATABASE_URL=postgres://store_brief:store_brief@db:5432/store_brief_development \
-  web bash -lc 'bin/rails db:migrate && bin/rails runner script/qa_tenant.rb'
-```
-
-Target URL: local `http://localhost:3001` (Compose / preview). Prefer local over Render for interactive QA; still verify Render deploy SHA separately.
-
-### Smoke checklist (Cursor browser)
-
-Use `cursor-ide-browser`: navigate → lock → snapshot → interact → screenshot on failures.
-
-1. **Login HQ** (`qa-vazivo` / `hq@qa-vazivo.test`) → accept privacy if prompted → `/app` loads without 500
-2. **My Tasks / nav** — HQ or store sees expected morocco_ops chrome (no Darija, no YOOBIC)
-3. **HQ compose targets** — filters for role / format / cluster + dry-run preview when #34-shipped
-4. **Templates** — `/templates` lists; new/edit audit template sections/questions when #43-shipped
-5. **Area login** (`area@qa-vazivo.test`) → area summary + store status table + open a store radar
-6. **Store login** (`store@qa-vazivo.test`) → radar / My Tasks / inbox open without HQ leak
-7. Note **pass / fail** per role in the delivery report; file a GitHub issue for any fail (do not silently skip)
-
-## Phase 6 — Report
-
-Return a table: Issue | PR | Merged? | Notes. Include Browser QA pass/fail. Point at next Ready items.
-
-## Anti-patterns
-
-- Implementing without an issue number
-- Parallel agents on the same branch/checkout without worktrees
-- Leaving PRs open when the user asked to merge
-- Force-push to `main`
-- Restoring WhatsApp intake / Darija / YOOBIC clone UX
+At delivery close, review friction using evidence already collected. For an
+actionable lesson or user correction, follow [improvement.md](improvement.md) and
+apply a small, validated workflow update through the authorized branch/PR flow.
+Otherwise skip extra reads and edits. Run at most one improvement pass per batch;
+retain merge, security and product checks.
