@@ -1,0 +1,16 @@
+<aside class="attention-banner" role="status">
+  <%= icon("alert-triangle", css_class: "icon") %>
+  <div>
+    <strong><%= t("broadcasts.title") %></strong>
+    <% if delivery.communication.acknowledgement_required? %>
+      <% if delivery.acknowledged_at? %>
+        <p><%= t("broadcasts.acknowledged") %> · <%= l(delivery.acknowledged_at, format: :short) %></p>
+      <% else %>
+        <p><%= t("broadcasts.ack_help") %></p>
+        <%= button_to t("broadcasts.acknowledge"), broadcast_acknowledgement_path(delivery), class: "btn btn--primary" %>
+      <% end %>
+    <% else %>
+      <p><%= t("broadcasts.pending_read") %></p>
+    <% end %>
+  </div>
+</aside>

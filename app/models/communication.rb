@@ -72,6 +72,7 @@ class Communication < ApplicationRecord
   end
 
   before_validation :apply_source_default
+  before_validation :normalize_broadcast
   before_validation :apply_priority_default
   before_validation :clear_recurrence_unless_task
   before_validation :clear_dependency_unless_task
@@ -89,6 +90,10 @@ class Communication < ApplicationRecord
 
   def announcement?
     format == "announcement"
+  end
+
+  def acknowledgement_required?
+    critical_broadcast? && requires_acknowledgement?
   end
 
   def attachments?
@@ -240,9 +245,22 @@ class Communication < ApplicationRecord
     self.review_note = nil
   end
 
-  # Only tasks carry a priority; notes are always routine.
+  def normalize_broadcast
+    self.critical_broadcast = false unless announcement? && tenant&.feature?(:morocco_ops)
+    unless critical_broadcast?
+      self.requires_acknowledgement = false
+      self.broadcast_email = false
+      self.broadcast_whatsapp = false
+    end
+  end
+
+  # Critical announcements are always urgent; other notes remain routine.
   def apply_priority_default
-    self.priority = DEFAULT_PRIORITY if priority.blank? || !task?
+    if critical_broadcast?
+      self.priority = "urgent"
+    elsif priority.blank? || !task?
+      self.priority = DEFAULT_PRIORITY
+    end
   end
 
   def clear_recurrence_unless_task

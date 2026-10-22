@@ -9,6 +9,7 @@ class Delivery < ApplicationRecord
   belongs_to :communication
   belongs_to :org_unit
   belongs_to :assignee, class_name: "User", optional: true
+  belongs_to :acknowledged_by, class_name: "User", optional: true
   belongs_to :validated_by, class_name: "User", optional: true
   belongs_to :dependency_cleared_by, class_name: "User", optional: true
   has_many :delivery_answers, dependent: :destroy
@@ -102,6 +103,26 @@ class Delivery < ApplicationRecord
     transaction do
       update!(attrs)
       record_user_read!(by) if by
+    end
+    self
+  end
+
+  # Explicit store acknowledgement is distinct from a per-user read receipt.
+  # Locking preserves the first actor and timestamp when requests are retried.
+  def acknowledge!(by:)
+    unless communication.sent? && communication.acknowledgement_required? &&
+           communication.tenant.feature?(:morocco_ops) && by&.tenant_id == communication.tenant_id &&
+           by.memberships.exists?(org_unit_id: org_unit_id, role: "store")
+      raise ArgumentError, I18n.t("broadcasts.not_allowed")
+    end
+
+    with_lock do
+      return self if acknowledged_at.present?
+
+      mark_read!(by: by) unless finished?
+      record_user_read!(by)
+      update!(acknowledged_at: Time.current, acknowledged_by: by)
+      record_event!("acknowledged", {}, actor: by)
     end
     self
   end

@@ -168,6 +168,19 @@
           </div>
         </section>
 
+        <% if tenant_feature?(:morocco_ops) %>
+          <section class="brief-settings__block" x-show="format === 'announcement'" x-cloak>
+            <h3><%= t("broadcasts.title") %></h3>
+            <p class="meta"><%= t("broadcasts.help") %></p>
+            <% { critical_broadcast: "enable", requires_acknowledgement: "require_ack", broadcast_email: "email", broadcast_whatsapp: "whatsapp" }.each do |field, label| %>
+              <label class="brief-choice">
+                <%= f.check_box field, "x-bind:disabled": "format !== 'announcement'" %>
+                <span><%= t("broadcasts.#{label}") %></span>
+              </label>
+            <% end %>
+          </section>
+        <% end %>
+
         <section class="brief-settings__block" x-show="format === 'announcement' || format === 'task'" x-cloak>
           <h3><%= t("communications.attachments") %></h3>
           <p class="meta"><%= t("communications.attachments_help") %></p>

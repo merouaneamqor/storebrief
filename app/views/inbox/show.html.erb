@@ -35,7 +35,7 @@
     <% end %>
   </header>
 
-  <% if morocco %>
+  <% if morocco && !@communication.critical_broadcast? %>
     <% current_step = @delivery.next_awareness_step %>
     <ol class="stepper" aria-label="<%= t('morocco.awareness.title') %>">
       <% Delivery::AWARENESS_STEPS.each do |step| %>
@@ -78,6 +78,7 @@
 
   <%= render "communications/attachments", communication: @communication %>
   <%= render "inbox/proof_gallery", delivery: @delivery %>
+  <%= render "broadcasts/acknowledgement", delivery: @delivery if morocco && @communication.critical_broadcast? %>
 
   <% if @delivery.dependency_blocked? %>
     <div class="flash flash--alert" role="status">
@@ -88,6 +89,8 @@
         <p class="meta"><%= link_to @communication.depends_on_communication.title, inbox_path(parent_delivery) %></p>
       <% end %>
     </div>
+  <% elsif @communication.acknowledgement_required? %>
+    <%# Explicit acknowledgement is shown above, separate from the read stepper. %>
   <% elsif morocco %>
     <% if @delivery.pending_approval? %>
       <div class="flash flash--notice" role="status">

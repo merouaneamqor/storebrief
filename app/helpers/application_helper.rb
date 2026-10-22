@@ -62,6 +62,8 @@ module ApplicationHelper
       [ verdict.present? ? t("morocco.verdict.#{verdict}", default: verdict.to_s) : "-", note.presence ].compact.join(" · ")
     when "dependency_cleared"
       t("morocco.dependency.cleared_event")
+    when "acknowledged"
+      t("broadcasts.acknowledged")
     when "comment"
       payload["body_preview"] || payload[:body_preview] || "-"
     else

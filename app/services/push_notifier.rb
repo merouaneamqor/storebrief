@@ -225,7 +225,9 @@ class PushNotifier
   def copy_for_communication(communication, user)
     locale = user.locale
     title = communication.localized_value(:title, locale: locale)
-    if communication.task?
+    if communication.critical_broadcast?
+      [ I18n.t("broadcasts.title", locale: locale), title.to_s ]
+    elsif communication.task?
       if locale == "ar"
         [ "مهمة جديدة", title.to_s ]
       elsif locale == "es"
