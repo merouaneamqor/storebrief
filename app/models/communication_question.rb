@@ -1,7 +1,7 @@
 class CommunicationQuestion < ApplicationRecord
   include Bilingual
 
-  TYPES = %w[short_text long_text single_choice multi_choice dropdown image].freeze
+  TYPES = %w[short_text long_text single_choice multi_choice dropdown image number date rating yes_no_na].freeze
   CHOICE_TYPES = %w[single_choice multi_choice dropdown].freeze
 
   belongs_to :communication
@@ -10,6 +10,7 @@ class CommunicationQuestion < ApplicationRecord
   validates :title_fr, presence: true
   validates :question_type, inclusion: { in: TYPES }
   validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :weight, numericality: { greater_than: 0, less_than: 1_000_000 }
   validate :options_shape
   validate :communication_is_draft, on: %i[create update]
 

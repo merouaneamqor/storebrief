@@ -53,6 +53,7 @@ document.addEventListener("alpine:init", () => {
       const type = question.question_type || question.questionType || "short_text"
       const options = Array.isArray(question.options) && question.options.length
         ? question.options.map((option) => ({
+          correct: option.correct === true,
           label_fr: option.label_fr || option.labelFr || "",
           label_ar: option.label_ar || option.labelAr || ""
         }))
@@ -62,6 +63,7 @@ document.addEventListener("alpine:init", () => {
         id: question.id || null,
         clientId: question.clientId || question.client_id || `q-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         question_type: type,
+        weight: question.weight ?? 1,
         title_fr: question.title_fr || question.titleFr || "",
         title_ar: question.title_ar || question.titleAr || "",
         required: Boolean(question.required),

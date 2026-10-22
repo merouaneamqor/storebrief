@@ -10,6 +10,8 @@ class ChecklistTemplate < ApplicationRecord
   validates :category, inclusion: { in: CATEGORIES }
   validates :title_fr, presence: true
   validate :question_keys_must_be_unique
+  validate :typed_question_definitions
+
 
 
   bilingual_fields :title, :description
@@ -61,6 +63,8 @@ class ChecklistTemplate < ApplicationRecord
           "key" => key,
           "title_fr" => title_fr,
           "title_ar" => row[:title_ar].to_s.strip.presence,
+          "question_type" => row[:question_type].presence || "short_text",
+          "weight" => row[:weight].presence || 1,
           "required" => !!ActiveModel::Type::Boolean.new.cast(required),
           "requires_photo" => !!ActiveModel::Type::Boolean.new.cast(photo)
         }
@@ -108,6 +112,15 @@ class ChecklistTemplate < ApplicationRecord
   private_class_method :normalize_key, :normalize_show_if, :item_rows
 
   private
+
+  def typed_question_definitions
+    question_defs.each do |question|
+      type = question[:question_type].presence || "short_text"
+      weight = question[:weight].presence || 1
+      valid_weight = weight.to_s.match?(/\A\d+(?:\.\d{1,2})?\z/) && weight.to_d.positive? && weight.to_d < 1_000_000
+      errors.add(:items, :invalid) unless ([ "short_text" ] + TypedFormValue::TYPES).include?(type) && valid_weight
+    end
+  end
 
   def question_keys_must_be_unique
     keys = question_defs.filter_map { |q| q[:key].to_s.strip.presence }

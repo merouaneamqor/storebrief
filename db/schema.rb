@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_22_220100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -147,8 +147,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_22_220100) do
     t.jsonb "options", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "weight", precision: 8, scale: 2, default: "1.0", null: false
     t.index ["communication_id", "position"], name: "index_communication_questions_on_communication_id_and_position"
     t.index ["communication_id"], name: "index_communication_questions_on_communication_id"
+    t.check_constraint "weight > 0::numeric", name: "communication_questions_positive_weight"
   end
 
   create_table "communication_templates", force: :cascade do |t|

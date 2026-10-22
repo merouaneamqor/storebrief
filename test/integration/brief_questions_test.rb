@@ -151,6 +151,33 @@ class BriefQuestionsTest < ActionDispatch::IntegrationTest
     assert answer.image.attached?
   end
 
+  test "typed builder fields persist weights and render localized store controls" do
+    brand = build_brand("typed-inputs", features: { morocco_ops: true })
+    sign_in(brand.hq, brand.tenant)
+    post communications_path, params: {
+      communication: { title_fr: "Audit", body_fr: "", format: "task", communication_questions_attributes:
+        TypedFormValue::TYPES.each_with_index.to_h { |type, index| [ index.to_s, { position: index, question_type: type, title_fr: type, required: "1", weight: "2.5" } ] }
+      }, org_unit_ids: [ brand.store.id ], commit: "send"
+    }
+    brief = brand.tenant.communications.order(:id).last
+    assert_equal TypedFormValue::TYPES, brief.communication_questions.ordered.pluck(:question_type)
+    assert_equal [ 2.5 ], brief.communication_questions.pluck(:weight).uniq
+    delivery = brief.deliveries.first
+    delivery.update!(awareness: "in_progress")
+    sign_in(brand.store_user, brand.tenant)
+    %w[fr ar].each do |locale|
+      get inbox_path(delivery, locale: locale)
+      assert_response :success
+      assert_select "input[type=number]"
+      assert_select "input[type=date]"
+      assert_select "option[value=na]", text: I18n.t("typed_forms.answers.na", locale: locale)
+      assert_select "option[value='5']"
+    end
+    post complete_inbox_path(delivery), params: { answers: brief.communication_questions.index_with { |q| { text: "invalid" } }.transform_keys { |q| q.id.to_s } }
+    assert delivery.reload.pending?
+    assert_empty delivery.delivery_answers
+  end
+
   private
 
   def setup_brand(slug)

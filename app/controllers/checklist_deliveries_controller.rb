@@ -34,7 +34,7 @@ class ChecklistDeliveriesController < ApplicationController
 
     redirect_to checklists_delivery_path(@delivery), notice: t("checklists.mark_done")
   rescue ActiveRecord::RecordInvalid
-    redirect_to checklists_delivery_path(@delivery), alert: t("checklists.evidence_invalid")
+    redirect_to checklists_delivery_path(@delivery), alert: t("typed_forms.invalid_answer")
   end
 
   def complete
@@ -43,10 +43,12 @@ class ChecklistDeliveriesController < ApplicationController
       return
     end
 
-    @delivery.checklist.checklist_items.each do |item|
-      response = @delivery.checklist_item_responses.find_or_initialize_by(checklist_item: item)
-      response.completed = true
-      response.save!
+    @delivery.transaction do
+      @delivery.checklist.checklist_items.each do |item|
+        response = @delivery.checklist_item_responses.find_or_initialize_by(checklist_item: item)
+        response.completed = true
+        response.save!
+      end
     end
     @delivery.checklist_item_responses.reset
 
@@ -55,6 +57,8 @@ class ChecklistDeliveriesController < ApplicationController
     else
       redirect_to checklists_delivery_path(@delivery), alert: t("checklists.evidence_required")
     end
+  rescue ActiveRecord::RecordInvalid
+    redirect_to checklists_delivery_path(@delivery), alert: t("typed_forms.invalid_answer")
   end
 
 

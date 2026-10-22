@@ -6,6 +6,8 @@
     {
       clientId: "i#{index}-#{SecureRandom.hex(3)}",
       type: type,
+      question_type: item[:question_type].presence || "short_text",
+      weight: item[:weight].presence || 1,
       key: item[:key].to_s,
       title_fr: item[:title_fr].to_s,
       title_ar: item[:title_ar].to_s,
@@ -19,7 +21,7 @@
   if items_payload.empty?
     items_payload = [
       { clientId: "s0-new", type: "section", key: "section_1", title_fr: "", title_ar: "", required: false, requires_photo: false, show_if_enabled: false, show_if_question_key: "", show_if_equals: "" },
-      { clientId: "q0-new", type: "question", key: "question_1", title_fr: "", title_ar: "", required: true, requires_photo: false, show_if_enabled: false, show_if_question_key: "", show_if_equals: "" }
+      { clientId: "q0-new", type: "question", question_type: "short_text", weight: 1, key: "question_1", title_fr: "", title_ar: "", required: true, requires_photo: false, show_if_enabled: false, show_if_question_key: "", show_if_equals: "" }
     ]
   end
   form_url = @template.persisted? ? template_path(@template) : templates_path
@@ -46,6 +48,8 @@
          this.items.push({
            clientId: 'q' + Date.now(),
            type: 'question',
+           question_type: 'short_text',
+           weight: 1,
            key: 'question_' + (this.items.filter(i => i.type === 'question').length + 1),
            title_fr: '',
            title_ar: '',
@@ -151,6 +155,18 @@
 
             <template x-if="item.type === 'question'">
               <div class="template-item__flags">
+                <label>
+                  <%= t("communications.question_type") %>
+                  <select :name="`checklist_template[items][${index}][question_type]`" x-model="item.question_type">
+                    <% (["short_text"] + TypedFormValue::TYPES).each do |type| %>
+                      <option value="<%= type %>"><%= t("communications.question_types.#{type}") %></option>
+                    <% end %>
+                  </select>
+                </label>
+                <label>
+                  <%= t("typed_forms.weight") %>
+                  <input type="number" min="0.01" step="0.01" :name="`checklist_template[items][${index}][weight]`" x-model="item.weight">
+                </label>
                 <label class="check">
                   <input type="hidden" :name="`checklist_template[items][${index}][required]`" value="0">
                   <input type="checkbox"

@@ -44,6 +44,8 @@ class DeliveryAnswer < ApplicationRecord
       image.attached? ? image.filename.to_s : ""
     elsif communication_question.question_type == "multi_choice"
       list_value.join(", ")
+    elsif communication_question.question_type == "yes_no_na" && text_value.present?
+      I18n.t("typed_forms.answers.#{text_value}", locale: locale)
     else
       text_value.to_s
     end
@@ -60,6 +62,9 @@ class DeliveryAnswer < ApplicationRecord
 
   def value_matches_question
     return if communication_question.blank?
+    if TypedFormValue::TYPES.include?(communication_question.question_type) && filled?
+      errors.add(:value, :invalid) unless TypedFormValue.valid?(communication_question.question_type, text_value)
+    end
     return if filled? || !communication_question.required?
 
     errors.add(:value, :blank)

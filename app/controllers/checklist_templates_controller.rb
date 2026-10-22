@@ -72,7 +72,7 @@ class ChecklistTemplatesController < ApplicationController
     permitted = params.require(:checklist_template).permit(
       :category, :title_fr, :title_ar, :description_fr, :description_ar,
       items: [
-        :type, :key, :title_fr, :title_ar, :required, :requires_photo,
+        :type, :key, :question_type, :weight, :title_fr, :title_ar, :required, :requires_photo,
         { show_if: %i[question_key equals] }
       ]
     )
