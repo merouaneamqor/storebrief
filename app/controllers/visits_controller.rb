@@ -1,6 +1,7 @@
 class VisitsController < ApplicationController
   before_action -> { require_feature!(:morocco_ops) }
-  before_action -> { require_hq_or_area(:visits) }
+  before_action -> { require_hq_or_area(:visits) }, except: :calendar
+  before_action :require_calendar_viewer!, only: :calendar
   around_action :use_store_time_zone
   before_action :set_visit, only: %i[show edit update cancel]
   before_action :load_form_options, only: %i[new create edit update]
@@ -15,12 +16,30 @@ class VisitsController < ApplicationController
     @auditors = Visit.auditor_candidates(tenant_scope).where(id: visit_scope.select(:auditor_id))
     @units = calendar_units
     @unit = @units.find { |unit| unit.id.to_s == params[:unit_id].to_s }
+    @stores = store_scope.order(:name)
+    @store = @stores.find_by(id: params[:store_id])
+    @type = params[:type].to_s.presence_in(Vazivo::RetailCalendar::TYPES)
     @auditor = @auditors.find_by(id: params[:auditor_id])
 
     visits = visit_scope.includes(:org_unit, :auditor)
-    visits = visits.where(org_unit_id: @unit.descendant_stores.select(:id)) if @unit
+    stores = store_scope
+    stores = stores.where(id: @unit.descendant_stores.select(:id)) if @unit
+    stores = stores.where(id: @store.id) if @store
+    visits = visits.where(org_unit_id: stores.select(:id))
     visits = visits.where(auditor_id: @auditor.id) if @auditor
-    @calendar = Vazivo::VisitCalendar.new(visits: visits, view: params[:view], date: params[:date])
+    tasks = Delivery.joins(:communication).where(org_unit_id: stores.select(:id))
+                    .where(communications: { tenant_id: tenant_scope.id, status: "sent", format: "task" })
+                    .includes(:communication, :org_unit)
+    campaigns = ChecklistDelivery.joins(:checklist).where(org_unit_id: stores.select(:id))
+                                 .where(checklists: { tenant_id: tenant_scope.id, status: "sent" })
+                                 .where.not(checklists: { playbook_id: nil })
+                                 .includes(:checklist, :org_unit)
+    tasks = tasks.none unless tenant_feature?(:briefs)
+    campaigns = campaigns.none unless tenant_feature?(:checklists)
+    @calendar = Vazivo::RetailCalendar.new(
+      visits: visits, task_deliveries: tasks, campaign_deliveries: campaigns,
+      type: @type, view: params[:view], date: params[:date]
+    )
   end
 
   def show
@@ -71,6 +90,12 @@ class VisitsController < ApplicationController
 
   private
 
+  def require_calendar_viewer!
+    return if store_user?
+
+    require_hq_or_area(:visits)
+  end
+
   def use_store_time_zone(&)
     Time.use_zone(Vazivo::Schedule::ZONE, &)
   end
@@ -79,7 +104,7 @@ class VisitsController < ApplicationController
     @visit = visit_scope.find(params[:id])
   end
 
-  # HQ sees every tenant visit; area only visits at descendant stores.
+  # HQ sees tenant visits; area sees descendant stores; store sees only its own.
   def visit_scope
     scope = tenant_scope.visits
     return scope if hq_user?
@@ -96,6 +121,8 @@ class VisitsController < ApplicationController
       tenant_scope.org_units.stores
     elsif (area = current_user.area_org_unit)
       area.descendant_stores.where(tenant_id: tenant_scope.id)
+    elsif store_user? && (store = current_user.store_org_unit)
+      tenant_scope.org_units.stores.where(id: store.id)
     else
       OrgUnit.none
     end

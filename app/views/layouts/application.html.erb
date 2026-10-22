@@ -69,6 +69,12 @@
               <%= link_to t("nav.tenants"), tenants_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/tenants')}" %>
               <%= link_to t("nav.demo_requests"), demo_requests_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/demo_requests')}" %>
             <% end %>
+            <% if tenant_feature?(:morocco_ops) && (hq_user? || store_user? || (area_user? && user_allows?(:visits))) %>
+              <%= link_to calendar_visits_path, class: "app-nav-link #{'is-active' if current_page?(calendar_visits_path)}" do %>
+                <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                <span><%= t("morocco.retail_calendar.title") %></span>
+              <% end %>
+            <% end %>
             <% if hq_user? %>
               <% if tenant_feature?(:briefs) %>
                 <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications') && !request.path.end_with?('/new')}" do %>
@@ -81,7 +87,7 @@
                   <span class="app-nav-link__icon"><%= icon("book") %></span>
                   <span><%= t("nav.playbooks") %></span>
                 <% end %>
-                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits')}" do %>
+                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
                   <span class="app-nav-link__icon"><%= icon("calendar") %></span>
                   <span><%= t("nav.visits") %></span>
                 <% end %>
@@ -142,7 +148,7 @@
                 <% end %>
               <% end %>
               <% if user_allows?(:visits) %>
-                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits')}" do %>
+                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
                   <span class="app-nav-link__icon"><%= icon("calendar") %></span>
                   <span><%= t("nav.visits") %></span>
                 <% end %>
@@ -274,7 +280,7 @@
               <% end %>
             <% end %>
             <% if user_allows?(:visits) %>
-              <%= link_to visits_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/visits')}" do %>
+              <%= link_to visits_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
                 <%= icon("calendar") %>
                 <span><%= t("nav.visits") %></span>
               <% end %>
