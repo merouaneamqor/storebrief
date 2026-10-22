@@ -21,9 +21,21 @@ class Delivery < ApplicationRecord
                                     inverse_of: :source_delivery, dependent: :nullify
   has_one_attached :photo_before
   has_one_attached :photo_after
+  has_many_attached :proof_files
+
+  PROOF_MAX_BYTES = 10.megabytes
+  PROOF_MAX_COUNT = 10
+  PROOF_IMAGE_TYPES = %w[image/jpeg image/png image/webp].freeze
+  PROOF_FILE_TYPES = (PROOF_IMAGE_TYPES + %w[
+    application/pdf text/plain text/csv
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  ]).freeze
 
   validates :status, inclusion: { in: STATUSES }
   validates :org_unit_id, uniqueness: { scope: :communication_id }
+
+  validate :acceptable_proof
 
   after_update :log_history_changes
 
@@ -297,14 +309,16 @@ class Delivery < ApplicationRecord
     @history_actor = nil
   end
 
-  def record_proof_event!(actor: Current.user)
-    return unless photo_before.attached? || photo_after.attached?
+  def record_proof_event!(actor: Current.user, request_id: nil)
+    return unless photo_before.attached? || photo_after.attached? || proof_files.attached? || request_id.present?
 
     record_event!(
       "proof",
       {
         photo_before: photo_before.attached?,
-        photo_after: photo_after.attached?
+        photo_after: photo_after.attached?,
+        files: proof_files.count,
+        request_id: request_id
       },
       actor: actor
     )
@@ -411,9 +425,23 @@ class Delivery < ApplicationRecord
     raise ArgumentError, dependency_blocked_reason
   end
 
+  def acceptable_proof
+    errors.add(:base, I18n.t("task_proof.too_many", count: PROOF_MAX_COUNT)) if proof_files.size > PROOF_MAX_COUNT
+    legacy_photos = [ photo_before, photo_after ].select(&:attached?)
+    (proof_files.to_a + legacy_photos).each do |attachment|
+      allowed = attachment == photo_before || attachment == photo_after ? PROOF_IMAGE_TYPES : PROOF_FILE_TYPES
+      if allowed.exclude?(attachment.blob.content_type)
+        errors.add(:base, I18n.t("task_proof.invalid_type"))
+      end
+      if attachment.blob.byte_size > PROOF_MAX_BYTES
+        errors.add(:base, I18n.t("task_proof.too_large", size: PROOF_MAX_BYTES / 1.megabyte))
+      end
+    end
+  end
+
   def ensure_proof!
     return unless communication.requires_proof?
-    return if photo_before.attached? && photo_after.attached?
+    return if proof_files.attached? || photo_before.attached? && photo_after.attached?
 
     raise ArgumentError, I18n.t("morocco.proof_required")
   end

@@ -1,3 +1,5 @@
+import "task_proof";
+
 window.offlineSync = function offlineSync() {
   return {
     online: navigator.onLine,

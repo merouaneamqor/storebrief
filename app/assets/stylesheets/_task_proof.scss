@@ -1,0 +1,26 @@
+.task-proof-upload {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-block: 1rem;
+  min-width: 0;
+
+  legend { font-weight: 600; }
+  input[type="file"] { max-width: 100%; }
+}
+
+.task-proof-gallery {
+  margin-block: 1rem;
+
+  &__files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  figure { margin: 0; max-width: 160px; }
+  img { width: 120px; height: 100px; object-fit: cover; border-radius: 8px; }
+  figcaption { overflow-wrap: anywhere; font-size: .85rem; }
+}
+
+.task-proof-sync { padding-inline: .75rem; }

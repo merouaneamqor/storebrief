@@ -206,12 +206,7 @@
             <% end %>
           </div>
 
-          <% if delivery.photo_before.attached? || delivery.photo_after.attached? %>
-            <div class="proof-pair proof-pair--compact">
-              <% if delivery.photo_before.attached? %><%= image_tag delivery.photo_before, class: "thumb" %><% end %>
-              <% if delivery.photo_after.attached? %><%= image_tag delivery.photo_after, class: "thumb" %><% end %>
-            </div>
-          <% end %>
+          <%= render "inbox/proof_gallery", delivery: delivery %>
 
           <% if @communication.questions? && delivery.delivery_answers.any? %>
             <div class="brief-answers">

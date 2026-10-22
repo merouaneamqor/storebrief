@@ -24,51 +24,72 @@ class InboxController < ApplicationController
 
   def advance
     @delivery = find_delivery
-    attach_proof(@delivery)
-    if params[:step].to_s == "done" && @delivery.communication.questions?
-      @delivery.save_answers!(params[:answers])
+    submit_delivery do
+      @delivery.save_answers!(params[:answers]) if params[:step].to_s == "done" && @delivery.communication.questions?
+      @delivery.advance_awareness!(params[:step], by: current_user)
     end
-    @delivery.advance_awareness!(params[:step], by: current_user)
-    notice = @delivery.pending_approval? ? t("morocco.approval.submitted") : t("morocco.awareness.saved")
-    redirect_to inbox_path(@delivery), notice: notice
-  rescue ArgumentError, ActiveRecord::RecordInvalid => e
-    message = e.is_a?(ArgumentError) ? e.message : t("inbox.answers_required")
-    redirect_to inbox_path(@delivery), alert: message
   end
 
   def complete
     @delivery = find_delivery
-    attach_proof(@delivery)
-
-    begin
+    submit_delivery do
       @delivery.save_answers!(params[:answers]) if @delivery.communication.questions?
       if @delivery.communication.task?
         @delivery.complete!
-        notice = @delivery.pending_approval? ? t("morocco.approval.submitted") : t("inbox.task_done")
-        redirect_to inbox_path(@delivery), notice: notice
       else
         @delivery.mark_read!(by: current_user)
-        redirect_to inbox_path(@delivery), notice: t("inbox.marked_read")
       end
-    rescue ArgumentError, ActiveRecord::RecordInvalid => e
-      message = e.is_a?(ArgumentError) ? e.message : t("inbox.answers_required")
-      redirect_to inbox_path(@delivery), alert: message
     end
   end
 
   private
 
+  # Lock the delivery so a retried offline request cannot append the same files twice.
+  # A failed completion rolls back attachments, answers and history together.
+  def submit_delivery
+    @delivery.with_lock do
+      request_id = params[:proof_request_id].to_s.first(100).presence
+      repeated = request_id && @delivery.delivery_events.where(kind: "proof").where("payload ->> 'request_id' = ?", request_id).exists?
+      unless repeated
+        attached = attach_proof(@delivery)
+        yield
+        @delivery.record_proof_event!(actor: current_user, request_id: request_id) if attached || request_id
+      end
+    end
+    notice = if @delivery.pending_approval?
+      t("morocco.approval.submitted")
+    elsif action_name == "advance"
+      t("morocco.awareness.saved")
+    elsif @delivery.communication.task?
+      t("inbox.task_done")
+    else
+      t("inbox.marked_read")
+    end
+    respond_to do |format|
+      format.html { redirect_to inbox_path(@delivery), notice: notice }
+      format.json { render json: { status: "ok", delivery_status: @delivery.status, location: inbox_path(@delivery) } }
+    end
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    message = e.is_a?(ArgumentError) ? e.message : e.record.errors.full_messages.to_sentence
+    respond_to do |format|
+      format.html { redirect_to inbox_path(@delivery), alert: message }
+      format.json { render json: { status: "error", message: message }, status: :unprocessable_entity }
+    end
+  end
+
   def attach_proof(delivery)
-    attached = false
-    if params[:photo_before].present?
-      delivery.photo_before.attach(params[:photo_before])
-      attached = true
+    uploads = [ params[:photo_before], params[:photo_after], *Array(params[:proof_files]) ].reject(&:blank?)
+    unless uploads.all? { |file| file.is_a?(ActionDispatch::Http::UploadedFile) }
+      raise ArgumentError, t("task_proof.invalid_type")
     end
-    if params[:photo_after].present?
-      delivery.photo_after.attach(params[:photo_after])
-      attached = true
-    end
-    delivery.record_proof_event!(actor: current_user) if attached
+
+    delivery.photo_before = params[:photo_before] if params[:photo_before].present?
+    delivery.photo_after = params[:photo_after] if params[:photo_after].present?
+    files = Array(params[:proof_files]).reject(&:blank?)
+    delivery.proof_files = delivery.proof_files.blobs.to_a + files if files.any?
+    attached = params[:photo_before].present? || params[:photo_after].present? || files.any?
+    delivery.save! if attached
+    attached
   end
 
   def find_delivery
@@ -76,6 +97,7 @@ class InboxController < ApplicationController
             .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
             .includes(
               :delivery_reads,
+              { proof_files_attachments: :blob },
               { delivery_answers: { image_attachment: :blob } },
               { delivery_comments: :user },
               communication: [ :communication_questions, :depends_on_communication ]

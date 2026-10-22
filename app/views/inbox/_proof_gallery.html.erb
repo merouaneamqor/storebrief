@@ -1,0 +1,17 @@
+<% if delivery.proof_files.attached? || delivery.photo_before.attached? || delivery.photo_after.attached? %>
+  <section class="task-proof-gallery" aria-label="<%= t('task_proof.title') %>">
+    <h3 class="section-title"><%= t("task_proof.title") %></h3>
+    <div class="task-proof-gallery__files">
+      <% [delivery.photo_before, delivery.photo_after].select(&:attached?).concat(delivery.proof_files.to_a).each do |file| %>
+        <figure>
+          <% if Delivery::PROOF_IMAGE_TYPES.include?(file.blob.content_type) %>
+            <%= link_to rails_blob_path(file, disposition: "attachment") do %>
+              <%= image_tag file, class: "thumb", alt: file.filename.to_s, loading: "lazy" %>
+            <% end %>
+          <% end %>
+          <figcaption><%= link_to file.filename.to_s, rails_blob_path(file, disposition: "attachment") %></figcaption>
+        </figure>
+      <% end %>
+    </div>
+  </section>
+<% end %>
