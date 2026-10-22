@@ -9,7 +9,7 @@ class TaskMailer < ApplicationMailer
       mail(
         to: user.email,
         from: from_for(@tenant),
-        subject: t("mailers.task.communication_subject", title: communication.localized_value(:title, locale: I18n.locale)),
+        subject: t(communication.critical_broadcast? ? "broadcasts.subject" : "mailers.task.communication_subject", title: communication.localized_value(:title, locale: I18n.locale)),
         delivery_method_options: @tenant.mail_setting_or_build.delivery_method_options
       )
     end

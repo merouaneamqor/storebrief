@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_21_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_22_220100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -198,6 +198,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_100000) do
     t.bigint "reviewed_by_id"
     t.datetime "reviewed_at"
     t.text "review_note"
+    t.boolean "critical_broadcast", default: false, null: false
+    t.boolean "requires_acknowledgement", default: false, null: false
+    t.boolean "broadcast_email", default: false, null: false
+    t.boolean "broadcast_whatsapp", default: false, null: false
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["communication_template_id"], name: "index_communications_on_communication_template_id"
     t.index ["depends_on_communication_id"], name: "index_communications_on_depends_on_communication_id"
@@ -234,6 +238,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_100000) do
     t.integer "score"
     t.datetime "dependency_cleared_at"
     t.bigint "dependency_cleared_by_id"
+    t.datetime "acknowledged_at"
+    t.bigint "acknowledged_by_id"
+    t.index ["acknowledged_by_id"], name: "index_deliveries_on_acknowledged_by_id"
     t.index ["assignee_id"], name: "index_deliveries_on_assignee_id"
     t.index ["communication_id", "org_unit_id"], name: "index_deliveries_on_communication_id_and_org_unit_id", unique: true
     t.index ["communication_id"], name: "index_deliveries_on_communication_id"
@@ -826,6 +833,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_100000) do
   add_foreign_key "communications", "visits"
   add_foreign_key "deliveries", "communications"
   add_foreign_key "deliveries", "org_units"
+  add_foreign_key "deliveries", "users", column: "acknowledged_by_id"
   add_foreign_key "deliveries", "users", column: "assignee_id"
   add_foreign_key "deliveries", "users", column: "dependency_cleared_by_id"
   add_foreign_key "deliveries", "users", column: "validated_by_id"

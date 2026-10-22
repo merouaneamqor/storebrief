@@ -20,6 +20,21 @@
   <% end %>
 </header>
 
+<% if radar.broadcasts.any? %>
+  <section class="panel" aria-labelledby="broadcasts-title">
+    <h2 class="section-title" id="broadcasts-title"><%= t("broadcasts.pinned") %></h2>
+    <% radar.broadcasts.each do |delivery| %>
+      <article class="attention-banner" role="status">
+        <%= icon("alert-triangle", css_class: "icon") %>
+        <div>
+          <strong><%= link_to delivery.communication.title, radar.lens == "store" ? inbox_path(delivery) : communication_path(delivery.communication, anchor: "store-#{delivery.org_unit_id}") %></strong>
+          <p class="meta"><%= delivery.org_unit.name %> · <%= t(delivery.communication.acknowledgement_required? ? "broadcasts.pending_ack" : "broadcasts.pending_read") %></p>
+        </div>
+      </article>
+    <% end %>
+  </section>
+<% end %>
+
 <p class="radar-summary radar-summary--live">
   <span class="radar-summary__pill">
     <%= link_to t("morocco.radar.summary_now", count: radar.now_items.size), app_root_path(filter: "now") %>

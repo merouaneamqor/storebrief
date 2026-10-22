@@ -10,7 +10,7 @@ module Vazivo
       :lens, :greeting_key, :name, :place_name, :ramadan, :opens_at,
       :urgent_count, :late_count, :done_count, :completion_percent,
       :now_items, :later_items, :today_by_priority, :priority_counts,
-      :timed_checklist, :attention_count, :attention_names, :campaign_title, :area,
+      :timed_checklist, :broadcasts, :attention_count, :attention_names, :campaign_title, :area,
       keyword_init: true
     )
     # Monitoring summary for an area or region manager (read only).
@@ -94,6 +94,7 @@ module Vazivo
         today_by_priority: group_by_priority(now_items),
         priority_counts: count_by_priority(now_records),
         timed_checklist: timed_checklist_for(lens, stores),
+        broadcasts: pinned_broadcasts(stores),
         attention_count: names.size,
         attention_names: names,
         campaign_title: campaign_title,
@@ -118,11 +119,23 @@ module Vazivo
         today_by_priority: Communication::PRIORITIES.index_with { [] },
         priority_counts: Communication::PRIORITIES.index_with { 0 },
         timed_checklist: [],
+        broadcasts: [],
         attention_count: 0,
         attention_names: [],
         campaign_title: nil,
         area: nil
       )
+    end
+
+    # Required acknowledgement stays pinned even after a normal read action.
+    def pinned_broadcasts(stores)
+      return [] unless @tenant.feature?(:morocco_ops)
+
+      Delivery.joins(:communication)
+              .where(org_unit_id: stores.map(&:id), communications: { tenant_id: @tenant.id, status: "sent", critical_broadcast: true })
+              .where("(communications.requires_acknowledgement = TRUE AND deliveries.acknowledged_at IS NULL) OR (communications.requires_acknowledgement = FALSE AND deliveries.status NOT IN ('completed', 'read'))")
+              .includes(:communication, :org_unit)
+              .order("communications.created_at DESC", id: :desc).to_a
     end
 
     # Store surface only: time-ordered checklist deliveries for today.
@@ -163,6 +176,7 @@ module Vazivo
       deliveries = Delivery.joins(:communication)
                            .where(org_unit_id: ids, communications: { tenant_id: @tenant.id, status: "sent" })
                            .where.not(status: %w[completed read])
+                           .where(communications: { critical_broadcast: false })
                            .includes(:communication, :org_unit)
       checks = ChecklistDelivery.joins(:checklist)
                                 .where(org_unit_id: ids, checklists: { tenant_id: @tenant.id, status: "sent" })
