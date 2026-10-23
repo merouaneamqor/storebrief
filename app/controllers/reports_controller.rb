@@ -6,7 +6,7 @@ class ReportsController < ApplicationController
   def show
     @date_range = Reports::DateRange.new(from: params[:from], to: params[:to])
     store_ids = if !hq_user?
-      current_user.memberships.where(role: "area").includes(:org_unit).flat_map { |membership| membership.org_unit.descendant_stores.ids }.uniq
+      current_user.permitted_store_ids(:reports)
     end
     @report = Reports::Snapshot.new(tenant_scope, date_range: @date_range, store_ids: store_ids)
     @trends = Reports::ComplianceTrends.new(tenant_scope, date_range: @date_range, store_ids: store_ids,

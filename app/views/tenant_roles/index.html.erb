@@ -1,0 +1,57 @@
+<% content_for :title, t("tenant_roles.title") %>
+<h1><%= t("tenant_roles.title") %></h1>
+<p class="lede"><%= t("tenant_roles.help") %></p>
+<p class="meta"><%= t("tenant_roles.scope_help") %></p>
+<% if @role.errors.any? %><div class="flash flash--alert"><%= @role.errors.full_messages.to_sentence %></div><% end %>
+
+<section class="panel">
+  <h2><%= t("tenant_roles.defaults") %></h2>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th><%= t("tenant_roles.base_role") %></th><th><%= t("tenant_roles.capabilities") %></th></tr></thead>
+      <tbody>
+        <% Membership::CAPABILITIES.each do |role, capabilities| %>
+          <tr><th><%= t("tenant_roles.bases.#{role}") %></th><td><%= capabilities.map { |cap| t("tenant_roles.caps.#{cap}") }.join(", ") %></td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<% @roles.each do |role| %>
+  <section class="panel">
+    <%= render "form", role: (@role.persisted? && @role.id == role.id ? @role : role) %>
+    <%= button_to t("tenant_roles.delete"), tenant_role_path(role), method: :delete, class: "btn btn--ghost" %>
+  </section>
+<% end %>
+<section class="panel">
+  <h2><%= t("tenant_roles.new") %></h2>
+  <%= render "form", role: (@role.persisted? ? TenantRole.new(base_role: "area") : @role) %>
+</section>
+
+<section class="panel">
+  <h2><%= t("tenant_roles.assignments") %></h2>
+  <% if @roles.any? %>
+    <%= form_with url: assign_tenant_roles_path, class: "form-stack" do %>
+      <label><%= t("tenant_roles.user") %><%= select_tag :user_id, options_from_collection_for_select(current_tenant.users.where(super_admin: false).order(:name), :id, :name), required: true %></label>
+      <label><%= t("tenant_roles.unit") %><%= select_tag :org_unit_id, options_from_collection_for_select(current_tenant.org_units.order(:name), :id, :name), required: true %></label>
+      <label><%= t("tenant_roles.role") %><%= select_tag :tenant_role_id, options_from_collection_for_select(@roles, :id, :name), required: true %></label>
+      <%= submit_tag t("tenant_roles.assign"), class: "btn btn--primary" %>
+    <% end %>
+  <% end %>
+  <% @memberships.each do |membership| %>
+    <%= form_with url: assign_tenant_roles_path, class: "form-stack" do %>
+      <p><strong><%= membership.user.name %></strong> · <%= membership.org_unit.name %> · <%= t("tenant_roles.bases.#{membership.role}") %></p>
+      <% if membership.role == "hq" && membership.tenant_role_id.nil? %>
+        <p class="meta"><%= t("tenant_roles.protected_admin") %></p>
+      <% else %>
+        <%= hidden_field_tag :membership_id, membership.id %>
+        <label>
+          <%= t("tenant_roles.role") %>
+          <%= select_tag :tenant_role_id, options_for_select((membership.role == "hq" ? [] : [[t("tenant_roles.default_role"), ""]]) + @roles.select { |role| role.base_role == membership.role }.map { |role| [role.name, role.id] }, membership.tenant_role_id) %>
+        </label>
+        <%= submit_tag t("tenant_roles.save"), class: "btn" %>
+      <% end %>
+    <% end %>
+  <% end %>
+</section>
