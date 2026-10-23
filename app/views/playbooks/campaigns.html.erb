@@ -6,7 +6,7 @@
   <div>
     <p class="meta"><%= link_to t("morocco.playbooks.back"), playbooks_path %></p>
     <h1><%= t("morocco.playbooks.campaigns.title") %></h1>
-    <p class="meta"><%= t("morocco.playbooks.campaigns.lede") %></p>
+    <p class="meta"><%= t("report_period.campaign_definition") %></p>
   </div>
   <div class="radar-head__actions">
     <%= link_to closing_reports_playbooks_path, class: "btn btn--quiet" do %>
@@ -15,12 +15,14 @@
   </div>
 </header>
 
+<%= render "shared/report_date_filter" %>
+
 <% if snapshot.campaigns.any? %>
   <section class="cmp-board" x-data="{ dim: 'campaign', onlyExceptions: false, open: null }">
     <div class="cmp-summary">
       <div class="cmp-summary__tile">
         <strong><%= snapshot.campaigns.size %></strong>
-        <span><%= t("morocco.playbooks.campaigns.active") %></span>
+        <span><%= t("report_period.campaigns") %></span>
       </div>
       <div class="cmp-summary__tile">
         <strong><%= snapshot.percent %><small>%</small></strong>

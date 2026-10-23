@@ -8,6 +8,23 @@
   </div>
 </header>
 
+<section class="panel">
+  <h2><%= t("feed_engagement.store_post") %></h2>
+  <p class="meta"><%= t("feed_engagement.moderation_note") %></p>
+  <%= form_with url: feed_posts_path do |form| %>
+    <%= form.label :body, t("feed_engagement.message") %>
+    <%= form.text_area :body, required: true, maxlength: 2000 %>
+    <%= form.submit t("feed_engagement.submit"), class: "btn" %>
+  <% end %>
+</section>
+<% @posts.each do |post| %>
+  <article class="panel">
+    <p class="meta"><%= post.user.name %> · <%= t("feed_engagement.#{post.status}") %></p>
+    <%= simple_format(post.body) %>
+    <%= render "newsfeeds/discussion", subject: post if post.status == "published" %>
+  </article>
+<% end %>
+
 <section class="panel newsfeed" data-testid="newsfeed">
   <% if @deliveries.any? %>
     <ul class="list newsfeed__list">
@@ -32,6 +49,7 @@
               <p class="newsfeed__excerpt"><%= truncate(communication.body.to_s, length: 160) %></p>
             <% end %>
           </div>
+          <%= render "newsfeeds/discussion", subject: delivery %>
         </li>
       <% end %>
     </ul>

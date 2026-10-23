@@ -12,12 +12,13 @@ module Vazivo
     end
     Snapshot = Struct.new(:campaigns, :total, :done, :percent, :exception_count, keyword_init: true)
 
-    def self.for(tenant)
-      new(tenant).snapshot
+    def self.for(tenant, date_range: nil)
+      new(tenant, date_range: date_range).snapshot
     end
 
-    def initialize(tenant)
+    def initialize(tenant, date_range: nil)
       @tenant = tenant
+      @date_range = date_range
     end
 
     def snapshot
@@ -39,11 +40,14 @@ module Vazivo
       Rails.application.routes.url_helpers
     end
 
-    # Sent playbook deploys that still have at least one store to finish.
+    # Dated views include completed campaigns; undated callers retain the live set.
     def live_checklists
-      @tenant.checklists.sent
-             .where.not(playbook_id: nil)
-             .where(id: ChecklistDelivery.pending.select(:checklist_id))
+      scope = @tenant.checklists.sent
+      if @date_range
+        scope = scope.where("COALESCE(checklists.starts_on, checklists.campaign_on, checklists.created_at::date) <= ? AND COALESCE(checklists.campaign_on, checklists.starts_on, checklists.created_at::date) >= ?", @date_range.to, @date_range.from)
+      end
+      scope = scope.where(id: ChecklistDelivery.pending.select(:checklist_id)) unless @date_range
+      scope.where.not(playbook_id: nil)
              .includes(:playbook, :checklist_items, checklist_deliveries: [ :org_unit, :assignee, :checklist_item_responses ])
              .order(Arel.sql("checklists.campaign_on ASC NULLS LAST"), :id)
     end

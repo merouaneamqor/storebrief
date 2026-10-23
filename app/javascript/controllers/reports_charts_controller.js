@@ -1,9 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = [ "stores", "workload" ]
+  static targets = [ "stores", "workload", "trends" ]
   static values = {
     stores: Array,
+    trends: Object,
     workload: Object,
     labels: Object
   }
@@ -18,6 +19,23 @@ export default class extends Controller {
     window.Chart.defaults.color = cssVar("--muted", "#57534e")
 
     this.charts = []
+
+    if (this.hasTrendsTarget) {
+      this.charts.push(new window.Chart(this.trendsTarget, {
+        type: "line",
+        data: {
+          labels: this.trendsValue.labels,
+          datasets: (this.trendsValue.series || []).map((series) => ({
+            label: series.name, data: series.values, spanGaps: false, tension: 0.15
+          }))
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { min: 0, max: 100, ticks: { callback: (value) => `${value}%` } } },
+          plugins: { legend: legend, colors: { enabled: true } }
+        }
+      }))
+    }
 
     if (this.hasStoresTarget) {
       this.charts.push(new window.Chart(this.storesTarget, {

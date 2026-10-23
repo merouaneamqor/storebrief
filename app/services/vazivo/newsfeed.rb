@@ -1,6 +1,6 @@
 module Vazivo
   # Chronological company news + announcements for one store.
-  # No social chrome: read-only list that deep-links into the inbox item.
+  # Discussion remains scoped to each receiving store.
   class Newsfeed
     PER_PAGE = 20
     MAX_PER_PAGE = 50
@@ -49,7 +49,7 @@ module Vazivo
                   format: FORMATS
                 }
               )
-              .includes(:delivery_reads, communication: { attachments_attachments: :blob })
+              .includes(:delivery_reads, :feed_reactions, feed_comments: :user, communication: { attachments_attachments: :blob })
               .order(Arel.sql("communications.created_at DESC, deliveries.id DESC"))
     end
 
