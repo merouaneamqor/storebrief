@@ -1,0 +1,16 @@
+{
+  "en": {
+    "communications": {
+      "question_types": {
+        "signature": "Signature"
+      }
+    },
+    "task_media": {
+      "sign_hint": "Draw your signature, or upload a PNG image.",
+      "clear": "Clear signature",
+      "upload_signature": "Upload signature (PNG)",
+      "limits": "Up to 10 files. Videos: MP4, WebM or MOV, 25 MB each. Other supported files: 10 MB each. Photos are compressed; signatures remain PNG.",
+      "evidence": "Evidence"
+    }
+  }
+}

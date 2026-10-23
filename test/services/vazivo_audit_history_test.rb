@@ -23,6 +23,13 @@ class VazivoAuditHistoryTest < ActiveSupport::TestCase
     seed_audit(@agdal, title: "Audit Agdal", score: 90, verdict: "conforme", at: 6.hours.ago)
   end
 
+  test "explicitly empty permitted stores never fall back to tenant audits" do
+    result = Vazivo::AuditHistory.for(@tenant, store_ids: [])
+    assert_empty result.entries
+    assert_empty result.store_rows
+    assert_empty result.region_rows
+  end
+
   test "lists store history newest first with visit link" do
     result = Vazivo::AuditHistory.for(@tenant, store: @store)
 

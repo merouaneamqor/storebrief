@@ -11,7 +11,7 @@
     }
   end
   send_label = Vazivo::Approval.gate?(@communication) && !@communication.review_approved? ? t("approval.submit") : t("communications.send")
-  type_labels = CommunicationQuestion::TYPES.index_with { |type| t("communications.question_types.#{type}") }
+  type_labels = CommunicationQuestion::TYPES.reject { |type| type == "signature" && !tenant_feature?(:morocco_ops) }.index_with { |type| t("communications.question_types.#{type}") }
 %>
 
 <div class="brief-form"
@@ -115,7 +115,7 @@
               <label class="brief-question__type">
                 <span class="visually-hidden"><%= t("communications.question_type") %></span>
                 <select :name="`communication[communication_questions_attributes][${index}][question_type]`" x-model="question.question_type">
-                  <% CommunicationQuestion::TYPES.each do |type| %>
+                  <% CommunicationQuestion::TYPES.reject { |type| type == "signature" && !tenant_feature?(:morocco_ops) }.each do |type| %>
                     <option value="<%= type %>"><%= t("communications.question_types.#{type}") %></option>
                   <% end %>
                 </select>

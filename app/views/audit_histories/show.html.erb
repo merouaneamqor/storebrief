@@ -149,7 +149,21 @@
               <%= stamp ? l(stamp, format: :short) : "-" %>
             </td>
             <td><%= entry.store.name %></td>
-            <td><%= link_to entry.title, communication_path(entry.delivery.communication) %></td>
+            <td>
+              <%= link_to entry.title, communication_path(entry.delivery.communication) %>
+              <% if entry.delivery.proof_files.attached? || entry.delivery.delivery_answers.any? { |answer| answer.image.attached? } %>
+                <details>
+                  <summary><%= t("task_media.evidence") %></summary>
+                  <%= render "inbox/proof_gallery", delivery: entry.delivery %>
+                  <% entry.delivery.delivery_answers.each do |answer| %>
+                    <% if answer.image.attached? %>
+                      <p><%= answer.communication_question.title %></p>
+                      <%= image_tag answer.image, class: "thumb", alt: answer.communication_question.title, loading: "lazy" %>
+                    <% end %>
+                  <% end %>
+                </details>
+              <% end %>
+            </td>
             <td><%= entry.score.nil? ? "-" : "#{entry.score}%" %></td>
             <td>
               <% if entry.verdict.present? %>
