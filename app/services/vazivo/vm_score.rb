@@ -27,9 +27,10 @@ module Vazivo
       end
     end
 
-    def initialize(tenant, range)
+    def initialize(tenant, range, store_ids: nil)
       @tenant = tenant
       @range = range
+      @store_ids = store_ids
     end
 
     # { store_id => StoreScore } for stores with at least one scored target.
@@ -64,7 +65,9 @@ module Vazivo
         bucket[:points] << value
         bucket[:conforme] += 1 if target.verdict == "conforme" && target.completed?
       end
-      stores = @tenant.org_units.stores.where(id: buckets.keys).index_by(&:id)
+      stores = @tenant.org_units.stores.where(id: buckets.keys)
+      stores = stores.where(id: @store_ids) if @store_ids
+      stores = stores.index_by(&:id)
       buckets.each_with_object({}) do |(id, bucket), result|
         store = stores[id]
         next if store.nil?

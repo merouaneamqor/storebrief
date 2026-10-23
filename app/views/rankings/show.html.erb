@@ -1,7 +1,9 @@
 <% content_for :title, "#{t('morocco.ranking.title')} · Vazivo" %>
 
 <h1><%= t("morocco.ranking.title") %></h1>
-<p class="lede"><%= t("morocco.ranking.lede", week: l(@ranking.week_start, format: :short)) %></p>
+<p class="lede"><%= t("report_period.ranking_definition") %></p>
+
+<%= render "shared/report_date_filter" %>
 
 <% if @ranking.podium.empty? && @ranking.vm_rows.empty? %>
   <p class="empty"><%= t("morocco.ranking.empty") %></p>
