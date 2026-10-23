@@ -1,7 +1,7 @@
 require "test_helper"
 require "fugit"
 
-# Proves RecurringTaskJob and EscalationJob are wired into the production
+# Proves execution sweeps and report digests are wired into the production
 # schedule (config/recurring.yml + Solid Queue) and are safe to run repeatedly.
 class ScheduledJobsTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
@@ -10,11 +10,12 @@ class ScheduledJobsTest < ActiveSupport::TestCase
     @brand = build_brand("scheduled-jobs")
   end
 
-  test "recurring.yml schedules both jobs in production" do
+  test "recurring.yml schedules execution and report jobs in production" do
     config = YAML.safe_load(ERB.new(Rails.root.join("config/recurring.yml").read).result, aliases: true)
     tasks = config.fetch("production")
 
-    assert_equal %w[EscalationJob RecurringTaskJob], tasks.values.map { |t| t.fetch("class") }.sort
+    assert_equal %w[EscalationJob RecurringTaskJob ReportDigestJob], tasks.values.map { |t| t.fetch("class") }.sort
+    assert_equal "every hour", tasks.fetch("report_digest").fetch("schedule")
     tasks.each_value do |task|
       assert task["class"].constantize < ApplicationJob
       assert Fugit.parse(task.fetch("schedule")), "invalid schedule #{task['schedule']}"
@@ -27,9 +28,10 @@ class ScheduledJobsTest < ActiveSupport::TestCase
     assert defined?(SolidQueue)
   end
 
-  test "both jobs can be enqueued on the default queue" do
+  test "scheduled jobs can be enqueued on the default queue" do
     assert_enqueued_with(job: RecurringTaskJob, queue: "default") { RecurringTaskJob.perform_later }
     assert_enqueued_with(job: EscalationJob, queue: "default") { EscalationJob.perform_later }
+    assert_enqueued_with(job: ReportDigestJob, queue: "default") { ReportDigestJob.perform_later }
   end
 
   test "running the escalation job twice does not duplicate escalation events" do
