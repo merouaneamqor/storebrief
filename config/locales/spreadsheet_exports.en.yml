@@ -1,0 +1,38 @@
+{
+  "en": {
+    "spreadsheet_exports": {
+      "download": "Download",
+      "csv": "Download CSV",
+      "xlsx": "Download XLSX",
+      "yes": "Yes",
+      "no": "No",
+      "columns": {
+        "store": "Store",
+        "region": "Region",
+        "open_briefs": "Open briefs",
+        "open_checklists": "Open checklists",
+        "pending": "Pending",
+        "oldest": "Oldest assignment",
+        "percent": "Completion %",
+        "done": "Completed",
+        "total": "Total",
+        "on_time_percent": "On time %",
+        "conforme": "conforme",
+        "previous_percent": "Previous period %",
+        "delta": "Change",
+        "vm_percent": "Merchandising %",
+        "owner": "Owner",
+        "on_time": "On time",
+        "overdue": "Overdue",
+        "steps_done": "Steps completed",
+        "steps_total": "Total steps",
+        "title": "Title",
+        "status": "Status",
+        "due_at": "Due at",
+        "completed_at": "Completed at",
+        "score": "Score",
+        "verdict": "Verdict"
+      }
+    }
+  }
+}

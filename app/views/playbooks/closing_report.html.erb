@@ -36,6 +36,8 @@
   <% end %>
 </header>
 
+<%= render "shared/spreadsheet_downloads" unless export %>
+
 <section class="cmp-board clos-report <%= 'clos-report--export' if export %>">
   <div class="cmp-summary clos-summary">
     <div class="cmp-summary__tile">

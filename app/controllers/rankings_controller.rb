@@ -1,4 +1,5 @@
 class RankingsController < ApplicationController
+  include SpreadsheetExports
   before_action -> { require_feature!(:morocco_ops) }
 
   def show
@@ -9,5 +10,6 @@ class RankingsController < ApplicationController
       current_user.memberships.includes(:org_unit).flat_map { |membership| membership.org_unit.descendant_stores.ids }.uniq
     end
     @ranking = Vazivo::Ranking.for(tenant_scope, date_range: @date_range, store_ids: store_ids)
+    send_spreadsheet(Reports::ExportTable.ranking(@ranking), source: "ranking", filters: export_date_filters) if spreadsheet_request?
   end
 end

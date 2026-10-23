@@ -1,4 +1,5 @@
 class CommunicationsController < ApplicationController
+  include SpreadsheetExports
   layout :communications_layout
 
   before_action :require_compose_hq, except: %i[index show approve reject]
@@ -36,6 +37,10 @@ class CommunicationsController < ApplicationController
       delivery_comments: :user,
       org_unit: { memberships: :user }
     ).order(:id)
+    if spreadsheet_request?
+      send_spreadsheet(Reports::ExportTable.deliveries(monitored_deliveries_for(@communication).includes(:org_unit, :assignee, :communication).order(:id)), source: "brief-deliveries", filters: { communication_id: @communication.id })
+      return
+    end
     @mentionable_users = tenant_scope.users.order(:name).limit(50).to_a if tenant_feature?(:morocco_ops)
     @notifications = hq_user? ? @communication.notification_logs.includes(:user).order(created_at: :desc) : []
     @monitor_only = area_user?
