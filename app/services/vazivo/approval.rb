@@ -20,7 +20,7 @@ module Vazivo
     def can_approve?(user)
       return false unless user
 
-      user.hq? && Membership.allows?("hq", :approve)
+      user.hq? && user.allows?(:approve, tenant_wide: true)
     end
 
     # Does this communication need an approved review before send_to!?

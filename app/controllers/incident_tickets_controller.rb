@@ -37,7 +37,7 @@ class IncidentTicketsController < ApplicationController
   def show
     @ticket = ticket_scope.find(params[:id])
     @events = @ticket.ticket_events.includes(:actor).order(:created_at, :id)
-    @assignees = tenant_scope.users.select { |user| user.hq? || (user.area? && user.area_org_unit&.descendant_stores&.exists?(id: @ticket.org_unit_id)) }
+    @assignees = tenant_scope.users.select { |user| user.allows?(:monitor, org_unit: @ticket.org_unit) }
   end
 
   def update
@@ -64,10 +64,10 @@ class IncidentTicketsController < ApplicationController
 
   def stores
     scope = tenant_scope.org_units.stores
-    return scope if hq_user?
-    return scope.where(id: current_user.area_org_unit&.descendant_stores&.select(:id)) if area_user?
+    return scope if super_admin?
 
-    scope.where(id: current_user.store_org_unit&.id)
+    capability = store_user? ? :execute : :monitor
+    scope.where(id: current_user.permitted_store_ids(capability))
   end
 
   def ticket_scope

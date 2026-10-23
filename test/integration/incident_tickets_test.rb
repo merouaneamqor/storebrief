@@ -96,6 +96,44 @@ class IncidentTicketsTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "custom management roles keep ticket visibility and assignment within granted scope" do
+    post incident_tickets_path, params: ticket_params
+    own = IncidentTicket.last
+    other_store = @brand.tenant.org_units.create!(name: "Outside scope", unit_type: "store", parent: @brand.region)
+    outside = IncidentTicket.create!(tenant: @brand.tenant, org_unit: other_store, author: @brand.hq, ticket_category: @category, title: "Outside incident", description: "Private")
+    role = TenantRole.create!(tenant: @brand.tenant, name: "Scoped monitor", base_role: "hq", capabilities: %w[monitor])
+    manager = create_user(@brand.tenant, org_unit: @brand.store, role: :hq, email: "scoped-manager@ticket.test")
+    manager.memberships.first.update!(tenant_role: role)
+    sign_in manager
+    get incident_ticket_path(own)
+    assert_response :success
+    get incident_ticket_path(outside)
+    assert_response :not_found
+    outside.assignee = manager
+    assert_not outside.valid?
+    sign_in @brand.hq
+    get incident_ticket_path(outside)
+    assert_select "select[name=assignee_id] option[value='#{manager.id}']", count: 0
+    patch incident_ticket_path(outside), params: { status: "in_progress", assignee_id: manager.id }
+    assert_nil outside.reload.assignee_id
+    assert_equal "open", outside.status
+    role.update!(capabilities: [])
+    sign_in manager
+    get incident_ticket_path(own)
+    assert_redirected_to app_root_path
+    role.update!(capabilities: %w[monitor])
+    wide_manager = create_user(@brand.tenant, org_unit: @brand.region, role: :hq, email: "wide-manager@ticket.test")
+    wide_manager.memberships.first.update!(tenant_role: role)
+    sign_in wide_manager
+    get incident_tickets_path
+    assert_response :success
+    assert_select "form[action=?]", ticket_categories_path, count: 0
+    assert_no_difference "TicketCategory.count" do
+      post ticket_categories_path, params: { ticket_category: { name: "Forbidden", department: "IT", sla_hours: 1 } }
+      assert_redirected_to app_root_path
+    end
+  end
+
   private
 
   def ticket_params

@@ -1,4 +1,5 @@
 class CommunicationsController < ApplicationController
+  include SpreadsheetExports
   layout :communications_layout
 
   before_action :require_compose_hq, except: %i[index show approve reject]
@@ -36,6 +37,10 @@ class CommunicationsController < ApplicationController
       delivery_comments: :user,
       org_unit: { memberships: :user }
     ).order(:id)
+    if spreadsheet_request?
+      send_spreadsheet(Reports::ExportTable.deliveries(monitored_deliveries_for(@communication).includes(:org_unit, :assignee, :communication).order(:id)), source: "brief-deliveries", filters: { communication_id: @communication.id })
+      return
+    end
     @mentionable_users = tenant_scope.users.order(:name).limit(50).to_a if tenant_feature?(:morocco_ops)
     @notifications = hq_user? ? @communication.notification_logs.includes(:user).order(created_at: :desc) : []
     @monitor_only = area_user?
@@ -251,10 +256,7 @@ class CommunicationsController < ApplicationController
   end
 
   def area_store_ids
-    area = current_user&.area_org_unit
-    return [] unless area
-
-    area.descendant_stores.pluck(:id)
+    current_user.permitted_store_ids(:monitor)
   end
 
   def load_target_units
@@ -305,7 +307,7 @@ class CommunicationsController < ApplicationController
       :broadcast_email, :broadcast_whatsapp,
       recurrence_attributes: [ :frequency, :interval, :ends_on, { weekdays: [] } ],
       communication_questions_attributes: [
-        :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy
+        :id, :position, :question_type, :weight, :title_fr, :title_ar, :required, :options, :_destroy
       ]
     )
     # Deadline is entered in store local time (Africa/Casablanca); blank falls back to Schedule.default_due.

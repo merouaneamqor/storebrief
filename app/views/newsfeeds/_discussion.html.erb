@@ -1,0 +1,21 @@
+<div class="feed-discussion">
+  <%= form_with url: feed_reactions_path do |form| %>
+    <%= form.hidden_field :subject_type, value: subject.class.name %>
+    <%= form.hidden_field :subject_id, value: subject.id %>
+    <% FeedReaction::KINDS.each do |kind| %>
+      <%= form.button "#{t("feed_engagement.#{kind}")} (#{subject.feed_reactions.count { |reaction| reaction.kind == kind }})", name: :kind, value: kind, class: "btn btn--sm" %>
+    <% end %>
+  <% end %>
+  <% own_reaction = subject.feed_reactions.find { |reaction| reaction.user_id == current_user.id } %>
+  <%= button_to t("feed_engagement.undo"), feed_reaction_path(own_reaction), method: :delete, class: "btn btn--sm" if own_reaction %>
+  <% subject.feed_comments.reject(&:removed_at).each do |comment| %>
+    <p><strong><%= comment.user.name %></strong>: <%= comment.body %></p>
+  <% end %>
+  <%= form_with url: feed_comments_path do |form| %>
+    <%= form.hidden_field :subject_type, value: subject.class.name %>
+    <%= form.hidden_field :subject_id, value: subject.id %>
+    <%= form.label :body, t("feed_engagement.comment"), for: "comment_#{dom_id(subject)}" %>
+    <%= form.text_area :body, id: "comment_#{dom_id(subject)}", required: true, maxlength: 2000 %>
+    <%= form.submit t("feed_engagement.submit"), class: "btn btn--sm" %>
+  <% end %>
+</div>

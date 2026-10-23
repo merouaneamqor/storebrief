@@ -1,0 +1,38 @@
+{
+  "es": {
+    "spreadsheet_exports": {
+      "download": "Descargar",
+      "csv": "Descargar CSV",
+      "xlsx": "Descargar XLSX",
+      "yes": "Sí",
+      "no": "No",
+      "columns": {
+        "store": "Tienda",
+        "region": "Región",
+        "open_briefs": "Briefs abiertos",
+        "open_checklists": "Listas abiertas",
+        "pending": "Pendientes",
+        "oldest": "Asignación más antigua",
+        "percent": "Finalización %",
+        "done": "Completados",
+        "total": "Total",
+        "on_time_percent": "A tiempo %",
+        "conforme": "conforme",
+        "previous_percent": "Período anterior %",
+        "delta": "Cambio",
+        "vm_percent": "Merchandising %",
+        "owner": "Responsable",
+        "on_time": "A tiempo",
+        "overdue": "Atrasado",
+        "steps_done": "Pasos completados",
+        "steps_total": "Total de pasos",
+        "title": "Título",
+        "status": "Estado",
+        "due_at": "Fecha límite",
+        "completed_at": "Completado el",
+        "score": "Puntuación",
+        "verdict": "Veredicto"
+      }
+    }
+  }
+}

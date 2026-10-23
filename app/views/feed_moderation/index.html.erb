@@ -1,0 +1,17 @@
+<% content_for :title, t("feed_engagement.moderation") %>
+<header class="radar-head"><h1><%= t("feed_engagement.moderation") %></h1></header>
+<% @posts.each do |post| %>
+  <article class="panel">
+    <p class="meta"><%= post.org_unit.name %> · <%= post.user.name %> · <%= t("feed_engagement.#{post.status}") %></p>
+    <%= simple_format(post.body) %>
+    <%= button_to t("feed_engagement.approve"), publish_feed_post_path(post), class: "btn" if post.status == "pending" %>
+    <%= button_to t("feed_engagement.remove"), feed_post_path(post), method: :delete, class: "btn" %>
+  </article>
+<% end %>
+<% @comments.each do |comment| %>
+  <article class="panel">
+    <p class="meta"><%= comment.subject.org_unit.name %> · <%= comment.user.name %> · <%= comment.subject_type == "Delivery" ? comment.subject.communication.title : t("feed_engagement.store_post") %></p>
+    <%= simple_format(comment.body) %>
+    <%= button_to t("feed_engagement.remove"), feed_comment_path(comment), method: :delete, class: "btn" %>
+  </article>
+<% end %>

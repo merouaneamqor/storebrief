@@ -1,4 +1,5 @@
 class PlaybooksController < ApplicationController
+  include SpreadsheetExports
   before_action :require_hq
   before_action -> { require_feature!(:checklists) }
   before_action -> { require_feature!(:morocco_ops) }
@@ -12,8 +13,9 @@ class PlaybooksController < ApplicationController
   end
 
   def campaigns
-    @dashboard = Vazivo::CampaignDashboard.for(current_tenant)
-    @regional = Vazivo::RegionalCampaigns.for(current_tenant)
+    @date_range = Reports::DateRange.new(from: params[:from], to: params[:to])
+    @dashboard = Vazivo::CampaignDashboard.for(current_tenant, date_range: @date_range)
+    @regional = Vazivo::RegionalCampaigns.for(current_tenant, date_range: @date_range)
   end
 
   def closing_reports
@@ -23,7 +25,13 @@ class PlaybooksController < ApplicationController
   def closing_report
     checklist = tenant_scope.checklists.sent.where.not(playbook_id: nil).find(params[:checklist_id])
     @report = Vazivo::ClosingReport.for(current_tenant, checklist: checklist)
+    if spreadsheet_request?
+      send_spreadsheet(Reports::ExportTable.closing(@report), source: "campaign-closing", filters: { checklist_id: checklist.id })
+      return
+    end
     @export = params[:export].present?
+    record_export(source: "campaign-closing", format: "html", row_count: @report.stores.size,
+      filters: { checklist_id: checklist.id }) if @export
 
     render layout: "export" if @export
   end

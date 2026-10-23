@@ -6,6 +6,13 @@
 <h1><%= t("reports.title") %></h1>
 <p class="lede"><%= t("reports.lede", tenant: current_tenant.name) %></p>
 
+<%= render "shared/report_date_filter", trends: true %>
+<section class="panel" data-controller="reports-charts" data-reports-charts-trends-value="<%= @trends.chart.to_json %>">
+  <h2><%= t("report_period.trends") %></h2>
+  <p class="meta"><%= t("report_period.definition") %></p>
+  <div class="report-chart"><canvas data-reports-charts-target="trends" role="img" aria-label="<%= t('report_period.trends') %>"></canvas></div>
+</section>
+
 <aside class="report-insight report-insight--<%= @report.insight[:tone] %>">
   <p><%= report_insight_text(@report.insight) %></p>
 </aside>
@@ -75,13 +82,14 @@
   </section>
 <% end %>
 
-<section class="panel" data-controller="reports-filter">
+<section class="panel" data-controller="reports-filter" data-reports-filter-filter-value="<%= %w[behind clear].include?(params[:state]) ? params[:state] : "all" %>">
   <h2><%= t("reports.by_store") %></h2>
+  <%= render "shared/spreadsheet_downloads", report_filter: true %>
   <% if @report.store_rows.any? %>
     <div class="report-toolbar">
       <label class="report-search">
         <span class="visually-hidden"><%= t("reports.search") %></span>
-        <input type="search" placeholder="<%= t("reports.search") %>" data-reports-filter-target="query" data-action="input->reports-filter#apply">
+        <input type="search" value="<%= params[:query] %>" placeholder="<%= t("reports.search") %>" data-reports-filter-target="query" data-action="input->reports-filter#apply">
       </label>
       <div class="report-chips" role="group" aria-label="<%= t("reports.status") %>">
         <button type="button" class="report-chip is-active" aria-pressed="true" data-filter="all" data-reports-filter-target="chip" data-action="reports-filter#setFilter"><%= t("reports.filter_all") %></button>

@@ -68,7 +68,7 @@ class IncidentTicket < ApplicationRecord
   def tenant_boundaries
     records = [ org_unit, ticket_category, author, assignee ].compact
     errors.add(:base, :invalid) unless records.all? { |record| record.tenant_id == tenant_id } && org_unit&.store?
-    if assignee && !(assignee.hq? || (assignee.area? && assignee.area_org_unit&.descendant_stores&.exists?(id: org_unit_id)))
+    if assignee && !assignee.allows?(:monitor, org_unit: org_unit)
       errors.add(:assignee, :invalid)
     end
     return unless source && (new_record? || source_id_changed? || source_type_changed? || org_unit_id_changed?)

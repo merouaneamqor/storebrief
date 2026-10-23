@@ -78,7 +78,7 @@
                 <span><%= t("morocco.retail_calendar.title") %></span>
               <% end %>
             <% end %>
-            <% if tenant_feature?(:morocco_ops) %>
+            <% if tenant_feature?(:morocco_ops) && user_allows?(store_user? ? :execute : :monitor) %>
               <%= link_to t("tickets.title"), incident_tickets_path, class: "app-nav-link" %>
             <% end %>
             <% if hq_user? %>
@@ -128,6 +128,9 @@
                   <span><%= t("nav.more") %></span>
                 </summary>
                 <div class="app-nav-more__list">
+                  <% if tenant_feature?(:morocco_ops) && (super_admin? || current_user.built_in_hq?) %>
+                    <%= link_to t("tenant_roles.title"), tenant_roles_path, class: "app-nav-link" %>
+                  <% end %>
                   <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
                   <% if tenant_feature?(:checklists) %>
                     <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
@@ -135,6 +138,9 @@
                   <% end %>
                   <% if tenant_feature?(:reports) %>
                     <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+                  <% end %>
+                  <% if tenant_feature?(:briefs) && tenant_feature?(:morocco_ops) %>
+                    <%= link_to t("feed_engagement.moderation"), feed_moderation_path, class: "app-nav-link" %>
                   <% end %>
                   <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
                   <%= link_to t("nav.privacy"), privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" %>

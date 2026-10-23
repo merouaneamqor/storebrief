@@ -58,7 +58,7 @@ class CorrectiveActionsController < ApplicationController
   def assert_store_in_scope!(org_unit_id)
     return if hq_user?
 
-    allowed = current_user.area_org_unit&.descendant_stores&.exists?(id: org_unit_id)
+    allowed = current_user.permitted_store_ids(:verdicts, :escalate).include?(org_unit_id)
     raise ArgumentError, t("auth.hq_required") unless allowed
   end
 end

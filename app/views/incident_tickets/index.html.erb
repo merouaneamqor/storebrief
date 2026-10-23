@@ -10,7 +10,7 @@
   <% end %>
   <% if @tickets.empty? %><p class="meta"><%= t("tickets.empty") %></p><% end %>
 </section>
-<% if hq_user? %>
+<% if hq_user? && user_allows?(:manage_org, tenant_wide: true) %>
   <section class="panel">
     <h2><%= t("tickets.categories") %></h2>
     <p class="meta"><%= t("tickets.sla_note") %></p>

@@ -65,15 +65,18 @@ class CampaignDashboardTest < ActionDispatch::IntegrationTest
     assert_select "a.exception-row__store", text: "Agdal"
   end
 
-  test "a fully completed campaign is no longer live" do
+  test "a completed campaign stays visible within the selected dates" do
     checklist = deploy_campaign
     checklist.checklist_deliveries.update_all(status: "completed")
 
     sign_in(@brand.hq)
     get campaigns_playbooks_path
     assert_response :success
+    assert_select ".cmp-card", count: 1
+    assert_select ".cmp-card__percent strong", text: /100/
+    get campaigns_playbooks_path, params: { from: (Date.current + 30).iso8601, to: (Date.current + 40).iso8601 }
+    assert_response :success
     assert_select ".cmp-card", count: 0
-    assert_match I18n.t("morocco.playbooks.campaigns.empty", locale: :en), response.body
   end
 
   test "dashboard is scoped to the tenant" do

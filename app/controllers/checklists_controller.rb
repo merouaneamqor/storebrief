@@ -1,4 +1,5 @@
 class ChecklistsController < ApplicationController
+  include SpreadsheetExports
   before_action :require_hq
   before_action -> { require_feature!(:checklists) }
   before_action :set_checklist, only: %i[show send_checklist notify_push]
@@ -16,6 +17,10 @@ class ChecklistsController < ApplicationController
                               checklist_item_responses: [ :corrective_communication, { photo_attachment: :blob } ]
                             )
                             .order(:id)
+    if spreadsheet_request?
+      send_spreadsheet(Reports::ExportTable.deliveries(@checklist.checklist_deliveries.includes(:org_unit, :assignee, :checklist).order(:id)), source: "checklist-deliveries", filters: { checklist_id: @checklist.id })
+      return
+    end
     @notifications = @checklist.notification_logs.includes(:user).order(created_at: :desc)
     @target_units = tenant_scope.org_units.where(unit_type: %w[region area store]).order(:unit_type, :name)
     if tenant_feature?(:morocco_ops)

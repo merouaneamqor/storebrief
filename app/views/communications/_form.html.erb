@@ -3,6 +3,7 @@
     {
       id: question.id,
       question_type: question.question_type,
+      weight: question.weight,
       title_fr: question.title_fr,
       title_ar: question.title_ar,
       required: question.required,
@@ -119,6 +120,10 @@
                   <% end %>
                 </select>
               </label>
+              <label>
+                <span><%= t("typed_forms.weight") %></span>
+                <input type="number" min="0.01" max="999999.99" step="0.01" required :name="`communication[communication_questions_attributes][${index}][weight]`" x-model="question.weight">
+              </label>
               <label class="brief-required">
                 <input type="hidden" :name="`communication[communication_questions_attributes][${index}][required]`" value="0">
                 <input type="checkbox" :name="`communication[communication_questions_attributes][${index}][required]`" value="1" x-model="question.required">
@@ -189,7 +194,11 @@
               <% @communication.attachments.each do |file| %>
                 <li>
                   <span><%= file.filename %></span>
-                  <label class="brief-required">
+                  <label>
+                <span><%= t("typed_forms.weight") %></span>
+                <input type="number" min="0.01" max="999999.99" step="0.01" required :name="`communication[communication_questions_attributes][${index}][weight]`" x-model="question.weight">
+              </label>
+              <label class="brief-required">
                     <input type="checkbox" name="communication[remove_attachment_ids][]" value="<%= file.id %>">
                     <span><%= t("communications.attachments_remove") %></span>
                   </label>
@@ -288,6 +297,11 @@
               <template x-if="question.question_type === 'short_text'">
                 <input type="text" disabled placeholder="<%= t('communications.answer_hint_short') %>">
               </template>
+              <% TypedFormValue::TYPES.each do |type| %>
+                <template x-if="question.question_type === '<%= type %>'">
+                  <div><%= render "shared/typed_form_field", type: type, name: "", value: nil, required: false %></div>
+                </template>
+              <% end %>
               <template x-if="question.question_type === 'long_text'">
                 <textarea disabled rows="3" placeholder="<%= t('communications.answer_hint_long') %>"></textarea>
               </template>

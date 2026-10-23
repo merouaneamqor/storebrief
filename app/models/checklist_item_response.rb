@@ -21,6 +21,8 @@ class ChecklistItemResponse < ApplicationRecord
 
   validates :checklist_item_id, uniqueness: { scope: :checklist_delivery_id }
   validate :acceptable_evidence
+  validate :typed_answer
+
 
   def completed?
     completed
@@ -39,6 +41,16 @@ class ChecklistItemResponse < ApplicationRecord
   end
 
   private
+
+  def typed_answer
+    return unless completed? && checklist_item && TypedFormValue::TYPES.include?(checklist_item.question_type)
+
+    if notes.blank?
+      errors.add(:notes, :blank) if checklist_item.required?
+    elsif !TypedFormValue.valid?(checklist_item.question_type, notes)
+      errors.add(:notes, :invalid)
+    end
+  end
 
   def acceptable_evidence
     return unless photo.attached?

@@ -91,4 +91,36 @@ class ReportsTest < ActionDispatch::IntegrationTest
     get reports_path
     assert_redirected_to app_root_path
   end
+  test "date filters and chart grouping are localized and area scoped" do
+    brand = build_brand("report-period-ui")
+    area = create_user(brand.tenant, org_unit: brand.region, role: :area)
+    other_region = brand.tenant.org_units.create!(name: "Hidden Region", unit_type: "region")
+    other_store = brand.tenant.org_units.create!(name: "Hidden Store", unit_type: "store", parent: other_region)
+    [ brand.store, other_store ].each do |store|
+      brief = brand.tenant.communications.create!(author: brand.hq, title_fr: "Scoped brief", body_fr: "Do it", format: "task", status: "sent")
+      brief.deliveries.create!(org_unit: store, status: "pending").update_column(:created_at, Time.zone.parse("2026-01-10 12:00"))
+    end
+    sign_in(area)
+    %w[fr ar en es].each do |locale|
+      area.update!(locale: locale)
+      get reports_path, params: { from: "2026-01-01", to: "2026-01-31", interval: "month", group_by: "store" }
+      assert_response :success
+      assert_select "input[name=from][value='2026-01-01']"
+      assert_select "option[value=month][selected]"
+      assert_select "canvas[data-reports-charts-target=trends]"
+      assert_select "td", text: brand.store.name
+      assert_no_match "Hidden Store", response.body
+      assert_no_match "translation missing", response.body
+    end
+    get reports_path, params: { from: "999999999-12-31", to: "-999999999-01-01" }
+    assert_response :success
+    assert_select "input[name=from][value='2096-01-01']"
+    assert_select "input[name=to][value='2100-12-31']"
+    get reports_path, params: { from: "2026-02-01", to: "2026-02-28" }
+    assert_response :success
+    assert_select ".report-insight--ok"
+    get ranking_path, params: { from: "2026-01-01", to: "2026-01-31" }
+    assert_response :success
+    assert_no_match "Hidden Store", response.body
+  end
 end

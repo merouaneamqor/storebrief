@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -147,8 +147,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
     t.jsonb "options", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "weight", precision: 8, scale: 2, default: "1.0", null: false
     t.index ["communication_id", "position"], name: "index_communication_questions_on_communication_id_and_position"
     t.index ["communication_id"], name: "index_communication_questions_on_communication_id"
+    t.check_constraint "weight > 0::numeric", name: "communication_questions_positive_weight"
   end
 
   create_table "communication_templates", force: :cascade do |t|
@@ -334,6 +336,60 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
     t.index ["tenant_id"], name: "index_escalation_events_on_tenant_id"
   end
 
+  create_table "export_logs", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "actor_id"
+    t.string "source", null: false
+    t.string "output_format", null: false
+    t.jsonb "filters", default: {}, null: false
+    t.integer "row_count", null: false
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_export_logs_on_actor_id"
+    t.index ["tenant_id", "created_at"], name: "index_export_logs_on_tenant_id_and_created_at"
+    t.index ["tenant_id"], name: "index_export_logs_on_tenant_id"
+  end
+
+  create_table "feed_comments", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.string "subject_type", null: false
+    t.bigint "subject_id", null: false
+    t.text "body", null: false
+    t.datetime "removed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subject_type", "subject_id"], name: "index_feed_comments_on_subject"
+    t.index ["tenant_id"], name: "index_feed_comments_on_tenant_id"
+    t.index ["user_id"], name: "index_feed_comments_on_user_id"
+  end
+
+  create_table "feed_posts", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "org_unit_id", null: false
+    t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["org_unit_id"], name: "index_feed_posts_on_org_unit_id"
+    t.index ["tenant_id"], name: "index_feed_posts_on_tenant_id"
+    t.index ["user_id"], name: "index_feed_posts_on_user_id"
+  end
+
+  create_table "feed_reactions", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.string "subject_type", null: false
+    t.bigint "subject_id", null: false
+    t.string "kind", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subject_type", "subject_id", "user_id"], name: "idx_on_subject_type_subject_id_user_id_e9ef93422a", unique: true
+    t.index ["subject_type", "subject_id"], name: "index_feed_reactions_on_subject"
+    t.index ["tenant_id"], name: "index_feed_reactions_on_tenant_id"
+    t.index ["user_id"], name: "index_feed_reactions_on_user_id"
+  end
+
   create_table "incident_tickets", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.bigint "org_unit_id", null: false
@@ -426,7 +482,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
     t.string "role", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_role_id"
     t.index ["org_unit_id"], name: "index_memberships_on_org_unit_id"
+    t.index ["tenant_role_id"], name: "index_memberships_on_tenant_role_id"
     t.index ["user_id", "org_unit_id"], name: "index_memberships_on_user_id_and_org_unit_id", unique: true
     t.index ["user_id"], name: "index_memberships_on_user_id"
   end
@@ -709,6 +767,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
     t.index ["tenant_id"], name: "index_tenant_mail_settings_on_tenant_id", unique: true
   end
 
+  create_table "tenant_roles", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "name", null: false
+    t.string "base_role", null: false
+    t.jsonb "capabilities", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id", "name"], name: "index_tenant_roles_on_tenant_id_and_name", unique: true
+    t.index ["tenant_id"], name: "index_tenant_roles_on_tenant_id"
+  end
+
   create_table "tenant_saml_settings", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.boolean "enabled", default: false, null: false
@@ -899,6 +968,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
   add_foreign_key "delivery_reads", "tenants"
   add_foreign_key "delivery_reads", "users"
   add_foreign_key "escalation_events", "tenants"
+  add_foreign_key "export_logs", "tenants"
+  add_foreign_key "export_logs", "users", column: "actor_id", on_delete: :nullify
+  add_foreign_key "feed_comments", "tenants"
+  add_foreign_key "feed_comments", "users"
+  add_foreign_key "feed_posts", "org_units"
+  add_foreign_key "feed_posts", "tenants"
+  add_foreign_key "feed_posts", "users"
+  add_foreign_key "feed_reactions", "tenants"
+  add_foreign_key "feed_reactions", "users"
   add_foreign_key "incident_tickets", "org_units"
   add_foreign_key "incident_tickets", "tenants"
   add_foreign_key "incident_tickets", "ticket_categories"
@@ -912,6 +990,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
   add_foreign_key "kb_categories", "kb_categories", column: "parent_id", on_delete: :nullify
   add_foreign_key "kb_categories", "tenants"
   add_foreign_key "memberships", "org_units"
+  add_foreign_key "memberships", "tenant_roles"
   add_foreign_key "memberships", "users"
   add_foreign_key "notification_logs", "tenants"
   add_foreign_key "notification_logs", "users"
@@ -937,6 +1016,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_040000) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "tenant_mail_settings", "tenants"
+  add_foreign_key "tenant_roles", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "ticket_categories", "tenants"
   add_foreign_key "ticket_events", "incident_tickets"

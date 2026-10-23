@@ -33,7 +33,8 @@ class BriefFlowTest < ApplicationSystemTestCase
       click_button I18n.t("morocco.awareness.actions.#{step}", locale: :en)
     end
 
-    assert_text I18n.t("morocco.awareness.saved", locale: :en)
+    # A previous step can leave the same saved flash while the final fetch is pending.
+    assert_selector ".stepper__step.is-done", count: Delivery::AWARENESS_STEPS.length
     assert_equal "completed", brief.deliveries.first.reload.status
   end
 end
