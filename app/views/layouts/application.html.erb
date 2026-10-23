@@ -78,6 +78,9 @@
                 <span><%= t("morocco.retail_calendar.title") %></span>
               <% end %>
             <% end %>
+            <% if tenant_feature?(:morocco_ops) && user_allows?(store_user? ? :execute : :monitor) %>
+              <%= link_to t("tickets.title"), incident_tickets_path, class: "app-nav-link" %>
+            <% end %>
             <% if hq_user? %>
               <% if tenant_feature?(:briefs) %>
                 <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications') && !request.path.end_with?('/new')}" do %>

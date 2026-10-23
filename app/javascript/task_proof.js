@@ -138,14 +138,15 @@ document.addEventListener("submit", async event => {
     const files = data.getAll("proof_files[]").filter(file => file instanceof Blob && file.size);
     const types = fields.dataset.types.split(",");
     const uploads = [...data.values()].filter(value => value instanceof Blob && value.size);
-    if (files.length > Number(fields.dataset.maxCount) || uploads.some(file => file.size > Number(fields.dataset.maxBytes) || !types.includes(file.type))) {
+    if (files.length > Number(fields.dataset.maxCount) || uploads.some(file => file.size > Number(file.type.startsWith("video/") ? fields.dataset.videoMaxBytes : fields.dataset.maxBytes) || !types.includes(file.type))) {
       throw new Error(fields.dataset.validationError);
     }
     const entries = [];
     for (const [name, value] of data.entries()) {
       if (value instanceof Blob) {
         if (!value.size) continue;
-        const compressed = await compressPhoto(value);
+        const signature = form.querySelector(`input[data-signature-file][name="${CSS.escape(name)}"]`);
+        const compressed = signature ? value : await compressPhoto(value);
         entries.push({ name, value: compressed, filename: compressed.name });
       } else {
         entries.push({ name, value });

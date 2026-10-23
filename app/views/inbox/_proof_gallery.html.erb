@@ -8,6 +8,8 @@
             <%= link_to rails_blob_path(file, disposition: "attachment") do %>
               <%= image_tag file, class: "thumb", alt: file.filename.to_s, loading: "lazy" %>
             <% end %>
+          <% elsif Delivery::PROOF_VIDEO_TYPES.include?(file.blob.content_type) %>
+            <%= video_tag rails_blob_path(file), controls: true, preload: "metadata", class: "thumb" %>
           <% end %>
           <figcaption><%= link_to file.filename.to_s, rails_blob_path(file, disposition: "attachment") %></figcaption>
         </figure>

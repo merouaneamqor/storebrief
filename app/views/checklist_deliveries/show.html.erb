@@ -26,6 +26,10 @@
     <% response = @responses[item.id] %>
     <div class="checklist-item <%= 'is-done' if response&.completed? %>" data-item-id="<%= item.id %>">
       <strong><%= item.title %></strong>
+    <% if response && tenant_feature?(:morocco_ops) %>
+      <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "ChecklistItemResponse", source_id: response.id), class: "btn btn--sm" %>
+    <% end %>
+
       <% if item.requires_photo? %>
         <div class="meta"><%= t("checklists.requires_photo") %></div>
       <% end %>
