@@ -347,6 +347,47 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
     t.index ["tenant_id"], name: "index_export_logs_on_tenant_id"
   end
 
+  create_table "feed_comments", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.string "subject_type", null: false
+    t.bigint "subject_id", null: false
+    t.text "body", null: false
+    t.datetime "removed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subject_type", "subject_id"], name: "index_feed_comments_on_subject"
+    t.index ["tenant_id"], name: "index_feed_comments_on_tenant_id"
+    t.index ["user_id"], name: "index_feed_comments_on_user_id"
+  end
+
+  create_table "feed_posts", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "org_unit_id", null: false
+    t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["org_unit_id"], name: "index_feed_posts_on_org_unit_id"
+    t.index ["tenant_id"], name: "index_feed_posts_on_tenant_id"
+    t.index ["user_id"], name: "index_feed_posts_on_user_id"
+  end
+
+  create_table "feed_reactions", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.string "subject_type", null: false
+    t.bigint "subject_id", null: false
+    t.string "kind", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subject_type", "subject_id", "user_id"], name: "idx_on_subject_type_subject_id_user_id_e9ef93422a", unique: true
+    t.index ["subject_type", "subject_id"], name: "index_feed_reactions_on_subject"
+    t.index ["tenant_id"], name: "index_feed_reactions_on_tenant_id"
+    t.index ["user_id"], name: "index_feed_reactions_on_user_id"
+  end
+
   create_table "kb_article_versions", force: :cascade do |t|
     t.bigint "kb_article_id", null: false
     t.bigint "author_id"
@@ -865,6 +906,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
   add_foreign_key "escalation_events", "tenants"
   add_foreign_key "export_logs", "tenants"
   add_foreign_key "export_logs", "users", column: "actor_id", on_delete: :nullify
+  add_foreign_key "feed_comments", "tenants"
+  add_foreign_key "feed_comments", "users"
+  add_foreign_key "feed_posts", "org_units"
+  add_foreign_key "feed_posts", "tenants"
+  add_foreign_key "feed_posts", "users"
+  add_foreign_key "feed_reactions", "tenants"
+  add_foreign_key "feed_reactions", "users"
   add_foreign_key "kb_article_versions", "kb_articles"
   add_foreign_key "kb_article_versions", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "kb_articles", "kb_categories"
