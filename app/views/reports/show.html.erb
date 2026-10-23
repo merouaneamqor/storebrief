@@ -4,6 +4,9 @@
 <% end %>
 
 <h1><%= t("reports.title") %></h1>
+<% if Reports::Audience.enabled?(current_user) %>
+  <p><%= link_to t("report_subscriptions.title"), report_subscription_path, class: "btn btn--quiet" %></p>
+<% end %>
 <p class="lede"><%= t("reports.lede", tenant: current_tenant.name) %></p>
 
 <%= render "shared/report_date_filter", trends: true %>
