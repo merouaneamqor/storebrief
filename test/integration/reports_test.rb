@@ -112,6 +112,10 @@ class ReportsTest < ActionDispatch::IntegrationTest
       assert_no_match "Hidden Store", response.body
       assert_no_match "translation missing", response.body
     end
+    get reports_path, params: { from: "999999999-12-31", to: "-999999999-01-01" }
+    assert_response :success
+    assert_select "input[name=from][value='2096-01-01']"
+    assert_select "input[name=to][value='2100-12-31']"
     get reports_path, params: { from: "2026-02-01", to: "2026-02-28" }
     assert_response :success
     assert_select ".report-insight--ok"

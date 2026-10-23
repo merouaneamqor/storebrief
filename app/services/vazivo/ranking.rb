@@ -24,7 +24,7 @@ module Vazivo
       range = @date_range&.times || (week_start...(week_start + 1.week))
       previous_range = if @date_range
         days = (@date_range.to - @date_range.from).to_i + 1
-        Reports::DateRange.new(from: (@date_range.from - days).iso8601, to: (@date_range.from - 1).iso8601).times
+        (@date_range.from - days).in_time_zone(Schedule::ZONE)...@date_range.from.in_time_zone(Schedule::ZONE)
       else
         (week_start - 1.week)...week_start
       end

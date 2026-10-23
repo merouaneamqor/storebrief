@@ -1,8 +1,8 @@
 <%= form_with url: request.path, method: :get, class: "report-toolbar" do |form| %>
   <%= form.label :from, t("report_period.from") %>
-  <%= form.date_field :from, value: @date_range.from.iso8601 %>
+  <%= form.date_field :from, value: @date_range.from.iso8601, min: Reports::DateRange::EARLIEST_DATE.iso8601, max: Reports::DateRange::LATEST_DATE.iso8601 %>
   <%= form.label :to, t("report_period.to") %>
-  <%= form.date_field :to, value: @date_range.to.iso8601 %>
+  <%= form.date_field :to, value: @date_range.to.iso8601, min: Reports::DateRange::EARLIEST_DATE.iso8601, max: Reports::DateRange::LATEST_DATE.iso8601 %>
   <% if local_assigns[:trends] %>
     <%= form.label :interval, t("report_period.interval") %>
     <%= form.select :interval, %w[week month].map { |key| [t("report_period.#{key}"), key] }, selected: @trends.interval %>

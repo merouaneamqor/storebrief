@@ -18,6 +18,22 @@ class ReportTrendsTest < ActiveSupport::TestCase
     assert_equal @range.dates, invalid.dates
   end
 
+  test "extreme and reversed dates produce a bounded chart and safe timezone range" do
+    extreme = Reports::DateRange.new(from: "-999999999-01-01", to: "999999999-12-31")
+    reversed = Reports::DateRange.new(from: "999999999-12-31", to: "-999999999-01-01")
+    assert_equal extreme.dates, reversed.dates
+    assert_equal Date.new(2100, 12, 31), extreme.to
+    assert_equal Date.new(2096, 1, 1), extreme.from
+    assert_equal extreme.from, extreme.times.begin.to_date
+    assert_equal extreme.to + 1.day, extreme.times.end.to_date
+    weekly = Reports::ComplianceTrends.new(@brand.tenant, date_range: extreme).chart
+    monthly = Reports::ComplianceTrends.new(@brand.tenant, date_range: extreme, interval: "month").chart
+    assert_operator weekly[:labels].size, :<=, 263
+    assert_equal 60, monthly[:labels].size
+    assert_equal [ Date.new(2000, 1, 1) ], Reports::DateRange.new(from: "0001-01-01", to: "0002-01-01").dates.to_a
+    assert_equal Date.new(2022, 1, 1), Reports::DateRange.new(from: "2000-01-01", to: "2026-12-31").from
+  end
+
   test "weekly and monthly compliance groups count work and preserve gaps across tenant and store boundaries" do
     add_brief(@brand, @brand.store, "2026-01-05 10:00", "completed")
     add_brief(@brand, @brand.store, "2026-01-06 10:00", "pending")
@@ -50,6 +66,15 @@ class ReportTrendsTest < ActiveSupport::TestCase
     assert_equal 0, result.rows.sole.previous_percent
     assert_equal 50, result.rows.sole.delta
     assert_empty Vazivo::Ranking.for(@brand.tenant, date_range: @range, store_ids: []).rows
+  end
+
+  test "ranking comparison can precede the earliest selectable date" do
+    add_brief(@brand, @brand.store, "2000-01-01 12:00", "completed")
+    add_brief(@brand, @brand.store, "1999-12-31 12:00", "pending")
+    range = Reports::DateRange.new(from: "2000-01-01", to: "2000-01-01")
+    row = Vazivo::Ranking.for(@brand.tenant, date_range: range).rows.sole
+    assert_equal 100, row.percent
+    assert_equal 0, row.previous_percent
   end
 
   test "campaign dashboard and regional rollup share an overlapping campaign range" do
