@@ -1,4 +1,6 @@
 class Delivery < ApplicationRecord
+  has_many :feed_comments, as: :subject, dependent: :destroy
+  has_many :feed_reactions, as: :subject, dependent: :destroy
   include Vazivo::Execution
 
   STATUSES = %w[pending pending_approval completed read].freeze

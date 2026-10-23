@@ -10,6 +10,11 @@ class NewsfeedsController < ApplicationController
       page: params[:page],
       per_page: params[:per_page]
     )
+    store_posts = FeedPost.where(tenant: tenant_scope, org_unit: @store)
+    @posts = store_posts.where(status: "published")
+                        .or(store_posts.where(user: current_user, status: "pending"))
+                        .includes(:user, :feed_reactions, feed_comments: :user)
+                        .order(created_at: :desc).limit(50)
     @deliveries = result.deliveries
     @page = result.page
     @per_page = result.per_page

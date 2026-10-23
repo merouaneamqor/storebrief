@@ -3,7 +3,7 @@ require "test_helper"
 class NewsfeedTest < ActionDispatch::IntegrationTest
   setup { host! "localhost" }
 
-  test "store sees chronological news and announcements with pagination and no social chrome" do
+  test "store sees chronological news and announcements with pagination and operational discussion" do
     brand = build_brand("atlas-newsfeed", features: { morocco_ops: true, briefs: true })
     other = brand.tenant.org_units.create!(name: "Anfa", unit_type: "store", parent: brand.region)
 
@@ -70,9 +70,9 @@ class NewsfeedTest < ActionDispatch::IntegrationTest
     body = response.body
     assert_operator body.index("Newer announcement"), :<, body.index("Older note")
 
-    # No social chrome on the company feed (likes / reactions / follows).
-    assert_select "[data-like], .like, .reaction, .share-btn, .follow", count: 0
-    assert_no_match(/\b(like|react|follow)\b/i, body)
+    # No follows or shares on the operational feed.
+    assert_select "[data-like], .like, .share-btn, .follow", count: 0
+    assert_no_match(/\b(like|follow)\b/i, body)
     assert_select ".newsfeed-pager", count: 0
 
     own_delivery = newer.deliveries.find_by!(org_unit: brand.store)
