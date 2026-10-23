@@ -1,0 +1,44 @@
+<% content_for :title, @ticket.title %>
+<header class="radar-head"><h1><%= @ticket.title %></h1><%= link_to t("tickets.title"), incident_tickets_path %></header>
+<section class="panel">
+  <p class="meta"><%= @ticket.org_unit.name %> · <%= @ticket.department %> · <%= @ticket.ticket_category.name %> · <%= t("tickets.priorities.#{@ticket.priority}") %></p>
+  <%= simple_format @ticket.description %>
+  <p><%= t("tickets.status") %>: <%= t("tickets.statuses.#{@ticket.status}") %></p>
+  <p><%= t("tickets.deadline") %>: <%= l(@ticket.due_at, format: :short) %>
+    <% if @ticket.breached? %><span class="badge"><%= t("tickets.breached") %></span><% end %>
+  </p>
+  <p><%= t("tickets.assignee") %>: <%= @ticket.assignee&.name || "-" %></p>
+  <% if @ticket.source %>
+    <% source = @ticket.source %>
+    <% source_path = if source.is_a?(Delivery)
+      store_user? ? inbox_path(source) : communication_path(source.communication)
+    else
+      store_user? ? checklists_delivery_path(source.checklist_delivery) : checklist_path(source.checklist_delivery.checklist, anchor: "store-#{source.checklist_delivery.org_unit_id}")
+    end %>
+    <% if area_user? && source.is_a?(ChecklistItemResponse) %>
+      <p><%= t("tickets.source") %>: <%= source.checklist_item.title %></p>
+    <% else %>
+      <%= link_to t("tickets.source"), source_path %>
+    <% end %>
+  <% end %>
+  <% if hq_user? || area_user? %>
+    <%= form_with url: incident_ticket_path(@ticket), method: :patch do |form| %>
+      <%= form.label :status, t("tickets.status") %>
+      <%= form.select :status, ([@ticket.status] + IncidentTicket::TRANSITIONS.fetch(@ticket.status)).map { |status| [t("tickets.statuses.#{status}"), status] }, selected: @ticket.status %>
+      <%= form.label :assignee_id, t("tickets.assignee") %><%= form.select :assignee_id, @assignees.map { |user| [user.name, user.id] }, include_blank: "-", selected: @ticket.assignee_id %>
+      <%= form.submit t("tickets.save"), class: "btn" %>
+    <% end %>
+  <% end %>
+</section>
+<section class="panel">
+  <h2><%= t("tickets.history") %></h2>
+  <% @events.each do |event| %>
+    <p><%= event.actor.name %> · <%= l(event.created_at, format: :short) %> · <%= t("tickets.events.#{event.kind}") %>
+      <% if %w[status created].include?(event.kind) %>
+        <%= t("tickets.statuses.#{event.to_value}") %>
+      <% else %>
+        <%= event.from_value || "-" %> → <%= event.to_value || "-" %>
+      <% end %>
+    </p>
+  <% end %>
+</section>

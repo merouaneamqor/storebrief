@@ -223,6 +223,9 @@
             </div>
           <% end %>
 
+          <% if morocco && delivery.verdict == "non_conforme" %>
+            <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "Delivery", source_id: delivery.id), class: "btn btn--sm" %>
+          <% end %>
           <% if morocco && (delivery.verdict.present? || delivery.score.present?) %>
             <p class="verdict-chip <%= "verdict-chip--#{delivery.verdict}" if delivery.verdict.present? %>">
               <% if delivery.score.present? %>

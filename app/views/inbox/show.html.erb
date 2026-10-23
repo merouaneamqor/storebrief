@@ -276,3 +276,7 @@
           mentionable_users: @mentionable_users %>
   <% end %>
 </article>
+
+<% if tenant_feature?(:morocco_ops) && @delivery.verdict == "non_conforme" %>
+  <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "Delivery", source_id: @delivery.id), class: "btn" %>
+<% end %>
