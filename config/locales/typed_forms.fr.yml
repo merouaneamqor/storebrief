@@ -1,0 +1,14 @@
+fr:
+  communications:
+    question_types:
+      number: "Nombre"
+      date: "Date"
+      rating: "Note (1 à 5)"
+      yes_no_na: "Oui / Non / Sans objet"
+  typed_forms:
+    invalid_answer: "Vérifiez les réponses requises et leur format."
+    weight: "Coefficient"
+    answers:
+      "yes": "Oui"
+      "no": "Non"
+      na: "Sans objet"

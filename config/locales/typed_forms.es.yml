@@ -1,0 +1,14 @@
+es:
+  communications:
+    question_types:
+      number: "Número"
+      date: "Fecha"
+      rating: "Valoración (1 a 5)"
+      yes_no_na: "Sí / No / No aplica"
+  typed_forms:
+    invalid_answer: "Compruebe las respuestas obligatorias y su formato."
+    weight: "Peso"
+    answers:
+      "yes": "Sí"
+      "no": "No"
+      na: "No aplica"

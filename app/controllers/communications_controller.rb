@@ -256,10 +256,7 @@ class CommunicationsController < ApplicationController
   end
 
   def area_store_ids
-    area = current_user&.area_org_unit
-    return [] unless area
-
-    area.descendant_stores.pluck(:id)
+    current_user.permitted_store_ids(:monitor)
   end
 
   def load_target_units
@@ -310,7 +307,7 @@ class CommunicationsController < ApplicationController
       :broadcast_email, :broadcast_whatsapp,
       recurrence_attributes: [ :frequency, :interval, :ends_on, { weekdays: [] } ],
       communication_questions_attributes: [
-        :id, :position, :question_type, :title_fr, :title_ar, :required, :options, :_destroy
+        :id, :position, :question_type, :weight, :title_fr, :title_ar, :required, :options, :_destroy
       ]
     )
     # Deadline is entered in store local time (Africa/Casablanca); blank falls back to Schedule.default_due.

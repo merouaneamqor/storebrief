@@ -150,6 +150,10 @@ Rails.application.routes.draw do
   resources :stores, only: :show
 
   get "classement", to: "rankings#show", as: :ranking
+  resources :tenant_roles, only: %i[index create update destroy] do
+    post :assign, on: :collection
+  end
+
   resource :billing, only: %i[show update]
   resource :hq_widgets, only: %i[show update], controller: "hq_widgets"
   resource :ramadan, only: :update, controller: "ramadan"

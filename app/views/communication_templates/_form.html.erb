@@ -68,6 +68,10 @@
             <% end %>
           </select>
         </label>
+        <label>
+          <%= t("typed_forms.weight") %>
+          <input type="number" min="0.01" step="0.01" name="communication_template[questions][<%= index %>][weight]" value="<%= question[:weight] || question['weight'] || 1 %>">
+        </label>
         <label class="checkbox">
           <input type="hidden" name="communication_template[questions][<%= index %>][required]" value="0">
           <input type="checkbox" name="communication_template[questions][<%= index %>][required]" value="1"

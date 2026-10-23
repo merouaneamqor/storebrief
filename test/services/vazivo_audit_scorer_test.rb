@@ -73,4 +73,44 @@ class VazivoAuditScorerTest < ActiveSupport::TestCase
     assert_equal "improve", @delivery.reload.verdict
     assert_equal 100, @delivery.score
   end
+  test "weighted choice scoring prioritizes high impact answers" do
+    @q1.update_column(:weight, 3)
+    @delivery.save_answers!(@q1.id.to_s => { "text" => "Oui" }, @q2.id.to_s => { "text" => "Non" })
+    result = Vazivo::AuditScorer.call(@delivery)
+    assert_equal 75, result.score
+    assert_equal 3, result.earned
+    assert_equal 4, result.possible
+  end
+
+  test "weighted completion keeps legacy defaults and counts unanswered weight" do
+    @q1.update_columns(question_type: "number", options: [], weight: 3)
+    @q2.update_columns(question_type: "date", options: [])
+    @delivery.save_answers!(@q1.id.to_s => { "text" => "0" })
+    assert_equal 75, Vazivo::AuditScorer.call(@delivery).score
+    answer = @delivery.delivery_answers.first
+    answer.value = { "text" => "NaN" }
+    assert_not answer.valid?
+  end
+
+  test "rating earns proportional credit and NA excludes its weight" do
+    @q1.update_columns(question_type: "rating", options: [], weight: 3)
+    @q2.update_columns(question_type: "yes_no_na", options: [], weight: 7)
+    @delivery.save_answers!(@q1.id.to_s => { "text" => "4" }, @q2.id.to_s => { "text" => "na" })
+    result = Vazivo::AuditScorer.call(@delivery)
+    assert_equal 80, result.score
+    assert_equal 3, result.possible
+    @delivery.save_answers!(@q2.id.to_s => { "text" => "no" })
+    assert_equal 24, Vazivo::AuditScorer.call(@delivery).score
+    @delivery.save_answers!(@q2.id.to_s => { "text" => "yes" })
+    assert_equal 94, Vazivo::AuditScorer.call(@delivery).score
+  end
+
+  test "all NA yields no verdict rather than a perfect audit" do
+    [ @q1, @q2 ].each { |q| q.update_columns(question_type: "yes_no_na", options: []) }
+    @delivery.save_answers!(@q1.id.to_s => { "text" => "na" }, @q2.id.to_s => { "text" => "na" })
+    result = Vazivo::AuditScorer.call(@delivery)
+    assert_nil result.score
+    assert_nil result.verdict
+    assert_equal 0, result.possible
+  end
 end

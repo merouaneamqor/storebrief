@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
   before_action :bind_session_tenant
   before_action :set_locale
   before_action :require_privacy_acceptance, if: :privacy_gate_required?
+  before_action :require_workflow_capability
 
   private
 
@@ -59,19 +60,48 @@ class ApplicationController < ActionController::Base
     current_user&.super_admin?
   end
 
-  # Capability check against Membership::CAPABILITIES (permission matrix).
-  def user_allows?(capability)
+  # Pass the target unit for object-level checks; unscoped checks drive navigation.
+  def user_allows?(capability, org_unit: nil, tenant_wide: false)
+    return false if org_unit && org_unit.tenant_id != current_tenant&.id
     return true if super_admin?
-    return false unless current_user
+    return false unless current_user && current_user.tenant_id == current_tenant&.id
 
-    if current_user.hq?
-      Membership.allows?("hq", capability)
-    elsif current_user.area?
-      Membership.allows?("area", capability)
-    elsif current_user.store?
-      Membership.allows?("store", capability)
+    current_user.allows?(capability, org_unit: org_unit, tenant_wide: tenant_wide)
+  end
+
+  # Legacy role helpers select chrome and data scopes, never grant a removed
+  # custom capability. Keep these entry points consistent with the HQ gates.
+  def require_workflow_capability
+    return unless current_user && current_user.memberships.where.not(tenant_role_id: nil).exists?
+
+    capability = case controller_name
+    when "inbox", "newsfeeds", "feed_engagements", "feed_engagement", "feed_comments", "feed_reactions", "broadcast_acknowledgements", "delivery_comments" then store_user? ? :inbox : :monitor
+    when "feed_posts", "feed_moderation" then store_user? ? :inbox : :compose
+    when "checklist_deliveries", "sync" then :execute
+    when "my_tasks", "incident_tickets" then store_user? ? :execute : :monitor
+    when "rankings" then store_user? ? :inbox : :reports
+    when "vm_missions" then store_user? ? :execute : (action_name.in?(%w[index show review]) ? :verdicts : :compose)
+    when "dashboard", "stores", "hq_widgets" then store_user? ? :inbox : :monitor
+    when "visits" then store_user? ? :inbox : :visits
+    when "kb_articles" then action_name.in?(%w[index show]) ? (store_user? ? :inbox : :monitor) : :compose
+    end
+    return unless capability
+    unit = current_user.store_org_unit if store_user?
+    return if user_allows?(capability, org_unit: unit, tenant_wide: hq_user?)
+
+    if controller_name == "dashboard"
+      destination = if user_allows?(:visits)
+        calendar_visits_path
+      elsif user_allows?(:reports)
+        reports_path
+      elsif user_allows?(:compose, tenant_wide: true)
+        new_communication_path
+      elsif store_user? && user_allows?(:execute, org_unit: unit)
+        checklists_deliveries_path
+      end
+      destination ? redirect_to(destination) : head(:forbidden)
     else
-      false
+      redirect_to app_root_path, alert: t("auth.hq_required")
     end
   end
 
@@ -169,7 +199,13 @@ class ApplicationController < ActionController::Base
   end
 
   def require_hq
-    return if hq_user?
+    capability = {
+      "billings" => :billing, "org_units" => :manage_org,
+      "playbooks" => :playbooks, "playbook_deploy_requests" => :playbooks,
+      "visits" => :visits, "hq_widgets" => :monitor,
+      "vm_missions" => :compose, "ramadan" => :manage_org
+    }.fetch(controller_name, :compose)
+    return if hq_user? && user_allows?(capability, tenant_wide: true)
 
     redirect_to app_root_path, alert: t("auth.hq_required")
   end
@@ -178,14 +214,13 @@ class ApplicationController < ActionController::Base
   # Store role is always denied (no HQ board / compose leak via area capabilities).
   def require_hq_or_area(*capabilities)
     caps = Array(capabilities).presence || [ :monitor ]
-    return if hq_user?
-    return if area_user? && caps.all? { |cap| user_allows?(cap) }
+    return if (hq_user? || area_user?) && caps.all? { |cap| user_allows?(cap, tenant_wide: hq_user?) }
 
     redirect_to app_root_path, alert: t("auth.hq_required")
   end
 
   def authenticate_hq_admin!
-    return if current_user&.hq? || current_user&.super_admin?
+    return if super_admin? || current_user&.built_in_hq?
 
     if current_user
       redirect_to app_root_path, alert: t("auth.hq_required")

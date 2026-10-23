@@ -31,7 +31,7 @@ class User < ApplicationRecord
   private :default_test_privacy_acceptance
 
   def hq?
-    memberships.exists?(role: "hq")
+    permission_memberships.any? { |membership| membership.workflow_role == "hq" }
   end
 
   def store?
@@ -39,7 +39,33 @@ class User < ApplicationRecord
   end
 
   def area?
-    memberships.exists?(role: "area")
+    permission_memberships.any? { |membership| membership.workflow_role == "area" }
+  end
+
+  def permission_memberships
+    memberships.includes(:tenant_role, :org_unit).to_a.select { |m| m.org_unit.tenant_id == tenant_id }
+  end
+
+  def allows?(capability, org_unit: nil, tenant_wide: false)
+    return false if org_unit && org_unit.tenant_id != tenant_id
+
+    permission_memberships.any? do |membership|
+      membership.allows?(capability) && (!org_unit || membership.covers?(org_unit)) && (!tenant_wide || membership.tenant_wide?)
+    end
+  end
+
+  def permitted_store_ids(*capabilities)
+    permission_memberships.select { |membership| capabilities.all? { |capability| membership.allows?(capability) } }.flat_map do |membership|
+      if membership.role == "hq" && membership.tenant_role_id.nil?
+        tenant.org_units.stores.ids
+      else
+        membership.org_unit.descendant_stores.where(tenant_id: tenant_id).ids
+      end
+    end.uniq
+  end
+
+  def built_in_hq?
+    memberships.where(role: "hq", tenant_role_id: nil).exists?
   end
 
   def primary_membership
@@ -51,7 +77,7 @@ class User < ApplicationRecord
   end
 
   def area_org_unit
-    memberships.includes(:org_unit).find { |m| m.role == "area" }&.org_unit
+    permission_memberships.find { |m| m.workflow_role == "area" }&.org_unit
   end
 
   def arabic?

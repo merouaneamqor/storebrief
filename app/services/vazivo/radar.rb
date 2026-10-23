@@ -61,7 +61,7 @@ module Vazivo
       if (store = @user.store_org_unit)
         build(lens: "store", place: store.name, stores: [ store ], attention_stores: siblings_of(store))
       elsif (area = @user.area_org_unit)
-        stores = area.descendant_stores.to_a
+        stores = @tenant.org_units.stores.where(id: @user.permitted_store_ids(:monitor)).to_a
         build(lens: "area", place: area.name, stores: stores, attention_stores: stores, area_summary: true)
       else
         empty("store")
@@ -328,7 +328,9 @@ module Vazivo
       parent = store.parent
       return [] if parent.blank?
 
-      parent.descendant_stores.where.not(id: store.id).to_a
+      scope = parent.descendant_stores.where.not(id: store.id)
+      scope = scope.where(id: @user.permitted_store_ids(:inbox)) if @user.permission_memberships.any?(&:tenant_role_id)
+      scope.to_a
     end
 
     # Inbox and checklist completion belong to the store user. Area and HQ

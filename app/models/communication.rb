@@ -168,6 +168,7 @@ class Communication < ApplicationRecord
       communication.communication_questions.build(
         position: question[:position].presence || index,
         question_type: question[:question_type].presence || "short_text",
+        weight: question[:weight].presence || 1,
         title_fr: question[:title_fr],
         title_ar: question[:title_ar],
         required: !!ActiveModel::Type::Boolean.new.cast(question[:required]),

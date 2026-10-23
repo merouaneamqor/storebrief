@@ -25,7 +25,7 @@ class DeliveryVerdictsController < ApplicationController
   def assert_area_can_verdict!(delivery)
     return if hq_user?
 
-    allowed = current_user.area_org_unit&.descendant_stores&.exists?(id: delivery.org_unit_id)
+    allowed = current_user.permitted_store_ids(:verdicts, :escalate).include?(delivery.org_unit_id)
     raise ArgumentError, t("auth.hq_required") unless allowed
   end
 end

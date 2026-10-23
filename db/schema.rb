@@ -147,8 +147,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_060000) do
     t.jsonb "options", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "weight", precision: 8, scale: 2, default: "1.0", null: false
     t.index ["communication_id", "position"], name: "index_communication_questions_on_communication_id_and_position"
     t.index ["communication_id"], name: "index_communication_questions_on_communication_id"
+    t.check_constraint "weight > 0::numeric", name: "communication_questions_positive_weight"
   end
 
   create_table "communication_templates", force: :cascade do |t|
@@ -454,7 +456,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_060000) do
     t.string "role", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_role_id"
     t.index ["org_unit_id"], name: "index_memberships_on_org_unit_id"
+    t.index ["tenant_role_id"], name: "index_memberships_on_tenant_role_id"
     t.index ["user_id", "org_unit_id"], name: "index_memberships_on_user_id_and_org_unit_id", unique: true
     t.index ["user_id"], name: "index_memberships_on_user_id"
   end
@@ -753,6 +757,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_060000) do
     t.index ["tenant_id"], name: "index_tenant_mail_settings_on_tenant_id", unique: true
   end
 
+  create_table "tenant_roles", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "name", null: false
+    t.string "base_role", null: false
+    t.jsonb "capabilities", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id", "name"], name: "index_tenant_roles_on_tenant_id_and_name", unique: true
+    t.index ["tenant_id"], name: "index_tenant_roles_on_tenant_id"
+  end
+
   create_table "tenant_saml_settings", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.boolean "enabled", default: false, null: false
@@ -937,6 +952,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_060000) do
   add_foreign_key "kb_categories", "kb_categories", column: "parent_id", on_delete: :nullify
   add_foreign_key "kb_categories", "tenants"
   add_foreign_key "memberships", "org_units"
+  add_foreign_key "memberships", "tenant_roles"
   add_foreign_key "memberships", "users"
   add_foreign_key "notification_logs", "tenants"
   add_foreign_key "notification_logs", "users"
@@ -964,6 +980,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_060000) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "tenant_mail_settings", "tenants"
+  add_foreign_key "tenant_roles", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"
   add_foreign_key "visits", "org_units"
