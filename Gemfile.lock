@@ -535,6 +535,7 @@ DEPENDENCIES
   rails (~> 8.1.4)
   rubocop-rails-omakase
   ruby-saml (~> 1.18)
+  rubyzip (~> 3.7)
   selenium-webdriver
   solid_queue (~> 1.2)
   stimulus-rails

@@ -133,6 +133,11 @@ class TenantRolesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "td", text: @brand.store.name
     assert_no_match "Hidden Store", response.body
+    get reports_path(format: :csv), params: { from: "2026-01-01", to: "2026-01-31" }
+    assert_response :success
+    assert_includes response.body, @brand.store.name
+    assert_no_match "Hidden Store", response.body
+    assert_equal 1, ExportLog.last.row_count
   end
   test "a visits-only area role lands on its permitted workflow" do
     role = @brand.tenant.tenant_roles.create!(name: "Visits only", base_role: "area", capabilities: [ "visits" ])

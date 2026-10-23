@@ -32,13 +32,17 @@
 
       <% if response&.completed? %>
         <p class="meta"><%= t("common.completed") %></p>
-        <% if response.notes.present? %><p class="prose"><%= response.notes %></p><% end %>
+        <% if response.notes.present? %><p class="prose"><%= item.question_type == "yes_no_na" ? t("typed_forms.answers.#{response.notes}") : response.notes %></p><% end %>
         <%= checklist_evidence_tag(response) %>
       <% elsif !@delivery.completed? %>
         <form class="form-stack" style="margin-top:0.75rem;" @submit.prevent="submitItem($event, <%= item.id %>, <%= item.requires_photo? %>)">
           <label>
-            <%= t("checklists.notes") %>
-            <textarea name="notes" rows="2"></textarea>
+            <%= TypedFormValue::TYPES.include?(item.question_type) ? t("communications.question_types.#{item.question_type}") : t("checklists.notes") %>
+            <% if TypedFormValue::TYPES.include?(item.question_type) %>
+              <%= render "shared/typed_form_field", type: item.question_type, name: "notes", value: response&.notes, required: item.required? %>
+            <% else %>
+              <textarea name="notes" rows="2"></textarea>
+            <% end %>
           </label>
           <% if item.requires_photo? %>
             <label>
