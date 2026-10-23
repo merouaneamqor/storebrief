@@ -29,8 +29,8 @@ class AuditHistoriesController < ApplicationController
   def store_scope
     if hq_user?
       tenant_scope.org_units.stores
-    elsif (area = current_user.area_org_unit)
-      area.descendant_stores.where(tenant_id: tenant_scope.id)
+    elsif area_user?
+      tenant_scope.org_units.stores.where(id: current_user.permitted_store_ids(:visits))
     else
       OrgUnit.none
     end

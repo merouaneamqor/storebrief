@@ -256,10 +256,7 @@ class CommunicationsController < ApplicationController
   end
 
   def area_store_ids
-    area = current_user&.area_org_unit
-    return [] unless area
-
-    area.descendant_stores.pluck(:id)
+    current_user.permitted_store_ids(:monitor)
   end
 
   def load_target_units
