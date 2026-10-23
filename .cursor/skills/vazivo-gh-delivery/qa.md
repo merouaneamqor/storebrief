@@ -17,9 +17,9 @@ docker compose exec -T web bin/rails active_admin:bundle_js dartsass:build
 
 Wait for `/up` before starting browser checks. Use installed Playwright/Chromium
 or the available integrated browser; avoid a second browser installation.
-If the installed browser is outside Playwright's default cache, use a local
-configuration with `launchOptions.executablePath`; otherwise install the locked
-browser version once. Do not assume a system Chromium is discovered automatically.
+For an installed browser, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its path.
+Otherwise install the locked browser version once. CI detects an installed
+Chrome/Chromium and falls back to the locked installation when none is present.
 
 Choose checks for the change:
 
