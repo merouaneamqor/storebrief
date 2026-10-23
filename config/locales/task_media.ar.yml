@@ -1,0 +1,16 @@
+{
+  "ar": {
+    "communications": {
+      "question_types": {
+        "signature": "توقيع"
+      }
+    },
+    "task_media": {
+      "sign_hint": "ارسم توقيعك أو ارفع صورة PNG.",
+      "clear": "مسح التوقيع",
+      "upload_signature": "رفع توقيع PNG",
+      "limits": "حتى 10 ملفات. فيديو MP4 أو WebM أو MOV بحجم 25 ميغابايت لكل ملف. الملفات الأخرى المقبولة 10 ميغابايت. تضغط الصور وتبقى التوقيعات بصيغة PNG.",
+      "evidence": "الأدلة"
+    }
+  }
+}
