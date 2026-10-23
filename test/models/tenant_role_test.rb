@@ -77,4 +77,15 @@ class TenantRoleTest < ActiveSupport::TestCase
     assert_not @area_user.allows?(:visits, org_unit: @brand.store)
     assert @area_user.allows?(:visits, org_unit: store)
   end
+  test "approval and corrective services honor removed capabilities" do
+    assert Vazivo::Approval.can_approve?(@brand.hq)
+    role = @brand.tenant.tenant_roles.create!(name: "HQ reader", base_role: "hq", capabilities: [ "monitor" ])
+    @brand.hq.memberships.first.update!(tenant_role: role)
+    assert_not Vazivo::Approval.can_approve?(@brand.hq)
+    brief = @brand.tenant.communications.create!(author: @brand.hq, title_fr: "Issue", body_fr: "Issue", format: "task", status: "sent")
+    delivery = brief.deliveries.create!(org_unit: @brand.store, verdict: "improve")
+    assert_raises(Vazivo::CorrectiveAction::Error) do
+      Vazivo::CorrectiveAction.spawn_from_delivery!(delivery: delivery, author: @area_user)
+    end
+  end
 end

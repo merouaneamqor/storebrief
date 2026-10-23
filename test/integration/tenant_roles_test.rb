@@ -143,4 +143,17 @@ class TenantRolesTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
   end
+  test "removed inbox permission blocks every store feed mutation" do
+    role = @brand.tenant.tenant_roles.create!(name: "No inbox", base_role: "store", capabilities: [ "execute" ])
+    @brand.store_user.memberships.first.update!(tenant_role: role)
+    sign_in(@brand.store_user)
+    assert_no_difference [ "FeedPost.count", "FeedComment.count", "FeedReaction.count" ] do
+      post feed_posts_path, params: { body: "Forbidden post" }
+      assert_redirected_to app_root_path
+      post feed_comments_path, params: { subject_type: "Delivery", subject_id: 0, body: "Forbidden comment" }
+      assert_redirected_to app_root_path
+      post feed_reactions_path, params: { subject_type: "Delivery", subject_id: 0, kind: "helpful" }
+      assert_redirected_to app_root_path
+    end
+  end
 end

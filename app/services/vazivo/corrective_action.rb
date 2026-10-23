@@ -57,7 +57,7 @@ module Vazivo
     def spawn_from_delivery!(delivery:, visit: nil, due_at: nil, title_fr: nil, body_fr: nil, title_ar: nil, body_ar: nil)
       communication = delivery.communication
       tenant = communication.tenant
-      assert_author!(tenant)
+      assert_author!(tenant, delivery.org_unit)
       assert_morocco!(tenant)
       raise Error, I18n.t("morocco.corrective.not_an_issue") unless self.class.issue_verdict?(delivery.verdict)
       raise Error, I18n.t("morocco.corrective.already_exists") if existing_for_delivery?(tenant, delivery)
@@ -92,7 +92,7 @@ module Vazivo
       delivery = response.checklist_delivery
       checklist = delivery.checklist
       tenant = checklist.tenant
-      assert_author!(tenant)
+      assert_author!(tenant, delivery.org_unit)
       assert_morocco!(tenant)
       raise Error, I18n.t("morocco.corrective.item_ok") unless item_needs_corrective?(item, response)
       raise Error, I18n.t("morocco.corrective.already_exists") if existing_for_checklist_item?(tenant, response)
@@ -123,9 +123,10 @@ module Vazivo
 
     private
 
-    def assert_author!(tenant)
+    def assert_author!(tenant, unit)
       raise Error, I18n.t("auth.hq_required") unless @author.tenant_id == tenant.id
-      raise Error, I18n.t("auth.hq_required") unless @author.hq? || @author.area? || @author.super_admin?
+      allowed = @author.super_admin? || @author.permitted_store_ids(:verdicts, :escalate).include?(unit.id)
+      raise Error, I18n.t("auth.hq_required") unless allowed
     end
 
     def assert_morocco!(tenant)

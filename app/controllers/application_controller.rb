@@ -75,7 +75,8 @@ class ApplicationController < ActionController::Base
     return unless current_user && current_user.memberships.where.not(tenant_role_id: nil).exists?
 
     capability = case controller_name
-    when "inbox", "newsfeeds", "feed_engagements", "broadcast_acknowledgements", "delivery_comments" then store_user? ? :inbox : :monitor
+    when "inbox", "newsfeeds", "feed_engagements", "feed_engagement", "feed_comments", "feed_reactions", "broadcast_acknowledgements", "delivery_comments" then store_user? ? :inbox : :monitor
+    when "feed_posts", "feed_moderation" then store_user? ? :inbox : :compose
     when "checklist_deliveries", "sync" then :execute
     when "my_tasks", "incident_tickets" then store_user? ? :execute : :monitor
     when "rankings" then store_user? ? :inbox : :reports
