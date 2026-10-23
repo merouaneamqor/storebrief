@@ -57,7 +57,7 @@ module Vazivo
       @tenant = tenant
       @store = store
       @region = region
-      @store_ids = Array(store_ids).presence || scoped_store_ids
+      @store_ids = store_ids.nil? ? scoped_store_ids : Array(store_ids)
       @limit = limit
     end
 
