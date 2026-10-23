@@ -29,6 +29,9 @@ class ChecklistDeliveryComment < ApplicationRecord
     if parent && (parent.checklist_delivery_id != checklist_delivery_id || parent.tenant_id != tenant_id)
       errors.add(:parent, :invalid)
     end
+    ancestor = parent
+    8.times { ancestor = ancestor.parent if ancestor }
+    errors.add(:parent, :invalid) if ancestor
   end
 
   def resolve_mentions
@@ -53,7 +56,7 @@ class ChecklistDeliveryComment < ApplicationRecord
     tenant.users.where(id: mentioned_user_ids).each do |recipient|
       next unless self.class.can_read?(recipient, checklist_delivery)
 
-      url = recipient.store? && !recipient.hq? && !recipient.area? ? "/checklists/deliveries/#{checklist_delivery_id}" : "/checklist_reviews/#{checklist_delivery_id}"
+      url = recipient.allows?(:monitor, org_unit: checklist_delivery.org_unit) ? "/checklist_reviews/#{checklist_delivery_id}" : "/checklists/deliveries/#{checklist_delivery_id}"
       PushNotifier.deliver_to_user!(user: recipient, tenant: tenant, notifiable: self,
         title: checklist_delivery.checklist.title, body: body.truncate(160), url: url)
     end

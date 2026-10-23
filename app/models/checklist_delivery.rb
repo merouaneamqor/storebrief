@@ -66,6 +66,7 @@ class ChecklistDelivery < ApplicationRecord
       raise ArgumentError, I18n.t("auth.hq_required")
     end
 
+    @review_actor = by
     with_lock do
       attributes = { verdict: value, verdict_note: note.to_s.strip.presence, validated_by: by, validated_at: Time.current }
       attributes.merge!(status: "pending", completed_at: nil) if value == "non_conforme"
@@ -73,6 +74,8 @@ class ChecklistDelivery < ApplicationRecord
       checklist_item_responses.update_all(completed: false) if value == "non_conforme"
       record_review_event!("verdict", { verdict: verdict, note: verdict_note }, actor: by)
     end
+  ensure
+    @review_actor = nil
   end
 
   def record_review_event!(kind, payload, actor: nil)
@@ -82,7 +85,8 @@ class ChecklistDelivery < ApplicationRecord
   private
 
   def record_status_history
-    actor = Current.user if Current.user&.tenant_id == checklist.tenant_id
+    candidate = @review_actor || Current.user
+    actor = candidate if candidate&.tenant_id == checklist.tenant_id
     record_review_event!("status", { from: status_before_last_save, to: status }, actor: actor)
   end
 end
