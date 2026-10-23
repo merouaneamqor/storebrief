@@ -24,7 +24,7 @@ class VmMissionsController < ApplicationController
     if store_user?
       @store_target = @targets.find { |target| target.org_unit_id == current_user.store_org_unit&.id }
     elsif area_user?
-      store_ids = current_user.area_org_unit&.descendant_stores&.pluck(:id) || []
+      store_ids = current_user.permitted_store_ids(:verdicts)
       @targets = @targets.select { |target| store_ids.include?(target.org_unit_id) }
     end
   end
@@ -146,14 +146,14 @@ class VmMissionsController < ApplicationController
   def assert_area_can_review!(target)
     return if hq_user?
 
-    allowed = current_user.area_org_unit&.descendant_stores&.exists?(id: target.org_unit_id)
+    allowed = user_allows?(:verdicts, org_unit: target.org_unit)
     raise ArgumentError, t("auth.hq_required") unless allowed
   end
 
   def mission_scope
     scope = tenant_scope.vm_missions
     return scope if hq_user?
-    return scope if area_user? && user_allows?(:verdicts)
+    return scope.where(id: VmMissionTarget.where(org_unit_id: current_user.permitted_store_ids(:verdicts)).select(:vm_mission_id)) if area_user? && user_allows?(:verdicts)
 
     store = current_user.store_org_unit
     scope.for_store(store)

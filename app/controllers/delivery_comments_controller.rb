@@ -29,7 +29,7 @@ class DeliveryCommentsController < ApplicationController
   def assert_can_comment!(delivery)
     return if hq_user?
     return if store_user? && current_user.store_org_unit&.id == delivery.org_unit_id
-    return if area_user? && current_user.area_org_unit&.descendant_stores&.exists?(id: delivery.org_unit_id)
+    return if area_user? && user_allows?(:monitor, org_unit: delivery.org_unit)
 
     raise ActiveRecord::RecordNotFound
   end

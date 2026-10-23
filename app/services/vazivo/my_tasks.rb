@@ -57,15 +57,10 @@ module Vazivo
     end
 
     def managed_stores
-      if (store = @user.store_org_unit)
-        @tenant.org_units.stores.where(id: store.id)
-      elsif (area = @user.area_org_unit)
-        area.descendant_stores.where(tenant_id: @tenant.id)
-      elsif @user.hq? || @user.super_admin?
-        @tenant.org_units.stores
-      else
-        OrgUnit.none
-      end
+      return @tenant.org_units.stores if @user.super_admin?
+
+      capability = @user.store? && !@user.hq? && !@user.area? ? :execute : :monitor
+      @tenant.org_units.stores.where(id: @user.permitted_store_ids(capability))
     end
 
     def brief_items
