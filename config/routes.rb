@@ -92,11 +92,11 @@ Rails.application.routes.draw do
 
   resources :my_tasks, only: %i[index show]
   resources :newsfeeds, only: :index, path: "newsfeed"
-  resources :feed_posts, only: [:create, :destroy] do
+  resources :feed_posts, only: [ :create, :destroy ] do
     post :publish, on: :member
   end
-  resources :feed_comments, only: [:create, :destroy]
-  resources :feed_reactions, only: [:create, :destroy]
+  resources :feed_comments, only: [ :create, :destroy ]
+  resources :feed_reactions, only: [ :create, :destroy ]
   get "feed_moderation", to: "feed_moderation#index"
   resources :inbox, only: %i[index show], controller: "inbox" do
     member do
