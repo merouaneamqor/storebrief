@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_060000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -629,6 +629,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
     t.index ["status"], name: "index_quotations_on_status"
   end
 
+  create_table "report_subscriptions", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "enabled", default: false, null: false
+    t.string "frequency", default: "weekly", null: false
+    t.boolean "csv_attachment", default: false, null: false
+    t.datetime "next_delivery_at"
+    t.datetime "last_sent_at"
+    t.string "last_sent_period"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["enabled", "next_delivery_at"], name: "index_report_subscriptions_on_enabled_and_next_delivery_at"
+    t.index ["tenant_id"], name: "index_report_subscriptions_on_tenant_id"
+    t.index ["user_id"], name: "index_report_subscriptions_on_user_id", unique: true
+  end
+
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.string "queue_name", null: false
@@ -1009,6 +1025,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "quotations", "pricing_plans"
   add_foreign_key "quotations", "users", column: "created_by_id"
+  add_foreign_key "report_subscriptions", "tenants"
+  add_foreign_key "report_subscriptions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

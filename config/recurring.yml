@@ -1,5 +1,5 @@
 # Solid Queue recurring schedule (read by the `bin/jobs` worker supervisor).
-# Both jobs are idempotent and sweep every tenant, scoping each query by tenant_id.
+# Jobs are idempotent and scope each tenant or subscription before delivery.
 # Times are in the app time zone (see config.time_zone).
 default: &default
   recurring_task_brief:
@@ -7,6 +7,12 @@ default: &default
     queue: default
     schedule: every hour
     description: Send the next occurrence of every recurring task brief that is due
+
+  report_digest:
+    class: ReportDigestJob
+    queue: default
+    schedule: every hour
+    description: Send opted-in scoped report digests when their weekly or monthly delivery is due
 
   escalation_sweep:
     class: EscalationJob
