@@ -25,6 +25,9 @@ gem "bcrypt", "~> 3.1.7"
 # SAML 2.0 Service Provider (per-tenant IdP SSO)
 gem "ruby-saml", "~> 1.18"
 
+# Spreadsheet download containers (also used by Selenium in tests).
+gem "rubyzip", "~> 3.7"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

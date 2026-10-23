@@ -1,0 +1,9 @@
+<div class="report-toolbar" role="group" aria-label="<%= t('spreadsheet_exports.download') %>">
+  <% %w[csv xlsx].each do |output| %>
+    <% filters = request.query_parameters.slice("from", "to", "interval", "group_by", "query", "state", "locale") %>
+    <% filters.merge!("from" => @date_range.from.iso8601, "to" => @date_range.to.iso8601) if @date_range %>
+    <%= link_to t("spreadsheet_exports.#{output}"),
+      url_for(request.path_parameters.merge(filters).merge(format: output, only_path: true)),
+      class: "btn btn--quiet", data: { turbo: false, reports_filter_target: ("download" if local_assigns[:report_filter]) } %>
+  <% end %>
+</div>

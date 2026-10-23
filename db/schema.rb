@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_020000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -332,6 +332,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_020000) do
     t.datetime "updated_at", null: false
     t.index ["subject_type", "subject_id"], name: "index_escalation_events_on_subject"
     t.index ["tenant_id"], name: "index_escalation_events_on_tenant_id"
+  end
+
+  create_table "export_logs", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "actor_id"
+    t.string "source", null: false
+    t.string "output_format", null: false
+    t.jsonb "filters", default: {}, null: false
+    t.integer "row_count", null: false
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_export_logs_on_actor_id"
+    t.index ["tenant_id", "created_at"], name: "index_export_logs_on_tenant_id_and_created_at"
+    t.index ["tenant_id"], name: "index_export_logs_on_tenant_id"
   end
 
   create_table "feed_comments", force: :cascade do |t|
@@ -891,6 +904,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_020000) do
   add_foreign_key "delivery_reads", "tenants"
   add_foreign_key "delivery_reads", "users"
   add_foreign_key "escalation_events", "tenants"
+  add_foreign_key "export_logs", "tenants"
+  add_foreign_key "export_logs", "users", column: "actor_id", on_delete: :nullify
   add_foreign_key "feed_comments", "tenants"
   add_foreign_key "feed_comments", "users"
   add_foreign_key "feed_posts", "org_units"
