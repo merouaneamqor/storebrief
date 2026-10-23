@@ -1,0 +1,31 @@
+<% content_for :title, t("report_subscriptions.title") %>
+<p><%= link_to t("reports.title"), reports_path %></p>
+<h1><%= t("report_subscriptions.title") %></h1>
+<p class="lede"><%= t("report_subscriptions.schedule") %></p>
+<% if current_tenant.mail_setting_or_build.delivery_mode == :platform_billed %>
+  <p><%= t("report_subscriptions.billing", price: Vazivo::Billing.unit_price_for("email").to_s("F"), currency: Vazivo::Billing.currency) %></p>
+<% else %>
+  <p><%= t("report_subscriptions.own_smtp") %></p>
+<% end %>
+<% unless current_user.operational_email_allowed? %>
+  <p><%= t("report_subscriptions.paused") %> <%= link_to t("nav.privacy"), privacy_preferences_path %></p>
+<% end %>
+<section class="panel">
+  <%= form_with model: @subscription, url: report_subscription_path, method: :patch do |form| %>
+    <% if @subscription.errors.any? %><p role="alert"><%= t("report_subscriptions.invalid") %></p><% end %>
+    <div class="field">
+      <label><%= form.check_box :enabled %> <%= t("report_subscriptions.enabled") %></label>
+    </div>
+    <div class="field">
+      <%= form.label :frequency, t("report_subscriptions.frequency") %>
+      <%= form.select :frequency, ReportSubscription::FREQUENCIES.map { |key| [t("report_subscriptions.#{key}"), key] } %>
+    </div>
+    <div class="field">
+      <label><%= form.check_box :csv_attachment %> <%= t("report_subscriptions.csv_attachment") %></label>
+    </div>
+    <% if @subscription.enabled? && @subscription.next_delivery_at %>
+      <p><%= t("report_subscriptions.next_delivery", date: l(@subscription.next_delivery_at, format: :long)) %></p>
+    <% end %>
+    <%= form.submit t("report_subscriptions.save"), class: "btn" %>
+  <% end %>
+</section>

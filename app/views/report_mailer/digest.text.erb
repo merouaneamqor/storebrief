@@ -1,0 +1,15 @@
+<%= t("report_digest.title") %>
+<%= @tenant.name %> · <%= @date_range.from %> · <%= @date_range.to %>
+<%= t("report_digest.compliance", percent: @digest.compliance) %>
+<%= t("report_digest.overdue", count: @digest.overdue) %>
+<% { top: @digest.top_stores, bottom: @digest.bottom_stores }.each do |key, rows| %>
+<%= t("report_digest.#{key}") %>
+<% if rows.empty? %><%= t("report_digest.empty") %><% end %>
+<% rows.each do |row| %>
+<%= row.store.name %>: <%= row.percent %>% (<%= row.done %>/<%= row.total %>)
+<% end %>
+<% end %>
+<%= t("report_digest.definition") %>
+<%= t("report_digest.preferences") %>
+
+<%= @preferences_url %>

@@ -1,0 +1,31 @@
+{
+  "es": {
+    "report_subscriptions": {
+      "title": "Informes por correo",
+      "schedule": "Cada lunes o el primer día del mes a las 08:00, hora de Marruecos. Los informes cubren el período completo anterior.",
+      "billing": "El envío por la plataforma cuesta %{price} %{currency} por correo.",
+      "own_smtp": "El envío usa el servidor SMTP de su organización.",
+      "paused": "Los informes se pausan mientras el correo operativo esté desactivado.",
+      "invalid": "Revise la configuración de la suscripción.",
+      "enabled": "Recibir informes por correo",
+      "frequency": "Frecuencia",
+      "weekly": "Semanal",
+      "monthly": "Mensual",
+      "csv_attachment": "Adjuntar un informe CSV",
+      "next_delivery": "Próximo envío: %{date}",
+      "save": "Guardar",
+      "saved": "Configuración de informes guardada."
+    },
+    "report_digest": {
+      "subject": "Resumen de informes de %{tenant}",
+      "title": "Informe de ejecución",
+      "compliance": "Finalización: %{percent}%",
+      "overdue": "Asignaciones vencidas: %{count}",
+      "top": "Mejores tiendas",
+      "bottom": "Tiendas que necesitan atención",
+      "empty": "No hay asignaciones en este período.",
+      "definition": "Finalización actual del trabajo asignado durante el período del informe.",
+      "preferences": "Cambie la frecuencia, los adjuntos CSV o cancele la suscripción desde Informes por correo en la página Informes."
+    }
+  }
+}

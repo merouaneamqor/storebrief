@@ -1,0 +1,31 @@
+{
+  "en": {
+    "report_subscriptions": {
+      "title": "Report emails",
+      "schedule": "Weekly on Monday or monthly on the first day, at 08:00 Morocco time. Reports cover the preceding complete period.",
+      "billing": "Platform delivery costs %{price} %{currency} per email.",
+      "own_smtp": "Delivery uses your organization’s SMTP settings.",
+      "paused": "Report emails are paused while operational email is disabled.",
+      "invalid": "Check the subscription settings.",
+      "enabled": "Send me report emails",
+      "frequency": "Frequency",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "csv_attachment": "Attach a CSV report",
+      "next_delivery": "Next delivery: %{date}",
+      "save": "Save",
+      "saved": "Report email settings saved."
+    },
+    "report_digest": {
+      "subject": "Report digest for %{tenant}",
+      "title": "Execution report",
+      "compliance": "Completion: %{percent}%",
+      "overdue": "Overdue assignments: %{count}",
+      "top": "Top stores",
+      "bottom": "Stores needing attention",
+      "empty": "No assignments in this period.",
+      "definition": "Current completion of work assigned during the reporting period.",
+      "preferences": "Manage frequency, CSV attachments or unsubscribe from Report emails on the Reports page."
+    }
+  }
+}
