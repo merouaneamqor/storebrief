@@ -214,11 +214,16 @@ jobs:
           cat log/development.log | tail -50
           exit 1
 
-      - name: Install Playwright
+      - name: Prepare browser tests
         working-directory: e2e
         run: |
           npm ci
-          npx playwright install --with-deps chromium
+          browser_path="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -n "$browser_path" ] && "$browser_path" --version; then
+            printf 'PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=%s\n' "$browser_path" >> "$GITHUB_ENV"
+          else
+            npx playwright install --with-deps chromium
+          fi
 
       - name: Run Playwright tests
         working-directory: e2e

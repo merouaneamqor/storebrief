@@ -51,3 +51,11 @@ was cancelled during a slow Ubuntu package download; retry required downloading
 dependencies again and eventually passed. Change: diagnose progress, avoid
 elapsed-time-only cancellation, and retry only affected jobs. Validation: the
 failure guidance preserves expected-head and CI checks; retry succeeded.
+
+### 2026-10-22: reuse the available browser
+
+Evidence: repeated browser dependency downloads in run 39856831794 added setup
+work. Change: CI reuses installed Chrome/Chromium, with the locked installer as
+fallback; local checks use an executable-path environment variable. Validation:
+the RTL browser test passed with system Chromium, and workflow YAML/shell checks
+passed. Full CI remains the merge gate; runtime savings are not yet measured.
