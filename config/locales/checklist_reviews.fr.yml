@@ -1,0 +1,17 @@
+fr:
+  checklist_reviews:
+    title: Revues des checklists
+    lede: Vérifiez les réponses des magasins, échangez et conservez un historique.
+    empty: Aucune checklist attribuée à vérifier pour le moment.
+    review: Vérifier
+    verdict: Verdict
+    note: Note du réviseur
+    save: Enregistrer le verdict
+    history: Historique
+    mention_hint: Mentionnez un collègue avec @email ou @"Nom complet". Seules les
+      personnes autorisées à voir ce magasin reçoivent une notification push gratuite.
+    post: Publier le commentaire
+    events:
+      status: Statut modifié
+      verdict: Verdict du réviseur
+      comment: Commentaire publié

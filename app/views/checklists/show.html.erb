@@ -48,6 +48,7 @@
           <div class="checklist-hq-delivery__head">
             <span><%= delivery.org_unit.name %></span>
             <%= localized_badge(delivery.status) %>
+            <% if tenant_feature?(:morocco_ops) %><%= link_to t("checklist_reviews.review"), checklist_review_path(delivery), class: "btn btn--ghost" %><% end %>
           </div>
           <ul class="checklist-hq-evidence">
             <% (@items || @checklist.checklist_items).each do |item| %>
