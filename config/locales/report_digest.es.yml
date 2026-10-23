@@ -25,7 +25,8 @@
       "bottom": "Tiendas que necesitan atención",
       "empty": "No hay asignaciones en este período.",
       "definition": "Finalización actual del trabajo asignado durante el período del informe.",
-      "preferences": "Cambie la frecuencia, los adjuntos CSV o cancele la suscripción desde Informes por correo en la página Informes."
+      "preferences": "Cambie la frecuencia, los adjuntos CSV o cancele la suscripción desde Informes por correo en la página Informes.",
+      "behind": "Tiendas con trabajo pendiente: %{count}"
     }
   }
 }

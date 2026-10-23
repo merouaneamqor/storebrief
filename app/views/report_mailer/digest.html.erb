@@ -3,6 +3,7 @@
   <p><%= @tenant.name %> · <%= l(@date_range.from, format: :short) %> · <%= l(@date_range.to, format: :short) %></p>
   <p><%= t("report_digest.compliance", percent: @digest.compliance) %></p>
   <p><%= t("report_digest.overdue", count: @digest.overdue) %></p>
+  <p><%= t("report_digest.behind", count: @digest.snapshot.summary[:behind]) %></p>
   <% { top: @digest.top_stores, bottom: @digest.bottom_stores }.each do |key, rows| %>
     <h2><%= t("report_digest.#{key}") %></h2>
     <% if rows.empty? %>

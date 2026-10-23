@@ -24,9 +24,11 @@ class ReportDigestDeliveryTest < ActiveSupport::TestCase
   teardown { travel_back }
 
   test "sweep sends a scoped digest, optional CSV, billed log and only one copy per period" do
+    stale = ReportSubscription.find(@subscription.id)
     assert_emails 1 do
       ReportDigestJob.perform_now
       ReportDigestJob.perform_now
+      Reports::DigestDelivery.deliver_due!(stale, now: @now)
     end
     mail = ActionMailer::Base.deliveries.last
     assert_equal [ @area.email ], mail.to
@@ -104,6 +106,17 @@ class ReportDigestDeliveryTest < ActiveSupport::TestCase
     PlatformMail.stub(:configured?, false) do
       assert_no_emails { Reports::DigestDelivery.deliver_due!(@subscription, now: @now) }
     end
+    assert_empty @brand.tenant.notification_logs.where(notifiable: @subscription)
+  end
+
+  test "custom scoped HQ reports permission restricts digest and revocation prevents delivery" do
+    role = @brand.tenant.tenant_roles.create!(name: "Regional reports", base_role: "hq", capabilities: [ "reports" ])
+    @brand.hq.memberships.first.update!(tenant_role: role)
+    digest = Reports::Digest.new(@brand.hq.reload, date_range: @subscription.reporting_period(@now), now: @now)
+    assert_equal [ @brand.store ], digest.ranking.rows.map(&:store)
+    denied = @brand.tenant.tenant_roles.create!(name: "Area without reports", base_role: "area", capabilities: [ "monitor" ])
+    @area.memberships.first.update!(tenant_role: denied)
+    assert_no_emails { Reports::DigestDelivery.deliver_due!(@subscription, now: @now) }
     assert_empty @brand.tenant.notification_logs.where(notifiable: @subscription)
   end
 

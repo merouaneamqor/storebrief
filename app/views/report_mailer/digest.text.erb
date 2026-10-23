@@ -2,6 +2,7 @@
 <%= @tenant.name %> · <%= @date_range.from %> · <%= @date_range.to %>
 <%= t("report_digest.compliance", percent: @digest.compliance) %>
 <%= t("report_digest.overdue", count: @digest.overdue) %>
+<%= t("report_digest.behind", count: @digest.snapshot.summary[:behind]) %>
 <% { top: @digest.top_stores, bottom: @digest.bottom_stores }.each do |key, rows| %>
 <%= t("report_digest.#{key}") %>
 <% if rows.empty? %><%= t("report_digest.empty") %><% end %>

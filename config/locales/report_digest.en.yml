@@ -25,7 +25,8 @@
       "bottom": "Stores needing attention",
       "empty": "No assignments in this period.",
       "definition": "Current completion of work assigned during the reporting period.",
-      "preferences": "Manage frequency, CSV attachments or unsubscribe from Report emails on the Reports page."
+      "preferences": "Manage frequency, CSV attachments or unsubscribe from Report emails on the Reports page.",
+      "behind": "Stores with pending work: %{count}"
     }
   }
 }
