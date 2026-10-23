@@ -4,6 +4,7 @@ import { expectNoHorizontalOverflow, setLocale, signIn } from "./helpers";
 test.describe("HQ pages", () => {
   test.beforeEach(async ({ page }) => {
     await signIn(page, "hq");
+    await setLocale(page, "fr");
   });
 
   for (const path of ["/visits", "/visits/calendar", "/vm_missions", "/playbooks", "/communications", "/checklists"]) {
@@ -25,16 +26,23 @@ test.describe("HQ pages", () => {
     }
   });
 
-  test("checkbox lists show the box beside its label", async ({ page }) => {
-    await page.goto("/kb_articles/new");
-    const row = page.locator("fieldset label:has(input[type=checkbox])").first();
-    const box = await row.locator("input[type=checkbox]").boundingBox();
-    const text = await row.boundingBox();
-    expect(box && text).toBeTruthy();
-    // The box is inside the label's first line, not stacked above it or pushed to the far edge.
-    expect(box!.x - text!.x).toBeLessThan(24);
-    expect(text!.height).toBeLessThan(60);
-  });
+  for (const locale of ["fr", "ar"] as const) {
+    test(`checkbox lists keep the box at the ${locale} logical start`, async ({ page }) => {
+      await setLocale(page, locale);
+      await page.goto("/kb_articles/new");
+      const row = page.locator("fieldset label:has(input[type=checkbox])").first();
+      const box = await row.locator("input[type=checkbox]").boundingBox();
+      const text = await row.boundingBox();
+      expect(box && text).toBeTruthy();
+      // Inline controls follow the writing direction, including saved Arabic locales.
+      const startInset = locale === "ar"
+        ? text!.x + text!.width - box!.x - box!.width
+        : box!.x - text!.x;
+      expect(startInset).toBeGreaterThanOrEqual(-1);
+      expect(startInset).toBeLessThan(24);
+      expect(text!.height).toBeLessThan(60);
+    });
+  }
 
   test("the comment composer is folded until opened", async ({ page }) => {
     await page.goto("/communications");
