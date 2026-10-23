@@ -136,6 +136,9 @@
                   <% if tenant_feature?(:reports) %>
                     <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
                   <% end %>
+                  <% if tenant_feature?(:briefs) && tenant_feature?(:morocco_ops) %>
+                    <%= link_to t("feed_engagement.moderation"), feed_moderation_path, class: "app-nav-link" %>
+                  <% end %>
                   <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
                   <%= link_to t("nav.privacy"), privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" %>
                 </div>

@@ -1,0 +1,22 @@
+{
+  "en": {
+    "feed_engagement": {
+      "store_post": "Store update",
+      "moderation_note": "Store updates need HQ approval and are visible only to your store.",
+      "message": "Message",
+      "submit": "Submit",
+      "pending": "Pending approval",
+      "published": "Published",
+      "helpful": "Helpful",
+      "thanks": "Thanks",
+      "acknowledged": "Acknowledged",
+      "undo": "Remove reaction",
+      "comment": "Comment",
+      "moderation": "Feed moderation",
+      "approve": "Approve",
+      "remove": "Remove",
+      "notification_comment": "New feed comment",
+      "notification_published": "Your store update was approved"
+    }
+  }
+}
