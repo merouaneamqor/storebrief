@@ -130,6 +130,8 @@
                   <% when "image" %>
                     <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
                     <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
+                  <% when *TypedFormValue::TYPES %>
+                    <%= render "shared/typed_form_field", type: question.question_type, name: "answers[#{question.id}][text]", value: answer&.text_value, required: question.required? %>
                   <% when "long_text" %>
                     <textarea name="answers[<%= question.id %>][text]" rows="3" <%= "required" if question.required? %>><%= answer&.text_value %></textarea>
                   <% when "single_choice" %>
@@ -212,7 +214,9 @@
                 <% when "image" %>
                   <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
                   <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
-                <% when "long_text" %>
+                <% when *TypedFormValue::TYPES %>
+                    <%= render "shared/typed_form_field", type: question.question_type, name: "answers[#{question.id}][text]", value: answer&.text_value, required: question.required? %>
+                  <% when "long_text" %>
                   <textarea name="answers[<%= question.id %>][text]" rows="3" <%= "required" if question.required? %>><%= answer&.text_value %></textarea>
                 <% when "single_choice" %>
                   <div class="brief-answer-choices">

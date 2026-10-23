@@ -5,6 +5,8 @@ class CommunicationTemplate < ApplicationRecord
   has_many :communications, dependent: :nullify
 
   validates :title_fr, presence: true
+  validate :question_weights
+
   validates :body_fr, presence: true, unless: :questions_present?
   validates :format, inclusion: { in: Communication::FORMATS }
   validates :priority, inclusion: { in: Communication::PRIORITIES }
@@ -36,6 +38,7 @@ class CommunicationTemplate < ApplicationRecord
       {
         "position" => row[:position].presence&.to_i || index,
         "question_type" => question_type,
+        "weight" => row[:weight].presence || 1,
         "title_fr" => title_fr,
         "title_ar" => row[:title_ar].to_s.strip.presence,
         "required" => !!ActiveModel::Type::Boolean.new.cast(required),
@@ -58,6 +61,7 @@ class CommunicationTemplate < ApplicationRecord
         {
           "position" => question.position,
           "question_type" => question.question_type,
+          "weight" => question.weight,
           "title_fr" => question.title_fr,
           "title_ar" => question.title_ar,
           "required" => question.required,
@@ -88,6 +92,7 @@ class CommunicationTemplate < ApplicationRecord
       next if label_fr.blank?
 
       {
+        "correct" => option[:correct] == true,
         "label_fr" => label_fr,
         "label_ar" => option[:label_ar].to_s.strip.presence
       }.compact
@@ -97,6 +102,13 @@ class CommunicationTemplate < ApplicationRecord
   private_class_method :question_rows, :normalize_options
 
   private
+
+  def question_weights
+    question_defs.each do |question|
+      weight = question[:weight].presence || 1
+      errors.add(:questions, :invalid) unless weight.to_s.match?(/\A\d+(?:\.\d{1,2})?\z/) && weight.to_d.positive? && weight.to_d < 1_000_000
+    end
+  end
 
   def apply_priority_default
     self.priority = Communication::DEFAULT_PRIORITY if priority.blank? || format != "task"

@@ -12,6 +12,10 @@ class ChecklistItem < ApplicationRecord
     (metadata.presence || {}).with_indifferent_access
   end
 
+  def question_type
+    metadata_hash[:question_type].presence || "short_text"
+  end
+
   def show_if
     metadata_hash[:show_if]
   end

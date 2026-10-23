@@ -38,7 +38,7 @@ class Checklist < ApplicationRecord
       status: "draft"
     )
     template.question_defs.each_with_index do |item, index|
-      meta = {}
+      meta = { "question_type" => item[:question_type].presence || "short_text", "weight" => item[:weight].presence || 1 }
       meta["key"] = item[:key].to_s if item[:key].present?
       if item[:show_if].present?
         show_if = item[:show_if].with_indifferent_access

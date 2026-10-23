@@ -58,7 +58,7 @@ class CommunicationTemplatesController < ApplicationController
     permitted = params.require(:communication_template).permit(
       :title_fr, :title_ar, :body_fr, :body_ar, :format, :requires_proof, :requires_approval, :priority,
       questions: [
-        :position, :question_type, :title_fr, :title_ar, :required,
+        :position, :question_type, :weight, :title_fr, :title_ar, :required,
         { options: %i[label_fr label_ar] }
       ]
     )

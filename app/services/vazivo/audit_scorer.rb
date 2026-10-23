@@ -1,7 +1,7 @@
 module Vazivo
   # Scores a delivery from its answers and maps the percent to a verdict.
-  # Choice options may mark `"correct": true`. Without correct flags, the score
-  # is the share of answered questions (completion fallback).
+  # Choices with correct flags, yes/no and ratings earn weighted credit.
+  # Other forms use weighted completion. N/A never contributes to the denominator.
   class AuditScorer
     CONFORME_MIN = 80
     IMPROVE_MIN = 50
@@ -33,34 +33,33 @@ module Vazivo
     def call
       return Result.new(score: nil, verdict: nil, earned: 0, possible: 0) if @questions.empty?
 
-      if scorable_choice_questions.any?
-        score_choice_questions
-      else
-        score_completion
+      questions = scorable_questions.presence || @questions
+      # N/A is an explicit exclusion, including in completion-only forms.
+      questions = questions.reject { |q| q.question_type == "yes_no_na" && @answers[q.id]&.text_value == "na" }
+      possible = questions.sum(&:weight)
+      earned = questions.sum do |question|
+        answer = @answers[question.id]
+        credit = if question.question_type == "yes_no_na"
+          answer&.text_value == "yes" ? 1 : 0
+        elsif question.question_type == "rating"
+          TypedFormValue.valid?("rating", answer&.text_value) ? answer.text_value.to_i / 5.0 : 0
+        elsif question.choice? && correct_labels(question).any?
+          answer_correct?(question) ? 1 : 0
+        else
+          answer&.filled? ? 1 : 0
+        end
+        question.weight * credit
       end
+      percent = possible.zero? ? nil : ((earned.to_f / possible) * 100).round
+      Result.new(score: percent, verdict: self.class.verdict_for(percent), earned: earned, possible: possible)
     end
 
     private
 
-    def scorable_choice_questions
-      @scorable_choice_questions ||= @questions.select { |question| question.choice? && correct_labels(question).any? }
-    end
-
-    def score_choice_questions
-      earned = 0
-      possible = scorable_choice_questions.size
-      scorable_choice_questions.each do |question|
-        earned += 1 if answer_correct?(question)
+    def scorable_questions
+      @questions.select do |question|
+        %w[yes_no_na rating].include?(question.question_type) || (question.choice? && correct_labels(question).any?)
       end
-      percent = ((earned.to_f / possible) * 100).round
-      Result.new(score: percent, verdict: self.class.verdict_for(percent), earned: earned, possible: possible)
-    end
-
-    def score_completion
-      possible = @questions.size
-      earned = @questions.count { |question| @answers[question.id]&.filled? }
-      percent = possible.zero? ? nil : ((earned.to_f / possible) * 100).round
-      Result.new(score: percent, verdict: self.class.verdict_for(percent), earned: earned, possible: possible)
     end
 
     def answer_correct?(question)
