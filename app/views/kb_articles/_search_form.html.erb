@@ -1,0 +1,31 @@
+<%= form_with url: kb_articles_path, method: :get, local: true, class: "panel kb-search-form", style: "margin-bottom:1rem;" do %>
+  <div class="cluster" style="align-items:flex-end; flex-wrap:wrap; gap:0.75rem;">
+    <div class="stack" style="flex:1 1 14rem; min-width:12rem;">
+      <%= label_tag :q, t("morocco.kb.search.query_label") %>
+      <%= search_field_tag :q, @q, placeholder: t("morocco.kb.search.placeholder"), autocomplete: "off" %>
+    </div>
+    <% if hq_user? %>
+      <div class="stack" style="flex:0 1 10rem;">
+        <%= label_tag :role, t("morocco.kb.search.role_label") %>
+        <%= select_tag :role,
+              options_for_select(
+                [[t("morocco.kb.search.role_all"), ""]] +
+                  Membership::ROLES.map { |r| [t("morocco.kb.search.roles.#{r}"), r] },
+                @role_filter
+              ) %>
+      </div>
+    <% else %>
+      <%= hidden_field_tag :role, @role_filter %>
+      <div class="stack" style="flex:0 1 10rem;">
+        <%= label_tag :role_display, t("morocco.kb.search.role_label") %>
+        <p class="meta" id="role_display" style="margin:0.4rem 0 0;"><%= t("morocco.kb.search.roles.#{@role_filter}") %></p>
+      </div>
+    <% end %>
+    <div class="cluster">
+      <%= submit_tag t("morocco.kb.search.submit"), class: "btn btn--primary", name: nil %>
+      <% if @q.present? || (hq_user? && params[:role].present?) %>
+        <%= link_to t("morocco.kb.search.clear"), kb_articles_path, class: "btn btn--ghost" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

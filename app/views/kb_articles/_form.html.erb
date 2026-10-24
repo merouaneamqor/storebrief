@@ -1,0 +1,72 @@
+<%
+  form_url = @article.persisted? ? kb_article_path(@article) : kb_articles_path
+%>
+
+<%= form_with model: @article, url: form_url, class: "panel stack" do |f| %>
+  <% if @article.errors.any? %>
+    <div class="flash flash--alert">
+      <%= @article.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <% if @category_options.blank? %>
+    <div class="flash flash--alert">
+      <%= t("morocco.kb.articles.need_category_html",
+            link: link_to(t("morocco.kb.categories.new"), new_kb_category_path)).html_safe %>
+    </div>
+  <% end %>
+
+  <div class="stack">
+    <%= f.label :kb_category_id, t("morocco.kb.articles.fields.category") %>
+    <%= f.select :kb_category_id, @category_options, { include_blank: t("morocco.kb.articles.fields.category_blank") }, required: true, disabled: @category_options.blank? %>
+
+    <%= f.label :title_fr, t("morocco.kb.articles.fields.title_fr") %>
+    <%= f.text_field :title_fr, required: true %>
+
+    <%= f.label :title_ar, t("morocco.kb.articles.fields.title_ar") %>
+    <%= f.text_field :title_ar, dir: "rtl", lang: "ar" %>
+
+    <%= f.label :body_fr, t("morocco.kb.articles.fields.body_fr") %>
+    <%= f.text_area :body_fr, rows: 8, required: true %>
+
+    <%= f.label :body_ar, t("morocco.kb.articles.fields.body_ar") %>
+    <%= f.text_area :body_ar, rows: 6, dir: "rtl", lang: "ar" %>
+
+    <%= f.label :publish_state, t("morocco.kb.articles.fields.publish_state") %>
+    <%= f.select :publish_state, KbArticle::PUBLISH_STATES.map { |s| [ t("morocco.kb.articles.states.#{s}"), s ] } %>
+
+    <fieldset class="stack" style="border:0; padding:0; margin:0;">
+      <legend class="meta"><%= t("morocco.kb.articles.fields.audience_roles") %></legend>
+      <p class="meta"><%= t("morocco.kb.articles.fields.audience_roles_hint") %></p>
+      <% Membership::ROLES.each do |role| %>
+        <label class="cluster" style="gap:0.4rem;">
+          <%= check_box_tag "kb_article[audience_roles][]", role, @article.audience_roles.include?(role), id: "kb_article_audience_#{role}" %>
+          <%= t("morocco.kb.search.roles.#{role}") %>
+        </label>
+      <% end %>
+      <%= hidden_field_tag "kb_article[audience_roles][]", "" %>
+    </fieldset>
+
+    <fieldset class="stack" style="border:0; padding:0; margin:0;">
+      <legend class="meta"><%= t("morocco.kb.articles.fields.audience_store_tags") %></legend>
+      <p class="meta"><%= t("morocco.kb.articles.fields.audience_store_tags_hint") %></p>
+      <% Array(@store_tag_options).each do |tag| %>
+        <label class="cluster" style="gap:0.4rem;">
+          <%= check_box_tag "kb_article[audience_store_tags][]", tag, @article.audience_store_tags.include?(tag), id: "kb_article_store_tag_#{tag.to_s.parameterize}" %>
+          <%= tag %>
+        </label>
+      <% end %>
+      <%= label_tag "kb_article_audience_store_tags_custom", t("morocco.kb.articles.fields.audience_store_tags_custom"), class: "meta" %>
+      <%= text_field_tag "kb_article[audience_store_tags][]",
+            (@article.audience_store_tags - Array(@store_tag_options)).join(", "),
+            id: "kb_article_audience_store_tags_custom",
+            placeholder: t("morocco.kb.articles.fields.audience_store_tags_placeholder") %>
+      <%= hidden_field_tag "kb_article[audience_store_tags][]", "" %>
+    </fieldset>
+  </div>
+
+  <div class="cluster">
+    <%= f.submit t("morocco.kb.articles.save"), class: "btn btn--primary", disabled: @category_options.blank? %>
+    <%= link_to t("morocco.kb.articles.cancel"), (@article.persisted? ? kb_article_path(@article) : kb_articles_path), class: "btn btn--ghost" %>
+  </div>
+<% end %>

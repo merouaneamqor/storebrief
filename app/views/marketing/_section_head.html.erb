@@ -1,0 +1,6 @@
+<%# locals: kicker, title, lede (optional) %>
+<header class="m-head">
+  <% if local_assigns[:kicker].present? %><p class="m-kicker"><%= kicker %></p><% end %>
+  <h2><%= title %></h2>
+  <% if local_assigns[:lede].present? %><p class="m-lede"><%= lede %></p><% end %>
+</header>

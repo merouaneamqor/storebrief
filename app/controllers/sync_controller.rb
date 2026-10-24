@@ -13,10 +13,17 @@ class SyncController < ApplicationController
       next unless item
 
       response = delivery.checklist_item_responses.find_or_initialize_by(checklist_item: item)
-      response.completed = ActiveModel::Type::Boolean.new.cast(entry[:completed])
       response.notes = entry[:notes]
       response.client_uuid = entry[:client_uuid] if entry[:client_uuid].present?
       attach_data_uri(response, entry[:photo_data]) if entry[:photo_data].present?
+
+      completed = ActiveModel::Type::Boolean.new.cast(entry[:completed])
+      if completed && item.requires_photo? && !response.evidence_attached?
+        results << { client_uuid: entry[:client_uuid], status: "error", message: I18n.t("checklists.evidence_required") }
+        next
+      end
+
+      response.completed = completed
       response.save!
       delivery.complete_if_ready!
       results << { client_uuid: entry[:client_uuid], status: "ok", delivery_status: delivery.status }

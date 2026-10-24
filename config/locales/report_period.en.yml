@@ -1,0 +1,21 @@
+{
+  "en": {
+    "report_period": {
+      "from": "From",
+      "to": "To",
+      "interval": "Period",
+      "group_by": "Group by",
+      "week": "Weekly",
+      "month": "Monthly",
+      "region": "Region",
+      "area": "Area",
+      "store": "Store",
+      "apply": "Apply",
+      "trends": "Compliance over time",
+      "definition": "Current completion rate of briefs and checklists assigned in each period. Gaps mean no assignments.",
+      "campaigns": "Campaigns",
+      "ranking_definition": "Completion over the selected dates, compared with the preceding period of equal length.",
+      "campaign_definition": "Campaigns whose schedule overlaps the selected dates, including completed campaigns."
+    }
+  }
+}

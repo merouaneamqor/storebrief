@@ -1,0 +1,26 @@
+<% content_for :title, t("privacy.cookies.page_title") %>
+
+<article class="m-legal m-wrap">
+  <header class="m-legal__head">
+    <h1><%= t("privacy.cookies.page_title") %></h1>
+    <p><%= t("privacy.cookies.lede") %></p>
+  </header>
+
+  <% t("privacy.cookies.sections").each do |section| %>
+    <section class="m-legal__section">
+      <h2><%= section[:title] %></h2>
+      <% section[:paragraphs].each do |paragraph| %>
+        <p><%= paragraph %></p>
+      <% end %>
+      <% if section[:list].present? %>
+        <ul>
+          <% section[:list].each do |item| %>
+            <li><%= item %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </section>
+  <% end %>
+
+  <p><%= link_to t("privacy.page.title"), legal_privacy_path %></p>
+</article>

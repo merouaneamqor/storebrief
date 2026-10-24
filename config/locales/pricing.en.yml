@@ -1,0 +1,59 @@
+en:
+  pricing:
+    too_many: "Too many requests. Try again in a minute."
+    kicker: "Vazivo plans"
+    help_title: "Not sure which plan fits?"
+    help_body: "Tell us how many stores you run. We will recommend the right plan and prepare a tailored proposal."
+    nav_label: "Main navigation"
+    nav:  "Plans"
+    title: "Our plans"
+    lede: "Pick the level of store execution that fits your network. Commercial terms are tailored to each customer."
+    meta_description: "Explore Vazivo plans for store execution. Demo and custom offer on request."
+    recommended: "Recommended"
+    cta_demo: "Request a demo"
+    cta_offer: "Get a custom offer"
+    cta_contact: "Contact our sales team"
+    form:
+      about_you: "About you"
+      about_network: "Your network"
+      selected_plan: "Selected plan"
+      plan: "Plan of interest"
+      country: "Country"
+      requirements: "Additional requirements"
+      no_preference: "No preference"
+    plans:
+      starter:
+        segment: "Small retail networks"
+        name: "Starter"
+        tagline: "For small retail networks that want a steady daily routine."
+        features:
+          - "Task management and checklists"
+          - "Basic store communications"
+          - "Standard reporting"
+      business:
+        segment: "Growing retail networks"
+        name: "Business"
+        tagline: "For growing networks running campaigns and compliance."
+        features:
+          - "Everything in Starter"
+          - "Campaign and merchandising execution"
+          - "Audits and compliance tracking"
+          - "Advanced reporting and role permissions"
+      enterprise:
+        segment: "Advanced retail operations"
+        name: "Enterprise"
+        tagline: "For advanced retail operations with governance needs."
+        features:
+          - "Everything in Business"
+          - "Advanced workflows (dependencies, approvals, escalations)"
+          - "Rankings and campaign dashboards"
+          - "SAML single sign-on (SSO)"
+      grand_compte:
+        segment: "Large enterprise customers"
+        name: "Grand compte"
+        tagline: "For large retailers with specific needs."
+        features:
+          - "Custom deployment and integrations"
+          - "Dedicated onboarding and support"
+          - "Volume-based commercial terms"
+          - "Customer-specific quotations"

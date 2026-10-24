@@ -6,6 +6,7 @@ class DeliveryAnswer < ApplicationRecord
   validates :communication_question_id, uniqueness: { scope: :delivery_id }
   validate :question_belongs_to_brief
   validate :value_matches_question
+  validate :acceptable_image
 
   def text_value
     case value
@@ -44,12 +45,23 @@ class DeliveryAnswer < ApplicationRecord
       image.attached? ? image.filename.to_s : ""
     elsif communication_question.question_type == "multi_choice"
       list_value.join(", ")
+    elsif communication_question.question_type == "yes_no_na" && text_value.present?
+      I18n.t("typed_forms.answers.#{text_value}", locale: locale)
     else
       text_value.to_s
     end
   end
 
   private
+
+  def acceptable_image
+    return unless image.attached?
+
+    types = communication_question&.question_type == "signature" ? %w[image/png] : Delivery::PROOF_IMAGE_TYPES
+    unless types.include?(image.blob.content_type) && image.blob.byte_size <= Delivery::PROOF_MAX_BYTES
+      errors.add(:image, :invalid)
+    end
+  end
 
   def question_belongs_to_brief
     return if delivery.blank? || communication_question.blank?
@@ -60,6 +72,9 @@ class DeliveryAnswer < ApplicationRecord
 
   def value_matches_question
     return if communication_question.blank?
+    if TypedFormValue::TYPES.include?(communication_question.question_type) && filled?
+      errors.add(:value, :invalid) unless TypedFormValue.valid?(communication_question.question_type, text_value)
+    end
     return if filled? || !communication_question.required?
 
     errors.add(:value, :blank)

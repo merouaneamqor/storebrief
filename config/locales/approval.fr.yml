@@ -1,0 +1,40 @@
+fr:
+  approval:
+    title: "Validation avant envoi"
+    submit: "Soumettre pour validation"
+    submitted: "Soumis pour validation. L'envoi sera possible une fois validé par un autre approbateur."
+    approved: "Validé. L'auteur peut maintenant l'envoyer."
+    rejected: "Refusé. L'auteur a été notifié."
+    approve_action: "Valider"
+    reject_action: "Refuser"
+    note: "Note pour l'auteur (obligatoire pour refuser)"
+    note_label: "Note :"
+    reviewed_by: "Relu par %{name}"
+    waiting_for_other: "En attente d'un autre approbateur. Vous ne pouvez pas valider votre propre travail."
+    approved_send_hint: "Validé. Toute modification demandera une nouvelle validation."
+    statuses:
+      pending_review: "En attente de validation"
+      approved: "Validé"
+      rejected: "Refusé"
+    events:
+      submitted: "Soumis"
+      approved: "Validé"
+      rejected: "Refusé"
+      deployed: "Déployé"
+    push:
+      approved: "Validé"
+      rejected: "Refusé"
+    errors:
+      required: "Une validation est nécessaire avant l'envoi."
+      not_allowed: "Vous n'êtes pas autorisé à valider ceci."
+      self_approval: "Vous ne pouvez pas valider votre propre travail."
+      not_pending: "Cet élément n'est pas en attente de validation."
+      note_required: "Ajoutez une note pour refuser."
+      invalid_decision: "Décision inconnue."
+    deploy_requests:
+      nav: "Validations de déploiement"
+      title: "Validations de déploiement des playbooks"
+      lede: "Les déploiements attendent ici la validation d'un autre approbateur."
+      campaign_on: "Campagne le %{date}"
+      stores: "Magasins : %{count}"
+      deployed: "Déployé"

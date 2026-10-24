@@ -1,0 +1,89 @@
+<%
+  questions_payload = @template.question_defs
+  form_url = @template.persisted? ? task_template_path(@template) : task_templates_path
+%>
+
+<%= form_with model: @template, url: form_url, class: "panel stack" do |f| %>
+  <% if @template.errors.any? %>
+    <div class="flash flash--alert">
+      <%= @template.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <div class="stack">
+    <%= f.label :title_fr, t("task_templates.fields.title_fr") %>
+    <%= f.text_field :title_fr, required: true %>
+
+    <%= f.label :title_ar, t("task_templates.fields.title_ar") %>
+    <%= f.text_field :title_ar %>
+
+    <%= f.label :body_fr, t("task_templates.fields.body_fr") %>
+    <%= f.text_area :body_fr, rows: 4 %>
+
+    <%= f.label :body_ar, t("task_templates.fields.body_ar") %>
+    <%= f.text_area :body_ar, rows: 3 %>
+
+    <%= f.label :format, t("task_templates.fields.format") %>
+    <%= f.select :format, Communication::FORMATS.map { |key| [ t("common.#{key}"), key ] } %>
+
+    <%= f.label :priority, t("task_templates.fields.priority") %>
+    <%= f.select :priority, Communication::PRIORITIES.map { |key| [ t("common.priorities.#{key}"), key ] } %>
+
+    <label class="checkbox">
+      <%= f.check_box :requires_proof %>
+      <%= t("task_templates.fields.requires_proof") %>
+    </label>
+    <label class="checkbox">
+      <%= f.check_box :requires_approval %>
+      <%= t("task_templates.fields.requires_approval") %>
+    </label>
+  </div>
+
+  <fieldset class="stack">
+    <legend><%= t("task_templates.questions_title") %></legend>
+    <p class="meta"><%= t("task_templates.questions_help") %></p>
+
+    <% question_slots = [ questions_payload.size + 1, 3 ].max %>
+    <% question_slots.times do |index| %>
+      <% question = questions_payload[index] || {} %>
+      <div class="stack" style="border-top:1px solid var(--line); padding-top:0.75rem;">
+        <input type="hidden" name="communication_template[questions][<%= index %>][position]" value="<%= index %>">
+        <label>
+          <%= t("task_templates.fields.question_fr") %>
+          <input type="text" name="communication_template[questions][<%= index %>][title_fr]"
+                 value="<%= question[:title_fr] || question['title_fr'] %>">
+        </label>
+        <label>
+          <%= t("task_templates.fields.question_ar") %>
+          <input type="text" name="communication_template[questions][<%= index %>][title_ar]"
+                 value="<%= question[:title_ar] || question['title_ar'] %>">
+        </label>
+        <label>
+          <%= t("task_templates.fields.question_type") %>
+          <select name="communication_template[questions][<%= index %>][question_type]">
+            <% CommunicationQuestion::TYPES.each do |type| %>
+              <option value="<%= type %>" <%= "selected" if (question[:question_type] || question["question_type"] || "short_text") == type %>>
+                <%= t("communications.question_types.#{type}") %>
+              </option>
+            <% end %>
+          </select>
+        </label>
+        <label>
+          <%= t("typed_forms.weight") %>
+          <input type="number" min="0.01" step="0.01" name="communication_template[questions][<%= index %>][weight]" value="<%= question[:weight] || question['weight'] || 1 %>">
+        </label>
+        <label class="checkbox">
+          <input type="hidden" name="communication_template[questions][<%= index %>][required]" value="0">
+          <input type="checkbox" name="communication_template[questions][<%= index %>][required]" value="1"
+                 <%= "checked" if ActiveModel::Type::Boolean.new.cast(question[:required] || question["required"]) %>>
+          <%= t("task_templates.fields.required") %>
+        </label>
+      </div>
+    <% end %>
+  </fieldset>
+
+  <div class="template-card__actions">
+    <%= f.submit t("task_templates.save"), class: "btn btn--primary" %>
+    <%= link_to t("task_templates.cancel"), task_templates_path, class: "btn btn--ghost" %>
+  </div>
+<% end %>

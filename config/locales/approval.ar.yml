@@ -1,0 +1,40 @@
+ar:
+  approval:
+    title: "الموافقة قبل الإرسال"
+    submit: "إرسال للموافقة"
+    submitted: "تم الإرسال للموافقة. سيصبح الإرسال ممكنا بعد موافقة معتمد آخر."
+    approved: "تمت الموافقة. يمكن للكاتب الإرسال الآن."
+    rejected: "تم الرفض. تم إشعار الكاتب."
+    approve_action: "موافقة"
+    reject_action: "رفض"
+    note: "ملاحظة للكاتب (إلزامية عند الرفض)"
+    note_label: "ملاحظة:"
+    reviewed_by: "راجعه %{name}"
+    waiting_for_other: "في انتظار معتمد آخر. لا يمكنكم الموافقة على عملكم."
+    approved_send_hint: "تمت الموافقة. أي تعديل يتطلب موافقة جديدة."
+    statuses:
+      pending_review: "في انتظار المراجعة"
+      approved: "تمت الموافقة"
+      rejected: "مرفوض"
+    events:
+      submitted: "تم الإرسال"
+      approved: "تمت الموافقة"
+      rejected: "مرفوض"
+      deployed: "تم النشر"
+    push:
+      approved: "تمت الموافقة"
+      rejected: "مرفوض"
+    errors:
+      required: "يلزم الحصول على موافقة قبل الإرسال."
+      not_allowed: "غير مسموح لكم بالموافقة على هذا."
+      self_approval: "لا يمكنكم الموافقة على عملكم."
+      not_pending: "هذا العنصر ليس في انتظار المراجعة."
+      note_required: "أضيفوا ملاحظة للرفض."
+      invalid_decision: "قرار غير معروف."
+    deploy_requests:
+      nav: "موافقات النشر"
+      title: "موافقات نشر الدلائل"
+      lede: "تنتظر عمليات النشر هنا موافقة معتمد آخر."
+      campaign_on: "الحملة بتاريخ %{date}"
+      stores: "المتاجر: %{count}"
+      deployed: "تم النشر"

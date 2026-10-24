@@ -999,6 +999,16 @@ body.rtl .section-title {
 
 .badge--news { background: var(--secondary-soft); color: var(--secondary); }
 .badge--task { background: var(--warn-soft); color: var(--warn); }
+.badge--announcement { background: var(--ok-soft, #e2f0e8); color: var(--ok, #1f5c3a); }
+
+.brief-attachments__image {
+  display: block;
+  max-width: 12rem;
+  max-height: 8rem;
+  margin-bottom: 0.35rem;
+  border-radius: var(--radius-sm, 4px);
+  object-fit: cover;
+}
 .badge--priority-urgent { background: var(--tone-late-bg); color: var(--tone-late); }
 .badge--priority-important { background: var(--tone-urgent-bg); color: var(--tone-urgent); }
 .priority-form { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
@@ -1006,7 +1016,9 @@ body.rtl .section-title {
 .badge--completed,
 .badge--read { background: var(--accent-soft); color: var(--accent-deep); }
 .badge--draft,
-.badge--pending { background: var(--bg-deep); color: var(--muted); }
+.badge--pending,
+.badge--archived { background: var(--bg-deep); color: var(--muted); }
+.badge--published { background: var(--accent-soft); color: var(--accent-deep); }
 
 .btn {
   display: inline-flex;
@@ -1185,6 +1197,36 @@ body.rtl .section-title {
   gap: 0.75rem;
 }
 
+.template-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.template-editor__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.template-item__flags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.template-item__show-if {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0;
+}
+
+.template-item--section {
+  background: color-mix(in srgb, var(--surface-2, #f4f4f5) 80%, transparent);
+}
+
 .template-card {
   display: grid;
   gap: 0.45rem;
@@ -1209,6 +1251,63 @@ body.rtl .section-title {
   height: auto;
   border-radius: 10px;
   margin-top: 0.45rem;
+}
+
+.thumb--video {
+  max-width: min(240px, 100%);
+  background: #0f172a;
+}
+
+.badge--missing-evidence {
+  background: var(--tone-late-bg, #fee2e2);
+  color: var(--tone-late, #b91c1c);
+}
+
+.checklist-hq-deliveries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checklist-hq-delivery {
+  display: block;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.checklist-hq-delivery__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+
+.checklist-hq-evidence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.checklist-hq-evidence__item {
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-deep, #f8fafc) 80%, white);
+}
+
+.checklist-hq-evidence__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.checklist-hq-evidence__media {
+  margin-top: 0.25rem;
 }
 
 .prose {
@@ -1266,9 +1365,8 @@ body.rtl .section-title {
     overflow: hidden;
   }
 
+  // dir="rtl" already flips inset-inline-start to the right edge; only the slide direction changes.
   body.rtl .app-sidebar {
-    inset-inline-start: auto;
-    inset-inline-end: 0;
     transform: translateX(105%);
   }
 
@@ -1872,12 +1970,21 @@ body.rtl .section-title {
 
 .brief-target-tools {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.85rem;
 }
 
+.brief-target-tools--filters {
+  margin-top: 0.5rem;
+}
+
 .brief-form .brief-search,
-.brief-form .brief-type {
+.brief-form .brief-type,
+.brief-targets-block .brief-search,
+.brief-targets-block .brief-type,
+.brief-card .brief-search,
+.brief-card .brief-type {
   min-height: 42px;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--line, #e2e8f0);
@@ -1885,8 +1992,37 @@ body.rtl .section-title {
   background: white;
 }
 
-.brief-form .brief-search { flex: 1; }
-.brief-form .brief-type { width: auto; flex: 0 0 9.5rem; }
+.brief-form .brief-search,
+.brief-targets-block .brief-search,
+.brief-card .brief-search { flex: 1; min-width: 8rem; }
+
+.brief-form .brief-type,
+.brief-targets-block .brief-type,
+.brief-card .brief-type { width: auto; flex: 1 1 8.5rem; max-width: 12rem; }
+
+.brief-assignment-preview {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line, #e2e8f0);
+}
+
+.brief-assignment-preview__list {
+  list-style: none;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+  max-height: 140px;
+  overflow: auto;
+}
+
+.brief-assignment-preview__list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: baseline;
+  font-size: 0.88rem;
+}
 
 .brief-target-actions {
   display: flex;

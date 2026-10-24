@@ -1,0 +1,64 @@
+<%# locals: (mission:, targets:) %>
+<section class="panel" id="vm-mission-reviews">
+  <h2 class="section-title"><%= t("morocco.vm_missions.proof.review_title") %></h2>
+  <p class="meta"><%= t("morocco.vm_missions.proof.review_lede") %></p>
+
+  <% if targets.empty? %>
+    <p class="meta"><%= t("morocco.vm_missions.no_stores") %></p>
+  <% else %>
+    <% targets.sort_by { |t| t.org_unit.name }.each do |target| %>
+      <article class="panel" id="<%= dom_id(target) %>">
+        <h3><%= target.org_unit.name %></h3>
+        <p class="meta">
+          <%= t("morocco.vm_missions.proof.target_statuses.#{target.status}") %>
+          <% if target.verdict.present? %>
+            · <span class="verdict-chip verdict-chip--<%= target.verdict %>"><%= t("morocco.verdict.#{target.verdict}") %></span>
+          <% end %>
+        </p>
+
+        <% if target.photo_before.attached? || target.photo_after.attached? %>
+          <div class="proof-pair proof-pair--compact">
+            <% if target.photo_before.attached? %>
+              <figure>
+                <figcaption class="meta"><%= t("morocco.proof.before") %></figcaption>
+                <%= image_tag target.photo_before, class: "thumb" %>
+              </figure>
+            <% end %>
+            <% if target.photo_after.attached? %>
+              <figure>
+                <figcaption class="meta"><%= t("morocco.proof.after") %></figcaption>
+                <%= image_tag target.photo_after, class: "thumb" %>
+              </figure>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="meta"><%= t("morocco.vm_missions.proof.no_photos") %></p>
+        <% end %>
+
+        <% if target.verdict_note.present? && !target.pending_approval? %>
+          <p class="meta"><%= target.verdict_note %></p>
+        <% end %>
+
+        <% if target.pending_approval? %>
+          <%= form_with url: review_vm_mission_path(mission), method: :post, class: "verdict-form verdict-form--compact" do %>
+            <%= hidden_field_tag :target_id, target.id %>
+            <label class="meta" for="verdict_note_<%= target.id %>"><%= t("morocco.approval.decide") %></label>
+            <p class="meta"><%= t("morocco.approval.decide_help") %></p>
+            <textarea id="verdict_note_<%= target.id %>" name="verdict_note" rows="2" required placeholder="<%= t('morocco.verdict.note') %>"></textarea>
+            <div class="verdict-form__actions">
+              <button type="submit" class="btn btn--primary" name="verdict" value="conforme">
+                <%= t("morocco.approval.approve_conforme") %>
+              </button>
+              <button type="submit" class="btn btn--ghost" name="verdict" value="improve">
+                <%= t("morocco.approval.approve_improve") %>
+              </button>
+              <button type="submit" class="btn btn--ghost" name="verdict" value="non_conforme">
+                <%= t("morocco.approval.reject") %>
+              </button>
+            </div>
+          <% end %>
+        <% end %>
+      </article>
+    <% end %>
+  <% end %>
+</section>

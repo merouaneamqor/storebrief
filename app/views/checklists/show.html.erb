@@ -8,13 +8,17 @@
   <section class="panel"><div class="prose"><%= @checklist.description %></div></section>
 <% end %>
 
+<%= render "shared/spreadsheet_downloads" %>
+
 <section class="panel">
   <h2>Items</h2>
   <ul class="list">
     <% @checklist.checklist_items.each do |item| %>
       <li>
         <span><%= item.title %></span>
+        <% if item.required? %><span class="badge"><%= t("templates.fields.required") %></span><% end %>
         <% if item.requires_photo? %><span class="badge"><%= t("checklists.requires_photo") %></span><% end %>
+
       </li>
     <% end %>
   </ul>
@@ -37,11 +41,67 @@
         <p class="meta"><%= t("communications.notify_push_hint", count: pending_count) %></p>
       </div>
     <% end %>
-    <ul class="list">
+    <ul class="list checklist-hq-deliveries">
       <% @deliveries.each do |delivery| %>
-        <li id="store-<%= delivery.org_unit_id %>">
-          <span><%= delivery.org_unit.name %></span>
-          <%= localized_badge(delivery.status) %>
+        <% responses = delivery.checklist_item_responses.index_by(&:checklist_item_id) %>
+        <li id="store-<%= delivery.org_unit_id %>" class="checklist-hq-delivery">
+          <div class="checklist-hq-delivery__head">
+            <span><%= delivery.org_unit.name %></span>
+            <%= localized_badge(delivery.status) %>
+            <% if tenant_feature?(:morocco_ops) %><%= link_to t("checklist_reviews.review"), checklist_review_path(delivery), class: "btn btn--ghost" %><% end %>
+          </div>
+          <ul class="checklist-hq-evidence">
+            <% (@items || @checklist.checklist_items).each do |item| %>
+              <% response = responses[item.id] %>
+              <li class="checklist-hq-evidence__item">
+              <% if response && tenant_feature?(:morocco_ops) %>
+                <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "ChecklistItemResponse", source_id: response.id), class: "btn btn--sm" %>
+              <% end %>
+
+                <div class="checklist-hq-evidence__label">
+                  <span><%= item.title %></span>
+                  <% if item.requires_photo? && !response&.evidence_attached? %>
+                    <span class="badge badge--missing-evidence"><%= t("checklists.missing_evidence") %></span>
+                  <% elsif item.requires_photo? %>
+                    <span class="badge"><%= t("checklists.requires_photo") %></span>
+                  <% end %>
+                </div>
+                <% if response&.evidence_attached? %>
+                  <div class="checklist-hq-evidence__media">
+                    <%= checklist_evidence_tag(response) %>
+                  </div>
+                <% elsif response&.notes.present? %>
+                  <p class="meta"><%= response.notes %></p>
+                <% else %>
+                  <p class="meta">-</p>
+                <% end %>
+                <% if tenant_feature?(:morocco_ops) && response.present? && ((item.required? && !response.completed?) || (item.requires_photo? && !response.evidence_attached?)) %>
+                  <% if response.corrective_communication.present? %>
+                    <p class="meta">
+                      <%= t("morocco.corrective.exists") %>
+                      <%= link_to response.corrective_communication.title, communication_path(response.corrective_communication) %>
+                    </p>
+                  <% else %>
+                    <%= form_with url: checklist_item_corrective_action_path(response), method: :post, class: "verdict-form verdict-form--compact" do %>
+                      <% visits = @store_visits&.[](delivery.org_unit_id) || [] %>
+                      <% if visits.any? %>
+                        <label class="meta" for="visit_id_item_<%= response.id %>"><%= t("morocco.corrective.link_visit") %></label>
+                        <select id="visit_id_item_<%= response.id %>" name="visit_id">
+                          <option value=""><%= t("morocco.corrective.no_visit") %></option>
+                          <% visits.each do |visit| %>
+                            <option value="<%= visit.id %>">
+                              <%= l(visit.planned_at, format: :short) %> · <%= t("morocco.visits.statuses.#{visit.status}") %>
+                            </option>
+                          <% end %>
+                        </select>
+                      <% end %>
+                      <button type="submit" class="btn btn--ghost"><%= t("morocco.corrective.create") %></button>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
         </li>
       <% end %>
     </ul>
@@ -65,28 +125,10 @@
     <% end %>
   </section>
 <% else %>
-  <section class="panel" x-data="{ filter: '', type: 'all' }">
+  <section class="panel">
     <h2><%= t("communications.send") %></h2>
     <%= form_with url: send_checklist_checklist_path(@checklist), method: :post, local: true do %>
-      <div class="filter-row">
-        <input type="text" placeholder="<%= t('common.filter') %>" x-model="filter">
-        <select x-model="type">
-          <option value="all"><%= t("common.all") %></option>
-          <option value="region"><%= t("common.region") %></option>
-          <option value="store"><%= t("common.store") %></option>
-        </select>
-      </div>
-      <div class="target-list">
-        <% @target_units.each do |unit| %>
-          <label
-            x-show="(type === 'all' || type === '<%= unit.unit_type %>') && '<%= j unit.name.downcase %>'.includes(filter.toLowerCase())"
-            x-cloak>
-            <input type="checkbox" name="org_unit_ids[]" value="<%= unit.id %>">
-            <span class="badge"><%= unit.unit_type %></span>
-            <%= unit.name %>
-          </label>
-        <% end %>
-      </div>
+      <%= render "communications/targets", units: @target_units, selected_ids: Array(params[:org_unit_ids]), embedded: true %>
       <div class="actions">
         <button class="btn" type="submit"><%= t("communications.send") %></button>
       </div>

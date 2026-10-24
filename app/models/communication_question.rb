@@ -1,7 +1,7 @@
 class CommunicationQuestion < ApplicationRecord
   include Bilingual
 
-  TYPES = %w[short_text long_text single_choice multi_choice dropdown image].freeze
+  TYPES = %w[short_text long_text single_choice multi_choice dropdown image signature number date rating yes_no_na].freeze
   CHOICE_TYPES = %w[single_choice multi_choice dropdown].freeze
 
   belongs_to :communication
@@ -10,6 +10,8 @@ class CommunicationQuestion < ApplicationRecord
   validates :title_fr, presence: true
   validates :question_type, inclusion: { in: TYPES }
   validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :weight, numericality: { greater_than: 0, less_than: 1_000_000 }
+  validate :signature_feature
   validate :options_shape
   validate :communication_is_draft, on: %i[create update]
 
@@ -38,7 +40,7 @@ class CommunicationQuestion < ApplicationRecord
   end
 
   def image?
-    question_type == "image"
+    %w[image signature].include?(question_type)
   end
 
   def option_labels(locale: I18n.locale)
@@ -53,13 +55,18 @@ class CommunicationQuestion < ApplicationRecord
 
   private
 
+  def signature_feature
+    errors.add(:question_type, :invalid) if question_type == "signature" && !communication&.tenant&.feature?(:morocco_ops)
+  end
+
   def normalize_option(option)
     option = option.to_unsafe_h if option.respond_to?(:to_unsafe_h)
     option = option.to_h if option.respond_to?(:to_h)
     {
       "label_fr" => option["label_fr"].presence || option[:label_fr].to_s,
-      "label_ar" => option["label_ar"].presence || option[:label_ar].to_s
-    }
+      "label_ar" => option["label_ar"].presence || option[:label_ar].to_s,
+      "correct" => option["correct"] == true || option[:correct] == true
+    }.tap { |normalized| normalized.delete("correct") unless normalized["correct"] }
   end
 
   def options_shape

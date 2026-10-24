@@ -1,0 +1,59 @@
+es:
+  pricing:
+    too_many: "Demasiadas solicitudes. Inténtelo de nuevo en un minuto."
+    kicker: "Planes Vazivo"
+    help_title: "¿No sabe qué plan elegir?"
+    help_body: "Díganos cuántas tiendas gestiona. Le recomendamos el plan adecuado y preparamos una propuesta a medida."
+    nav_label: "Navegación principal"
+    nav:  "Planes"
+    title: "Nuestros planes"
+    lede: "Elija el nivel de ejecución en tienda que encaja con su red. Las condiciones comerciales se adaptan a cada cliente."
+    meta_description: "Descubra los planes de Vazivo para la ejecución en tienda. Demostración y oferta personalizada bajo petición."
+    recommended: "Recomendado"
+    cta_demo: "Solicitar una demostración"
+    cta_offer: "Obtener una oferta personalizada"
+    cta_contact: "Contactar con nuestro equipo comercial"
+    form:
+      about_you: "Usted"
+      about_network: "Su red"
+      selected_plan: "Plan seleccionado"
+      plan: "Plan de interés"
+      country: "País"
+      requirements: "Necesidades adicionales"
+      no_preference: "Sin preferencia"
+    plans:
+      starter:
+        segment: "Redes pequeñas"
+        name: "Starter"
+        tagline: "Para redes pequeñas que quieren una rutina diaria ordenada."
+        features:
+          - "Gestión de tareas y checklists"
+          - "Comunicaciones básicas con las tiendas"
+          - "Informes estándar"
+      business:
+        segment: "Redes en crecimiento"
+        name: "Business"
+        tagline: "Para redes en crecimiento que gestionan campañas y cumplimiento."
+        features:
+          - "Todo Starter"
+          - "Ejecución de campañas y merchandising"
+          - "Auditorías y seguimiento del cumplimiento"
+          - "Informes avanzados y permisos por rol"
+      enterprise:
+        segment: "Operaciones avanzadas"
+        name: "Enterprise"
+        tagline: "Para operaciones retail avanzadas con necesidades de gobierno."
+        features:
+          - "Todo Business"
+          - "Flujos avanzados (dependencias, validaciones, escalados)"
+          - "Rankings y paneles de campaña"
+          - "Inicio de sesión único SAML (SSO)"
+      grand_compte:
+        segment: "Grandes cadenas"
+        name: "Grand compte"
+        tagline: "Para grandes cadenas con necesidades específicas."
+        features:
+          - "Despliegue e integraciones a medida"
+          - "Acompañamiento y soporte dedicados"
+          - "Condiciones comerciales según volumen"
+          - "Ofertas personalizadas por cliente"

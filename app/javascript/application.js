@@ -7,3 +7,5 @@ import "campaign_targets"
 import "pwa_install"
 import "pwa_push"
 import "task_lang"
+
+import "signature_pad"

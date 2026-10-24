@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>
+    <% if current_user && current_tenant %>
+      <meta name="task-proof-owner" content="<%= current_tenant.id %>:<%= current_user.id %>">
+    <% end %>
     <%= csp_meta_tag %>
     <%= yield :head %>
     <% if (favicon_src = tenant_brand_asset_src(current_tenant, :favicon)) %>
@@ -28,7 +31,7 @@
     <% end %>
     <%= render "shared/pwa_push" %>
     <% if current_user %>
-      <% show_store_tabs = !hq_user? && !super_admin? && tenant_feature?(:morocco_ops) %>
+      <% show_store_tabs = (store_user? || area_user?) && tenant_feature?(:morocco_ops) %>
       <div class="app-shell <%= 'app-shell--tabs' if show_store_tabs %>">
         <input type="checkbox" id="app-nav-toggle" class="app-nav-toggle" autocomplete="off" aria-label="<%= t('nav.menu') %>">
         <aside class="app-sidebar" id="app-sidebar">
@@ -69,6 +72,15 @@
               <%= link_to t("nav.tenants"), tenants_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/tenants')}" %>
               <%= link_to t("nav.demo_requests"), demo_requests_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/demo_requests')}" %>
             <% end %>
+            <% if tenant_feature?(:morocco_ops) && (hq_user? || store_user? || (area_user? && user_allows?(:visits))) %>
+              <%= link_to calendar_visits_path, class: "app-nav-link #{'is-active' if current_page?(calendar_visits_path)}" do %>
+                <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                <span><%= t("morocco.retail_calendar.title") %></span>
+              <% end %>
+            <% end %>
+            <% if tenant_feature?(:morocco_ops) && user_allows?(store_user? ? :execute : :monitor) %>
+              <%= link_to t("tickets.title"), incident_tickets_path, class: "app-nav-link" %>
+            <% end %>
             <% if hq_user? %>
               <% if tenant_feature?(:briefs) %>
                 <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications') && !request.path.end_with?('/new')}" do %>
@@ -81,9 +93,23 @@
                   <span class="app-nav-link__icon"><%= icon("book") %></span>
                   <span><%= t("nav.playbooks") %></span>
                 <% end %>
-                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits')}" do %>
+                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
                   <span class="app-nav-link__icon"><%= icon("calendar") %></span>
                   <span><%= t("nav.visits") %></span>
+                <% end %>
+                <%= link_to vm_missions_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/vm_missions')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("camera") %></span>
+                  <span><%= t("nav.vm_missions") %></span>
+                <% end %>
+                <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("activity") %></span>
+                  <span><%= t("nav.audit_history") %></span>
+                <% end %>
+                <% if tenant_feature?(:knowledge_base) %>
+                  <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("book") %></span>
+                    <span><%= t("nav.knowledge_base") %></span>
+                  <% end %>
                 <% end %>
                 <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                   <span class="app-nav-link__icon"><%= icon("trophy") %></span>
@@ -96,30 +122,104 @@
                 <span class="app-nav-link__icon"><%= icon("credit-card") %></span>
                 <span><%= t("nav.billing") %></span>
               <% end %>
-              <details class="app-nav-more" <%= "open" if request.path.start_with?("/org_units", "/templates", "/checklists", "/reports", "/admin") %>>
+              <details class="app-nav-more" <%= "open" if request.path.start_with?("/org_units", "/templates", "/checklists", "/reports", "/admin", "/kb_") %>>
                 <summary class="app-nav-link">
                   <span class="app-nav-link__icon"><%= icon("more-horizontal") %></span>
                   <span><%= t("nav.more") %></span>
                 </summary>
                 <div class="app-nav-more__list">
+                  <% if tenant_feature?(:morocco_ops) && (super_admin? || current_user.built_in_hq?) %>
+                    <%= link_to t("tenant_roles.title"), tenant_roles_path, class: "app-nav-link" %>
+                  <% end %>
                   <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
                   <% if tenant_feature?(:checklists) %>
                     <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
+                    <% if tenant_feature?(:morocco_ops) && user_allows?(:monitor) %><%= link_to t("checklist_reviews.title"), checklist_reviews_path, class: "app-nav-link" %><% end %>
                     <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
                   <% end %>
                   <% if tenant_feature?(:reports) %>
                     <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
                   <% end %>
+                  <% if tenant_feature?(:briefs) && tenant_feature?(:morocco_ops) %>
+                    <%= link_to t("feed_engagement.moderation"), feed_moderation_path, class: "app-nav-link" %>
+                  <% end %>
                   <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
+                  <%= link_to t("nav.privacy"), privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" %>
                 </div>
               </details>
-            <% elsif tenant_feature?(:morocco_ops) %>
+            <% elsif area_user? && tenant_feature?(:morocco_ops) %>
+              <% if tenant_feature?(:checklists) && user_allows?(:monitor) %><%= link_to t("checklist_reviews.title"), checklist_reviews_path, class: "app-nav-link" %><% end %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                  <span><%= t("nav.my_tasks") %></span>
+                <% end %>
+                <% if user_allows?(:monitor) %>
+                  <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                    <span><%= t("nav.briefs") %></span>
+                  <% end %>
+                <% end %>
+              <% end %>
+              <% if user_allows?(:visits) %>
+                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
+                  <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                  <span><%= t("nav.visits") %></span>
+                <% end %>
+                <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("activity") %></span>
+                  <span><%= t("nav.audit_history") %></span>
+                <% end %>
+              <% end %>
               <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
                 <span class="app-nav-link__icon"><%= icon("trophy") %></span>
                 <span><%= t("nav.ranking") %></span>
               <% end %>
+              <% if tenant_feature?(:knowledge_base) %>
+                <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("book") %></span>
+                  <span><%= t("nav.knowledge_base") %></span>
+                <% end %>
+              <% end %>
+              <%= link_to privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" do %>
+                <span class="app-nav-link__icon"><%= icon("shield") %></span>
+                <span><%= t("nav.privacy") %></span>
+              <% end %>
+            <% elsif store_user? && tenant_feature?(:morocco_ops) %>
+              <% if tenant_feature?(:briefs) %>
+                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                  <span><%= t("nav.my_tasks") %></span>
+                <% end %>
+                <%= link_to newsfeeds_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/newsfeed')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                  <span><%= t("nav.newsfeed") %></span>
+                <% end %>
+              <% end %>
+              <%= link_to vm_missions_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/vm_missions')}" do %>
+                <span class="app-nav-link__icon"><%= icon("camera") %></span>
+                <span><%= t("nav.vm_missions") %></span>
+              <% end %>
+              <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
+                <span class="app-nav-link__icon"><%= icon("trophy") %></span>
+                <span><%= t("nav.ranking") %></span>
+              <% end %>
+              <% if tenant_feature?(:knowledge_base) %>
+                <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("book") %></span>
+                  <span><%= t("nav.knowledge_base") %></span>
+                <% end %>
+              <% end %>
+              <%= link_to privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" do %>
+                <span class="app-nav-link__icon"><%= icon("shield") %></span>
+                <span><%= t("nav.privacy") %></span>
+              <% end %>
             <% else %>
               <% if tenant_feature?(:briefs) %>
+                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                  <span><%= t("nav.my_tasks") %></span>
+                <% end %>
                 <%= link_to inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox')}" do %>
                   <span class="app-nav-link__icon"><%= icon("inbox") %></span>
                   <span><%= t("nav.inbox") %></span>
@@ -138,6 +238,8 @@
                 <span><%= t("nav.compose") %></span>
               <% end %>
             <% end %>
+            <p class="task-proof-sync meta" role="status" hidden
+               data-pending="<%= t('task_proof.queued') %>" data-error="<%= t('task_proof.sync_error') %>"></p>
             <div class="app-sidebar__foot"<% if tenant_feature?(:offline_checklists) %> x-data="offlineSync()" x-init="init()"<% end %>>
               <span class="app-sidebar__avatar" aria-hidden="true"><%= current_user.name.to_s.first(1).upcase %></span>
               <div class="app-sidebar__who">
@@ -186,6 +288,18 @@
             <%= link_to app_root_path, class: "app-bottom-nav__link #{'is-active' if current_page?(app_root_path)}" do %>
               <%= icon("home") %>
               <span><%= t("nav.today") %></span>
+            <% end %>
+            <% if tenant_feature?(:briefs) %>
+              <%= link_to my_tasks_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/my_tasks', '/inbox')}" do %>
+                <%= icon("check-circle") %>
+                <span><%= t("nav.my_tasks") %></span>
+              <% end %>
+            <% end %>
+            <% if user_allows?(:visits) %>
+              <%= link_to visits_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
+                <%= icon("calendar") %>
+                <span><%= t("nav.visits") %></span>
+              <% end %>
             <% end %>
             <%= link_to ranking_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/classement')}" do %>
               <%= icon("trophy") %>

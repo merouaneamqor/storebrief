@@ -1,0 +1,21 @@
+es:
+  home:
+    kicker:
+      problems: "El problema"
+      how: "Cómo funciona"
+      benefits: "Qué cambia"
+      roles: "Para cada rol"
+      fit: "Para su red"
+      plans: "Planes"
+      faq: "Preguntas frecuentes"
+    plans:
+      title: "Un plan para cada tamaño de red"
+      lede: "De la primera tienda a las grandes cadenas. Las condiciones se adaptan a cada cliente."
+      cta: "Ver los planes"
+    how:
+      lede: "Cuatro pasos, de la sede al teléfono de la tienda y de vuelta a la sede con la prueba."
+      who:
+        w1: "Sede"
+        w2: "Sede y región"
+        w3: "Equipo de tienda"
+        w4: "Sede y región"

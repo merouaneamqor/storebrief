@@ -1,0 +1,40 @@
+es:
+  approval:
+    title: "Aprobación antes del envío"
+    submit: "Enviar a aprobación"
+    submitted: "Enviado a aprobación. Se podrá enviar cuando otro aprobador lo valide."
+    approved: "Aprobado. El autor ya puede enviarlo."
+    rejected: "Rechazado. Se avisó al autor."
+    approve_action: "Aprobar"
+    reject_action: "Rechazar"
+    note: "Nota para el autor (obligatoria para rechazar)"
+    note_label: "Nota:"
+    reviewed_by: "Revisado por %{name}"
+    waiting_for_other: "A la espera de otro aprobador. No puedes aprobar tu propio trabajo."
+    approved_send_hint: "Aprobado. Cualquier cambio requerirá una nueva aprobación."
+    statuses:
+      pending_review: "Pendiente de revisión"
+      approved: "Aprobado"
+      rejected: "Rechazado"
+    events:
+      submitted: "Enviado"
+      approved: "Aprobado"
+      rejected: "Rechazado"
+      deployed: "Desplegado"
+    push:
+      approved: "Aprobado"
+      rejected: "Rechazado"
+    errors:
+      required: "Hace falta aprobación antes del envío."
+      not_allowed: "No tienes permiso para aprobar esto."
+      self_approval: "No puedes aprobar tu propio trabajo."
+      not_pending: "Esto no está pendiente de revisión."
+      note_required: "Añade una nota para rechazar."
+      invalid_decision: "Decisión desconocida."
+    deploy_requests:
+      nav: "Aprobaciones de despliegue"
+      title: "Aprobaciones de despliegue de playbooks"
+      lede: "Los despliegues esperan aquí a que otro aprobador los valide."
+      campaign_on: "Campaña el %{date}"
+      stores: "Tiendas: %{count}"
+      deployed: "Desplegado"

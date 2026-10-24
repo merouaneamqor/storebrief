@@ -3,7 +3,7 @@
 <header class="radar-head">
   <div>
     <p class="meta">
-      <%= link_to t("morocco.visits.calendar.title"), calendar_visits_path %> ·
+      <%= link_to t("morocco.retail_calendar.title"), calendar_visits_path %> ·
       <%= link_to t("morocco.visits.back"), visits_path %>
     </p>
     <h1><%= @visit.org_unit.name %></h1>
@@ -37,4 +37,25 @@
       <dd><%= @visit.cancel_reason.presence || "-" %></dd>
     <% end %>
   </dl>
+</section>
+
+<section class="panel">
+  <p class="section-title"><%= t("morocco.corrective.visit_section") %></p>
+  <% if @corrective_communications.any? %>
+    <ul class="list">
+      <% @corrective_communications.each do |brief| %>
+        <li>
+          <%= link_to brief.title, communication_path(brief) %>
+          <span class="meta">
+            · <%= localized_badge(brief.status) %>
+            <% if brief.due_at.present? %>
+              · <%= t("morocco.owner.deadline") %> <%= l(brief.due_at, format: :short) %>
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="meta"><%= t("morocco.corrective.visit_empty") %></p>
+  <% end %>
 </section>

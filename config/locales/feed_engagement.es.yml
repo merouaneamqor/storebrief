@@ -1,0 +1,22 @@
+{
+  "es": {
+    "feed_engagement": {
+      "store_post": "Novedad de tienda",
+      "moderation_note": "Las publicaciones requieren aprobación de la sede y solo son visibles en tu tienda.",
+      "message": "Mensaje",
+      "submit": "Enviar",
+      "pending": "Pendiente de aprobación",
+      "published": "Publicado",
+      "helpful": "Útil",
+      "thanks": "Gracias",
+      "acknowledged": "Confirmado",
+      "undo": "Quitar reacción",
+      "comment": "Comentario",
+      "moderation": "Moderación del muro",
+      "approve": "Aprobar",
+      "remove": "Retirar",
+      "notification_comment": "Nuevo comentario",
+      "notification_published": "Tu publicación fue aprobada"
+    }
+  }
+}

@@ -92,6 +92,42 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
     assert_redirected_to app_root_path
   end
 
+  test "permission matrix documents area vs hq capabilities" do
+    assert Membership.allows?("hq", :compose)
+    assert_not Membership.allows?("area", :compose)
+    assert Membership.allows?("area", :monitor)
+    assert Membership.allows?("area", :escalate)
+    assert Membership.allows?("area", :visits)
+    assert_not Membership.allows?("area", :playbooks)
+    assert_not Membership.allows?("area", :billing)
+  end
+
+  test "area can monitor briefs and escalate without compose" do
+    brief = send_task("Campagne Aid", [ @maarif, @agdal ])
+    finish(brief, @maarif)
+    sign_in(@area_user)
+
+    get communications_path
+    assert_response :success
+    assert_match "Campagne Aid", response.body
+
+    get communication_path(brief)
+    assert_response :success
+    assert_match @maarif.name, response.body
+    assert_no_match @agdal.name, response.body
+
+    get visits_path
+    assert_response :success
+
+    get new_communication_path
+    assert_redirected_to app_root_path
+
+    delivery = brief.deliveries.find_by!(org_unit: @maarif)
+    post delivery_verdict_path(delivery), params: { verdict: "improve", verdict_note: "Relancer" }
+    assert_redirected_to communication_path(brief)
+    assert_equal "improve", delivery.reload.verdict
+  end
+
   test "area dashboard copy exists in every locale without em dashes" do
     keys = I18n.t("morocco.radar.area", locale: :en).keys
     %i[fr en es ar].each do |locale|
@@ -99,6 +135,55 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
       assert_equal keys.sort, copy.keys.sort, "missing keys for #{locale}"
       assert copy.values.none? { |value| value.include?("—") }, "em dash in #{locale}"
     end
+  end
+
+  test "area store table sorts by score and opens that store radar" do
+    brief = send_task("Campagne Aid", [ @maarif, @diab ])
+    finish(brief, @maarif, verdict: "conforme")
+    late(brief, @diab)
+
+    sign_in(@area_user)
+    assert_select "table.area-store-table"
+    assert_select "a[href='#{store_path(@maarif)}']", text: @maarif.name
+    assert_select "a[href='#{store_path(@diab)}']", text: @diab.name
+    assert_select ".store-status-badge--critical", text: I18n.t("morocco.hq.store_status.critical", locale: :en)
+    assert_no_match(/Store Agdal/, response.body)
+    assert_equal [ @maarif.name, @diab.name ], store_table_names
+
+    get app_root_path(sort: "score_asc")
+    assert_response :success
+    assert_equal [ @diab.name, @maarif.name ], store_table_names
+
+    get store_path(@maarif)
+    assert_response :success
+    assert_match @maarif.name, response.body
+    assert_select "table.area-store-table", 0
+
+    get store_path(@agdal)
+    assert_response :not_found
+  end
+
+  test "area store radar shows the work without store inbox actions" do
+    brief = send_task("Campagne Aid", [ @maarif, @diab ])
+    late(brief, @diab)
+    sign_in(@area_user)
+
+    get app_root_path
+    assert_response :success
+    assert_select ".work-card", minimum: 1
+    brief.deliveries.each do |delivery|
+      assert_select "a[href=?]", inbox_path(delivery), count: 0
+      assert_select "form[action=?]", advance_inbox_path(delivery), count: 0
+    end
+
+    get store_path(@diab)
+    assert_response :success
+    assert_match "Campagne Aid", response.body
+    assert_select ".work-card", minimum: 1
+    assert_select ".work-card .btn", count: 0
+    diab = brief.deliveries.find_by!(org_unit: @diab)
+    assert_select "a[href=?]", inbox_path(diab), count: 0
+    assert_select "form[action=?]", advance_inbox_path(diab), count: 0
   end
 
   test "head office keeps the exception board" do
@@ -109,6 +194,10 @@ class AreaDashboardTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def store_table_names
+    css_select("table.area-store-table tbody td a").map(&:text)
+  end
 
   def send_task(title, stores)
     brief = @tenant.communications.create!(

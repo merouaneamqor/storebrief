@@ -1,0 +1,59 @@
+fr:
+  pricing:
+    too_many: "Trop de demandes. Réessayez dans une minute."
+    kicker: "Offres Vazivo"
+    help_title: "Besoin d'aide pour choisir ?"
+    help_body: "Dites-nous combien de magasins vous pilotez. Nous vous recommandons l'offre adaptée et préparons une proposition sur mesure."
+    nav_label: "Navigation principale"
+    nav:  "Offres"
+    title: "Nos offres"
+    lede: "Choisissez le niveau d'exécution adapté à votre réseau de magasins. Les conditions commerciales sont établies sur mesure."
+    meta_description: "Découvrez les offres Vazivo pour piloter l'exécution en magasin. Démonstration et offre personnalisée sur demande."
+    recommended: "Recommandé"
+    cta_demo: "Demander une démonstration"
+    cta_offer: "Obtenir une offre personnalisée"
+    cta_contact: "Contacter notre équipe commerciale"
+    form:
+      about_you: "Vous"
+      about_network: "Votre réseau"
+      selected_plan: "Offre sélectionnée"
+      plan: "Offre souhaitée"
+      country: "Pays"
+      requirements: "Besoins complémentaires"
+      no_preference: "Pas de préférence"
+    plans:
+      starter:
+        segment: "Petits réseaux"
+        name: "Starter"
+        tagline: "Pour les petits réseaux qui veulent cadrer l'exécution au quotidien."
+        features:
+          - "Gestion des tâches et checklists"
+          - "Communications de base vers les magasins"
+          - "Rapports standard"
+      business:
+        segment: "Réseaux en croissance"
+        name: "Business"
+        tagline: "Pour les réseaux en croissance qui pilotent campagnes et conformité."
+        features:
+          - "Tout Starter"
+          - "Exécution des campagnes et du merchandising"
+          - "Audits et suivi de conformité"
+          - "Rapports avancés et permissions par rôle"
+      enterprise:
+        segment: "Opérations avancées"
+        name: "Enterprise"
+        tagline: "Pour les opérations retail avancées avec des exigences de gouvernance."
+        features:
+          - "Tout Business"
+          - "Workflows avancés (dépendances, validations, escalades)"
+          - "Classements et tableaux de bord de campagne"
+          - "Connexion unique SAML (SSO)"
+      grand_compte:
+        segment: "Grandes enseignes"
+        name: "Grand compte"
+        tagline: "Pour les grandes enseignes avec des besoins spécifiques."
+        features:
+          - "Déploiement et intégrations sur mesure"
+          - "Accompagnement et support dédiés"
+          - "Conditions commerciales selon le volume"
+          - "Offres personnalisées par client"

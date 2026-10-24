@@ -149,10 +149,93 @@ jobs:
           # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test:system
 
+      - name: Run Cucumber features
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/store_brief_test
+        run: bundle exec cucumber
+
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
+          if-no-files-found: ignore
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    env:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/store_brief_development
+
+    steps:
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Prepare database and QA tenant
+        run: |
+          bin/rails db:prepare
+          bin/rails runner script/qa_tenant.rb
+
+      - name: Build assets
+        run: bin/rails active_admin:bundle_js dartsass:build
+
+      - name: Start app
+        run: |
+          bin/rails server -b 127.0.0.1 -p 3001 -d
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:3001/up && exit 0; sleep 2; done
+          cat log/development.log | tail -50
+          exit 1
+
+      - name: Prepare browser tests
+        working-directory: e2e
+        run: |
+          npm ci
+          browser_path="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -n "$browser_path" ] && "$browser_path" --version; then
+            printf 'PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=%s\n' "$browser_path" >> "$GITHUB_ENV"
+          else
+            npx playwright install --with-deps chromium
+          fi
+
+      - name: Run Playwright tests
+        working-directory: e2e
+        env:
+          E2E_BASE_URL: http://127.0.0.1:3001
+          CI: "true"
+        run: npx playwright test
+
+      - name: Keep Playwright traces from failed tests
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: e2e/test-results
           if-no-files-found: ignore

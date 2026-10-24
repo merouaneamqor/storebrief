@@ -47,7 +47,28 @@ class Tenant < ApplicationRecord
       label: "Morocco operations",
       hint: "Store acknowledgement, Ramadan hours, campaign playbooks, coaching verdicts, and the morning radar.",
       default: true
+    },
+    send_approval: {
+      label: "Approval before send",
+      hint: "HQ briefs and playbook deploys must be approved by another HQ user before they reach stores.",
+      default: false
+    },
+    knowledge_base: {
+      label: "Knowledge base",
+      hint: "HQ knowledge base articles and categories for store SOPs, policies, and FAQs.",
+      default: true
     }
+  }.freeze
+
+  # HQ today board sections the brand can show or hide. Defaults keep the full
+  # decision surface visible for new tenants.
+  HQ_WIDGETS = {
+    campaign: { default: true },
+    store_status: { default: true },
+    compliance: { default: true },
+    monitoring: { default: true },
+    exceptions: { default: true },
+    podium: { default: true }
   }.freeze
 
   HOUR_OF_DAY = /\A([01]\d|2[0-3]):[0-5]\d\z/
@@ -90,11 +111,20 @@ class Tenant < ApplicationRecord
   has_many :escalation_events, dependent: :destroy
   has_many :checklists, dependent: :destroy
   has_many :communications, dependent: :destroy
+  has_many :communication_templates, dependent: :destroy
   has_many :playbooks, dependent: :destroy
+  has_many :playbook_deploy_requests, dependent: :destroy
+  has_many :approval_events, dependent: :destroy
   has_many :visits, dependent: :destroy
+  has_many :vm_missions, dependent: :destroy
   has_many :checklist_templates, dependent: :destroy
+  has_many :kb_categories, dependent: :destroy
+  has_many :kb_articles, dependent: :destroy
   has_many :notification_logs, dependent: :destroy
+  has_many :export_logs, dependent: :destroy
+  has_many :report_subscriptions, dependent: :destroy
   has_many :users, dependent: :destroy
+  has_many :tenant_roles, dependent: :destroy
   has_many :org_units, dependent: :destroy
   has_many :push_subscriptions, dependent: :destroy
 
@@ -104,6 +134,12 @@ class Tenant < ApplicationRecord
   validates :brand_name, presence: true, length: { maximum: 60 }
   validates :tagline, length: { maximum: 120 }, allow_blank: true
   validates :opens_at, :closes_at, :ramadan_opens_at, :ramadan_closes_at, format: { with: HOUR_OF_DAY }
+  validates :corrective_deadline_days,
+            numericality: {
+              only_integer: true,
+              greater_than_or_equal_to: Vazivo::CorrectiveAction::DEADLINE_DAYS_RANGE.min,
+              less_than_or_equal_to: Vazivo::CorrectiveAction::DEADLINE_DAYS_RANGE.max
+            }
 
   BRAND_COLORS.each_key do |attr|
     validates attr, presence: true, format: { with: HEX_COLOR }
@@ -113,7 +149,9 @@ class Tenant < ApplicationRecord
 
   before_validation :normalize_brand_colors
   before_validation :normalize_features
+  before_validation :normalize_preferences
   before_validation :apply_hour_defaults
+  before_validation :apply_corrective_deadline_default
   after_save :purge_removed_brand_assets
 
   FEATURE_FLAGS.each_key do |key|
@@ -151,6 +189,43 @@ class Tenant < ApplicationRecord
   def feature_hash
     value = features
     value.is_a?(Hash) ? value.stringify_keys : {}
+  end
+
+  def preferences_hash
+    value = preferences
+    value.is_a?(Hash) ? value.deep_stringify_keys : {}
+  end
+
+  def hq_widgets
+    stored = preferences_hash["hq_widgets"]
+    stored = stored.is_a?(Hash) ? stored : {}
+    HQ_WIDGETS.each_with_object({}) do |(key, meta), hash|
+      raw = stored[key.to_s]
+      hash[key.to_s] = raw.nil? ? meta[:default] : ActiveModel::Type::Boolean.new.cast(raw)
+    end
+  end
+
+  def hq_widget?(key)
+    key = key.to_sym
+    return false unless HQ_WIDGETS.key?(key)
+
+    hq_widgets.fetch(key.to_s)
+  end
+
+  def hq_widgets=(values)
+    incoming = values.is_a?(Hash) ? values.stringify_keys : {}
+    cleaned = HQ_WIDGETS.keys.map(&:to_s).index_with do |key|
+      if incoming.key?(key)
+        ActiveModel::Type::Boolean.new.cast(incoming[key])
+      else
+        false
+      end
+    end
+    self.preferences = preferences_hash.merge("hq_widgets" => cleaned)
+  end
+
+  def self.default_hq_widgets
+    HQ_WIDGETS.transform_values { |meta| meta[:default] }.transform_keys(&:to_s)
   end
 
   def saml_sso_enabled?
@@ -206,8 +281,24 @@ class Tenant < ApplicationRecord
     self.ramadan_closes_at = "01:00" if ramadan_closes_at.blank?
   end
 
+  def apply_corrective_deadline_default
+    self.corrective_deadline_days = Vazivo::CorrectiveAction::DEFAULT_DEADLINE_DAYS if corrective_deadline_days.blank?
+  end
+
   def normalize_features
     self.features = feature_hash.slice(*FEATURE_FLAGS.keys.map(&:to_s))
+  end
+
+  def normalize_preferences
+    prefs = preferences_hash
+    widgets = prefs["hq_widgets"]
+    widgets = widgets.is_a?(Hash) ? widgets : {}
+    cleaned_widgets = HQ_WIDGETS.keys.map(&:to_s).each_with_object({}) do |key, hash|
+      next unless widgets.key?(key)
+
+      hash[key] = ActiveModel::Type::Boolean.new.cast(widgets[key])
+    end
+    self.preferences = prefs.slice("hq_widgets").merge("hq_widgets" => cleaned_widgets)
   end
 
   def normalize_brand_colors

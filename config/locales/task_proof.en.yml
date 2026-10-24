@@ -1,0 +1,15 @@
+en:
+  task_proof:
+    title: Proof photos and files
+    choose_files: Add photos or files
+    limits: Up to 10 files, 10 MB each. JPG, PNG, WebP, PDF, text, CSV, DOCX or XLSX. Photos are compressed before
+      upload.
+    required_hint: Add proof files, or provide both before and after photos.
+    queued: Task and proof saved on this device. They will sync when you are online.
+    sync_error: Proof could not sync. Open the task to review or replace the queued submission.
+    too_many: Add at most %{count} proof files.
+    invalid_type: This proof file type is not supported.
+    too_large: Each proof file must be %{size} MB or smaller.
+    file_count:
+      one: 1 proof file attached
+      other: '%{count} proof files attached'

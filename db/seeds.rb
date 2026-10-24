@@ -155,9 +155,9 @@ def build_tenant!(name:, slug:, password:, palette:, brand_name:, tagline: nil, 
   rabat_area = tenant.org_units.create!(name: "Agdal", unit_type: "area", parent: rabat)
 
   stores = [
-    tenant.org_units.create!(name: "#{name.split.first} Maarif", unit_type: "store", parent: casa_area),
-    tenant.org_units.create!(name: "#{name.split.first} Ain Diab", unit_type: "store", parent: casa_area),
-    tenant.org_units.create!(name: "#{name.split.first} Agdal", unit_type: "store", parent: rabat_area)
+    tenant.org_units.create!(name: "#{name.split.first} Maarif", unit_type: "store", parent: casa_area, store_format: "flagship", cluster_key: "casa-centre"),
+    tenant.org_units.create!(name: "#{name.split.first} Ain Diab", unit_type: "store", parent: casa_area, store_format: "express", cluster_key: "casa-centre"),
+    tenant.org_units.create!(name: "#{name.split.first} Agdal", unit_type: "store", parent: rabat_area, store_format: "supermarket", cluster_key: "rabat-nord")
   ]
 
   hq_user = tenant.users.create!(

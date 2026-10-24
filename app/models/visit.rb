@@ -5,6 +5,7 @@ class Visit < ApplicationRecord
   belongs_to :org_unit
   belongs_to :auditor, class_name: "User"
   belongs_to :created_by, class_name: "User", optional: true
+  has_many :corrective_communications, class_name: "Communication", dependent: :nullify
 
   validates :planned_at, presence: true
   validates :status, inclusion: { in: STATUSES }

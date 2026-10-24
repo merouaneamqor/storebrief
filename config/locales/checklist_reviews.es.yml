@@ -1,0 +1,17 @@
+es:
+  checklist_reviews:
+    title: Revisiones de listas
+    lede: Revise respuestas, comente correcciones y conserve el historial.
+    empty: Todavía no hay listas asignadas para revisar.
+    review: Revisar
+    verdict: Veredicto
+    note: Nota del revisor
+    save: Guardar veredicto
+    history: Historial
+    mention_hint: Mencione a un compañero con @email o @"Nombre completo". Solo quienes
+      pueden ver esta tienda reciben una notificación push gratuita.
+    post: Publicar comentario
+    events:
+      status: Estado cambiado
+      verdict: Veredicto del revisor
+      comment: Comentario publicado

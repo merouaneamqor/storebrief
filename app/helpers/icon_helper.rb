@@ -1,12 +1,13 @@
 module IconHelper
   ICONS = %w[
     alert-triangle clock check-circle camera chevron-right message-circle
-    trophy moon plus more-horizontal eye home send book inbox credit-card activity calendar
+    trophy moon plus more-horizontal eye home send book inbox credit-card activity calendar shield
   ].freeze
 
   TONE_ICONS = {
     "urgent" => "alert-triangle",
     "late" => "clock",
+    "awaiting" => "send",
     "done" => "check-circle",
     "open" => "eye"
   }.freeze

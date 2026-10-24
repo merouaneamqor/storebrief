@@ -1,0 +1,34 @@
+<div class="cookie-consent" x-data="cookieConsent()" x-init="init()" x-show="visible" x-cloak role="dialog" aria-labelledby="cookie-consent-title">
+  <div class="cookie-consent__card">
+    <p id="cookie-consent-title" class="cookie-consent__title"><%= t("privacy.cookies.banner.title") %></p>
+    <p class="cookie-consent__body">
+      <%= t("privacy.cookies.banner.body",
+            privacy_link: link_to(t("privacy.page.title"), legal_privacy_path),
+            cookies_link: link_to(t("privacy.cookies.page_title"), legal_cookies_path)).html_safe %>
+    </p>
+    <div class="cookie-consent__actions">
+      <button type="button" class="m-btn m-btn--small" @click="accept()"><%= t("privacy.cookies.banner.accept") %></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function cookieConsent() {
+    return {
+      visible: false,
+      init() {
+        try {
+          this.visible = !localStorage.getItem("vazivo_cookie_consent");
+        } catch (_e) {
+          this.visible = true;
+        }
+      },
+      accept() {
+        try {
+          localStorage.setItem("vazivo_cookie_consent", "essential");
+        } catch (_e) {}
+        this.visible = false;
+      }
+    };
+  }
+</script>
