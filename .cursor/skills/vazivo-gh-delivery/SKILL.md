@@ -64,8 +64,8 @@ GitHub is the source of truth. Keep local state small; avoid a second backlog.
 
 - Open a focused PR with `Closes #N` and actual validation. Follow the requested
   finish line; continue an established delivery workflow through authorized merge.
-- Monitor CI once per head with one watcher (30–60s interval), not repeated full
-  status dumps. Inspect failed-job logs before changing code or retrying.
+- Wait for checks on the pushed SHA to register, then use one CI watcher per
+  head (30–60s interval). Inspect failed-job logs before changing code or retrying.
 - Slow dependency downloads are not proof of a hang. Do not cancel based on
   elapsed time alone. Retry only a failed/cancelled job, or recover a confirmed
   infrastructure stall; preserve successful jobs and avoid competing reruns.

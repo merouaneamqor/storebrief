@@ -87,6 +87,11 @@ Rails.application.routes.draw do
 
   post "sync/checklist_responses", to: "sync#checklist_responses"
 
+  resources :checklist_reviews, only: %i[index show] do
+    post :verdict, on: :member
+    post :comment, on: :member
+  end
+
   get "push/vapid_public_key", to: "push_subscriptions#vapid_public_key"
   resource :push_subscription, only: %i[create destroy]
 
