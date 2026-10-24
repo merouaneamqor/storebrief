@@ -1,0 +1,14 @@
+{
+  "es": {
+    "offline_workspaces": {
+      "offline": "Sin conexión. Solo están disponibles las páginas abiertas antes en este dispositivo.",
+      "pending": "Hay tareas pendientes de sincronizar.",
+      "open": "Abrir tarea actual",
+      "discard": "Descartar trabajo pendiente",
+      "restore": "Restaurar respuestas pendientes",
+      "conflict": "La tarea cambió o fue revisada. Abre la tarea actual, restaura y compara las respuestas y vuelve a enviar. Los archivos quedan en este dispositivo hasta enviarlos o descartarlos.",
+      "unavailable": "Esta página no está disponible sin conexión. Conéctate y ábrela una vez para guardarla en este dispositivo.",
+      "recovery": "Los archivos pendientes permanecen en este dispositivo. Abre la tarea actual, restaura y corrige las respuestas o archivos y vuelve a enviar. Si la tarea está cerrada, consulta a la sede antes de descartar el trabajo."
+    }
+  }
+}

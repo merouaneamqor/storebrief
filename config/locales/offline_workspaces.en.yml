@@ -1,0 +1,14 @@
+{
+  "en": {
+    "offline_workspaces": {
+      "offline": "Offline. Only pages previously opened on this device are available.",
+      "pending": "Tasks are waiting to sync.",
+      "open": "Open current task",
+      "discard": "Discard queued work",
+      "restore": "Restore queued answers",
+      "conflict": "This task changed or was reviewed. Open the current task, restore queued answers, compare them and submit again. Queued files stay on this device until sent or discarded.",
+      "unavailable": "This page is unavailable offline. Reconnect and open it once to save it on this device.",
+      "recovery": "Queued files remain on this device. Open the current task, restore and correct the answers or files, then submit again. If the task is closed, ask HQ before discarding queued work."
+    }
+  }
+}

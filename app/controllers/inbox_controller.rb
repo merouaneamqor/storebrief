@@ -50,6 +50,11 @@ class InboxController < ApplicationController
     @delivery.with_lock do
       request_id = params[:proof_request_id].to_s.first(100).presence
       repeated = request_id && @delivery.delivery_events.where(kind: "proof").where("payload ->> 'request_id' = ?", request_id).exists?
+      wrong_owner = params[:proof_owner].present? && params[:proof_owner] != "#{current_tenant.id}:#{current_user.id}"
+      if wrong_owner || (!repeated && offline_conflict?(@delivery))
+        render json: { status: "error", code: "conflict", message: t("offline_workspaces.conflict"), location: inbox_path(@delivery) }, status: :conflict
+        return
+      end
       unless repeated
         attached = attach_proof(@delivery)
         yield
@@ -75,6 +80,14 @@ class InboxController < ApplicationController
       format.html { redirect_to inbox_path(@delivery), alert: message }
       format.json { render json: { status: "error", message: message }, status: :unprocessable_entity }
     end
+  end
+
+  def offline_conflict?(delivery)
+    return false unless params[:proof_request_id].present?
+    return false if params[:task_snapshot].blank?
+
+    expected = [ delivery.id, delivery.updated_at.iso8601(6), delivery.communication.updated_at.iso8601(6) ]
+    Rails.application.message_verifier(:offline_task).verified(params[:task_snapshot]) != expected
   end
 
   def attach_proof(delivery)

@@ -15,7 +15,10 @@ const TaskProofQueue = {
       return await new Promise((resolve, reject) => {
         const tx = db.transaction("submissions", mode);
         const request = callback(tx.objectStore("submissions"));
-        tx.oncomplete = () => resolve(request.result);
+        tx.oncomplete = () => {
+          if (mode === "readwrite") document.dispatchEvent(new Event("vazivo:proof-queue"));
+          resolve(request.result);
+        };
         tx.onerror = () => reject(tx.error);
         tx.onabort = () => reject(tx.error);
       });
@@ -63,21 +66,31 @@ async function compressPhoto(file) {
 async function requestSubmission(record) {
   // The token may have rotated since the task was queued. The owner must still match.
   if (record.owner !== owner()) return null;
+  const target = new URL(record.url, location.origin);
+  if (target.origin !== location.origin || !/^\/inbox\/\d+\/(advance|complete)$/.test(target.pathname)) throw new Error("");
+  const contextResponse = await fetch("/offline_context", { cache: "no-store", headers: { Accept: "application/json" } });
+  if (!contextResponse.ok || !contextResponse.headers.get("content-type")?.includes("application/json")) throw new Error("");
+  const context = await contextResponse.json();
+  if (context.owner !== record.owner || record.owner !== owner()) throw new Error(document.querySelector("[data-offline-workspace]")?.dataset.conflict || "");
   const body = new FormData();
   record.entries.forEach(entry => {
     if (entry.value instanceof Blob) body.append(entry.name, entry.value, entry.filename);
     else body.append(entry.name, entry.value);
   });
   body.set("proof_request_id", record.id);
+  body.set("proof_owner", record.owner);
   body.delete("authenticity_token");
-  const response = await fetch(record.url, {
+  const response = await fetch(target.href, {
     method: "POST",
-    headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content || "" },
+    headers: { Accept: "application/json", "X-CSRF-Token": context.csrf_token },
     body
   });
   if (!response.headers.get("content-type")?.includes("application/json")) throw new Error("");
   const result = await response.json();
-  if (!response.ok || result.status !== "ok") throw new Error(result.message || "");
+  if (!response.ok || result.status !== "ok") {
+    await TaskProofQueue.put({ ...record, error: result.message || "", conflict: response.status === 409 });
+    throw new Error(result.message || "");
+  }
   await TaskProofQueue.remove(record.id);
   return result;
 }
@@ -91,6 +104,7 @@ async function flush() {
     let failure = false;
     let refreshCurrentTask = false;
     for (const record of records) {
+      if (record.conflict) { failure = true; continue; }
       try {
         const result = await requestSubmission(record);
         refreshCurrentTask ||= !!result && new URL(result.location, location.origin).pathname === location.pathname;
