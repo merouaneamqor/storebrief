@@ -26,9 +26,11 @@ class Delivery < ApplicationRecord
   has_many_attached :proof_files
 
   PROOF_MAX_BYTES = 10.megabytes
+  PROOF_VIDEO_MAX_BYTES = 25.megabytes
+  PROOF_VIDEO_TYPES = %w[video/mp4 video/webm video/quicktime].freeze
   PROOF_MAX_COUNT = 10
   PROOF_IMAGE_TYPES = %w[image/jpeg image/png image/webp].freeze
-  PROOF_FILE_TYPES = (PROOF_IMAGE_TYPES + %w[
+  PROOF_FILE_TYPES = (PROOF_IMAGE_TYPES + PROOF_VIDEO_TYPES + %w[
     application/pdf text/plain text/csv
     application/vnd.openxmlformats-officedocument.wordprocessingml.document
     application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
@@ -432,11 +434,13 @@ class Delivery < ApplicationRecord
     legacy_photos = [ photo_before, photo_after ].select(&:attached?)
     (proof_files.to_a + legacy_photos).each do |attachment|
       allowed = attachment == photo_before || attachment == photo_after ? PROOF_IMAGE_TYPES : PROOF_FILE_TYPES
-      if allowed.exclude?(attachment.blob.content_type)
+      video = PROOF_VIDEO_TYPES.include?(attachment.blob.content_type)
+      if allowed.exclude?(attachment.blob.content_type) || (video && !communication.tenant.feature?(:morocco_ops))
         errors.add(:base, I18n.t("task_proof.invalid_type"))
       end
-      if attachment.blob.byte_size > PROOF_MAX_BYTES
-        errors.add(:base, I18n.t("task_proof.too_large", size: PROOF_MAX_BYTES / 1.megabyte))
+      limit = video ? PROOF_VIDEO_MAX_BYTES : PROOF_MAX_BYTES
+      if attachment.blob.byte_size > limit
+        errors.add(:base, I18n.t("task_proof.too_large", size: limit / 1.megabyte))
       end
     end
   end

@@ -195,4 +195,28 @@ class OidcSsoTest < ActionDispatch::IntegrationTest
       assert_nil session[:user_id]
     end
   end
+  test "another browser attempt cannot cancel the pending legitimate login" do
+    legitimate = start_oidc(@setting)
+    binding = session[:oidc_browser]
+    stranger = open_session
+    stranger.host! "localhost"
+    Oidc::SafeHttp.stub(:address_for, "93.184.216.34") { stranger.get oidc_login_path(@brand.tenant.slug) }
+    foreign = URI.decode_www_form(URI.parse(stranger.response.location).query).to_h
+    get oidc_callback_path(@brand.tenant.slug), params: { state: foreign["state"], code: "foreign-code" }
+    assert_equal binding, session[:oidc_browser]
+    complete_oidc(@setting, legitimate)
+    assert session[:user_id]
+  end
+  test "malformed callback parameter types fail without contacting the provider" do
+    [ nil, { bad: "state" }, [ "invalid" ] ].each do |state|
+      get oidc_callback_path(@brand.tenant.slug), params: { state: state, code: "invalid" }
+      assert_redirected_to login_path(tenant_slug: @brand.tenant.slug)
+    end
+    flow = start_oidc(@setting)
+    Oidc::SafeHttp.stub(:json, ->(*) { flunk "malformed code contacted provider" }) do
+      get oidc_callback_path(@brand.tenant.slug), params: { state: flow["state"], code: { bad: "code" } }
+    end
+    assert_redirected_to login_path(tenant_slug: @brand.tenant.slug)
+    assert_nil session[:user_id]
+  end
 end

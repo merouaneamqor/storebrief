@@ -57,7 +57,7 @@ module Vazivo
       @tenant = tenant
       @store = store
       @region = region
-      @store_ids = Array(store_ids).presence || scoped_store_ids
+      @store_ids = store_ids.nil? ? scoped_store_ids : Array(store_ids)
       @limit = limit
     end
 
@@ -89,7 +89,7 @@ module Vazivo
       return [] if @store_ids.empty?
 
       scope = Delivery.joins(:communication)
-                      .includes(org_unit: :parent, communication: :visit)
+                      .includes(:photo_before_attachment, :photo_after_attachment, proof_files_attachments: :blob, delivery_answers: [ :communication_question, { image_attachment: :blob } ], org_unit: :parent, communication: :visit)
                       .where(communications: { tenant_id: @tenant.id, status: "sent" })
                       .where(org_unit_id: @store_ids)
                       .where.not(score: nil)

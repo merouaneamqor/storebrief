@@ -42,6 +42,7 @@ Rails.application.routes.draw do
   end
   resources :demo_requests, only: %i[index update]
   get "reports", to: "reports#show"
+  resource :report_subscription, only: %i[show update]
 
   resources :org_units, only: %i[index edit update]
   resources :communications, only: %i[index show new create edit update] do
@@ -130,6 +131,8 @@ Rails.application.routes.draw do
       post :reset
     end
   end
+  resources :incident_tickets, only: %i[index new create show update]
+  resources :ticket_categories, only: %i[create update]
   resources :visits, only: %i[index show new create edit update] do
     collection do
       get :calendar

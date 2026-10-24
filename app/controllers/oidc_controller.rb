@@ -23,15 +23,16 @@ class OidcController < ApplicationController
   end
 
   def callback
-    state = params[:state].to_s
-    raise Oidc::Error unless state.bytesize.between?(32, 128)
+    state = params[:state]
+    raise Oidc::Error unless state.is_a?(String) && state.bytesize.between?(32, 128)
 
     attempt = @tenant.oidc_login_attempts.find_by!(state_digest: OidcLoginAttempt.digest(state))
-    attempt.consume!(browser: session.delete(:oidc_browser), issuer: @setting.issuer, client_id: @setting.client_id)
+    attempt.consume!(browser: session[:oidc_browser], issuer: @setting.issuer, client_id: @setting.client_id)
     reset_session
-    raise Oidc::Error if params[:error].present? || params[:code].to_s.blank? || params[:code].to_s.bytesize > 4096
+    code = params[:code]
+    raise Oidc::Error if params[:error].present? || !code.is_a?(String) || code.blank? || code.bytesize > 4096
 
-    claims = Oidc::Provider.new(@setting).claims(code: params[:code].to_s, attempt: attempt)
+    claims = Oidc::Provider.new(@setting).claims(code: code, attempt: attempt)
     user = Oidc::Provisioner.new(@setting, claims).call
     establish_session!(user)
   rescue Oidc::Error, ActiveRecord::RecordNotFound

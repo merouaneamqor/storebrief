@@ -53,6 +53,10 @@
             <% (@items || @checklist.checklist_items).each do |item| %>
               <% response = responses[item.id] %>
               <li class="checklist-hq-evidence__item">
+              <% if response && tenant_feature?(:morocco_ops) %>
+                <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "ChecklistItemResponse", source_id: response.id), class: "btn btn--sm" %>
+              <% end %>
+
                 <div class="checklist-hq-evidence__label">
                   <span><%= item.title %></span>
                   <% if item.requires_photo? && !response&.evidence_attached? %>

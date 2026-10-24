@@ -1,0 +1,45 @@
+{
+  "en": {
+    "tickets": {
+      "title": "Incidents and requests",
+      "new": "New ticket",
+      "saved": "Ticket saved",
+      "summary": "%{open} open · %{breached} SLA breaches",
+      "all": "All tickets",
+      "breached": "SLA breached",
+      "empty": "No tickets.",
+      "categories": "Categories and SLA targets",
+      "sla_note": "Changes apply to new tickets. Existing deadlines stay unchanged.",
+      "category": "Category",
+      "department": "Department",
+      "sla_hours": "SLA target (hours)",
+      "save": "Save",
+      "subject": "Subject",
+      "description": "Description",
+      "store": "Store",
+      "priority": "Priority",
+      "status": "Status",
+      "deadline": "Deadline",
+      "assignee": "Assigned to",
+      "history": "History",
+      "source": "Source item",
+      "no_categories": "Ask HQ to configure a category before creating a ticket.",
+      "statuses": {
+        "open": "Open",
+        "in_progress": "In progress",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      },
+      "priorities": {
+        "urgent": "Urgent",
+        "important": "Important",
+        "routine": "Routine"
+      },
+      "events": {
+        "created": "Created",
+        "status": "Status changed",
+        "assignee": "Assignment changed"
+      }
+    }
+  }
+}

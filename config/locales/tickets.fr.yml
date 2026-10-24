@@ -1,0 +1,45 @@
+{
+  "fr": {
+    "tickets": {
+      "title": "Incidents et demandes",
+      "new": "Nouveau ticket",
+      "saved": "Ticket enregistré",
+      "summary": "%{open} ouverts · %{breached} délais dépassés",
+      "all": "Tous les tickets",
+      "breached": "Délai dépassé",
+      "empty": "Aucun ticket.",
+      "categories": "Catégories et délais",
+      "sla_note": "Les modifications concernent les nouveaux tickets. Les échéances existantes sont conservées.",
+      "category": "Catégorie",
+      "department": "Service",
+      "sla_hours": "Délai cible (heures)",
+      "save": "Enregistrer",
+      "subject": "Objet",
+      "description": "Description",
+      "store": "Magasin",
+      "priority": "Priorité",
+      "status": "Statut",
+      "deadline": "Échéance",
+      "assignee": "Responsable",
+      "history": "Historique",
+      "source": "Élément source",
+      "no_categories": "Demandez au siège de configurer une catégorie avant de créer un ticket.",
+      "statuses": {
+        "open": "Ouvert",
+        "in_progress": "En cours",
+        "resolved": "Résolu",
+        "closed": "Fermé"
+      },
+      "priorities": {
+        "urgent": "Urgent",
+        "important": "Important",
+        "routine": "Courant"
+      },
+      "events": {
+        "created": "Création",
+        "status": "Changement de statut",
+        "assignee": "Changement de responsable"
+      }
+    }
+  }
+}

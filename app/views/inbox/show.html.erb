@@ -127,6 +127,8 @@
                     <% if question.required? %><span class="brief-required-mark">*</span><% end %>
                   </span>
                   <% case question.question_type %>
+                  <% when "signature" %>
+                    <%= render "inbox/signature", question: question, answer: answer %>
                   <% when "image" %>
                     <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
                     <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
@@ -211,6 +213,8 @@
                   <% if question.required? %><span class="brief-required-mark">*</span><% end %>
                 </span>
                 <% case question.question_type %>
+                <% when "signature" %>
+                  <%= render "inbox/signature", question: question, answer: answer %>
                 <% when "image" %>
                   <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
                   <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
@@ -280,3 +284,7 @@
           mentionable_users: @mentionable_users %>
   <% end %>
 </article>
+
+<% if tenant_feature?(:morocco_ops) && @delivery.verdict == "non_conforme" %>
+  <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "Delivery", source_id: @delivery.id), class: "btn" %>
+<% end %>

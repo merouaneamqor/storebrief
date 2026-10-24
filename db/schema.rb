@@ -390,6 +390,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
     t.index ["user_id"], name: "index_feed_reactions_on_user_id"
   end
 
+  create_table "incident_tickets", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "org_unit_id", null: false
+    t.bigint "ticket_category_id", null: false
+    t.bigint "author_id", null: false
+    t.bigint "assignee_id"
+    t.string "source_type"
+    t.bigint "source_id"
+    t.string "title", null: false
+    t.text "description", null: false
+    t.string "department", null: false
+    t.string "priority", default: "routine", null: false
+    t.string "status", default: "open", null: false
+    t.datetime "due_at", null: false
+    t.datetime "resolved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id"], name: "index_incident_tickets_on_assignee_id"
+    t.index ["author_id"], name: "index_incident_tickets_on_author_id"
+    t.index ["org_unit_id"], name: "index_incident_tickets_on_org_unit_id"
+    t.index ["source_type", "source_id"], name: "index_incident_tickets_on_source"
+    t.index ["tenant_id", "status", "due_at"], name: "index_incident_tickets_on_tenant_id_and_status_and_due_at"
+    t.index ["tenant_id"], name: "index_incident_tickets_on_tenant_id"
+    t.index ["ticket_category_id"], name: "index_incident_tickets_on_ticket_category_id"
+  end
+
   create_table "kb_article_versions", force: :cascade do |t|
     t.bigint "kb_article_id", null: false
     t.bigint "author_id"
@@ -635,6 +661,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
     t.index ["status"], name: "index_quotations_on_status"
   end
 
+  create_table "report_subscriptions", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "enabled", default: false, null: false
+    t.string "frequency", default: "weekly", null: false
+    t.boolean "csv_attachment", default: false, null: false
+    t.datetime "next_delivery_at"
+    t.datetime "last_sent_at"
+    t.string "last_sent_period"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["enabled", "next_delivery_at"], name: "index_report_subscriptions_on_enabled_and_next_delivery_at"
+    t.index ["tenant_id"], name: "index_report_subscriptions_on_tenant_id"
+    t.index ["user_id"], name: "index_report_subscriptions_on_user_id", unique: true
+  end
+
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.string "queue_name", null: false
@@ -847,6 +889,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
     t.index ["slug"], name: "index_tenants_on_slug", unique: true
   end
 
+  create_table "ticket_categories", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "name", null: false
+    t.string "department", null: false
+    t.integer "sla_hours", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id", "name"], name: "index_ticket_categories_on_tenant_id_and_name", unique: true
+    t.index ["tenant_id"], name: "index_ticket_categories_on_tenant_id"
+  end
+
+  create_table "ticket_events", force: :cascade do |t|
+    t.bigint "incident_ticket_id", null: false
+    t.bigint "actor_id", null: false
+    t.string "kind", null: false
+    t.string "from_value"
+    t.string "to_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_ticket_events_on_actor_id"
+    t.index ["incident_ticket_id"], name: "index_ticket_events_on_incident_ticket_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.string "name", null: false
@@ -977,6 +1042,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
   add_foreign_key "feed_posts", "users"
   add_foreign_key "feed_reactions", "tenants"
   add_foreign_key "feed_reactions", "users"
+  add_foreign_key "incident_tickets", "org_units"
+  add_foreign_key "incident_tickets", "tenants"
+  add_foreign_key "incident_tickets", "ticket_categories"
+  add_foreign_key "incident_tickets", "users", column: "assignee_id"
+  add_foreign_key "incident_tickets", "users", column: "author_id"
   add_foreign_key "kb_article_versions", "kb_articles"
   add_foreign_key "kb_article_versions", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "kb_articles", "kb_categories"
@@ -1008,6 +1078,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "quotations", "pricing_plans"
   add_foreign_key "quotations", "users", column: "created_by_id"
+  add_foreign_key "report_subscriptions", "tenants"
+  add_foreign_key "report_subscriptions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -1018,6 +1090,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
   add_foreign_key "tenant_oidc_settings", "tenants"
   add_foreign_key "tenant_roles", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
+  add_foreign_key "ticket_categories", "tenants"
+  add_foreign_key "ticket_events", "incident_tickets"
+  add_foreign_key "ticket_events", "users", column: "actor_id"
   add_foreign_key "users", "tenants"
   add_foreign_key "visits", "org_units"
   add_foreign_key "visits", "tenants"

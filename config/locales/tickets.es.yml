@@ -1,0 +1,45 @@
+{
+  "es": {
+    "tickets": {
+      "title": "Incidencias y solicitudes",
+      "new": "Nuevo ticket",
+      "saved": "Ticket guardado",
+      "summary": "%{open} abiertos · %{breached} plazos incumplidos",
+      "all": "Todos los tickets",
+      "breached": "Plazo incumplido",
+      "empty": "No hay tickets.",
+      "categories": "Categorías y plazos",
+      "sla_note": "Los cambios se aplican a nuevos tickets. Se conservan los plazos existentes.",
+      "category": "Categoría",
+      "department": "Departamento",
+      "sla_hours": "Plazo objetivo (horas)",
+      "save": "Guardar",
+      "subject": "Asunto",
+      "description": "Descripción",
+      "store": "Tienda",
+      "priority": "Prioridad",
+      "status": "Estado",
+      "deadline": "Vencimiento",
+      "assignee": "Responsable",
+      "history": "Historial",
+      "source": "Elemento de origen",
+      "no_categories": "Pide a la sede que configure una categoría antes de crear un ticket.",
+      "statuses": {
+        "open": "Abierto",
+        "in_progress": "En curso",
+        "resolved": "Resuelto",
+        "closed": "Cerrado"
+      },
+      "priorities": {
+        "urgent": "Urgente",
+        "important": "Importante",
+        "routine": "Normal"
+      },
+      "events": {
+        "created": "Creación",
+        "status": "Cambio de estado",
+        "assignee": "Cambio de responsable"
+      }
+    }
+  }
+}
