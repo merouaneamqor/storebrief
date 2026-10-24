@@ -45,7 +45,7 @@
             <% if TypedFormValue::TYPES.include?(item.question_type) %>
               <%= render "shared/typed_form_field", type: item.question_type, name: "notes", value: response&.notes, required: item.required? %>
             <% else %>
-              <textarea name="notes" rows="2"></textarea>
+              <textarea name="notes" rows="2"><%= response&.notes %></textarea>
             <% end %>
           </label>
           <% if item.requires_photo? %>
@@ -72,3 +72,5 @@
     </div>
   <% end %>
 </div>
+
+<%= render "checklist_reviews/review", delivery: @delivery, reviewer: false %>

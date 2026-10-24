@@ -1,0 +1,17 @@
+en:
+  checklist_reviews:
+    title: Checklist reviews
+    lede: Review store responses, discuss corrections and keep a history.
+    empty: No assigned checklist deliveries to review yet.
+    review: Review
+    verdict: Verdict
+    note: Reviewer note
+    save: Save verdict
+    history: History
+    mention_hint: Mention a colleague with @email or @"Full Name". Only people who
+      can view this store are notified by free push.
+    post: Post comment
+    events:
+      status: Status changed
+      verdict: Reviewer verdict
+      comment: Comment posted

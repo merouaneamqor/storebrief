@@ -67,11 +67,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
     t.datetime "due_at"
     t.integer "escalation_level", default: 0, null: false
     t.datetime "escalated_at"
+    t.string "verdict"
+    t.text "verdict_note"
+    t.bigint "validated_by_id"
+    t.datetime "validated_at"
     t.index ["assignee_id"], name: "index_checklist_deliveries_on_assignee_id"
     t.index ["checklist_id", "org_unit_id"], name: "index_checklist_deliveries_on_checklist_id_and_org_unit_id", unique: true
     t.index ["checklist_id"], name: "index_checklist_deliveries_on_checklist_id"
     t.index ["client_uuid"], name: "index_checklist_deliveries_on_client_uuid", unique: true, where: "(client_uuid IS NOT NULL)"
     t.index ["org_unit_id"], name: "index_checklist_deliveries_on_org_unit_id"
+    t.index ["validated_by_id"], name: "index_checklist_deliveries_on_validated_by_id"
+  end
+
+  create_table "checklist_delivery_comments", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "checklist_delivery_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "parent_id"
+    t.text "body", null: false
+    t.jsonb "mentioned_user_ids", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["checklist_delivery_id"], name: "index_checklist_delivery_comments_on_checklist_delivery_id"
+    t.index ["parent_id"], name: "index_checklist_delivery_comments_on_parent_id"
+    t.index ["tenant_id"], name: "index_checklist_delivery_comments_on_tenant_id"
+    t.index ["user_id"], name: "index_checklist_delivery_comments_on_user_id"
+  end
+
+  create_table "checklist_delivery_events", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "checklist_delivery_id", null: false
+    t.bigint "actor_id"
+    t.string "kind", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_checklist_delivery_events_on_actor_id"
+    t.index ["checklist_delivery_id"], name: "index_checklist_delivery_events_on_checklist_delivery_id"
+    t.index ["tenant_id"], name: "index_checklist_delivery_events_on_tenant_id"
   end
 
   create_table "checklist_item_responses", force: :cascade do |t|
@@ -994,6 +1026,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
   add_foreign_key "checklist_deliveries", "checklists"
   add_foreign_key "checklist_deliveries", "org_units"
   add_foreign_key "checklist_deliveries", "users", column: "assignee_id"
+  add_foreign_key "checklist_deliveries", "users", column: "validated_by_id"
+  add_foreign_key "checklist_delivery_comments", "checklist_deliveries"
+  add_foreign_key "checklist_delivery_comments", "checklist_delivery_comments", column: "parent_id"
+  add_foreign_key "checklist_delivery_comments", "tenants"
+  add_foreign_key "checklist_delivery_comments", "users"
+  add_foreign_key "checklist_delivery_events", "checklist_deliveries"
+  add_foreign_key "checklist_delivery_events", "tenants"
+  add_foreign_key "checklist_delivery_events", "users", column: "actor_id"
   add_foreign_key "checklist_item_responses", "checklist_deliveries"
   add_foreign_key "checklist_item_responses", "checklist_items"
   add_foreign_key "checklist_items", "checklists"
