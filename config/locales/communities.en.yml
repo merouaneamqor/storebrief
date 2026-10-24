@@ -1,0 +1,28 @@
+{
+  "en": {
+    "communities": {
+      "title": "Communities",
+      "lede": "Shared discussion spaces by region or role.",
+      "create": "Create community",
+      "title_fr": "French title",
+      "title_ar": "Arabic title (optional)",
+      "region": "Region",
+      "all_regions": "All regions",
+      "audience": "Participating roles",
+      "all_roles": "All roles",
+      "sharing": "Posts and comments are visible to all participants in this space and its moderators. Do not share customer data.",
+      "empty": "No communities available.",
+      "post": "New post",
+      "publish": "Publish",
+      "comment": "Comment",
+      "reply": "Reply",
+      "remove_post": "Remove post",
+      "remove_comment": "Remove comment",
+      "recent_comments": "Showing the latest 50 comments.",
+      "previous": "Previous",
+      "next": "Next",
+      "remove": "Delete community",
+      "confirm_remove": "Delete this community and all its discussions?"
+    }
+  }
+}

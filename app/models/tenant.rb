@@ -3,6 +3,11 @@ class Tenant < ApplicationRecord
   IMAGE_TYPES = %w[image/png image/jpeg image/jpg image/webp image/svg+xml image/x-icon image/vnd.microsoft.icon].freeze
 
   FEATURE_FLAGS = {
+    communities: {
+      label: "Communities",
+      hint: "Optional regional and role-based shared discussions, managed by HQ.",
+      default: false
+    },
     saml_sso: {
       label: "SAML SSO",
       hint: "Allow single sign-on on this brand’s subdomain (configure IdP under SSO).",
@@ -122,6 +127,7 @@ class Tenant < ApplicationRecord
   has_many :kb_articles, dependent: :destroy
   has_many :notification_logs, dependent: :destroy
   has_many :export_logs, dependent: :destroy
+  has_many :communities, dependent: :destroy
   has_many :users, dependent: :destroy
   has_many :tenant_roles, dependent: :destroy
   has_many :org_units, dependent: :destroy

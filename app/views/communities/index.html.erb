@@ -1,0 +1,24 @@
+<header class="radar-head"><div><h1><%= t("communities.title") %></h1><p class="meta"><%= t("communities.lede") %></p></div></header>
+<% if @can_create %>
+  <section class="panel">
+    <h2><%= t("communities.create") %></h2>
+    <%= form_with model: @community do |form| %>
+      <%= form.label :title_fr, t("communities.title_fr") %>
+      <%= form.text_field :title_fr, required: true, maxlength: 120 %>
+      <%= form.label :title_ar, t("communities.title_ar") %>
+      <%= form.text_field :title_ar, maxlength: 120, dir: "rtl" %>
+      <%= form.label :org_unit_id, t("communities.region") %>
+      <%= form.select :org_unit_id, @regions.map { |region| [region.name, region.id] }, include_blank: user_allows?(:manage_communities, tenant_wide: true) ? t("communities.all_regions") : false %>
+      <%= form.label :audience_role, t("communities.audience") %>
+      <%= form.select :audience_role, Membership::ROLES.map { |role| [t("tenant_roles.bases.#{role}"), role] }, include_blank: t("communities.all_roles") %>
+      <p class="meta"><%= t("communities.sharing") %></p>
+      <%= form.submit t("communities.create"), class: "btn" %>
+    <% end %>
+  </section>
+<% end %>
+<section class="panel">
+  <% if @communities.empty? %><p><%= t("communities.empty") %></p><% end %>
+  <ul class="list"><% @communities.each do |community| %>
+    <li><%= link_to community.title, community %> <span class="meta"><%= community.org_unit&.name || t("communities.all_regions") %> · <%= community.audience_role.present? ? t("tenant_roles.bases.#{community.audience_role}") : t("communities.all_roles") %></span></li>
+  <% end %></ul>
+</section>

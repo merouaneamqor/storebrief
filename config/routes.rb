@@ -91,6 +91,14 @@ Rails.application.routes.draw do
   post "inbox/:delivery_id/acknowledgement", to: "broadcast_acknowledgements#create", as: :broadcast_acknowledgement
 
   resources :my_tasks, only: %i[index show]
+  resources :communities, only: [ :index, :create, :show, :destroy ] do
+    member do
+      post :create_post
+      post :create_comment
+      delete :destroy_post
+      delete :destroy_comment
+    end
+  end
   resources :newsfeeds, only: :index, path: "newsfeed"
   resources :feed_posts, only: [ :create, :destroy ] do
     post :publish, on: :member

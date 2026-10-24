@@ -1,0 +1,42 @@
+<header class="radar-head"><div>
+  <p class="meta"><%= link_to t("communities.title"), communities_path %></p>
+  <h1><%= @community.title %></h1>
+  <p class="meta"><%= @community.org_unit&.name || t("communities.all_regions") %> · <%= @community.audience_role.present? ? t("tenant_roles.bases.#{@community.audience_role}") : t("communities.all_roles") %></p>
+  <p><%= t("communities.sharing") %></p>
+</div></header>
+<section class="panel">
+  <%= form_with url: create_post_community_path(@community) do |form| %>
+    <%= form.label :body, t("communities.post") %>
+    <%= form.text_area :body, required: true, maxlength: 2000 %>
+    <%= form.submit t("communities.publish"), class: "btn" %>
+  <% end %>
+</section>
+<% @posts.each do |post| %>
+  <article class="panel">
+    <p class="meta"><%= post.user.name %> · <%= l(post.created_at, format: :short) %></p>
+    <%= simple_format(post.body) %>
+    <% if @community.manageable_by?(current_user) %><%= button_to t("communities.remove_post"), destroy_post_community_path(@community, post_id: post.id), method: :delete, class: "btn btn--secondary" %><% end %>
+    <% comments = post.community_comments.includes(:user).order(created_at: :desc, id: :desc).limit(51).to_a %>
+    <% if comments.length > 50 %><p class="meta"><%= t("communities.recent_comments") %></p><% end %>
+    <% comments.first(50).reverse_each do |comment| %>
+      <div class="panel">
+        <p class="meta"><%= comment.user.name %> · <%= l(comment.created_at, format: :short) %></p>
+        <%= simple_format(comment.body) %>
+        <% if @community.manageable_by?(current_user) %><%= button_to t("communities.remove_comment"), destroy_comment_community_path(@community, post_id: post.id, comment_id: comment.id), method: :delete, class: "btn btn--secondary" %><% end %>
+      </div>
+    <% end %>
+    <%= form_with url: create_comment_community_path(@community) do |form| %>
+      <%= hidden_field_tag :post_id, post.id %>
+      <%= form.label :body, t("communities.comment"), for: "comment_#{post.id}" %>
+      <%= form.text_area :body, id: "comment_#{post.id}", required: true, maxlength: 1000 %>
+      <%= form.submit t("communities.reply"), class: "btn btn--secondary" %>
+    <% end %>
+  </article>
+<% end %>
+<nav class="newsfeed-pager">
+  <% if @page > 1 %><%= link_to t("communities.previous"), community_path(@community, page: @page - 1) %><% end %>
+  <% if @more %><%= link_to t("communities.next"), community_path(@community, page: @page + 1) %><% end %>
+</nav>
+<% if @community.manageable_by?(current_user) %>
+  <section class="panel"><%= button_to t("communities.remove"), community_path(@community), method: :delete, class: "btn btn--secondary", form: { data: { turbo_confirm: t("communities.confirm_remove") } } %></section>
+<% end %>
