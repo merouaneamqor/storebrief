@@ -79,6 +79,8 @@ class ApprovalBeforeSendTest < ActionDispatch::IntegrationTest
 
   test "approved brief is sent by the author through the controller" do
     brief = draft_brief
+    brief.assign_targeting(org_unit_ids: [ @brand.store.id ])
+    brief.save!
     Vazivo::Approval.submit!(brief, actor: @author)
     Vazivo::Approval.decide!(brief, approver: @approver, decision: "approved", note: "OK")
 

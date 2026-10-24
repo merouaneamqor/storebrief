@@ -101,6 +101,19 @@ class CommunicationsController < ApplicationController
       return
     end
 
+    assign_targeting
+    @communication.assign_targeting(org_unit_ids: @communication.deliveries.pluck(:org_unit_id)) if @communication.targeting.blank?
+    @communication.refresh_targeting
+    @audience_review_changed = @communication.review_approved? && @communication.will_save_change_to_targeting?
+    unless @communication.save
+      redirect_to edit_communication_path(@communication), alert: @communication.errors.full_messages.to_sentence
+      return
+    end
+    if @communication.targeting.present? && @communication.targeting["store_ids"].empty?
+      redirect_to edit_communication_path(@communication), alert: t("errors.select_targets")
+      return
+    end
+
     if approval_pending_for_send?
       submit_for_review
       return
@@ -108,8 +121,8 @@ class CommunicationsController < ApplicationController
 
     begin
       @communication.send_to!(
-        params[:org_unit_ids].presence || @communication.deliveries.pluck(:org_unit_id),
-        **assignment_filter_kwargs
+        @communication.targeting.present? ? @communication.targeting["org_unit_ids"] : @communication.deliveries.pluck(:org_unit_id),
+        **saved_assignment_filter_kwargs
       )
       redirect_to @communication, notice: t("communications.sent")
     rescue ArgumentError => e
@@ -215,6 +228,7 @@ class CommunicationsController < ApplicationController
 
   def submit_for_review(redirect: nil)
     Vazivo::Approval.submit!(@communication, actor: current_user) unless @communication.review_pending?
+    flash[:alert] = t("approval.audience_changed") if @audience_review_changed
     redirect_to redirect || edit_communication_path(@communication), notice: t("approval.submitted")
   end
 
@@ -272,13 +286,21 @@ class CommunicationsController < ApplicationController
   def persist_communication(failure_template)
     sending = params[:commit] == "send"
     @communication.status = "draft" unless sending
+    assign_targeting
+    @communication.refresh_targeting
+    @audience_review_changed = @communication.review_approved? && @communication.will_save_change_to_targeting?
 
     if @communication.save
+      if sending && (@communication.targeting.blank? || @communication.targeting["store_ids"].empty?)
+        flash.now[:alert] = t("errors.select_targets")
+        render failure_template, status: :unprocessable_entity
+        return
+      end
       if sending && approval_pending_for_send?
         submit_for_review(redirect: edit_communication_path(@communication))
       elsif sending
         begin
-          @communication.send_to!(params[:org_unit_ids], **assignment_filter_kwargs)
+          @communication.send_to!(@communication.targeting["org_unit_ids"], **saved_assignment_filter_kwargs)
           redirect_to @communication, notice: t("communications.sent")
         rescue ArgumentError => e
           flash.now[:alert] = e.message
@@ -290,6 +312,18 @@ class CommunicationsController < ApplicationController
     else
       render failure_template, status: :unprocessable_entity
     end
+  end
+
+  def assign_targeting
+    return unless %i[org_unit_ids assignment_role store_format cluster].any? { |key| params.key?(key) }
+
+    @communication.assign_targeting(org_unit_ids: params[:org_unit_ids], **assignment_filter_kwargs)
+  end
+
+  def saved_assignment_filter_kwargs
+    return assignment_filter_kwargs if @communication.targeting.blank?
+
+    @communication.targeting.slice("role", "store_format", "cluster").symbolize_keys
   end
 
   def assignment_filter_kwargs

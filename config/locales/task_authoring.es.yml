@@ -1,0 +1,5 @@
+es:
+  errors:
+    invalid_targets: "Seleccione destinatarios y filtros válidos para esta marca."
+  approval:
+    audience_changed: "Los destinatarios han cambiado. Este borrador necesita una nueva aprobación."

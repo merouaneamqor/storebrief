@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_24_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -236,6 +236,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_090000) do
     t.boolean "requires_acknowledgement", default: false, null: false
     t.boolean "broadcast_email", default: false, null: false
     t.boolean "broadcast_whatsapp", default: false, null: false
+    t.jsonb "targeting", default: {}, null: false
     t.index ["author_id"], name: "index_communications_on_author_id"
     t.index ["communication_template_id"], name: "index_communications_on_communication_template_id"
     t.index ["depends_on_communication_id"], name: "index_communications_on_depends_on_communication_id"

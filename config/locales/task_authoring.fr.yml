@@ -1,0 +1,5 @@
+fr:
+  errors:
+    invalid_targets: "Sélectionnez des destinataires et des filtres valides pour cette enseigne."
+  approval:
+    audience_changed: "Les destinataires ont changé. Ce brouillon nécessite une nouvelle approbation."

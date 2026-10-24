@@ -1,0 +1,5 @@
+en:
+  errors:
+    invalid_targets: "Select valid recipients and filters for this brand."
+  approval:
+    audience_changed: "The recipients changed. This draft needs another approval."

@@ -50,6 +50,7 @@ class Communication < ApplicationRecord
   validate :recurrence_rule_valid
   validate :depends_on_communication_valid
   validate :acceptable_attachments
+  validate :targeting_is_tenant_scoped
 
   bilingual_fields :title, :body
 
@@ -185,8 +186,32 @@ class Communication < ApplicationRecord
     update_columns(review_status: nil, reviewed_by_id: nil, reviewed_at: nil, review_note: nil)
   end
 
+  # Persist the author's selection and a server-resolved recipient snapshot. The
+  # snapshot changes with membership/format drift and invalidates prior approval.
+  def assign_targeting(org_unit_ids:, role: nil, store_format: nil, cluster: nil)
+    ids = Array(org_unit_ids).compact_blank.map(&:to_s).uniq.sort_by(&:to_i)
+    self.targeting = {
+      "org_unit_ids" => ids,
+      "role" => role.to_s,
+      "store_format" => store_format.to_s,
+      "cluster" => cluster.to_s,
+      "store_ids" => Vazivo::Assignment.resolve_store_ids(tenant, org_unit_ids: ids,
+        role: role, store_format: store_format, cluster: cluster).sort
+    }
+  end
+
+  def refresh_targeting
+    return if targeting.blank?
+
+    assign_targeting(org_unit_ids: targeting["org_unit_ids"], role: targeting["role"],
+      store_format: targeting["store_format"], cluster: targeting["cluster"])
+  end
+
   def send_to!(org_unit_ids, role: nil, store_format: nil, cluster: nil)
     Vazivo::Approval.ensure_sendable!(self)
+    if Vazivo::Approval.gate?(self) && will_save_change_to_targeting?
+      raise Vazivo::Approval::Required, I18n.t("approval.errors.required")
+    end
     store_ids = Vazivo::Assignment.resolve_store_ids(
       tenant,
       org_unit_ids: org_unit_ids,
@@ -195,6 +220,9 @@ class Communication < ApplicationRecord
       cluster: cluster
     )
     raise ArgumentError, I18n.t("errors.select_targets") if store_ids.empty?
+    if Vazivo::Approval.gate?(self) && targeting.present? && store_ids.sort != Array(targeting["store_ids"]).sort
+      raise Vazivo::Approval::Required, I18n.t("approval.errors.required")
+    end
 
     due = Vazivo::Schedule.default_due(tenant, due_at)
     transaction do
@@ -232,6 +260,25 @@ class Communication < ApplicationRecord
   end
 
   private
+
+  def targeting_is_tenant_scoped
+    return if targeting == {}
+
+    unless targeting.is_a?(Hash) && targeting["org_unit_ids"].is_a?(Array) && targeting["store_ids"].is_a?(Array)
+      errors.add(:base, I18n.t("errors.invalid_targets"))
+      return
+    end
+    ids = targeting["org_unit_ids"]
+    stores = targeting["store_ids"]
+    valid_ids = ids.all? { |id| id.to_s.match?(/\A[1-9]\d*\z/) } &&
+      tenant.org_units.where(id: ids).count == ids.uniq.size
+    valid_stores = stores.all? { |id| id.to_s.match?(/\A[1-9]\d*\z/) } &&
+      tenant.org_units.stores.where(id: stores).count == stores.uniq.size
+    role = targeting["role"].to_s
+    valid_filters = (role.blank? || Membership::ROLES.include?(role)) &&
+      %w[store_format cluster].all? { |key| targeting[key].is_a?(String) && targeting[key].size <= 80 }
+    errors.add(:base, I18n.t("errors.invalid_targets")) unless valid_ids && valid_stores && valid_filters
+  end
 
   def reset_review_after_edit
     return if review_status.blank? || status_changed?

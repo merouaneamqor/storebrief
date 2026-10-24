@@ -222,6 +222,9 @@ document.addEventListener("alpine:init", () => {
         id: String(unit.id)
       }))
       this.selected = JSON.parse(this.$el.dataset.selected || "[]").map(String)
+      this.role = this.$el.dataset.assignmentRole || ""
+      this.storeFormat = this.$el.dataset.storeFormat || ""
+      this.cluster = this.$el.dataset.cluster || ""
       this.countTemplate = this.$el.dataset.countLabel || "%{count}"
       this.previewUrl = this.$el.dataset.previewUrl || ""
       this.previewEmpty = this.$el.dataset.previewEmpty || ""
