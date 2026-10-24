@@ -15,3 +15,5 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 pin "task_proof"
 
 pin "signature_pad", to: "signature_pad.js"
+
+pin "offline_workspace", to: "offline_workspace.js"

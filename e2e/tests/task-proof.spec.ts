@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { signIn } from "./helpers";
 
+// HTTP rejection is mocked here; offline-workspace.spec covers the real worker.
+test.use({ serviceWorkers: "block" });
+
 test("offline multi-file proof survives storage, compresses photos and syncs once", async ({ page, context }) => {
   await signIn(page, "hq");
   await page.goto("/communications/new");

@@ -1,0 +1,14 @@
+{
+  "fr": {
+    "offline_workspaces": {
+      "offline": "Hors connexion. Seules les pages déjà ouvertes sur cet appareil sont disponibles.",
+      "pending": "Des tâches attendent la synchronisation.",
+      "open": "Ouvrir la tâche actuelle",
+      "discard": "Supprimer le travail en attente",
+      "restore": "Restaurer les réponses en attente",
+      "conflict": "Cette tâche a changé ou a été validée. Ouvrez la tâche actuelle, restaurez les réponses, comparez et renvoyez. Les fichiers restent sur cet appareil jusqu’à leur envoi ou suppression.",
+      "unavailable": "Cette page est indisponible hors connexion. Reconnectez-vous et ouvrez-la pour la conserver sur cet appareil.",
+      "recovery": "Les fichiers en attente restent sur cet appareil. Ouvrez la tâche actuelle, restaurez et corrigez les réponses ou fichiers, puis renvoyez. Si la tâche est fermée, consultez le siège avant de supprimer le travail en attente."
+    }
+  }
+}
