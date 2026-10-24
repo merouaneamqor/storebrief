@@ -40,11 +40,15 @@ class DeliveryAnswer < ApplicationRecord
     end
   end
 
+  def choice_selected?(label, locale: I18n.locale)
+    list_value.any? { |value| localized_choice_value(value, locale: locale) == label }
+  end
+
   def display_value(locale: I18n.locale)
     if communication_question.image?
       image.attached? ? image.filename.to_s : ""
     elsif communication_question.question_type == "multi_choice"
-      list_value.join(", ")
+      list_value.map { |value| localized_choice_value(value, locale: locale) }.join(", ")
     elsif communication_question.question_type == "yes_no_na" && text_value.present?
       I18n.t("typed_forms.answers.#{text_value}", locale: locale)
     else
@@ -53,6 +57,15 @@ class DeliveryAnswer < ApplicationRecord
   end
 
   private
+
+  def localized_choice_value(value, locale:)
+    option = Array(communication_question.options).find do |candidate|
+      [ candidate["label_fr"], candidate["label_ar"] ].include?(value)
+    end
+    return value unless option
+
+    locale.to_s == "ar" ? (option["label_ar"].presence || option["label_fr"].presence || value) : (option["label_fr"].presence || value)
+  end
 
   def acceptable_image
     return unless image.attached?
