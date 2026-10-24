@@ -9,3 +9,5 @@ import "pwa_push"
 import "task_lang"
 
 import "signature_pad"
+
+import "offline_workspace"

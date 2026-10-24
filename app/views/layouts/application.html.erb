@@ -2,6 +2,7 @@
 <html lang="<%= I18n.locale %>" dir="<%= rtl? ? 'rtl' : 'ltr' %>">
   <head>
     <title><%= content_for?(:title) ? yield(:title) : (current_tenant&.display_brand_name || "Vazivo") %></title>
+    <meta name="turbo-cache-control" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <%= render "shared/pwa_head" %>
     <%= csrf_meta_tags %>
@@ -271,6 +272,15 @@
           </header>
 
           <main class="app-content">
+            <% if tenant_feature?(:morocco_ops) %>
+              <aside class="panel offline-workspace" data-offline-workspace hidden
+                data-offline="<%= t('offline_workspaces.offline') %>" data-pending="<%= t('offline_workspaces.pending') %>"
+                data-open="<%= t('offline_workspaces.open') %>" data-discard="<%= t('offline_workspaces.discard') %>"
+                data-restore="<%= t('offline_workspaces.restore') %>" data-recovery="<%= t('offline_workspaces.recovery') %>" data-conflict="<%= t('offline_workspaces.conflict') %>">
+                <p data-offline-banner role="status"></p>
+                <div data-offline-queue aria-live="polite"></div>
+              </aside>
+            <% end %>
             <% if flash[:notice] %>
               <p class="flash flash--notice"><%= flash[:notice] %></p>
             <% end %>

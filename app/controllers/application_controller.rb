@@ -5,6 +5,8 @@ class ApplicationController < ActionController::Base
                 :store_user?, :super_admin?, :rtl?, :apex_request?, :host_tenant?,
                 :tenant_feature?, :user_allows?
 
+  after_action :offline_identity_headers
+
   before_action :redirect_www
   before_action :set_tenant_from_host
   before_action :require_login, unless: :active_admin_controller?
@@ -14,6 +16,20 @@ class ApplicationController < ActionController::Base
   before_action :require_workflow_capability
 
   private
+
+  def offline_session_id
+    session[:offline_session_id] ||= SecureRandom.hex(16)
+  end
+
+  def offline_identity_headers
+    return unless current_user && current_tenant && current_tenant.feature?(:morocco_ops)
+    return unless response.media_type == "text/html"
+
+    response.headers["X-Vazivo-Offline-Owner"] = "#{current_tenant.id}:#{current_user.id}"
+    response.headers["X-Vazivo-Offline-Session"] = offline_session_id
+    response.headers["Content-Language"] = I18n.locale.to_s
+    response.headers["Cache-Control"] = "no-store"
+  end
 
   def privacy_gate_required?
     current_user.present? && !active_admin_controller? && !privacy_exempt_controller?

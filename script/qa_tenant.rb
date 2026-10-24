@@ -73,3 +73,13 @@ puts "HQ: hq@qa-vazivo.test / password"
 puts "Area: area@qa-vazivo.test / password"
 puts "Store: store@qa-vazivo.test / password"
 puts "template=#{template.id} tasks=#{tenant.communications.where(format: 'task').count}"
+
+# A second tenant makes browser offline-cache isolation reproducible.
+offline_other = Tenant.find_or_create_by!(slug: "qa-offline-other") do |record|
+  record.name = "QA Offline Other"
+  record.brand_name = "QA Offline Other"
+  record.features = Tenant.default_features
+  Tenant.default_palette.each { |key, value| record.public_send("#{key}=", value) }
+end
+offline_store = offline_other.org_units.find_or_create_by!(name: "Offline Other Store", unit_type: "store")
+ensure_user!(offline_other, email: "store@qa-offline-other.test", name: "Offline Other User", org_unit: offline_store, role: "store", password: password)

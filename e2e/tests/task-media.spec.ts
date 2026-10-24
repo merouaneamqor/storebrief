@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 import path from "node:path";
 import { signIn, expectNoHorizontalOverflow } from "./helpers";
 
+// This queue test mocks HTTP rejection; SW interception is covered separately.
+test.use({ serviceWorkers: "block" });
+
 test("signature PNG and video persist offline and appear in reviewer and audit views", async ({ page, context }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page, "hq");
