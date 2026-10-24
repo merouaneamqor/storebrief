@@ -1,0 +1,38 @@
+<% content_for :title, t("oidc.title") %>
+<h1><%= t("oidc.title") %></h1>
+<p class="lede"><%= t("oidc.help") %></p>
+<p class="meta"><%= t("oidc.policy") %></p>
+<p><%= t("oidc.callback") %>: <code dir="ltr" style="overflow-wrap:anywhere"><%= oidc_callback_url(tenant_slug: current_tenant.slug) %></code></p>
+<% if @setting.errors.any? %><div class="flash flash--alert"><%= @setting.errors.full_messages.to_sentence %></div><% end %>
+<section class="panel">
+  <%= form_with model: @setting, url: oidc_settings_path, method: :patch, class: "form-stack" do |f| %>
+    <% %i[enabled sso_enforced jit_enabled].each do |field| %>
+      <label class="checkbox"><%= f.check_box field %><%= t("oidc.fields.#{field}") %></label>
+    <% end %>
+    <% %i[issuer client_id authorization_endpoint token_endpoint jwks_uri].each do |field| %>
+      <label><%= t("oidc.fields.#{field}") %><%= f.text_field field, autocomplete: "off", maxlength: 255, dir: "ltr" %></label>
+    <% end %>
+    <label><%= t("oidc.fields.client_secret") %><%= password_field_tag "tenant_oidc_setting[client_secret]", nil, autocomplete: "new-password", dir: "ltr" %></label>
+    <p class="meta"><%= t("oidc.secret_help") %></p>
+    <label><%= t("oidc.fields.role_mappings_json") %><%= f.text_area :role_mappings_json, rows: 8, dir: "ltr", spellcheck: false %></label>
+    <p class="meta"><%= t("oidc.mapping_help") %></p>
+    <pre style="overflow-x:auto" dir="ltr">[{"claim":"groups","value":"store-rabat","role":"store","org_unit_id":123}]
+[{"claim":"site","value":"Rabat","tenant_role_id":456,"org_unit_id":123}]</pre>
+    <%= f.submit t("oidc.save"), class: "btn btn--primary" %>
+  <% end %>
+</section>
+<section class="panel">
+  <h2><%= t("oidc.links") %></h2>
+  <p class="meta"><%= t("oidc.link_help") %></p>
+  <% if @setting.ready? %>
+    <%= form_with url: link_oidc_settings_path, class: "form-stack" do %>
+      <label><%= t("oidc.user") %><%= select_tag :user_id, options_from_collection_for_select(current_tenant.users.where(super_admin: false).order(:name), :id, :name), required: true %></label>
+      <label><%= t("oidc.subject") %><%= text_field_tag :subject, nil, required: true, maxlength: 255, dir: "ltr", autocomplete: "off" %></label>
+      <%= submit_tag t("oidc.link"), class: "btn" %>
+    <% end %>
+  <% end %>
+  <% @identities.each do |identity| %>
+    <p><strong><%= identity.user.name %></strong> · <span dir="ltr" style="overflow-wrap:anywhere"><%= identity.subject %></span></p>
+    <%= button_to t("oidc.unlink"), unlink_oidc_settings_path(identity_id: identity.id), method: :delete, class: "btn btn--ghost" %>
+  <% end %>
+</section>

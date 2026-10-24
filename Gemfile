@@ -24,6 +24,7 @@ gem "bcrypt", "~> 3.1.7"
 
 # SAML 2.0 Service Provider (per-tenant IdP SSO)
 gem "ruby-saml", "~> 1.18"
+gem "jwt", "~> 3.3"
 
 # Spreadsheet download containers (also used by Selenium in tests).
 gem "rubyzip", "~> 3.7"
