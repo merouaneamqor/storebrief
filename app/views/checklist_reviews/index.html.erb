@@ -1,0 +1,15 @@
+<% content_for :title, t("checklist_reviews.title") %>
+<header class="radar-head"><div><h1><%= t("checklist_reviews.title") %></h1><p class="lede"><%= t("checklist_reviews.lede") %></p></div></header>
+<section class="panel">
+  <% if @deliveries.empty? %>
+    <%= render "shared/empty_state", text: t("checklist_reviews.empty") %>
+  <% else %>
+    <ul class="list">
+      <% @deliveries.each do |delivery| %>
+        <li><%= link_to "#{delivery.checklist.title} · #{delivery.org_unit.name}", checklist_review_path(delivery) %> <%= localized_badge(delivery.status) %>
+          <% if delivery.verdict.present? %><span class="badge"><%= t("morocco.verdict.#{delivery.verdict}") %></span><% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>
