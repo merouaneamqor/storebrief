@@ -1,0 +1,32 @@
+<% content_for :title, "#{t('morocco.kb.categories.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.kb.categories.back_articles"), kb_articles_path %></p>
+    <h1><%= t("morocco.kb.categories.title") %></h1>
+    <p class="lede"><%= t("morocco.kb.categories.lede") %></p>
+  </div>
+  <%= link_to t("morocco.kb.categories.new"), new_kb_category_path, class: "btn btn--primary" %>
+</header>
+
+<% if @tree.any? %>
+  <div class="stack">
+    <% @tree.each do |category, depth| %>
+      <div class="panel cluster" style="justify-content:space-between; align-items:center; margin-inline-start:<%= depth * 1.25 %>rem;">
+        <div>
+          <h2 style="margin:0; font-size:1.05rem;"><%= category.title %></h2>
+          <p class="meta"><%= category.description.to_s.truncate(100).presence || "-" %></p>
+        </div>
+        <div class="cluster">
+          <%= link_to t("morocco.kb.categories.add_child"), new_kb_category_path(parent_id: category.id), class: "btn btn--ghost" %>
+          <%= link_to t("morocco.kb.categories.edit"), edit_kb_category_path(category), class: "btn btn--ghost" %>
+          <%= button_to t("morocco.kb.categories.delete"), kb_category_path(category), method: :delete, class: "btn btn--ghost",
+                form: { data: { turbo_confirm: t("morocco.kb.categories.delete_confirm", title: category.title) } } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <%= render "shared/empty_state", icon: "book", text: t("morocco.kb.categories.empty"),
+        action_label: t("morocco.kb.categories.new"), action_path: new_kb_category_path %>
+<% end %>

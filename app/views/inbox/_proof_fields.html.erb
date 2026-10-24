@@ -1,3 +1,20 @@
+<% proof_types = tenant_feature?(:morocco_ops) ? Delivery::PROOF_FILE_TYPES : Delivery::PROOF_FILE_TYPES - Delivery::PROOF_VIDEO_TYPES %>
+<fieldset class="task-proof-upload" data-max-bytes="<%= Delivery::PROOF_MAX_BYTES %>"
+          data-video-max-bytes="<%= Delivery::PROOF_VIDEO_MAX_BYTES %>"
+          data-max-count="<%= Delivery::PROOF_MAX_COUNT %>"
+          data-types="<%= proof_types.join(',') %>"
+          data-validation-error="<%= t(tenant_feature?(:morocco_ops) ? 'task_media.limits' : 'task_proof.limits') %>"
+          data-queued="<%= t('task_proof.queued') %>"
+          data-error="<%= t('task_proof.sync_error') %>">
+  <legend><%= t("task_proof.title") %></legend>
+  <p class="meta"><%= t(tenant_feature?(:morocco_ops) ? "task_media.limits" : "task_proof.limits") %></p>
+  <p class="meta"><%= t("task_proof.required_hint") if delivery.communication.requires_proof? %></p>
+  <label>
+    <span><%= t("task_proof.choose_files") %></span>
+    <input type="file" name="proof_files[]" multiple accept="<%= proof_types.join(',') %>">
+  </label>
+  <ul class="task-proof-selected" aria-live="polite"></ul>
+  <p class="task-proof-upload__status meta" role="status"></p>
 <div class="proof-pair" x-data="{
   beforeUrl: null,
   afterUrl: null,
@@ -38,3 +55,4 @@
     <input class="proof-zone__input" type="file" name="photo_after" accept="image/*" capture="environment" @change="preview($event, 'after')">
   </label>
 </div>
+</fieldset>

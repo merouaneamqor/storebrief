@@ -1,4 +1,5 @@
 class ChecklistsController < ApplicationController
+  include SpreadsheetExports
   before_action :require_hq
   before_action -> { require_feature!(:checklists) }
   before_action :set_checklist, only: %i[show send_checklist notify_push]
@@ -9,9 +10,25 @@ class ChecklistsController < ApplicationController
 
   def show
     @stats = @checklist.completion_stats
-    @deliveries = @checklist.checklist_deliveries.includes(:org_unit).order(:id)
+    @items = @checklist.checklist_items
+    @deliveries = @checklist.checklist_deliveries
+                            .includes(
+                              :org_unit,
+                              checklist_item_responses: [ :corrective_communication, { photo_attachment: :blob } ]
+                            )
+                            .order(:id)
+    if spreadsheet_request?
+      send_spreadsheet(Reports::ExportTable.deliveries(@checklist.checklist_deliveries.includes(:org_unit, :assignee, :checklist).order(:id)), source: "checklist-deliveries", filters: { checklist_id: @checklist.id })
+      return
+    end
     @notifications = @checklist.notification_logs.includes(:user).order(created_at: :desc)
-    @target_units = tenant_scope.org_units.where(unit_type: %w[region store]).order(:unit_type, :name)
+    @target_units = tenant_scope.org_units.where(unit_type: %w[region area store]).order(:unit_type, :name)
+    if tenant_feature?(:morocco_ops)
+      @store_visits = tenant_scope.visits.active
+                                  .where(org_unit_id: @deliveries.map(&:org_unit_id))
+                                  .upcoming_first
+                                  .group_by(&:org_unit_id)
+    end
   end
 
   def send_checklist
@@ -21,7 +38,12 @@ class ChecklistsController < ApplicationController
     end
 
     begin
-      @checklist.send_to!(params[:org_unit_ids])
+      @checklist.send_to!(
+        params[:org_unit_ids],
+        role: params[:assignment_role].presence,
+        store_format: params[:store_format].presence,
+        cluster: params[:cluster].presence
+      )
       redirect_to @checklist, notice: t("checklists.sent")
     rescue ArgumentError => e
       redirect_to @checklist, alert: e.message

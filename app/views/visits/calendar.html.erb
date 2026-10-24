@@ -1,17 +1,19 @@
-<% content_for :title, "#{t('morocco.visits.calendar.title')} · Vazivo" %>
-<% filters = { unit_id: @unit&.id, auditor_id: @auditor&.id }.compact %>
+<% content_for :title, "#{t('morocco.retail_calendar.title')} · Vazivo" %>
+<% filters = { unit_id: @unit&.id, auditor_id: @auditor&.id, store_id: @store&.id, type: @type }.compact %>
 <% nav_params = ->(date, view = @calendar.view) { filters.merge(view: view, date: date.iso8601) } %>
 
 <header class="radar-head">
   <div>
     <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
-    <h1><%= t("morocco.visits.calendar.title") %></h1>
-    <p class="meta"><%= t("morocco.visits.calendar.lede") %></p>
+    <h1><%= t("morocco.retail_calendar.title") %></h1>
+    <p class="meta"><%= t("morocco.retail_calendar.lede") %></p>
   </div>
   <div class="radar-head__actions">
-    <%= link_to t("morocco.visits.calendar.list"), visits_path, class: "btn btn--ghost" %>
-    <%= link_to new_visit_path, class: "btn btn--quiet" do %>
-      <%= icon("plus", css_class: "icon") %> <%= t("morocco.visits.new") %>
+    <% unless store_user? %>
+      <%= link_to t("morocco.visits.calendar.list"), visits_path, class: "btn btn--ghost" %>
+      <%= link_to new_visit_path, class: "btn btn--primary" do %>
+        <%= icon("plus", css_class: "icon") %> <%= t("morocco.visits.new") %>
+      <% end %>
     <% end %>
   </div>
 </header>
@@ -42,21 +44,37 @@
     <%= hidden_field_tag :view, @calendar.view %>
     <%= hidden_field_tag :date, @calendar.anchor.iso8601 %>
     <label>
-      <span><%= t("morocco.visits.calendar.filter_unit") %></span>
-      <%= select_tag :unit_id,
+      <span><%= t("morocco.retail_calendar.filter_type") %></span>
+      <%= select_tag :type,
+            options_for_select(Vazivo::RetailCalendar::TYPES.map { |type| [t("morocco.retail_calendar.types.#{type}"), type] }, @type),
+            include_blank: t("morocco.retail_calendar.all_types"), class: "billing-input",
+            "@change": "$el.form.requestSubmit()" %>
+    </label>
+    <% unless store_user? %>
+      <label>
+        <span><%= t("morocco.visits.calendar.filter_unit") %></span>
+        <%= select_tag :unit_id,
             options_from_collection_for_select(@units, :id, :name, @unit&.id),
             include_blank: t("morocco.visits.calendar.all_units"),
             class: "billing-input",
             "@change": "$el.form.requestSubmit()" %>
-    </label>
-    <label>
-      <span><%= t("morocco.visits.calendar.filter_auditor") %></span>
-      <%= select_tag :auditor_id,
+      </label>
+      <label>
+        <span><%= t("morocco.retail_calendar.filter_store") %></span>
+        <%= select_tag :store_id,
+            options_from_collection_for_select(@stores, :id, :name, @store&.id),
+            include_blank: t("morocco.retail_calendar.all_stores"), class: "billing-input",
+            "@change": "$el.form.requestSubmit()" %>
+      </label>
+      <label>
+        <span><%= t("morocco.visits.calendar.filter_auditor") %></span>
+        <%= select_tag :auditor_id,
             options_from_collection_for_select(@auditors, :id, :name, @auditor&.id),
             include_blank: t("morocco.visits.calendar.all_auditors"),
             class: "billing-input",
             "@change": "$el.form.requestSubmit()" %>
-    </label>
+      </label>
+    <% end %>
     <noscript><button type="submit" class="btn btn--quiet"><%= t("morocco.visits.calendar.apply") %></button></noscript>
   <% end %>
 
@@ -66,23 +84,31 @@
     <% end %>
 
     <% @calendar.days.each do |day| %>
-      <% day_visits = @calendar.visits_by_day.fetch(day, []) %>
+      <% day_events = @calendar.events_by_day.fetch(day, []) %>
       <div class="visit-calendar__day <%= 'is-outside' unless @calendar.in_period?(day) %> <%= 'is-today' if day == @calendar.today %>"
            role="gridcell" data-date="<%= day.iso8601 %>">
         <span class="visit-calendar__date"><%= day.day %></span>
-        <% day_visits.each do |visit| %>
-          <%= link_to visit_path(visit), id: "calendar_#{dom_id(visit)}",
-                class: "visit-calendar__visit visit-calendar__visit--#{visit.status}" do %>
-            <strong><%= visit.planned_at.in_time_zone(Vazivo::Schedule::ZONE).strftime("%H:%M") %></strong>
-            <span><%= visit.org_unit.name %></span>
-            <small><%= visit.auditor.name %></small>
+        <% day_events.each do |event| %>
+          <% path = retail_calendar_event_path(event) %>
+          <%= content_tag(path ? :a : :div,
+                id: "calendar_#{dom_id(event.record)}#{"_#{event.milestone}" if event.milestone}",
+                href: path, class: "visit-calendar__visit visit-calendar__visit--#{event.status} retail-calendar__event--#{event.kind}",
+                data: { event_type: event.kind }) do %>
+            <small><%= t("morocco.retail_calendar.types.#{event.kind}") %><% if event.at %> · <%= event.at.strftime("%H:%M") %><% end %></small>
+            <strong><%= event.title %></strong>
+            <% if event.kind == "visit" %>
+              <span><%= event.record.auditor.name %></span>
+            <% else %>
+              <span><%= event.store_name %></span>
+            <% end %>
+            <% if event.milestone %><small><%= t("morocco.retail_calendar.milestones.#{event.milestone}") %></small><% end %>
           <% end %>
         <% end %>
       </div>
     <% end %>
   </div>
 
-  <% if @calendar.visits.empty? %>
-    <p class="meta"><%= t("morocco.visits.calendar.empty") %></p>
+  <% if @calendar.events.empty? %>
+    <p class="meta"><%= t("morocco.retail_calendar.empty") %></p>
   <% end %>
 </section>

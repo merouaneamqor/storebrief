@@ -1,0 +1,28 @@
+<% content_for :title, "#{t('approval.deploy_requests.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.playbooks.title"), playbooks_path %></p>
+    <h1><%= t("approval.deploy_requests.title") %></h1>
+    <p class="meta"><%= t("approval.deploy_requests.lede") %></p>
+  </div>
+</header>
+
+<% if @requests.empty? %>
+  <p class="meta">-</p>
+<% else %>
+  <% @requests.each do |request| %>
+    <article class="brief-card">
+      <h2><%= request.playbook.title %></h2>
+      <p class="meta">
+        <%= t("common.by") %> <%= request.author.name %>
+        · <%= t("approval.deploy_requests.campaign_on", date: l(Date.iso8601(request.deploy_params["campaign_on"]), format: :short)) %>
+        · <%= t("approval.deploy_requests.stores", count: Array(request.deploy_params["org_unit_ids"]).size) %>
+        <% if request.deployed? %> · <%= t("approval.deploy_requests.deployed") %><% end %>
+      </p>
+      <%= render "approvals/status", subject: request,
+            approve_path: approve_playbook_deploy_request_path(request),
+            reject_path: reject_playbook_deploy_request_path(request) %>
+    </article>
+  <% end %>
+<% end %>

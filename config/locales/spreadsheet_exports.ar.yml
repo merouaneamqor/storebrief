@@ -1,0 +1,38 @@
+{
+  "ar": {
+    "spreadsheet_exports": {
+      "download": "تنزيل",
+      "csv": "تنزيل CSV",
+      "xlsx": "تنزيل XLSX",
+      "yes": "نعم",
+      "no": "لا",
+      "columns": {
+        "store": "المتجر",
+        "region": "الجهة",
+        "open_briefs": "التوجيهات المفتوحة",
+        "open_checklists": "قوائم التحقق المفتوحة",
+        "pending": "قيد الانتظار",
+        "oldest": "أقدم إسناد",
+        "percent": "الإنجاز %",
+        "done": "المكتمل",
+        "total": "المجموع",
+        "on_time_percent": "في الوقت المحدد %",
+        "conforme": "conforme",
+        "previous_percent": "الفترة السابقة %",
+        "delta": "التغيير",
+        "vm_percent": "العرض التجاري %",
+        "owner": "المسؤول",
+        "on_time": "في الوقت المحدد",
+        "overdue": "متأخر",
+        "steps_done": "الخطوات المكتملة",
+        "steps_total": "مجموع الخطوات",
+        "title": "العنوان",
+        "status": "الحالة",
+        "due_at": "الموعد النهائي",
+        "completed_at": "تاريخ الإنجاز",
+        "score": "النتيجة",
+        "verdict": "التقييم"
+      }
+    }
+  }
+}

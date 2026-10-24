@@ -1,0 +1,16 @@
+{
+  "fr": {
+    "communications": {
+      "question_types": {
+        "signature": "Signature"
+      }
+    },
+    "task_media": {
+      "sign_hint": "Signez dans le cadre ou importez une image PNG.",
+      "clear": "Effacer la signature",
+      "upload_signature": "Importer une signature (PNG)",
+      "limits": "10 fichiers maximum. Vidéos MP4, WebM ou MOV : 25 Mo par fichier. Autres fichiers acceptés : 10 Mo. Les photos sont compressées, les signatures restent en PNG.",
+      "evidence": "Preuves"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+<% content_for :title, t("tickets.title") %>
+<header class="radar-head"><h1><%= t("tickets.title") %></h1><%= link_to t("tickets.new"), new_incident_ticket_path, class: "btn btn--primary" %></header>
+<section class="panel">
+  <p><%= t("tickets.summary", open: @open_count, breached: @breached_count) %></p>
+  <%= link_to t("tickets.all"), incident_tickets_path %> · <%= link_to t("tickets.breached"), incident_tickets_path(breached: "1") %>
+  <% @tickets.each do |ticket| %>
+    <p><%= link_to ticket.title, ticket %> · <%= ticket.org_unit.name %> · <%= ticket.department %> · <%= t("tickets.statuses.#{ticket.status}") %>
+      <% if ticket.breached? %><span class="badge"><%= t("tickets.breached") %></span><% end %>
+    </p>
+  <% end %>
+  <% if @tickets.empty? %><p class="meta"><%= t("tickets.empty") %></p><% end %>
+</section>
+<% if hq_user? && user_allows?(:manage_org, tenant_wide: true) %>
+  <section class="panel">
+    <h2><%= t("tickets.categories") %></h2>
+    <p class="meta"><%= t("tickets.sla_note") %></p>
+    <% @categories.each do |category| %>
+      <%= form_with model: category, namespace: "category_#{category.id}" do |form| %>
+        <h3><%= category.name %></h3>
+        <%= form.label :department, t("tickets.department") %><%= form.text_field :department, required: true %>
+        <%= form.label :sla_hours, t("tickets.sla_hours") %><%= form.number_field :sla_hours, min: 1, max: 8760, required: true %>
+        <%= form.submit t("tickets.save"), class: "btn" %>
+      <% end %>
+    <% end %>
+    <%= form_with model: TicketCategory.new do |form| %>
+      <%= form.label :name, t("tickets.category") %><%= form.text_field :name, required: true %>
+      <%= form.label :department, t("tickets.department") %><%= form.text_field :department, required: true %>
+      <%= form.label :sla_hours, t("tickets.sla_hours") %><%= form.number_field :sla_hours, min: 1, max: 8760, required: true %>
+      <%= form.submit t("tickets.save"), class: "btn" %>
+    <% end %>
+  </section>
+<% end %>

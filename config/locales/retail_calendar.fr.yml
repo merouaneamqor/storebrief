@@ -1,0 +1,17 @@
+fr:
+  morocco:
+    retail_calendar:
+      title: "Calendrier retail"
+      lede: "Visites, étapes des campagnes et échéances des tâches attribuées, par semaine ou par mois. Les tâches récurrentes apparaissent après attribution."
+      filter_type: "Type d'événement"
+      all_types: "Tous les événements"
+      filter_store: "Magasin"
+      all_stores: "Tous les magasins"
+      empty: "Aucune visite, campagne ou échéance ne correspond à cette période et à ces filtres."
+      types:
+        visit: "Visite"
+        task: "Échéance de tâche"
+        campaign: "Campagne"
+      milestones:
+        starts_on: "Début de campagne"
+        campaign_on: "Jour de campagne"

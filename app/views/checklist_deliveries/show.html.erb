@@ -12,42 +12,52 @@
 <% end %>
 
 <div
-  x-data="checklistFill({
-    deliveryId: <%= @delivery.id %>,
-    completed: <%= @delivery.completed? %>,
-    csrf: '<%= form_authenticity_token %>',
-    syncUrl: '<%= sync_checklist_responses_path %>',
-    submitUrlBase: '<%= checklists_delivery_path(@delivery) %>'
-  })"
+  x-data='checklistFill(<%= {
+    deliveryId: @delivery.id,
+    completed: @delivery.completed?,
+    csrf: form_authenticity_token,
+    syncUrl: sync_checklist_responses_path,
+    submitUrlBase: checklists_delivery_path(@delivery),
+    evidenceRequired: t("checklists.evidence_required")
+  }.to_json %>)'
   x-init="hydrate()">
 
   <% @items.each do |item| %>
     <% response = @responses[item.id] %>
     <div class="checklist-item <%= 'is-done' if response&.completed? %>" data-item-id="<%= item.id %>">
       <strong><%= item.title %></strong>
+    <% if response && tenant_feature?(:morocco_ops) %>
+      <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "ChecklistItemResponse", source_id: response.id), class: "btn btn--sm" %>
+    <% end %>
+
       <% if item.requires_photo? %>
         <div class="meta"><%= t("checklists.requires_photo") %></div>
       <% end %>
 
       <% if response&.completed? %>
         <p class="meta"><%= t("common.completed") %></p>
-        <% if response.notes.present? %><p class="prose"><%= response.notes %></p><% end %>
-        <% if response.photo.attached? %>
-          <%= image_tag response.photo, class: "thumb" %>
-        <% end %>
+        <% if response.notes.present? %><p class="prose"><%= item.question_type == "yes_no_na" ? t("typed_forms.answers.#{response.notes}") : response.notes %></p><% end %>
+        <%= checklist_evidence_tag(response) %>
       <% elsif !@delivery.completed? %>
         <form class="form-stack" style="margin-top:0.75rem;" @submit.prevent="submitItem($event, <%= item.id %>, <%= item.requires_photo? %>)">
           <label>
-            <%= t("checklists.notes") %>
-            <textarea name="notes" rows="2"></textarea>
+            <%= TypedFormValue::TYPES.include?(item.question_type) ? t("communications.question_types.#{item.question_type}") : t("checklists.notes") %>
+            <% if TypedFormValue::TYPES.include?(item.question_type) %>
+              <%= render "shared/typed_form_field", type: item.question_type, name: "notes", value: response&.notes, required: item.required? %>
+            <% else %>
+              <textarea name="notes" rows="2"><%= response&.notes %></textarea>
+            <% end %>
           </label>
           <% if item.requires_photo? %>
             <label>
               <%= t("checklists.photo") %>
-              <input type="file" name="photo" accept="image/*" capture="environment" @change="compressPhoto($event)">
+              <input type="file" name="photo" accept="image/*,video/mp4,video/webm,video/quicktime" capture="environment" @change="compressPhoto($event)">
             </label>
             <template x-if="previews[<%= item.id %>]">
-              <img :src="previews[<%= item.id %>]" class="thumb" alt="">
+              <img :src="previews[<%= item.id %>]" class="thumb" alt="" x-show="!videoPreviews[<%= item.id %>]">
+            </template>
+            <template x-if="videoPreviews[<%= item.id %>]">
+              <video :src="videoPreviews[<%= item.id %>]" class="thumb thumb--video" controls preload="metadata"></video>
             </template>
           <% end %>
           <button class="btn" type="submit"><%= t("checklists.mark_done") %></button>
@@ -62,3 +72,5 @@
     </div>
   <% end %>
 </div>
+
+<%= render "checklist_reviews/review", delivery: @delivery, reviewer: false %>

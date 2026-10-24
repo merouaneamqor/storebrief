@@ -1,0 +1,91 @@
+<% entries = radar.timed_checklist %>
+<section class="timed-checklist" aria-labelledby="timed-checklist-title">
+  <div class="timed-checklist__head">
+    <h2 id="timed-checklist-title" class="section-title"><%= t("morocco.radar.timed_checklist.title") %></h2>
+    <p class="meta"><%= t("morocco.radar.timed_checklist.lede") %></p>
+  </div>
+
+  <% if entries.any? %>
+    <ol class="timed-checklist__list">
+      <% entries.each do |entry| %>
+        <li class="timed-checklist__entry timed-checklist__entry--<%= entry.tone %> <%= 'is-done' if entry.completed %>">
+          <div class="timed-checklist__when">
+            <% if entry.due_at %>
+              <time datetime="<%= entry.due_at.iso8601 %>"><%= l(entry.due_at.in_time_zone(Vazivo::Schedule::ZONE), format: "%H:%M") %></time>
+            <% else %>
+              <span>-</span>
+            <% end %>
+          </div>
+
+          <div
+            class="timed-checklist__body"
+            <% if !entry.completed && entry.path.present? %>
+              x-data='checklistFill(<%= {
+                deliveryId: entry.delivery_id,
+                completed: entry.completed,
+                csrf: form_authenticity_token,
+                syncUrl: sync_checklist_responses_path,
+                submitUrlBase: checklists_delivery_path(entry.delivery_id),
+                evidenceRequired: t("checklists.evidence_required")
+              }.to_json %>)'
+            <% end %>>
+            <div class="timed-checklist__meta">
+              <span class="timed-checklist__bucket timed-checklist__bucket--<%= entry.bucket %>">
+                <%= t("morocco.radar.timed_checklist.buckets.#{entry.bucket}") %>
+              </span>
+              <span class="tone tone--<%= entry.tone %>"><%= t("morocco.tone.#{entry.tone}") %></span>
+              <span class="meta"><%= t("morocco.radar.timed_checklist.progress", done: entry.done_count, total: entry.total_count) %></span>
+            </div>
+
+            <h3 class="timed-checklist__title">
+              <% if entry.path.present? %>
+                <%= link_to entry.title, entry.path %>
+              <% else %>
+                <%= entry.title %>
+              <% end %>
+            </h3>
+
+            <% if entry.lines.any? %>
+              <ul class="timed-checklist__lines">
+                <% entry.lines.each do |line| %>
+                  <li class="timed-checklist__line <%= 'is-done' if line.completed %>" data-item-id="<%= line.item_id %>">
+                    <% if line.completed %>
+                      <span class="timed-checklist__check" aria-hidden="true"><%= icon("check-circle", css_class: "icon icon--sm") %></span>
+                      <span><%= line.title %></span>
+                    <% elsif entry.path.present? && !line.requires_photo %>
+                      <form class="timed-checklist__inline" @submit.prevent="submitItem($event, <%= line.item_id %>, false)">
+                        <input type="hidden" name="notes" value="">
+                        <button type="submit" class="timed-checklist__mark" title="<%= t('morocco.radar.timed_checklist.mark_done') %>">
+                          <span class="timed-checklist__box" aria-hidden="true"></span>
+                          <span><%= line.title %></span>
+                        </button>
+                      </form>
+                    <% elsif entry.path.present? %>
+                      <%= link_to entry.path, class: "timed-checklist__mark timed-checklist__mark--photo" do %>
+                        <span class="timed-checklist__box" aria-hidden="true"></span>
+                        <span><%= line.title %></span>
+                        <span class="meta"><%= t("checklists.requires_photo") %></span>
+                      <% end %>
+                    <% else %>
+                      <span class="timed-checklist__box" aria-hidden="true"></span>
+                      <span><%= line.title %></span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+
+            <% if entry.offline && !entry.completed %>
+              <p class="meta timed-checklist__offline"><%= t("morocco.radar.timed_checklist.offline_hint") %></p>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <div class="empty">
+      <%= icon("check-circle", css_class: "icon empty__icon") %>
+      <p class="empty__text"><%= t("morocco.radar.timed_checklist.empty") %></p>
+    </div>
+  <% end %>
+</section>

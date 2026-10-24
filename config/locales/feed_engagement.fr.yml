@@ -1,0 +1,22 @@
+{
+  "fr": {
+    "feed_engagement": {
+      "store_post": "Actualité magasin",
+      "moderation_note": "Les publications nécessitent une validation du siège et sont visibles uniquement dans votre magasin.",
+      "message": "Message",
+      "submit": "Envoyer",
+      "pending": "En attente de validation",
+      "published": "Publié",
+      "helpful": "Utile",
+      "thanks": "Merci",
+      "acknowledged": "Pris en compte",
+      "undo": "Retirer la réaction",
+      "comment": "Commentaire",
+      "moderation": "Modération du fil",
+      "approve": "Valider",
+      "remove": "Retirer",
+      "notification_comment": "Nouveau commentaire",
+      "notification_published": "Votre publication a été validée"
+    }
+  }
+}

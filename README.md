@@ -29,6 +29,9 @@ Password for all accounts: `password`
 | Atlas Retail Maroc | `atlas` | HQ | `hq@atlas.test` | FR |
 | Atlas Retail Maroc | `atlas` | Store | `store@atlas.test` | AR (+ WhatsApp stub) |
 | Contoso Shops | `contoso` | HQ | `hq@contoso.test` | FR |
+| QA Vazivo (browser smoke) | `qa-vazivo` | HQ / Area / Store | `hq@` · `area@` · `store@qa-vazivo.test` | FR |
+
+Recreate the QA tenant after migrate: `bin/rails runner script/qa_tenant.rb` (via Docker Compose).
 
 ## Morocco first-release demo
 
@@ -51,10 +54,23 @@ Public summary: [http://localhost:3001/resources](http://localhost:3001/resource
 - Tenant isolation
 - Per-tenant feature flags + SAML SSO (Admin → **Feature flags**, or Brand → Features / SSO)
 - Org hierarchy + communications (bilingual FR/AR fields)
-- Recurring task briefs (daily, weekly, every N days): schedule `bin/rails vazivo:recurring` at least daily; stores keep one open instance per series
+- Recurring task briefs (daily, weekly, every N days): sent automatically by `RecurringTaskJob` (hourly, see Background jobs); stores keep one open instance per series
 - Checklist templates (opening, closing, cleanliness, safety, promotions, equipment, store visit)
 - Offline checklist responses via IndexedDB → `POST /sync/checklist_responses`
 - WhatsAppNotifier stub → `notification_logs`
+
+## Background jobs
+
+Production uses Solid Queue (tables in the primary database). `config/recurring.yml` schedules:
+
+- `RecurringTaskJob`: every hour, sends the next occurrence of due recurring task briefs
+- `EscalationJob`: every 30 minutes, chases overdue store work (24h store, 48h area, 72h HQ)
+
+Both are idempotent and run per tenant, so no cron or manual scheduling is needed. Just run the worker process next to the web app:
+
+- Docker Compose: the `worker` service in `docker-compose.prod.yml` (`./bin/jobs`)
+- Render: the `storebrief-worker` background worker in `render.yaml` (same image, start command `./bin/jobs`, env vars copied from the web service)
+- Locally: `bin/jobs`. The rake tasks `vazivo:recurring` and `vazivo:escalate` remain for one-off manual runs.
 
 ## SAML SSO (per brand)
 

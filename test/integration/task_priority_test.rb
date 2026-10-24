@@ -91,13 +91,78 @@ class TaskPriorityTest < ActionDispatch::IntegrationTest
   end
 
   test "the radar sorts by priority before deadline" do
-    send_task("Routine en retard", due_at: 2.hours.ago)
-    send_task("Urgent plus tard", priority: "urgent", due_at: 5.hours.from_now)
-    snapshot = Vazivo::Radar.for(user: @brand.store_user, tenant: @tenant)
+    travel_to Vazivo::Schedule::ZONE.local(2026, 10, 7, 11, 0) do
+      send_task("Routine en retard", due_at: 2.hours.ago)
+      send_task("Urgent plus tard", priority: "urgent", due_at: 5.hours.from_now)
+      snapshot = Vazivo::Radar.for(user: @brand.store_user, tenant: @tenant)
 
-    items = snapshot.now_items + snapshot.later_items
-    assert_equal [ "Urgent plus tard", "Routine en retard" ], items.map(&:title)
-    assert_equal "urgent", items.first.priority
+      items = snapshot.now_items + snapshot.later_items
+      assert_equal [ "Urgent plus tard", "Routine en retard" ], items.map(&:title)
+      assert_equal "urgent", items.first.priority
+    end
+  end
+
+  test "store radar groups today by priority and shows completion percent" do
+    travel_to Vazivo::Schedule::ZONE.local(2026, 10, 7, 11, 0) do
+      send_task("Urgent now", priority: "urgent", due_at: 1.hour.from_now)
+      send_task("Important now", priority: "important", due_at: 2.hours.from_now)
+      done = send_task("Done today", priority: "routine", due_at: 1.hour.from_now)
+      done.deliveries.first.complete!
+
+      snapshot = Vazivo::Radar.for(user: @brand.store_user, tenant: @tenant)
+      assert_equal [ "Urgent now" ], snapshot.today_by_priority["urgent"].map(&:title)
+      assert_equal [ "Important now" ], snapshot.today_by_priority["important"].map(&:title)
+      assert_equal 1, snapshot.done_count
+      assert_equal 33, snapshot.completion_percent
+
+      sign_in @brand.store_user
+      get app_root_path
+      assert_response :success
+      assert_select ".radar-priority--urgent"
+      assert_select ".radar-priority--important"
+      assert_match(/33/, response.body)
+    end
+  end
+
+  test "morning priority counts link into the inbox filter" do
+    travel_to Vazivo::Schedule::ZONE.local(2026, 10, 7, 11, 0) do
+      # Due later today (> 3h) so Execution#urgent? stays false; priority is separate.
+      send_task("Urgent now", priority: "urgent", due_at: 5.hours.from_now)
+      send_task("Important now", priority: "important", due_at: 6.hours.from_now)
+      send_task("Routine now", priority: "routine", due_at: 7.hours.from_now)
+
+      snapshot = Vazivo::Radar.for(user: @brand.store_user, tenant: @tenant)
+      assert_equal({ "urgent" => 1, "important" => 1, "routine" => 1 }, snapshot.priority_counts)
+      assert_equal 0, snapshot.urgent_count
+
+      sign_in @brand.store_user
+      get app_root_path
+      assert_response :success
+      assert_select ".radar-summary--priorities .radar-summary__pill--priority-urgent a[href=?]",
+                    inbox_index_path(priority: "urgent")
+      assert_select ".radar-summary--priorities .radar-summary__pill--priority-important a[href=?]",
+                    inbox_index_path(priority: "important")
+      assert_select ".radar-summary--priorities .radar-summary__pill--priority-routine a[href=?]",
+                    inbox_index_path(priority: "routine")
+
+      get inbox_index_path(priority: "urgent")
+      assert_response :success
+      titles = css_select(".list li a").map(&:text)
+      assert_equal [ "Urgent now" ], titles
+
+      get inbox_index_path(priority: "bogus")
+      assert_response :success
+      titles = css_select(".list li a").map(&:text)
+      assert_equal [ "Urgent now", "Important now", "Routine now" ], titles
+    end
+  end
+
+  test "priority morning copy exists in every locale" do
+    %i[fr en es ar].each do |locale|
+      %w[summary_priority_urgent summary_priority_important summary_priority_routine].each do |key|
+        assert I18n.exists?("morocco.radar.#{key}", locale), "#{locale} #{key}"
+      end
+    end
   end
 
   test "the HQ board ranks higher priority first within a severity" do

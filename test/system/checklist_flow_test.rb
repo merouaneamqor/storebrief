@@ -18,7 +18,7 @@ class ChecklistFlowTest < ApplicationSystemTestCase
     assert_text I18n.t("checklists.draft_saved", locale: :en)
     wait_for_alpine
 
-    find(".target-list label", text: brand.store.name).click
+    find(".brief-targets label.brief-target", text: brand.store.name).click
     click_button I18n.t("communications.send", locale: :en)
     assert_text I18n.t("checklists.sent", locale: :en)
     delivery = brand.tenant.checklists.last.checklist_deliveries.first

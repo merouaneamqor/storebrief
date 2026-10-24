@@ -1,0 +1,17 @@
+en:
+  morocco:
+    retail_calendar:
+      title: "Retail calendar"
+      lede: "Visits, campaign milestones and assigned task deadlines, together by week or month. Recurring tasks appear once assigned."
+      filter_type: "Event type"
+      all_types: "All events"
+      filter_store: "Store"
+      all_stores: "All stores"
+      empty: "No visits, campaigns or task deadlines match this period and these filters."
+      types:
+        visit: "Visit"
+        task: "Task deadline"
+        campaign: "Campaign"
+      milestones:
+        starts_on: "Campaign starts"
+        campaign_on: "Campaign day"

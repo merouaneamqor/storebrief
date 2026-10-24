@@ -81,6 +81,10 @@ class VazivoOpsTest < ActiveSupport::TestCase
     severity = { "redo" => 0, "overdue" => 1, "unconfirmed" => 2 }
     kinds = board.exceptions.map(&:kind)
     assert_equal kinds.sort_by { |k| severity.fetch(k, 9) }, kinds
+    row = board.exceptions.first
+    assert row.campaign.present?
+    assert row.age_seconds
+    assert row.path.include?("store-")
   end
 
   private

@@ -1,0 +1,16 @@
+{
+  "es": {
+    "communications": {
+      "question_types": {
+        "signature": "Firma"
+      }
+    },
+    "task_media": {
+      "sign_hint": "Dibuja tu firma o sube una imagen PNG.",
+      "clear": "Borrar firma",
+      "upload_signature": "Subir firma (PNG)",
+      "limits": "Hasta 10 archivos. Vídeos MP4, WebM o MOV: 25 MB cada uno. Otros archivos admitidos: 10 MB. Las fotos se comprimen; las firmas conservan PNG.",
+      "evidence": "Pruebas"
+    }
+  }
+}

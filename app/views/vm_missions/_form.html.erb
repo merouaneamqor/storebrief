@@ -1,0 +1,80 @@
+<%= form_with model: @mission, class: "pb-editor__form", multipart: true do |f| %>
+  <% if @mission.errors.any? %>
+    <div class="flash flash--alert"><%= @mission.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <section class="pb-editor__card">
+    <label>
+      <span><%= t("morocco.vm_missions.fields.title_fr") %></span>
+      <%= f.text_field :title_fr, class: "billing-input", required: true, autocomplete: "off" %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.title_ar") %></span>
+      <%= f.text_field :title_ar, class: "billing-input", dir: "rtl", lang: "ar", autocomplete: "off" %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.instructions_fr") %></span>
+      <%= f.text_area :instructions_fr, class: "billing-input", rows: 4, required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.instructions_ar") %></span>
+      <%= f.text_area :instructions_ar, class: "billing-input", rows: 4, dir: "rtl", lang: "ar" %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.deadline") %></span>
+      <%= f.date_field :deadline_on, class: "billing-input", required: true %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.status") %></span>
+      <%= f.select :status, VmMission::STATUSES.map { |s| [ t("morocco.vm_missions.statuses.#{s}"), s ] }, {}, class: "billing-input" %>
+    </label>
+    <label>
+      <span><%= t("morocco.vm_missions.fields.version_label") %></span>
+      <%= f.text_field :version_label, class: "billing-input", maxlength: 80, autocomplete: "off",
+            placeholder: t("morocco.vm_missions.fields.version_label_placeholder") %>
+    </label>
+  </section>
+
+  <section class="pb-editor__card">
+    <p class="section-title"><%= t("morocco.vm_missions.attachments") %></p>
+    <p class="meta"><%= t("morocco.vm_missions.attachments_help") %></p>
+    <% if @mission.attachments.attached? %>
+      <ul class="list brief-attachments">
+        <% @mission.attachments.each do |file| %>
+          <li>
+            <span><%= file.filename %></span>
+            <label class="brief-required">
+              <input type="checkbox" name="vm_mission[remove_attachment_ids][]" value="<%= file.id %>">
+              <span><%= t("morocco.vm_missions.attachments_remove") %></span>
+            </label>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+    <%= f.file_field :attachments, multiple: true,
+          accept: "application/pdf,image/png,image/jpeg,image/jpg,image/webp",
+          "aria-label": t("morocco.vm_missions.attachments") %>
+  </section>
+
+  <section class="pb-editor__card">
+    <p class="section-title"><%= t("morocco.vm_missions.targets.title") %></p>
+    <p class="meta"><%= t("morocco.vm_missions.targets.hint") %></p>
+    <div class="pb-targets__tree">
+      <% selected_ids = @mission.org_units.map(&:id) %>
+      <% @stores.each do |store| %>
+        <label>
+          <%= check_box_tag "org_unit_ids[]", store.id, selected_ids.include?(store.id), id: "vm_store_#{store.id}" %>
+          <span><%= store.name %></span>
+        </label>
+      <% end %>
+    </div>
+  </section>
+
+  <div class="pb-editor__actions sticky-action">
+    <%= link_to t("morocco.vm_missions.back"), vm_missions_path, class: "btn btn--ghost" %>
+    <button type="submit" class="btn btn--primary">
+      <%= icon("check-circle", css_class: "icon") %>
+      <%= t("morocco.vm_missions.save") %>
+    </button>
+  </div>
+<% end %>

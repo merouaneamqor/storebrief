@@ -1,0 +1,14 @@
+<% content_for :title, @delivery.checklist.title %>
+<header class="radar-head"><div>
+  <p class="meta"><%= link_to t("checklist_reviews.title"), checklist_reviews_path %></p>
+  <h1><%= @delivery.checklist.title %></h1><p class="lede"><%= @delivery.org_unit.name %> · <%= localized_badge(@delivery.status) %></p>
+</div></header>
+<section class="panel">
+  <% @delivery.checklist.checklist_items.each do |item| %>
+    <% response = @responses[item.id] %>
+    <h2 class="section-title"><%= item.title %></h2>
+    <p><%= response&.notes.presence || "-" %></p>
+    <%= checklist_evidence_tag(response) if response %>
+  <% end %>
+</section>
+<%= render "review", delivery: @delivery, reviewer: true %>

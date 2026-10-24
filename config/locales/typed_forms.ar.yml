@@ -1,0 +1,14 @@
+ar:
+  communications:
+    question_types:
+      number: "عدد"
+      date: "تاريخ"
+      rating: "تقييم (1 إلى 5)"
+      yes_no_na: "نعم / لا / لا ينطبق"
+  typed_forms:
+    invalid_answer: "تحقق من الإجابات المطلوبة وتنسيقها."
+    weight: "الوزن"
+    answers:
+      "yes": "نعم"
+      "no": "لا"
+      na: "لا ينطبق"

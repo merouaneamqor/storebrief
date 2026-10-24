@@ -1,0 +1,14 @@
+en:
+  communications:
+    question_types:
+      number: "Number"
+      date: "Date"
+      rating: "Rating (1 to 5)"
+      yes_no_na: "Yes / No / N/A"
+  typed_forms:
+    invalid_answer: "Check required answers and their format."
+    weight: "Weight"
+    answers:
+      "yes": "Yes"
+      "no": "No"
+      na: "N/A"

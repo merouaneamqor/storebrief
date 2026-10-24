@@ -1,0 +1,18 @@
+<%= form_with model: role, class: "form-stack", data: {} do |f| %>
+  <div x-data="{ base: <%= role.base_role.to_json %> }">
+  <label><%= t("tenant_roles.name") %><%= f.text_field :name, required: true, maxlength: 80 %></label>
+  <label><%= t("tenant_roles.base_role") %><%= f.select :base_role, Membership::ROLES.map { |base| [t("tenant_roles.bases.#{base}"), base] }, {}, { "x-model" => "base" } %></label>
+  <fieldset>
+    <legend><%= t("tenant_roles.capabilities") %></legend>
+    <%= hidden_field_tag "tenant_role[capabilities][]", "" %>
+    <% Membership::CAPABILITIES.values.flatten.uniq.each do |capability| %>
+      <% next if capability == :admin %>
+      <label class="checkbox" x-show="<%= Membership::CAPABILITIES.select { |_, caps| caps.include?(capability) }.keys.to_json %>.includes(base)">
+        <%= check_box_tag "tenant_role[capabilities][]", capability, role.capabilities.include?(capability.to_s), ":disabled" => "!#{Membership::CAPABILITIES.select { |_, caps| caps.include?(capability) }.keys.to_json}.includes(base)" %>
+        <%= t("tenant_roles.caps.#{capability}") %>
+      </label>
+    <% end %>
+  </fieldset>
+  <%= f.submit t("tenant_roles.save"), class: "btn btn--primary" %>
+  </div>
+<% end %>

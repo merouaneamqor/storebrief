@@ -1,0 +1,11 @@
+<% content_for :title, "#{t('templates.new')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("templates.back"), templates_path %></p>
+    <h1><%= t("templates.new") %></h1>
+    <p class="meta"><%= t("templates.new_lede") %></p>
+  </div>
+</header>
+
+<%= render "form" %>

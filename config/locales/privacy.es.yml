@@ -1,0 +1,98 @@
+es:
+  privacy:
+    page:
+      title: "Protección de datos personales"
+      kicker: "Ley 09-08 y CNDP"
+      version: "Versión %{version}"
+      law_link: "Texto oficial Ley 09-08"
+      contact: "Preguntas o ejercicio de derechos: %{email}"
+    acceptance:
+      required: "Revise nuestro aviso de privacidad para continuar."
+      title: "Información sobre sus datos"
+      lede: "Vazivo trata datos personales conforme a la ley marroquí 09-08 y a la CNDP."
+      fine_print: "Al continuar, confirma que ha leído nuestra %{privacy_link}."
+      submit: "He leído el aviso"
+    preferences:
+      title: "Privacidad y preferencias"
+      lede: "Gestione canales opcionales y ejerza sus derechos según la ley 09-08."
+      channels_title: "Alertas operativas"
+      channels_hint: "Los briefs y checklists laborales pueden enviarse al correo profesional. Las alertas WhatsApp requieren consentimiento expreso."
+      email_opt_out: "No recibir correos operativos (briefs, checklists)"
+      whatsapp_opt_in: "Recibir alertas WhatsApp en mi número registrado"
+      whatsapp_phone_missing: "Pida a su administrador que añada un número WhatsApp profesional."
+      save: "Guardar"
+      saved: "Preferencias guardadas."
+      rights_title: "Sus derechos"
+      rights_lede: "Puede solicitar acceso, rectificación, oposición o supresión dentro de los límites legales y contractuales."
+      rights_toggle: "Enviar una solicitud"
+      request_type: "Tipo de solicitud"
+      request_details: "Detalles (opcional)"
+      request_submit: "Enviar solicitud"
+      data_request_sent: "Su solicitud se envió al equipo de privacidad."
+      data_request_failed: "No se pudo enviar. Use el correo del aviso de privacidad."
+      request_types:
+        access: "Acceso"
+        rectification: "Rectificación"
+        opposition: "Oposición"
+        deletion: "Supresión"
+        portability: "Copia / portabilidad"
+    cookies:
+      page_title: "Cookies y almacenamiento"
+      lede: "Limitamos los rastreadores a lo necesario para el servicio."
+      banner:
+        title: "Cookies esenciales"
+        body: "Usamos cookies de sesión y de idioma. Consulte nuestra %{privacy_link} y %{cookies_link}."
+        accept: "Entendido"
+      sections:
+        - title: "Cookies estrictamente necesarias"
+          paragraphs:
+            - "Permiten autenticación, seguridad de sesión y elección de idioma."
+          list:
+            - "Cookie de sesión Rails"
+            - "Preferencia de idioma (sesión)"
+        - title: "Almacenamiento local"
+          paragraphs:
+            - "La app puede guardar datos técnicos en el dispositivo (consentimiento de cookies o colas offline de checklists si está activo)."
+        - title: "Servicios de terceros"
+          paragraphs:
+            - "Las fuentes pueden cargarse desde Google Fonts. Vazivo no usa cookies publicitarias en la web marketing."
+    sections:
+      - title: "Responsable del tratamiento"
+        paragraphs:
+          - "En cuentas de enseña, el empleador es en principio responsable. %{processor} actúa como encargado técnico de la plataforma Vazivo."
+          - "En solicitudes de demo, %{processor} es responsable de los datos de contacto enviados."
+        list: []
+      - title: "Finalidades y bases legales"
+        paragraphs:
+          - "Prestación del servicio, seguridad, facturación de canales de pago y respuesta a solicitudes."
+          - "Ejecución contractual, medidas precontractuales, obligaciones legales y, cuando proceda, consentimiento (demo, WhatsApp, push)."
+        list: []
+      - title: "Categorías de datos"
+        paragraphs:
+          - "Identidad y contacto, datos de uso, registros técnicos y de notificación."
+        list: []
+      - title: "Conservación"
+        paragraphs:
+          - "Durante el contrato con la enseña y según necesidades operativas o legales."
+        list: []
+      - title: "Destinatarios"
+        paragraphs:
+          - "Usuarios autorizados, %{processor} y proveedores con acuerdos conformes a la ley 09-08."
+        list: []
+      - title: "Transferencias fuera de Marruecos"
+        paragraphs:
+          - "Deben cumplir los artículos 43 y 44 de la ley 09-08 (protección adecuada y autorización CNDP si aplica)."
+        list: []
+      - title: "Seguridad"
+        paragraphs:
+          - "Medidas técnicas y organizativas: contraseñas cifradas, aislamiento multi-enseña, acceso restringido."
+        list: []
+      - title: "Sus derechos"
+        paragraphs:
+          - "Acceso, rectificación y oposición según la ley 09-08. Contacto: %{contact}."
+          - "También puede reclamar ante la CNDP."
+        list: []
+      - title: "Declaraciones CNDP"
+        paragraphs:
+          - "Los responsables en Marruecos deben declarar o solicitar autorización previa a la CNDP según la naturaleza de los datos."
+        list: []

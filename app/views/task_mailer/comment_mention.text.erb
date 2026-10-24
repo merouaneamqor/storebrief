@@ -1,0 +1,9 @@
+<%= t("mailers.task.hello", name: @user.name) %>
+
+<%= t("mailers.task.mention_body", author: @author.name, title: @communication.localized_value(:title, locale: I18n.locale), brand: @tenant.display_brand_name) %>
+
+<%= @comment.body %>
+
+<%= @url %>
+
+<%= t("mailers.task.footer", brand: @tenant.display_brand_name) %>

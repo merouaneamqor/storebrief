@@ -47,6 +47,9 @@
                           <div class="tree-item">
                             <span class="tree-type"><%= store.unit_type %></span>
                             <%= store.name %>
+                            <span class="meta"><%= t("org_units.format") %>: <%= store.store_format.presence || "-" %></span>
+                            <span class="meta"><%= t("org_units.cluster") %>: <%= store.cluster_key.presence || "-" %></span>
+                            <%= link_to t("org_units.edit"), edit_org_unit_path(store), class: "meta" %>
                           </div>
                         </li>
                       <% end %>

@@ -1,0 +1,21 @@
+en:
+  broadcasts:
+    title: "Critical broadcast"
+    help: "Pin this announcement on the store radar until it is read or explicitly acknowledged. Push is free. Optional platform email and WhatsApp follow tenant settings and billing."
+    enable: "Send as a critical broadcast"
+    require_ack: "Require explicit store acknowledgement"
+    email: "Also send email (platform delivery may be billed)"
+    whatsapp: "Also send WhatsApp (billed, requires consent)"
+    pinned: "Critical broadcasts"
+    pending_ack: "Awaiting store acknowledgement"
+    pending_read: "Read this critical announcement"
+    ack_help: "Confirm that your store has received and understood this announcement. Reading it alone does not acknowledge it."
+    acknowledge: "Acknowledge for my store"
+    acknowledged: "Acknowledged by the store"
+    not_allowed: "This announcement cannot be acknowledged by this user."
+    notification: "Critical broadcast: %{title}\nOpen Vazivo to read and acknowledge it."
+    subject: "Critical broadcast: %{title}"
+  morocco:
+    history:
+      kinds:
+        acknowledged: "Acknowledged by the store"

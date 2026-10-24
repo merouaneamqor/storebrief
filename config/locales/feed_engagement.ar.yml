@@ -1,0 +1,22 @@
+{
+  "ar": {
+    "feed_engagement": {
+      "store_post": "مستجدات المتجر",
+      "moderation_note": "تتطلب المنشورات موافقة الإدارة وتظهر في متجرك فقط.",
+      "message": "رسالة",
+      "submit": "إرسال",
+      "pending": "في انتظار الموافقة",
+      "published": "منشور",
+      "helpful": "مفيد",
+      "thanks": "شكرا",
+      "acknowledged": "تم الاطلاع",
+      "undo": "إزالة التفاعل",
+      "comment": "تعليق",
+      "moderation": "إدارة المنشورات",
+      "approve": "موافقة",
+      "remove": "إزالة",
+      "notification_comment": "تعليق جديد",
+      "notification_published": "تمت الموافقة على منشورك"
+    }
+  }
+}

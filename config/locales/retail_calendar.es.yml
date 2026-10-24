@@ -1,0 +1,17 @@
+es:
+  morocco:
+    retail_calendar:
+      title: "Calendario comercial"
+      lede: "Visitas, hitos de campañas y vencimientos de tareas asignadas, por semana o mes. Las tareas recurrentes aparecen una vez asignadas."
+      filter_type: "Tipo de evento"
+      all_types: "Todos los eventos"
+      filter_store: "Tienda"
+      all_stores: "Todas las tiendas"
+      empty: "No hay visitas, campañas ni vencimientos para este período y estos filtros."
+      types:
+        visit: "Visita"
+        task: "Vencimiento de tarea"
+        campaign: "Campaña"
+      milestones:
+        starts_on: "Inicio de campaña"
+        campaign_on: "Día de campaña"

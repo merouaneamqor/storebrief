@@ -14,7 +14,7 @@
       <%= localized_badge(@communication.status) %>
       · <%= t("common.by") %> <%= @communication.author.name %>
     </p>
-    <% if @communication.task? %>
+    <% if @communication.task? && hq_user? %>
       <%= form_with model: @communication, url: priority_communication_path(@communication), method: :patch,
                     class: "priority-form" do |f| %>
         <%= f.label :priority, t("communications.priority") %>
@@ -24,12 +24,60 @@
         <noscript><%= f.submit t("communications.priority_save"), class: "btn btn--ghost" %></noscript>
       <% end %>
     <% end %>
+    <% if hq_user? %>
+      <div class="template-card__actions" style="margin-top:0.75rem;">
+        <%= button_to t("task_templates.save_as"), save_as_template_communication_path(@communication),
+              method: :post, class: "btn btn--ghost" %>
+        <%= link_to t("task_templates.title"), task_templates_path, class: "btn btn--ghost" %>
+      </div>
+    <% end %>
   </div>
 </header>
+
+<%= render "shared/spreadsheet_downloads" %>
 
 <% if @communication.body.present? %>
   <section class="panel brief-body">
     <div class="prose"><%= @communication.body %></div>
+  </section>
+<% end %>
+
+<%= render "attachments", communication: @communication %>
+
+<% if @communication.depends_on_another? %>
+  <section class="panel">
+    <p class="section-title"><%= t("morocco.dependency.title") %></p>
+    <p>
+      <%= t("morocco.dependency.waits_for") %>
+      <%= link_to @communication.depends_on_communication.title, communication_path(@communication.depends_on_communication) %>
+    </p>
+    <% if hq_user? %>
+      <%= button_to t("morocco.dependency.clear_task"), clear_dependency_communication_path(@communication),
+            method: :post, class: "btn btn--ghost",
+            data: { turbo_confirm: t("morocco.dependency.clear_task_confirm") } %>
+    <% end %>
+  </section>
+<% end %>
+
+<% if morocco && @communication.corrective? %>
+  <section class="panel">
+    <p class="section-title"><%= t("morocco.corrective.source_title") %></p>
+    <ul class="list">
+      <% if @communication.visit.present? %>
+        <li>
+          <span class="meta"><%= t("morocco.corrective.linked_visit") %></span>
+          <%= link_to @communication.visit.org_unit.name, visit_path(@communication.visit) %>
+          <span class="meta">· <%= l(@communication.visit.planned_at, format: :short) %></span>
+        </li>
+      <% end %>
+      <% if @communication.source_delivery.present? %>
+        <li>
+          <span class="meta"><%= t("morocco.corrective.linked_audit") %></span>
+          <%= link_to @communication.source_delivery.communication.title,
+                communication_path(@communication.source_delivery.communication) %>
+        </li>
+      <% end %>
+    </ul>
   </section>
 <% end %>
 
@@ -96,8 +144,16 @@
   <% else %>
     <%= render "shared/progress", stats: @stats %>
   <% end %>
+  <% if @read_receipts && @read_receipts[:total].positive? %>
+    <p class="brief-progress-card__summary meta" data-testid="hq-unread-count">
+      <%= t("morocco.read_receipts.hq_unread_line",
+            unread: @read_receipts[:unread],
+            read: @read_receipts[:read],
+            total: @read_receipts[:total]) %>
+    </p>
+  <% end %>
 
-  <% if pending_count.positive? && current_tenant.feature?(:push_alerts) %>
+  <% if hq_user? && pending_count.positive? && current_tenant.feature?(:push_alerts) %>
     <div class="hq-push-remind">
       <%= button_to notify_push_communication_path(@communication),
             method: :post,
@@ -116,11 +172,17 @@
   <% if @deliveries.any? %>
     <ul class="store-track">
       <% @deliveries.each do |delivery| %>
-        <% needs_coach = delivery.finished? || delivery.verdict.present? %>
-        <li class="store-track__item">
+        <% needs_coach = delivery.finished? || delivery.verdict.present? || delivery.pending_approval? %>
+        <li id="store-<%= delivery.org_unit_id %>" class="store-track__item">
           <div class="store-track__head">
             <div class="store-track__main">
               <strong class="store-track__name"><%= delivery.org_unit.name %></strong>
+              <% if morocco && @communication.acknowledgement_required? %>
+                <p class="meta">
+                  <%= t(delivery.acknowledged_at? ? "broadcasts.acknowledged" : "broadcasts.pending_ack") %>
+                  <% if delivery.acknowledged_at? %> · <%= l(delivery.acknowledged_at, format: :short) %><% end %>
+                </p>
+              <% end %>
               <div class="meta">
                 <% if morocco %>
                   <%= delivery.assignee&.name || t("morocco.owner.unassigned") %>
@@ -132,6 +194,13 @@
                 <% else %>
                   <%= localized_badge(delivery.status) %>
                 <% end %>
+                <% receipts = delivery.read_receipt_counts %>
+                <% if receipts[:total].positive? %>
+                  · <%= t("morocco.read_receipts.store_unread",
+                        unread: receipts[:unread],
+                        read: receipts[:read],
+                        total: receipts[:total]) %>
+                <% end %>
               </div>
             </div>
             <% if morocco %>
@@ -139,12 +208,7 @@
             <% end %>
           </div>
 
-          <% if delivery.photo_before.attached? || delivery.photo_after.attached? %>
-            <div class="proof-pair proof-pair--compact">
-              <% if delivery.photo_before.attached? %><%= image_tag delivery.photo_before, class: "thumb" %><% end %>
-              <% if delivery.photo_after.attached? %><%= image_tag delivery.photo_after, class: "thumb" %><% end %>
-            </div>
-          <% end %>
+          <%= render "inbox/proof_gallery", delivery: delivery %>
 
           <% if @communication.questions? && delivery.delivery_answers.any? %>
             <div class="brief-answers">
@@ -161,15 +225,83 @@
             </div>
           <% end %>
 
-          <% if morocco && delivery.verdict.present? %>
-            <p class="verdict-chip verdict-chip--<%= delivery.verdict %>">
-              <strong><%= t("morocco.verdict.#{delivery.verdict}") %></strong>
+          <% if morocco && delivery.verdict == "non_conforme" %>
+            <%= link_to t("tickets.new"), new_incident_ticket_path(source_type: "Delivery", source_id: delivery.id), class: "btn btn--sm" %>
+          <% end %>
+          <% if morocco && (delivery.verdict.present? || delivery.score.present?) %>
+            <p class="verdict-chip <%= "verdict-chip--#{delivery.verdict}" if delivery.verdict.present? %>">
+              <% if delivery.score.present? %>
+                <strong><%= t("morocco.verdict.score", score: delivery.score) %></strong>
+              <% end %>
+              <% if delivery.verdict.present? %>
+                <strong><%= t("morocco.verdict.#{delivery.verdict}") %></strong>
+              <% end %>
               <% if delivery.verdict_note.present? %><span><%= delivery.verdict_note %></span><% end %>
             </p>
           <% end %>
 
+          <% if morocco && delivery.delivery_events.any? %>
+            <details class="delivery-timeline">
+              <summary><%= t("morocco.history.title") %></summary>
+              <ol class="delivery-timeline__list">
+                <% delivery.delivery_events.sort_by(&:created_at).reverse_each do |event| %>
+                  <li>
+                    <span class="meta">
+                      <%= event.created_at.in_time_zone(Vazivo::Schedule::ZONE).strftime("%d/%m %H:%M") %>
+                      · <%= event.actor&.name || "-" %>
+                    </span>
+                    <strong><%= t("morocco.history.kinds.#{event.kind}") %></strong>
+                    <span class="meta"><%= delivery_event_detail(event) %></span>
+                  </li>
+                <% end %>
+              </ol>
+            </details>
+          <% end %>
+
+          <% if delivery.dependency_blocked? %>
+            <p class="flash flash--alert"><%= delivery.dependency_blocked_reason %></p>
+          <% elsif delivery.dependency_cleared_at.present? && @communication.depends_on_another? %>
+            <p class="meta"><%= t("morocco.dependency.cleared_for_store") %></p>
+          <% end %>
+
+          <% if hq_user? && @communication.depends_on_another? && delivery.pending? %>
+            <div class="verdict-form verdict-form--compact">
+              <% if delivery.dependency_blocked? %>
+                <%= button_to t("morocco.dependency.clear_store"), delivery_clear_dependency_path(delivery),
+                      method: :post, class: "btn btn--ghost" %>
+              <% end %>
+              <%= form_with url: delivery_reassign_path(delivery), method: :patch, class: "verdict-form verdict-form--compact" do %>
+                <label class="meta" for="assignee_id_<%= delivery.id %>"><%= t("morocco.dependency.reassign") %></label>
+                <select id="assignee_id_<%= delivery.id %>" name="assignee_id">
+                  <option value=""><%= t("morocco.owner.unassigned") %></option>
+                  <% delivery.org_unit.users.each do |user| %>
+                    <option value="<%= user.id %>" <%= "selected" if delivery.assignee_id == user.id %>><%= user.name %></option>
+                  <% end %>
+                </select>
+                <button type="submit" class="btn btn--ghost"><%= t("morocco.dependency.reassign_save") %></button>
+              <% end %>
+            </div>
+          <% end %>
+
           <% if morocco %>
-            <% if needs_coach %>
+            <% if delivery.pending_approval? %>
+              <%= form_with url: delivery_verdict_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
+                <label class="meta" for="verdict_note_<%= delivery.id %>"><%= t("morocco.approval.decide") %></label>
+                <p class="meta"><%= t("morocco.approval.decide_help") %></p>
+                <textarea id="verdict_note_<%= delivery.id %>" name="verdict_note" rows="2" required placeholder="<%= t('morocco.verdict.note') %>"></textarea>
+                <div class="verdict-form__actions">
+                  <button type="submit" class="btn btn--primary" name="verdict" value="conforme">
+                    <%= t("morocco.approval.approve_conforme") %>
+                  </button>
+                  <button type="submit" class="btn btn--ghost" name="verdict" value="improve">
+                    <%= t("morocco.approval.approve_improve") %>
+                  </button>
+                  <button type="submit" class="btn btn--ghost" name="verdict" value="non_conforme">
+                    <%= t("morocco.approval.reject") %>
+                  </button>
+                </div>
+              <% end %>
+            <% elsif needs_coach %>
               <%= form_with url: delivery_verdict_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
                 <label class="meta" for="verdict_note_<%= delivery.id %>"><%= t("morocco.verdict.coach") %></label>
                 <textarea id="verdict_note_<%= delivery.id %>" name="verdict_note" rows="2" placeholder="<%= t('morocco.verdict.note') %>"><%= delivery.verdict_note %></textarea>
@@ -196,6 +328,36 @@
                 <% end %>
               </details>
             <% end %>
+
+            <% if Vazivo::CorrectiveAction.issue_verdict?(delivery.verdict) %>
+              <% if delivery.corrective_communication.present? %>
+                <p class="meta">
+                  <%= t("morocco.corrective.exists") %>
+                  <%= link_to delivery.corrective_communication.title, communication_path(delivery.corrective_communication) %>
+                </p>
+              <% else %>
+                <%= form_with url: delivery_corrective_action_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
+                  <% visits = @store_visits&.[](delivery.org_unit_id) || [] %>
+                  <% if visits.any? %>
+                    <label class="meta" for="visit_id_<%= delivery.id %>"><%= t("morocco.corrective.link_visit") %></label>
+                    <select id="visit_id_<%= delivery.id %>" name="visit_id">
+                      <option value=""><%= t("morocco.corrective.no_visit") %></option>
+                      <% visits.each do |visit| %>
+                        <option value="<%= visit.id %>">
+                          <%= l(visit.planned_at, format: :short) %> · <%= t("morocco.visits.statuses.#{visit.status}") %>
+                        </option>
+                      <% end %>
+                    </select>
+                  <% end %>
+                  <button type="submit" class="btn btn--primary"><%= t("morocco.corrective.create") %></button>
+                <% end %>
+              <% end %>
+            <% end %>
+
+            <%= render "deliveries/comments",
+                  delivery: delivery,
+                  mentionable_users: @mentionable_users,
+                  section_id: "delivery-comment-#{delivery.id}" %>
           <% end %>
         </li>
       <% end %>

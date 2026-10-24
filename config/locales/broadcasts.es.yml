@@ -1,0 +1,21 @@
+es:
+  broadcasts:
+    title: "Comunicado crítico"
+    help: "Fija este anuncio en el radar de la tienda hasta su lectura o confirmación explícita. Las notificaciones push son gratuitas. El email de la plataforma y WhatsApp siguen la configuración y facturación de la empresa."
+    enable: "Enviar como comunicado crítico"
+    require_ack: "Exigir confirmación explícita de la tienda"
+    email: "Enviar también email (la plataforma puede facturarlo)"
+    whatsapp: "Enviar también WhatsApp (facturado, requiere consentimiento)"
+    pinned: "Comunicados críticos"
+    pending_ack: "Pendiente de confirmación de la tienda"
+    pending_read: "Leer este anuncio crítico"
+    ack_help: "Confirma que tu tienda ha recibido y comprendido este anuncio. Leerlo no equivale a confirmarlo."
+    acknowledge: "Confirmar por mi tienda"
+    acknowledged: "Confirmado por la tienda"
+    not_allowed: "Este usuario no puede confirmar este anuncio."
+    notification: "Comunicado crítico: %{title}\nAbre Vazivo para leerlo y confirmarlo."
+    subject: "Comunicado crítico: %{title}"
+  morocco:
+    history:
+      kinds:
+        acknowledged: "Confirmado por la tienda"

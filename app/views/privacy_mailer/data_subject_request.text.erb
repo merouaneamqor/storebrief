@@ -1,0 +1,11 @@
+Demande relative aux données personnelles (Loi 09-08 / CNDP)
+
+Type: <%= @request_type %>
+Utilisateur: <%= @user.name %> (<%= @user.email %>)
+Enseigne: <%= @tenant.name %> (<%= @tenant.slug %>)
+Locale: <%= @user.locale %>
+
+Détails:
+<%= @details.presence || "-" %>
+
+Envoyé depuis Vazivo à <%= Time.current.iso8601 %>

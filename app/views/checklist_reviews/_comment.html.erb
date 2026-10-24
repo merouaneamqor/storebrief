@@ -1,0 +1,14 @@
+<li class="delivery-comments__item" id="comment-<%= comment.id %>">
+  <strong><%= comment.user.name %></strong>
+  <div class="prose"><%= simple_format(comment.body) %></div>
+  <details><summary><%= t("morocco.comments.reply") %></summary>
+    <%= render "checklist_reviews/comment_form", delivery: delivery, parent: comment %>
+  </details>
+  <% if children[comment.id].present? %>
+    <ol class="delivery-comments__list">
+      <% children[comment.id].each do |reply| %>
+        <%= render "checklist_reviews/comment", comment: reply, children: children, delivery: delivery %>
+      <% end %>
+    </ol>
+  <% end %>
+</li>
