@@ -52,7 +52,9 @@ async function refreshWorkspace() {
     }
     const discard = document.createElement('button');
     discard.type = 'button'; discard.className = 'btn btn--sm'; discard.textContent = panel.dataset.discard;
-    discard.onclick = () => TaskProofQueue.remove(record.id);
+    discard.onclick = () => {
+      if (panel.dataset.discardConfirm && window.confirm(panel.dataset.discardConfirm)) TaskProofQueue.remove(record.id);
+    };
     row.append(' ', discard); list.append(row);
   }
 }

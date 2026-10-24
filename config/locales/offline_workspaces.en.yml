@@ -8,7 +8,8 @@
       "restore": "Restore queued answers",
       "conflict": "This task changed or was reviewed. Open the current task, restore queued answers, compare them and submit again. Queued files stay on this device until sent or discarded.",
       "unavailable": "This page is unavailable offline. Reconnect and open it once to save it on this device.",
-      "recovery": "Queued files remain on this device. Open the current task, restore and correct the answers or files, then submit again. If the task is closed, ask HQ before discarding queued work."
+      "recovery": "Queued files remain on this device. Open the current task, restore and correct the answers or files, then submit again. If the task is closed, ask HQ before discarding queued work.",
+      "discard_confirm": "Discard this queued work? Its unsent answers and files will be permanently removed from this device. Already sent work is not affected."
     }
   }
 }

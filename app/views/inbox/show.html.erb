@@ -91,6 +91,8 @@
     </div>
   <% elsif @communication.acknowledgement_required? %>
     <%# Explicit acknowledgement is shown above, separate from the read stepper. %>
+  <% elsif @communication.task? && @delivery.pending? && !user_allows?(:execute, org_unit: @delivery.org_unit) %>
+    <p class="flash flash--notice" role="status"><%= t("store_work.execution_not_allowed") %></p>
   <% elsif morocco %>
     <% if @delivery.pending_approval? %>
       <div class="flash flash--notice" role="status">

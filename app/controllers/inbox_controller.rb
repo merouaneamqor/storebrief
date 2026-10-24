@@ -1,6 +1,8 @@
 class InboxController < ApplicationController
   before_action -> { require_feature!(:briefs) }
+  skip_before_action :require_workflow_capability
   before_action :set_store
+  before_action :require_inbox_access
 
   def index
     @deliveries = Delivery.current_instances
@@ -8,6 +10,7 @@ class InboxController < ApplicationController
                           .includes(:delivery_reads, communication: :depends_on_communication)
                           .merge(Communication.by_priority)
                           .order("communications.created_at DESC")
+    @deliveries = @deliveries.where(communications: { format: "task" }) unless user_allows?(:inbox, org_unit: @store)
     priority = params[:priority].to_s
     @deliveries = @deliveries.where(communications: { priority: priority }) if Communication::PRIORITIES.include?(priority)
   end
@@ -24,6 +27,8 @@ class InboxController < ApplicationController
 
   def advance
     @delivery = find_delivery
+    return unless require_execution_access
+
     submit_delivery do
       @delivery.save_answers!(params[:answers]) if params[:step].to_s == "done" && @delivery.communication.questions?
       @delivery.advance_awareness!(params[:step], by: current_user)
@@ -32,6 +37,8 @@ class InboxController < ApplicationController
 
   def complete
     @delivery = find_delivery
+    return unless require_execution_access
+
     submit_delivery do
       @delivery.save_answers!(params[:answers]) if @delivery.communication.questions?
       if @delivery.communication.task?
@@ -106,7 +113,7 @@ class InboxController < ApplicationController
   end
 
   def find_delivery
-    Delivery.joins(:communication)
+    scope = Delivery.joins(:communication)
             .where(org_unit: @store, communications: { tenant_id: tenant_scope.id })
             .includes(
               :delivery_reads,
@@ -115,7 +122,29 @@ class InboxController < ApplicationController
               { delivery_comments: :user },
               communication: [ :communication_questions, :depends_on_communication ]
             )
-            .find(params[:id])
+    scope = scope.where(communications: { format: "task" }) unless user_allows?(:inbox, org_unit: @store)
+    scope.find(params[:id])
+  end
+
+  def require_inbox_access
+    return if user_allows?(:inbox, org_unit: @store) || user_allows?(:execute, org_unit: @store)
+
+    deny_inbox_access(t("store_work.access_denied"), app_root_path)
+  end
+
+  def require_execution_access
+    return true unless @delivery.communication.task?
+    return true if user_allows?(:execute, org_unit: @store)
+
+    deny_inbox_access(t("store_work.execution_not_allowed"), inbox_path(@delivery))
+    false
+  end
+
+  def deny_inbox_access(message, destination)
+    respond_to do |format|
+      format.html { redirect_to destination, alert: message }
+      format.json { render json: { status: "error", message: message }, status: :forbidden }
+    end
   end
 
   def set_store

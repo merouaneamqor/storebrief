@@ -118,6 +118,60 @@ class MyTasksTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{my_tasks_path}']"
   end
 
+  test "area HQ and read-only monitors can follow the scoped task and checklist handoff" do
+    task = send_task("Suivi Tanger", @north, due_at: 1.hour.from_now)
+    delivery = task.deliveries.first
+    checklist = open_checklist("Controle Tanger", @north, due_at: 1.hour.from_now)
+    check_delivery = checklist.checklist_deliveries.first
+    monitor = create_user(@tenant, org_unit: @area, role: :area, email: "monitor@my-tasks.test")
+    monitor.memberships.first.update!(tenant_role: @tenant.tenant_roles.create!(name: "Suivi", base_role: "area", capabilities: [ "monitor" ]))
+
+    [ @area_user, @brand.hq, monitor ].each do |user|
+      sign_in(user)
+      get my_task_path(delivery, kind: "task")
+      assert_response :success
+      assert_select "a[href='#{communication_path(task, anchor: "store-#{@north.id}")}']", text: I18n.t("store_work.view_progress", locale: :en)
+      assert_select "a[href='#{inbox_path(delivery)}']", count: 0
+      get communication_path(task)
+      assert_response :success
+      assert_select "#store-#{@north.id}"
+
+      get my_task_path(check_delivery, kind: "checklist")
+      assert_response :success
+      assert_select "a[href='#{checklist_review_path(check_delivery)}']"
+      get checklist_review_path(check_delivery)
+      assert_response :success
+    end
+  end
+
+  test "store execution and mixed HQ membership keep the appropriate destination" do
+    task = send_task("Travail Tanger", @north, due_at: 1.hour.from_now)
+    delivery = task.deliveries.first
+    sign_in(@store_user)
+    get my_task_path(delivery, kind: "task")
+    assert_select "a[href='#{inbox_path(delivery)}']"
+    assert_select "a[href^='/communications/']", count: 0
+
+    @brand.hq.memberships.create!(org_unit: @north, role: "store")
+    sign_in(@brand.hq)
+    get my_task_path(delivery, kind: "task")
+    assert_select "a[href='#{communication_path(task, anchor: "store-#{@north.id}")}']"
+    assert_select "a[href='#{inbox_path(delivery)}']", count: 0
+  end
+
+  test "checklist monitoring link respects module feature gates" do
+    checklist = open_checklist("Controle", @north, due_at: 1.hour.from_now)
+    delivery = checklist.checklist_deliveries.first
+    sign_in(@area_user)
+    %w[checklists morocco_ops].each do |feature|
+      @tenant.update!(features: @tenant.features.merge(feature => false))
+      get my_task_path(delivery, kind: "checklist")
+      assert_response :success
+      assert_select "a[href='#{checklist_review_path(delivery)}']", count: 0
+      @tenant.update!(features: @tenant.features.merge(feature => true))
+    end
+  end
+
   private
 
   def send_task(title, store, due_at:, priority: "routine", format: "task")
