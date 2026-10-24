@@ -72,8 +72,15 @@ test("last-seen private workspaces survive offline navigation and protect queued
   }, taskCommunication);
   await context.setOffline(false);
   await expect.poll(async () => (await queue(page))[0]?.conflict).toBe(true);
-  await page.reload();
+  await page.locator('form[action="/logout"] button').click(); await expect(page).toHaveURL(/\/login$/);
+  await signIn(page, 'area');
+  await expect.poll(() => queue(page)).toHaveLength(1);
+  await expect(page.locator('[data-offline-queue]')).toBeEmpty();
+  await page.locator('form[action="/logout"] button').click(); await expect(page).toHaveURL(/\/login$/);
+  await signIn(page, 'store');
+  await page.goto(`${taskUrl}?locale=ar`);
   await expect(page.locator('input[name=task_snapshot]')).not.toHaveValue(oldSnapshot);
+  await expectNoHorizontalOverflow(page);
   await page.locator('[data-offline-queue] button').filter({ hasText: /استعادة|Restaurer|Restore/ }).click();
   await page.locator('form[data-task-proof=true] button[type=submit]').click();
   await expect(page.locator('.task-proof-gallery figcaption')).toHaveText('offline-proof.txt');

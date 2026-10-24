@@ -39,6 +39,9 @@ jobs:
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
+      - name: Verify offline cache privacy and expiry
+        run: node --test test/javascript/offline_service_worker_test.mjs
+
   lint:
     runs-on: ubuntu-latest
     env:
