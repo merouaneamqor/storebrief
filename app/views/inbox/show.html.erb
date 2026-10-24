@@ -132,7 +132,7 @@
                   <% when "signature" %>
                     <%= render "inbox/signature", question: question, answer: answer %>
                   <% when "image" %>
-                    <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
+                    <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb", alt: question.title %><% end %>
                     <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
                   <% when *TypedFormValue::TYPES %>
                     <%= render "shared/typed_form_field", type: question.question_type, name: "answers[#{question.id}][text]", value: answer&.text_value, required: question.required? %>
@@ -155,10 +155,11 @@
                       <% end %>
                     </select>
                   <% when "multi_choice" %>
+                    <%= hidden_field_tag "answers[#{question.id}][choices][]", "" %>
                     <div class="brief-answer-choices">
                       <% question.option_labels.each do |label| %>
                         <label class="brief-choice">
-                          <input type="checkbox" name="answers[<%= question.id %>][choices][]" value="<%= label %>" <%= "checked" if answer&.list_value.include?(label) %>>
+                          <input type="checkbox" name="answers[<%= question.id %>][choices][]" value="<%= label %>" <%= "checked" if answer&.choice_selected?(label) %>>
                           <span><%= label %></span>
                         </label>
                       <% end %>
@@ -184,7 +185,7 @@
           </button>
         </div>
       <% end %>
-    <% elsif @questions.any? && !@delivery.pending? && !@delivery.pending_approval? %>
+    <% elsif @questions.any? && !@delivery.pending? %>
       <section class="task-card__answers">
         <h2 class="section-title"><%= t("inbox.your_answers") %></h2>
         <% @questions.each do |question| %>
@@ -192,7 +193,7 @@
           <div class="brief-answer-field">
             <strong><%= question.title %></strong>
             <% if question.image? && answer&.image&.attached? %>
-              <%= image_tag answer.image, class: "thumb" %>
+              <%= image_tag answer.image, class: "thumb", alt: question.title %>
             <% else %>
               <div class="meta"><%= answer&.display_value.presence || "-" %></div>
             <% end %>
@@ -218,7 +219,7 @@
                 <% when "signature" %>
                   <%= render "inbox/signature", question: question, answer: answer %>
                 <% when "image" %>
-                  <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb" %><% end %>
+                  <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb", alt: question.title %><% end %>
                   <input type="file" name="answers[<%= question.id %>][image]" accept="image/*" capture="environment" <%= "required" if question.required? && !answer&.image&.attached? %>>
                 <% when *TypedFormValue::TYPES %>
                     <%= render "shared/typed_form_field", type: question.question_type, name: "answers[#{question.id}][text]", value: answer&.text_value, required: question.required? %>
@@ -241,10 +242,11 @@
                     <% end %>
                   </select>
                 <% when "multi_choice" %>
+                  <%= hidden_field_tag "answers[#{question.id}][choices][]", "" %>
                   <div class="brief-answer-choices">
                     <% question.option_labels.each do |label| %>
                       <label class="brief-choice">
-                        <input type="checkbox" name="answers[<%= question.id %>][choices][]" value="<%= label %>" <%= "checked" if answer&.list_value.include?(label) %>>
+                        <input type="checkbox" name="answers[<%= question.id %>][choices][]" value="<%= label %>" <%= "checked" if answer&.choice_selected?(label) %>>
                         <span><%= label %></span>
                       </label>
                     <% end %>
@@ -271,7 +273,7 @@
         <div class="brief-answer-field">
           <strong><%= question.title %></strong>
           <% if question.image? && answer&.image&.attached? %>
-            <%= image_tag answer.image, class: "thumb" %>
+            <%= image_tag answer.image, class: "thumb", alt: question.title %>
           <% else %>
             <div class="meta"><%= answer&.display_value.presence || "-" %></div>
           <% end %>

@@ -33,4 +33,21 @@ Regression: isolated PostgreSQL test database, one worker.
 
 - Five browser flows pass: persona handoff, confirmed queue discard, private offline workspaces, signature/video and multi-file proof.
 - Failed harness attempts were corrected: wait for Turbo navigation before inspecting a page, read dialog expectations before opening a blocking native confirmation, and do not assume IndexedDB UUID keys preserve insertion order. No application retry or security gate was weakened.
-- Keep #320 open: complete the remaining persona/state checklist, especially manual approval rejection/resubmission, Today ordering, full keyboard/focus recovery and monitoring comprehension. Passing implementation tests alone do not close those UX rows.
+- Keep #320 open: complete the remaining persona/state checklist, especially Today ordering, full keyboard/focus recovery and monitoring comprehension. Approval rejection/resubmission is covered in the second delivery below. Passing implementation tests alone do not close those UX rows.
+
+
+## Second delivery: review and correction recovery
+
+Baseline: `36213e7`; final PR head records the tested implementation.
+
+| Finding | Reproduced result | Fix and verification |
+| --- | --- | --- |
+| #351 multi-choice entry/correction | An unanswered multi-choice task returns500 before the completion form opens (`nil.include?`). After rejection, unchecking all optional choices leaves the old answer saved. | Nil-safe selection; explicit empty selection in Morocco/legacy forms; FR/AR label equivalence retains choices across language changes. Required choices still reject an empty correction without losing the previous answer. Unknown historical labels remain readable. |
+| #352 pending answers | While waiting for approval, submitted text/choice/signature answers disappear although the proof gallery remains. | Submitted answers are visible read-only while pending, with question-labelled signature images; pending/completed tasks have no editable submission controls. |
+| #353 read-only monitoring | A monitor-only area role is shown verdict buttons whose POST authorization denies access. | Target-store reviewer controls use the same combined verdict/escalate membership scope as the server. Read-only users retain evidence/history/comments and existing corrective links, without verdict or corrective-creation forms. |
+
+Real Chromium FR and AR phone journeys now verify store submission with text, multi-choice, signature and a file; HQ/area rejection; opposite-language correction with retained text/selected choice/proof; clearing an optional choice; resubmission; approval by the other reviewer; and final store evidence plus actor/rejection history. Two new browser cases pass. A separate FR/AR390px read-only reviewer check verifies evidence/history/comments remain available, mutation controls are absent, and neither locale overflows.
+
+Focused integration checks cover initial legacy/Morocco forms, four read-only answer locales, retained proof/signature IDs, explicit choice clearing and required-choice rejection, translated/unknown answer labels, pending/completed/rejected monitor states, split capability memberships, authorized HQ/area/acting platform admin, and rejected cross-store/tenant access. Existing approval/media/execution regression checks remain in the focused verification run. The server's reviewer authorization is unchanged.
+
+#320 remains open for Today ordering, complete keyboard/focus/error recovery and monitoring comprehension. No production, user-research or paid-notification verification is claimed.

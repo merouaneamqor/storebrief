@@ -1,6 +1,7 @@
 <% content_for :title, "#{@communication.title} · Vazivo" %>
 <% morocco = tenant_feature?(:morocco_ops) %>
 <% pending_count = @deliveries.count(&:pending?) %>
+<% reviewable_store_ids = morocco && !super_admin? ? current_user.permitted_store_ids(:verdicts, :escalate) : [] %>
 <% rollup = morocco ? Delivery.awareness_rollup(@deliveries) : nil %>
 <% received = rollup ? (rollup["received"] || rollup[:received] || 0) : 0 %>
 
@@ -172,6 +173,7 @@
   <% if @deliveries.any? %>
     <ul class="store-track">
       <% @deliveries.each do |delivery| %>
+        <% can_review_delivery = super_admin? || reviewable_store_ids.include?(delivery.org_unit_id) %>
         <% needs_coach = delivery.finished? || delivery.verdict.present? || delivery.pending_approval? %>
         <li id="store-<%= delivery.org_unit_id %>" class="store-track__item">
           <div class="store-track__head">
@@ -216,7 +218,7 @@
                 <div class="brief-answers__row">
                   <span class="meta"><%= answer.communication_question.title %></span>
                   <% if answer.communication_question.image? && answer.image.attached? %>
-                    <%= image_tag answer.image, class: "thumb" %>
+                    <%= image_tag answer.image, class: "thumb", alt: answer.communication_question.title %>
                   <% else %>
                     <strong><%= answer.display_value.presence || "-" %></strong>
                   <% end %>
@@ -284,6 +286,7 @@
           <% end %>
 
           <% if morocco %>
+            <% if can_review_delivery %>
             <% if delivery.pending_approval? %>
               <%= form_with url: delivery_verdict_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
                 <label class="meta" for="verdict_note_<%= delivery.id %>"><%= t("morocco.approval.decide") %></label>
@@ -329,13 +332,15 @@
               </details>
             <% end %>
 
+            <% end %>
+
             <% if Vazivo::CorrectiveAction.issue_verdict?(delivery.verdict) %>
               <% if delivery.corrective_communication.present? %>
                 <p class="meta">
                   <%= t("morocco.corrective.exists") %>
                   <%= link_to delivery.corrective_communication.title, communication_path(delivery.corrective_communication) %>
                 </p>
-              <% else %>
+              <% elsif can_review_delivery %>
                 <%= form_with url: delivery_corrective_action_path(delivery), method: :post, class: "verdict-form verdict-form--compact" do %>
                   <% visits = @store_visits&.[](delivery.org_unit_id) || [] %>
                   <% if visits.any? %>
