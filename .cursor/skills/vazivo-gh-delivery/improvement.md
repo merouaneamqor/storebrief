@@ -66,3 +66,12 @@ Evidence: early watchers for #299/#303 exited with stale or missing checks after
 a push. Change: confirm checks registered for the pushed SHA before starting one
 watcher. Validation: #307 used this order and completed all six checks; merges
 still verify the expected head. No token or runtime savings are claimed.
+
+
+### 2026-10-24: settle Turbo navigation before recording links
+
+Evidence: UX #316's FR/AR login check initially captured `/inbox` before task
+navigation settled. Change: wait for the expected URL or destination content
+before recording links. Validation: explicit `expect(page).toHaveURL(/inbox\/\d+$/)`
+made both flows pass in 17 seconds. Existing permission and CI gates remain; no
+savings are claimed.

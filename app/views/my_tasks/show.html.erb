@@ -21,9 +21,15 @@
     <dd><%= t("morocco.tone.#{@task.tone}") %></dd>
   </dl>
 
-  <% if current_user.store_org_unit && @task.kind == "task" %>
+  <% if store_user? && @task.kind == "task" %>
     <p class="meta"><%= link_to t("morocco.my_tasks.open_work"), inbox_path(@task.record), class: "btn btn--primary" %></p>
-  <% elsif current_user.store_org_unit && @task.kind == "checklist" %>
+  <% elsif store_user? && @task.kind == "checklist" %>
     <p class="meta"><%= link_to t("morocco.my_tasks.open_work"), checklists_delivery_path(@task.record), class: "btn btn--primary" %></p>
+  <% elsif !store_user? && user_allows?(:monitor, org_unit: @task.record.org_unit, tenant_wide: hq_user?) %>
+    <% if @task.kind == "task" %>
+      <p class="meta"><%= link_to t("store_work.view_progress"), communication_path(@task.record.communication, anchor: "store-#{@task.record.org_unit_id}"), class: "btn btn--primary" %></p>
+    <% elsif tenant_feature?(:checklists) && tenant_feature?(:morocco_ops) %>
+      <p class="meta"><%= link_to t("store_work.view_progress"), checklist_review_path(@task.record), class: "btn btn--primary" %></p>
+    <% end %>
   <% end %>
 </section>

@@ -31,6 +31,7 @@ Choose checks for the change:
   retry failures and duplicate prevention.
 
 Reuse existing passing coverage. Screenshot failures or visual changes only;
-settle layout transitions first. Diagnose failures before filing an application
-bug; distinguish fixture/setup/network problems from product regressions. Report
+wait for the expected URL or destination content after Turbo navigation before
+reading `page.url()` or saving deep links. A completed click can leave the old
+page active. Diagnose failures before filing an application bug; distinguish fixture/setup/network problems from product regressions. Report
 pass/fail/not-run and remaining blockers without claiming untested coverage.

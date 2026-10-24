@@ -75,6 +75,7 @@ class OfflineWorkspacesTest < ActionDispatch::IntegrationTest
       get inbox_path(@delivery, locale: locale)
       assert_response :success
       assert_select "[data-offline-workspace][data-offline=?]", I18n.t("offline_workspaces.offline", locale: locale)
+      assert_select "[data-offline-workspace][data-discard-confirm=?]", I18n.t("offline_workspaces.discard_confirm", locale: locale)
     end
     @brand.tenant.update!(features: @brand.tenant.features.merge("morocco_ops" => false))
     get inbox_path(@delivery)

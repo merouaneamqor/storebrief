@@ -1,0 +1,9 @@
+{
+  "es": {
+    "store_work": {
+      "view_progress": "Ver seguimiento",
+      "execution_not_allowed": "Puedes leer esta tarea, pero tu rol no permite enviarla ni cambiar su progreso. Contacta con tu administrador si necesitas completarla.",
+      "access_denied": "Tu rol no tiene acceso a esta bandeja de entrada."
+    }
+  }
+}

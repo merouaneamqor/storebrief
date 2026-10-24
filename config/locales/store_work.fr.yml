@@ -1,0 +1,9 @@
+{
+  "fr": {
+    "store_work": {
+      "view_progress": "Consulter le suivi",
+      "execution_not_allowed": "Vous pouvez lire cette tâche, mais votre rôle ne permet pas de la soumettre ni de modifier sa progression. Contactez votre administrateur si vous devez la réaliser.",
+      "access_denied": "Votre rôle ne permet pas d’accéder à cette boîte de réception."
+    }
+  }
+}

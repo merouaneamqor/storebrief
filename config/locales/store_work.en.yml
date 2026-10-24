@@ -1,0 +1,9 @@
+{
+  "en": {
+    "store_work": {
+      "view_progress": "View progress",
+      "execution_not_allowed": "You can read this task, but your role cannot submit or change its progress. Ask your administrator if you need to complete it.",
+      "access_denied": "Your role does not have access to this inbox."
+    }
+  }
+}

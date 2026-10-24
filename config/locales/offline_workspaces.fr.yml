@@ -8,7 +8,8 @@
       "restore": "Restaurer les réponses en attente",
       "conflict": "Cette tâche a changé ou a été validée. Ouvrez la tâche actuelle, restaurez les réponses, comparez et renvoyez. Les fichiers restent sur cet appareil jusqu’à leur envoi ou suppression.",
       "unavailable": "Cette page est indisponible hors connexion. Reconnectez-vous et ouvrez-la pour la conserver sur cet appareil.",
-      "recovery": "Les fichiers en attente restent sur cet appareil. Ouvrez la tâche actuelle, restaurez et corrigez les réponses ou fichiers, puis renvoyez. Si la tâche est fermée, consultez le siège avant de supprimer le travail en attente."
+      "recovery": "Les fichiers en attente restent sur cet appareil. Ouvrez la tâche actuelle, restaurez et corrigez les réponses ou fichiers, puis renvoyez. Si la tâche est fermée, consultez le siège avant de supprimer le travail en attente.",
+      "discard_confirm": "Supprimer ce travail en attente ? Ses réponses et fichiers non envoyés seront définitivement supprimés de cet appareil. Le travail déjà envoyé ne sera pas modifié."
     }
   }
 }
