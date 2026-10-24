@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   end
   resources :demo_requests, only: %i[index update]
   get "reports", to: "reports#show"
+  resource :report_subscription, only: %i[show update]
 
   resources :org_units, only: %i[index edit update]
   resources :communications, only: %i[index show new create edit update] do

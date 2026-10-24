@@ -1,0 +1,32 @@
+{
+  "fr": {
+    "report_subscriptions": {
+      "title": "Rapports par e-mail",
+      "schedule": "Chaque lundi ou le premier jour du mois à 08:00, heure du Maroc. Les rapports couvrent la période complète précédente.",
+      "billing": "L’envoi par la plateforme coûte %{price} %{currency} par e-mail.",
+      "own_smtp": "L’envoi utilise le serveur SMTP de votre organisation.",
+      "paused": "Les rapports sont suspendus lorsque les e-mails opérationnels sont désactivés.",
+      "invalid": "Vérifiez les paramètres de l’abonnement.",
+      "enabled": "Recevoir les rapports par e-mail",
+      "frequency": "Fréquence",
+      "weekly": "Chaque semaine",
+      "monthly": "Chaque mois",
+      "csv_attachment": "Joindre un rapport CSV",
+      "next_delivery": "Prochain envoi : %{date}",
+      "save": "Enregistrer",
+      "saved": "Paramètres des rapports enregistrés."
+    },
+    "report_digest": {
+      "subject": "Synthèse des rapports de %{tenant}",
+      "title": "Rapport d’exécution",
+      "compliance": "Réalisation : %{percent}%",
+      "overdue": "Attributions en retard : %{count}",
+      "top": "Meilleurs magasins",
+      "bottom": "Magasins à accompagner",
+      "empty": "Aucune attribution sur cette période.",
+      "definition": "Réalisation actuelle du travail attribué pendant la période du rapport.",
+      "preferences": "Modifiez la fréquence, les pièces jointes CSV ou désabonnez-vous dans Rapports par e-mail sur la page Rapports.",
+      "behind": "Magasins avec du travail en attente : %{count}"
+    }
+  }
+}
