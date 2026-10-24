@@ -1,0 +1,38 @@
+<% if tenant_feature?(:morocco_ops) %>
+  <section class="panel" id="checklist-review">
+    <h2 class="section-title"><%= t("checklist_reviews.review") %></h2>
+    <% if delivery.verdict.present? %>
+      <p><span class="badge"><%= t("morocco.verdict.#{delivery.verdict}") %></span> · <%= delivery.validated_by&.name %></p>
+      <p class="prose"><%= delivery.verdict_note %></p>
+    <% end %>
+    <% if reviewer && %i[verdicts escalate].all? { |cap| user_allows?(cap, org_unit: delivery.org_unit) } %>
+      <%= form_with url: verdict_checklist_review_path(delivery), class: "form-stack" do %>
+        <label><%= t("checklist_reviews.verdict") %><%= select_tag :verdict, options_for_select(Delivery::VERDICTS.map { |value| [t("morocco.verdict.#{value}"), value] }, delivery.verdict), required: true %></label>
+        <label><%= t("checklist_reviews.note") %><%= text_area_tag :verdict_note, delivery.verdict_note, maxlength: 4000 %></label>
+        <%= submit_tag t("checklist_reviews.save"), class: "btn btn--primary" %>
+      <% end %>
+    <% end %>
+  </section>
+  <section class="panel delivery-comments" id="comments">
+    <h2 class="section-title"><%= t("morocco.comments.title") %></h2>
+    <% comments = delivery.checklist_delivery_comments.includes(:user).to_a %>
+    <% children = comments.group_by(&:parent_id) %>
+    <ol class="delivery-comments__list">
+      <% children.fetch(nil, []).each do |comment| %>
+        <%= render "checklist_reviews/comment", comment: comment, children: children, delivery: delivery %>
+      <% end %>
+    </ol>
+    <% if comments.empty? %><p class="meta"><%= t("morocco.comments.empty") %></p><% end %>
+    <%= render "checklist_reviews/comment_form", delivery: delivery, parent: nil %>
+  </section>
+  <section class="panel">
+    <h2 class="section-title"><%= t("checklist_reviews.history") %></h2>
+    <ol>
+      <% delivery.checklist_delivery_events.includes(:actor).each do |event| %>
+        <li><%= l(event.created_at, format: :short) %> · <%= event.actor&.name || "-" %> · <%= t("checklist_reviews.events.#{event.kind}") %>
+          <% if event.kind == "verdict" %> · <%= t("morocco.verdict.#{event.payload['verdict']}") %><% end %>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+<% end %>

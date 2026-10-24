@@ -59,3 +59,10 @@ work. Change: CI reuses installed Chrome/Chromium, with the locked installer as
 fallback; local checks use an executable-path environment variable. Validation:
 the RTL browser test passed with system Chromium, and workflow YAML/shell checks
 passed. Full CI remains the merge gate; runtime savings are not yet measured.
+
+### 2026-10-23: register the current CI head before watching
+
+Evidence: early watchers for #299/#303 exited with stale or missing checks after
+a push. Change: confirm checks registered for the pushed SHA before starting one
+watcher. Validation: #307 used this order and completed all six checks; merges
+still verify the expected head. No token or runtime savings are claimed.

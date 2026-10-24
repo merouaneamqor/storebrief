@@ -1,0 +1,6 @@
+<%= form_with url: comment_checklist_review_path(delivery), scope: :checklist_delivery_comment, class: "form-stack" do |form| %>
+  <%= form.hidden_field :parent_id, value: parent.id if parent %>
+  <label><%= t("morocco.comments.title") %><%= form.text_area :body, required: true, maxlength: 4000, rows: 3 %></label>
+  <p class="meta"><%= t("checklist_reviews.mention_hint") %></p>
+  <%= form.submit t("checklist_reviews.post"), class: "btn" %>
+<% end %>

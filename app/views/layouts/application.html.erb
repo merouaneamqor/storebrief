@@ -134,6 +134,7 @@
                   <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
                   <% if tenant_feature?(:checklists) %>
                     <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
+                    <% if tenant_feature?(:morocco_ops) && user_allows?(:monitor) %><%= link_to t("checklist_reviews.title"), checklist_reviews_path, class: "app-nav-link" %><% end %>
                     <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
                   <% end %>
                   <% if tenant_feature?(:reports) %>
@@ -147,6 +148,7 @@
                 </div>
               </details>
             <% elsif area_user? && tenant_feature?(:morocco_ops) %>
+              <% if tenant_feature?(:checklists) && user_allows?(:monitor) %><%= link_to t("checklist_reviews.title"), checklist_reviews_path, class: "app-nav-link" %><% end %>
               <% if tenant_feature?(:briefs) %>
                 <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
                   <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
