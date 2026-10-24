@@ -5,6 +5,15 @@ module ApplicationHelper
     favicon: "%{slug}-favicon.svg"
   }.freeze
 
+  # Match workflow gates when offering destinations; role chrome alone is not a grant.
+  def workflow_navigation_allowed?(capability)
+    @workflow_navigation_permissions ||= {}
+    @workflow_navigation_permissions.fetch(capability) do
+      unit = current_user.store_org_unit if store_user?
+      @workflow_navigation_permissions[capability] = user_allows?(capability, org_unit: unit, tenant_wide: hq_user?)
+    end
+  end
+
   def localized_badge(key)
     content_tag(:span, t("common.#{key}"), class: "badge badge--#{key}")
   end
