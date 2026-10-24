@@ -9,12 +9,12 @@ Local fixtures only; no production or billable notification checks.
 | Finding | Persona / observed behavior | Result |
 | --- | --- | --- |
 | #339 | Area opens My Tasks detail and reaches metadata without a route to the permitted monitor. | Area/HQ/custom monitors can open task progress at the relevant store anchor or the scoped checklist review. Stores keep execution links; mixed HQ/store memberships use HQ chrome. |
-| #340 | One tap deletes the device's only queued proof copy; IndexedDB count changes1→0 without a dialog. | Localized confirmation explains permanent loss of unsent answers/files. Cancel preserves the queue; confirming removes only the chosen record. |
+| #340 | One tap deletes the device's only queued proof copy; IndexedDB count changes 1→0 without a dialog. | Localized confirmation explains permanent loss of unsent answers/files. Cancel preserves the queue; confirming removes only the chosen record. |
 | #344 | An inbox-only custom role can POST task completion (200, status completed); an execute-only role's My Tasks link redirects away from the task. | Inbox-local read/execute gates govern index, show and mutations. Read-only task controls are hidden, execute-only users can execute tasks without seeing news, and direct denied POSTs cannot attach files or write events. |
 
 ## Verification matrix
 
-Browser: real installed Chromium,390px phone, FR/AR (including RTL and no horizontal overflow).
+Browser: real installed Chromium, 390px phone, FR/AR (including RTL and no horizontal overflow).
 Regression: isolated PostgreSQL test database, one worker.
 
 | Source feature / goal | Persona and entry-to-result scenario | Evidence and observed outcome |
