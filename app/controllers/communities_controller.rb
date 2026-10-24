@@ -6,8 +6,8 @@ class CommunitiesController < ApplicationController
   def index
     @communities = tenant_scope.communities.includes(:org_unit).order(:title_fr).select { |community| community.readable_by?(current_user) }
     @community = tenant_scope.communities.new
-    @can_create = user_allows?(:manage_communities)
     @regions = tenant_scope.org_units.regions.select { |region| user_allows?(:manage_communities, org_unit: region) }
+    @can_create = @regions.any? || user_allows?(:manage_communities, tenant_wide: true)
   end
 
   def create
