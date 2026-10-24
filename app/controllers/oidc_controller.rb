@@ -28,13 +28,14 @@ class OidcController < ApplicationController
 
     attempt = @tenant.oidc_login_attempts.find_by!(state_digest: OidcLoginAttempt.digest(state))
     attempt.consume!(browser: session[:oidc_browser], issuer: @setting.issuer, client_id: @setting.client_id)
+    @login_return_path = take_login_destination
     reset_session
     code = params[:code]
     raise Oidc::Error if params[:error].present? || !code.is_a?(String) || code.blank? || code.bytesize > 4096
 
     claims = Oidc::Provider.new(@setting).claims(code: code, attempt: attempt)
     user = Oidc::Provisioner.new(@setting, claims).call
-    establish_session!(user)
+    establish_session!(user, return_to: @login_return_path)
   rescue Oidc::Error, ActiveRecord::RecordNotFound
     failed_login
   end
@@ -53,6 +54,7 @@ class OidcController < ApplicationController
   end
 
   def failed_login
+    remember_login_destination(@login_return_path) if @login_return_path
     redirect_to login_path(tenant_slug: @tenant&.slug), alert: t("auth.sso_failed")
   end
 end
