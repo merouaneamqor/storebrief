@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -457,6 +457,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "tenant_role_id"
+    t.bigint "oidc_identity_id"
+    t.index ["oidc_identity_id"], name: "index_memberships_on_oidc_identity_id"
     t.index ["org_unit_id"], name: "index_memberships_on_org_unit_id"
     t.index ["tenant_role_id"], name: "index_memberships_on_tenant_role_id"
     t.index ["user_id", "org_unit_id"], name: "index_memberships_on_user_id_and_org_unit_id", unique: true
@@ -478,6 +480,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
     t.index ["notifiable_type", "notifiable_id"], name: "index_notification_logs_on_notifiable_type_and_notifiable_id"
     t.index ["tenant_id"], name: "index_notification_logs_on_tenant_id"
     t.index ["user_id"], name: "index_notification_logs_on_user_id"
+  end
+
+  create_table "oidc_identities", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.string "issuer", null: false
+    t.string "subject", null: false
+    t.boolean "admin_linked", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id", "issuer", "subject"], name: "index_oidc_identities_on_tenant_issuer_subject", unique: true
+    t.index ["tenant_id"], name: "index_oidc_identities_on_tenant_id"
+    t.index ["user_id"], name: "index_oidc_identities_on_user_id", unique: true
+  end
+
+  create_table "oidc_login_attempts", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "state_digest", null: false
+    t.string "browser_digest", null: false
+    t.string "nonce_digest", null: false
+    t.text "code_verifier_ciphertext", null: false
+    t.string "redirect_uri", null: false
+    t.string "issuer", null: false
+    t.string "client_id", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "consumed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["state_digest"], name: "index_oidc_login_attempts_on_state_digest", unique: true
+    t.index ["tenant_id"], name: "index_oidc_login_attempts_on_tenant_id"
   end
 
   create_table "org_units", force: :cascade do |t|
@@ -741,6 +773,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
     t.index ["tenant_id"], name: "index_tenant_mail_settings_on_tenant_id", unique: true
   end
 
+  create_table "tenant_oidc_settings", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.boolean "enabled", default: false, null: false
+    t.boolean "sso_enforced", default: false, null: false
+    t.boolean "jit_enabled", default: false, null: false
+    t.string "issuer"
+    t.string "client_id"
+    t.text "client_secret_ciphertext"
+    t.string "authorization_endpoint"
+    t.string "token_endpoint"
+    t.string "jwks_uri"
+    t.jsonb "role_mappings", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id"], name: "index_tenant_oidc_settings_on_tenant_id", unique: true
+  end
+
   create_table "tenant_roles", force: :cascade do |t|
     t.bigint "tenant_id", null: false
     t.string "name", null: false
@@ -935,11 +984,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
   add_foreign_key "kb_articles", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "kb_categories", "kb_categories", column: "parent_id", on_delete: :nullify
   add_foreign_key "kb_categories", "tenants"
+  add_foreign_key "memberships", "oidc_identities"
   add_foreign_key "memberships", "org_units"
   add_foreign_key "memberships", "tenant_roles"
   add_foreign_key "memberships", "users"
   add_foreign_key "notification_logs", "tenants"
   add_foreign_key "notification_logs", "users"
+  add_foreign_key "oidc_identities", "tenants"
+  add_foreign_key "oidc_identities", "users"
+  add_foreign_key "oidc_login_attempts", "tenants"
   add_foreign_key "org_units", "org_units", column: "parent_id"
   add_foreign_key "org_units", "tenants"
   add_foreign_key "playbook_deploy_requests", "communications", on_delete: :nullify
@@ -962,6 +1015,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_050000) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "tenant_mail_settings", "tenants"
+  add_foreign_key "tenant_oidc_settings", "tenants"
   add_foreign_key "tenant_roles", "tenants"
   add_foreign_key "tenant_saml_settings", "tenants"
   add_foreign_key "users", "tenants"

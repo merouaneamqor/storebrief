@@ -127,6 +127,7 @@
                 <div class="app-nav-more__list">
                   <% if tenant_feature?(:morocco_ops) && (super_admin? || current_user.built_in_hq?) %>
                     <%= link_to t("tenant_roles.title"), tenant_roles_path, class: "app-nav-link" %>
+                    <%= link_to t("oidc.title"), oidc_settings_path, class: "app-nav-link" %>
                   <% end %>
                   <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
                   <% if tenant_feature?(:checklists) %>

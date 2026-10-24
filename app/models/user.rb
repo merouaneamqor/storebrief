@@ -4,6 +4,7 @@ class User < ApplicationRecord
   has_secure_password validations: false
 
   belongs_to :tenant
+  has_one :oidc_identity, dependent: :destroy
   has_many :memberships, dependent: :destroy
   has_many :org_units, through: :memberships
   has_many :authored_communications, class_name: "Communication", foreign_key: :author_id, dependent: :restrict_with_exception, inverse_of: :author

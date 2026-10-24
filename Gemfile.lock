@@ -528,6 +528,7 @@ DEPENDENCIES
   debug
   image_processing (~> 1.2)
   importmap-rails
+  jwt (~> 3.3)
   minitest-mock
   pg (~> 1.7)
   propshaft
