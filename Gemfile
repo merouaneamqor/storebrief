@@ -40,7 +40,7 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 2.2"
 # Image Processing 2 keeps the Active Storage Vips adapter optional.
-gem "ruby-vips", "~> 2.3"
+gem "ruby-vips", "~> 2.3", require: false
 
 # Active Storage on Amazon S3 (and S3-compatible stores)
 gem "aws-sdk-s3", require: false
