@@ -18,6 +18,8 @@ class Membership < ApplicationRecord
   belongs_to :user
   belongs_to :org_unit
   belongs_to :tenant_role, optional: true
+  belongs_to :oidc_identity, optional: true
+  validate :oidc_identity_matches_user
 
   validates :role, inclusion: { in: ROLES }
   validates :user_id, uniqueness: { scope: :org_unit_id }
@@ -72,6 +74,12 @@ class Membership < ApplicationRecord
     if persisted? && tenant_role_id_in_database.present? && tenant_role_id.nil? && role == "hq"
       errors.add(:tenant_role, :invalid)
     end
+  end
+
+  def oidc_identity_matches_user
+    return unless oidc_identity
+
+    errors.add(:oidc_identity, :invalid) unless oidc_identity.user_id == user_id && oidc_identity.tenant_id == user&.tenant_id
   end
 
   def same_tenant

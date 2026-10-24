@@ -1,8 +1,10 @@
 <% brand = host_tenant? ? current_tenant : nil %>
 <% content_for :title, brand ? "#{t('auth.sign_in')} · #{brand.display_brand_name}" : "#{t('auth.sign_in')} · Vazivo" %>
 
-<% show_sso = host_tenant? && @login_tenant&.saml_sso_enabled? %>
-<% sso_enforced = show_sso && @login_tenant.saml_sso_enforced? %>
+<% show_saml = host_tenant? && @login_tenant&.saml_sso_enabled? %>
+<% show_oidc = @login_tenant&.oidc_sso_enabled? %>
+<% show_sso = show_saml || show_oidc %>
+<% sso_enforced = show_sso && @login_tenant.sso_enforced? %>
 
 <section class="m-section">
   <div class="m-convert m-login<%= ' m-login--tenant' if brand %>">
@@ -31,7 +33,8 @@
       <% if sso_enforced %>
         <div class="m-login__stack">
           <p class="m-hint"><%= t("auth.sso_required") %></p>
-          <%= link_to t("auth.sso_sign_in"), saml_sso_path(@login_tenant.slug), class: "m-btn m-btn--block" %>
+          <% if show_saml %><%= link_to t("auth.sso_sign_in"), saml_sso_path(@login_tenant.slug), class: "m-btn m-btn--block" %><% end %>
+          <% if show_oidc %><%= link_to t("oidc.sign_in"), oidc_login_path(@login_tenant.slug), class: "m-btn m-btn--block" %><% end %>
         </div>
       <% else %>
         <%= form_with url: login_path, method: :post, local: true, html: { id: "password-login-form", class: "m-login__stack" } do %>
@@ -45,7 +48,8 @@
 
           <% if show_sso %>
             <div class="m-login__sso">
-              <%= link_to t("auth.sso_sign_in"), saml_sso_path(@login_tenant.slug), class: "m-btn m-btn--block" %>
+              <% if show_saml %><%= link_to t("auth.sso_sign_in"), saml_sso_path(@login_tenant.slug), class: "m-btn m-btn--block" %><% end %>
+          <% if show_oidc %><%= link_to t("oidc.sign_in"), oidc_login_path(@login_tenant.slug), class: "m-btn m-btn--block" %><% end %>
             </div>
             <p class="m-login__divider" role="presentation"><span><%= t("auth.sso_or_password") %></span></p>
           <% end %>

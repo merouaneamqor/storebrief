@@ -3,6 +3,7 @@ class Tenant < ApplicationRecord
   IMAGE_TYPES = %w[image/png image/jpeg image/jpg image/webp image/svg+xml image/x-icon image/vnd.microsoft.icon].freeze
 
   FEATURE_FLAGS = {
+    oidc_sso: { label: "OIDC SSO", hint: "Tenant OpenID Connect login with optional provisioning.", default: false },
     saml_sso: {
       label: "SAML SSO",
       hint: "Allow single sign-on on this brand’s subdomain (configure IdP under SSO).",
@@ -103,6 +104,9 @@ class Tenant < ApplicationRecord
 
   attr_accessor :remove_logo, :remove_logo_mark, :remove_favicon
 
+  has_one :oidc_setting, class_name: "TenantOidcSetting", dependent: :destroy, inverse_of: :tenant
+  has_many :oidc_login_attempts, dependent: :destroy
+  has_many :oidc_identities, dependent: :destroy
   has_one :saml_setting, class_name: "TenantSamlSetting", dependent: :destroy, inverse_of: :tenant
   has_one :mail_setting, class_name: "TenantMailSetting", dependent: :destroy, inverse_of: :tenant
   accepts_nested_attributes_for :saml_setting
@@ -226,6 +230,14 @@ class Tenant < ApplicationRecord
 
   def self.default_hq_widgets
     HQ_WIDGETS.transform_values { |meta| meta[:default] }.transform_keys(&:to_s)
+  end
+
+  def oidc_sso_enabled?
+    feature?(:oidc_sso) && oidc_setting&.ready?
+  end
+
+  def sso_enforced?
+    saml_sso_enforced? || (feature?(:oidc_sso) && oidc_setting&.enabled? && oidc_setting.sso_enforced?)
   end
 
   def saml_sso_enabled?

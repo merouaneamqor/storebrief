@@ -11,6 +11,13 @@ Rails.application.routes.draw do
   post "login",  to: "sessions#create"
   delete "logout", to: "sessions#destroy"
 
+  get "oidc/:tenant_slug", to: "oidc#start", as: :oidc_login
+  get "oidc/:tenant_slug/callback", to: "oidc#callback", as: :oidc_callback
+  resource :oidc_settings, only: %i[show update] do
+    post :link
+    delete :unlink
+  end
+
   get  "saml/:tenant_slug",          to: "saml#sso",      as: :saml_sso
   post "saml/:tenant_slug/acs",      to: "saml#acs",      as: :saml_acs
   get  "saml/:tenant_slug/metadata", to: "saml#metadata", as: :saml_metadata

@@ -26,15 +26,15 @@ class SessionsController < ApplicationController
       return
     end
 
-    if tenant&.saml_sso_enforced? && !User.super_admins.exists?(email: email)
+    user = tenant&.users&.find_by(email: email)
+    user ||= User.super_admins.find_by(email: email)
+
+    if tenant&.sso_enforced? && !user&.super_admin?
       flash.now[:alert] = t("auth.sso_required")
       @login_tenant = tenant
       render :new, status: :unprocessable_entity
       return
     end
-
-    user = tenant&.users&.find_by(email: email)
-    user ||= User.super_admins.find_by(email: email)
 
     if user&.authenticate(params[:password].to_s) && tenant_matches_host?(user)
       acting = acting_tenant_for(user, tenant)
