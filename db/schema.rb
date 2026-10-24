@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -251,6 +251,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
     t.index ["tenant_id", "status"], name: "index_communications_on_tenant_id_and_status"
     t.index ["tenant_id"], name: "index_communications_on_tenant_id"
     t.index ["visit_id"], name: "index_communications_on_visit_id"
+  end
+
+  create_table "communities", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "org_unit_id"
+    t.string "title_fr", null: false
+    t.string "title_ar"
+    t.string "audience_role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["org_unit_id"], name: "index_communities_on_org_unit_id"
+    t.index ["tenant_id"], name: "index_communities_on_tenant_id"
+  end
+
+  create_table "community_comments", force: :cascade do |t|
+    t.bigint "community_post_id", null: false
+    t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["community_post_id"], name: "index_community_comments_on_community_post_id"
+    t.index ["user_id"], name: "index_community_comments_on_user_id"
+  end
+
+  create_table "community_posts", force: :cascade do |t|
+    t.bigint "community_id", null: false
+    t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["community_id"], name: "index_community_posts_on_community_id"
+    t.index ["user_id"], name: "index_community_posts_on_user_id"
   end
 
   create_table "deliveries", force: :cascade do |t|
@@ -1054,6 +1086,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_080000) do
   add_foreign_key "communications", "users", column: "author_id"
   add_foreign_key "communications", "users", column: "reviewed_by_id", on_delete: :nullify
   add_foreign_key "communications", "visits"
+  add_foreign_key "communities", "org_units"
+  add_foreign_key "communities", "tenants"
+  add_foreign_key "community_comments", "community_posts"
+  add_foreign_key "community_comments", "users"
+  add_foreign_key "community_posts", "communities"
+  add_foreign_key "community_posts", "users"
   add_foreign_key "deliveries", "communications"
   add_foreign_key "deliveries", "org_units"
   add_foreign_key "deliveries", "users", column: "acknowledged_by_id"

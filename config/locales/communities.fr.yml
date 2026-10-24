@@ -1,0 +1,28 @@
+{
+  "fr": {
+    "communities": {
+      "title": "Communautés",
+      "lede": "Espaces de discussion partagés par région ou rôle.",
+      "create": "Créer une communauté",
+      "title_fr": "Titre français",
+      "title_ar": "Titre arabe (facultatif)",
+      "region": "Région",
+      "all_regions": "Toutes les régions",
+      "audience": "Rôles participants",
+      "all_roles": "Tous les rôles",
+      "sharing": "Les publications et commentaires sont visibles par tous les participants de cet espace et ses modérateurs. Ne partagez pas de données clients.",
+      "empty": "Aucune communauté disponible.",
+      "post": "Nouvelle publication",
+      "publish": "Publier",
+      "comment": "Commentaire",
+      "reply": "Répondre",
+      "remove_post": "Retirer la publication",
+      "remove_comment": "Retirer le commentaire",
+      "recent_comments": "Les 50 commentaires les plus récents sont affichés.",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "remove": "Supprimer la communauté",
+      "confirm_remove": "Supprimer cette communauté et toutes ses discussions ?"
+    }
+  }
+}

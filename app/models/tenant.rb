@@ -3,6 +3,11 @@ class Tenant < ApplicationRecord
   IMAGE_TYPES = %w[image/png image/jpeg image/jpg image/webp image/svg+xml image/x-icon image/vnd.microsoft.icon].freeze
 
   FEATURE_FLAGS = {
+    communities: {
+      label: "Communities",
+      hint: "Optional regional and role-based shared discussions, managed by HQ.",
+      default: false
+    },
     oidc_sso: { label: "OIDC SSO", hint: "Tenant OpenID Connect login with optional provisioning.", default: false },
     saml_sso: {
       label: "SAML SSO",
@@ -126,6 +131,7 @@ class Tenant < ApplicationRecord
   has_many :kb_articles, dependent: :destroy
   has_many :notification_logs, dependent: :destroy
   has_many :export_logs, dependent: :destroy
+  has_many :communities, dependent: :destroy
   has_many :report_subscriptions, dependent: :destroy
   has_many :users, dependent: :destroy
   has_many :tenant_roles, dependent: :destroy

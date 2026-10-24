@@ -233,6 +233,12 @@
                 <%= link_to t("checklists.store_inbox"), checklists_deliveries_path, class: "app-nav-link #{'is-active' if request.path.include?('/deliveries')}" %>
               <% end %>
             <% end %>
+            <% if tenant_feature?(:morocco_ops) && tenant_feature?(:communities) && (user_allows?(:communities) || user_allows?(:manage_communities)) %>
+              <%= link_to communities_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communities')}" do %>
+                <span class="app-nav-link__icon"><%= icon("message-circle") %></span>
+                <span><%= t("communities.title") %></span>
+              <% end %>
+            <% end %>
           </nav>
 
           <div class="app-sidebar__dock">
