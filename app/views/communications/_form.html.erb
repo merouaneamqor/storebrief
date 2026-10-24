@@ -194,11 +194,7 @@
               <% @communication.attachments.each do |file| %>
                 <li>
                   <span><%= file.filename %></span>
-                  <label>
-                <span><%= t("typed_forms.weight") %></span>
-                <input type="number" min="0.01" max="999999.99" step="0.01" required :name="`communication[communication_questions_attributes][${index}][weight]`" x-model="question.weight">
-              </label>
-              <label class="brief-required">
+                  <label class="brief-required">
                     <input type="checkbox" name="communication[remove_attachment_ids][]" value="<%= file.id %>">
                     <span><%= t("communications.attachments_remove") %></span>
                   </label>
@@ -261,7 +257,8 @@
         </section>
 
         <section class="brief-settings__block">
-          <%= render "targets", units: @target_units, selected_ids: Array(params[:org_unit_ids]), embedded: true %>
+          <%= render "targets", units: @target_units, selected_ids: Array(@communication.targeting["org_unit_ids"]),
+            filters: @communication.targeting, embedded: true %>
         </section>
 
         <div class="brief-settings__actions">

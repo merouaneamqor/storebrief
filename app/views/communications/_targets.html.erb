@@ -1,4 +1,5 @@
 <% selected_ids = local_assigns.fetch(:selected_ids, []) %>
+<% filters = local_assigns.fetch(:filters, {}) %>
 <% embedded = local_assigns.fetch(:embedded, false) %>
 <% preview_url = local_assigns.fetch(:preview_url, preview_targets_communications_path(format: :json)) %>
 <% stores = units.select(&:store?) %>
@@ -9,6 +10,9 @@
          x-data="briefTargets()"
          data-units="<%= h(payload.to_json) %>"
          data-selected="<%= h(selected_ids.map(&:to_s).to_json) %>"
+         data-assignment-role="<%= filters["role"] %>"
+         data-store-format="<%= filters["store_format"] %>"
+         data-cluster="<%= filters["cluster"] %>"
          data-count-label="<%= t('communications.selected_count', count: '%{count}') %>"
          data-preview-url="<%= preview_url %>"
          data-preview-empty="<%= t('communications.assignment_preview_empty') %>">
@@ -19,6 +23,7 @@
   <% end %>
   <p class="meta"><%= t("communications.targets_help") %></p>
 
+  <input type="hidden" name="org_unit_ids[]" value="">
   <template x-for="id in selected" :key="'picked-' + id">
     <input type="hidden" name="org_unit_ids[]" :value="id">
   </template>
