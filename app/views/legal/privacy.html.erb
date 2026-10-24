@@ -1,0 +1,32 @@
+<% content_for :title, t("privacy.page.title") %>
+
+<article class="m-legal m-wrap">
+  <header class="m-legal__head">
+    <p class="m-kicker"><%= t("privacy.page.kicker") %></p>
+    <h1><%= t("privacy.page.title") %></h1>
+    <p class="m-legal__meta">
+      <%= t("privacy.page.version", version: Vazivo::Privacy.privacy_policy_version) %>
+      · <%= link_to t("privacy.page.law_link"), Vazivo::Privacy.cndp_url, rel: "noopener", target: "_blank" %>
+    </p>
+  </header>
+
+  <% t("privacy.sections").each do |section| %>
+    <section class="m-legal__section">
+      <h2><%= section[:title] %></h2>
+      <% section[:paragraphs].each do |paragraph| %>
+        <p><%= paragraph % { processor: Vazivo::Privacy.processor_name, contact: Vazivo::Privacy.contact_email } %></p>
+      <% end %>
+      <% if section[:list].present? %>
+        <ul>
+          <% section[:list].each do |item| %>
+            <li><%= item %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </section>
+  <% end %>
+
+  <p class="m-legal__contact">
+    <%= t("privacy.page.contact", email: Vazivo::Privacy.contact_email) %>
+  </p>
+</article>

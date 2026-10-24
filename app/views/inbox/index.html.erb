@@ -13,13 +13,25 @@
             <div class="meta">
               <%= localized_badge(delivery.communication.format) %>
               <%= priority_badge(delivery.communication.priority) %>
-              <%= localized_badge(delivery.status) %>
+              <% if delivery.dependency_blocked? %>
+                <span class="badge"><%= t("morocco.dependency.blocked_badge") %></span>
+              <% else %>
+                <%= localized_badge(delivery.status) %>
+              <% end %>
+              <% if !delivery.communication.task? && !delivery.read_by?(current_user) %>
+                <span class="badge"><%= t("morocco.read_receipts.unread_badge") %></span>
+              <% elsif !delivery.communication.task? && delivery.read_by?(current_user) %>
+                <span class="badge"><%= t("morocco.read_receipts.read_badge") %></span>
+              <% end %>
             </div>
+            <% if delivery.dependency_blocked? %>
+              <p class="meta"><%= delivery.dependency_blocked_reason %></p>
+            <% end %>
           </div>
         </li>
       <% end %>
     </ul>
   <% else %>
-    <p class="empty"><%= t("inbox.empty") %></p>
+    <%= render "shared/empty_state", icon: "inbox", text: t("inbox.empty") %>
   <% end %>
 </section>

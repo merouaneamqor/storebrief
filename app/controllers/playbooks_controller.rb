@@ -1,4 +1,5 @@
 class PlaybooksController < ApplicationController
+  include SpreadsheetExports
   before_action :require_hq
   before_action -> { require_feature!(:checklists) }
   before_action -> { require_feature!(:morocco_ops) }
@@ -12,7 +13,27 @@ class PlaybooksController < ApplicationController
   end
 
   def campaigns
-    @dashboard = Vazivo::CampaignDashboard.for(current_tenant)
+    @date_range = Reports::DateRange.new(from: params[:from], to: params[:to])
+    @dashboard = Vazivo::CampaignDashboard.for(current_tenant, date_range: @date_range)
+    @regional = Vazivo::RegionalCampaigns.for(current_tenant, date_range: @date_range)
+  end
+
+  def closing_reports
+    @snapshot = Vazivo::ClosingReport.closed_for(current_tenant)
+  end
+
+  def closing_report
+    checklist = tenant_scope.checklists.sent.where.not(playbook_id: nil).find(params[:checklist_id])
+    @report = Vazivo::ClosingReport.for(current_tenant, checklist: checklist)
+    if spreadsheet_request?
+      send_spreadsheet(Reports::ExportTable.closing(@report), source: "campaign-closing", filters: { checklist_id: checklist.id })
+      return
+    end
+    @export = params[:export].present?
+    record_export(source: "campaign-closing", format: "html", row_count: @report.stores.size,
+      filters: { checklist_id: checklist.id }) if @export
+
+    render layout: "export" if @export
   end
 
   def new
@@ -71,16 +92,52 @@ class PlaybooksController < ApplicationController
   end
 
   def deploy
+    starts_on = parse_date(params[:starts_on])
     campaign_on = parse_date(params[:campaign_on])
-    if campaign_on.nil?
+    brief_fr = params[:brief_fr].to_s.strip.presence || @playbook.description_fr
+    brief_ar = params[:brief_ar].to_s.strip.presence || @playbook.description_ar
+
+    if starts_on.nil? || campaign_on.nil?
       redirect_to playbooks_path(key: @playbook.key), alert: t("morocco.playbooks.date_required")
+      return
+    end
+
+    if starts_on > campaign_on
+      redirect_to playbooks_path(key: @playbook.key), alert: t("morocco.playbooks.invalid_range")
+      return
+    end
+
+    if brief_fr.blank?
+      redirect_to playbooks_path(key: @playbook.key), alert: t("morocco.playbooks.brief_required")
+      return
+    end
+
+    if Vazivo::Approval.required?(tenant_scope)
+      raise ArgumentError, t("errors.select_targets") if Vazivo::CampaignTargets.new(tenant_scope, params[:org_unit_ids]).empty?
+
+      request = tenant_scope.playbook_deploy_requests.create!(
+        playbook: @playbook,
+        author: current_user,
+        deploy_params: {
+          starts_on: starts_on.iso8601,
+          campaign_on: campaign_on.iso8601,
+          brief_fr: brief_fr,
+          brief_ar: brief_ar,
+          org_unit_ids: Array(params[:org_unit_ids]).map(&:to_i)
+        }
+      )
+      Vazivo::Approval.submit!(request, actor: current_user)
+      redirect_to playbook_deploy_requests_path, notice: t("approval.submitted")
       return
     end
 
     Vazivo::PlaybookDeployer.deploy!(
       playbook: @playbook,
       author: current_user,
+      starts_on: starts_on,
       campaign_on: campaign_on,
+      brief_fr: brief_fr,
+      brief_ar: brief_ar,
       org_unit_ids: params[:org_unit_ids]
     )
     redirect_to playbooks_path(key: @playbook.key), notice: t("morocco.playbooks.deployed", title: @playbook.title)

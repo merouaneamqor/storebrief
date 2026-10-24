@@ -23,8 +23,13 @@ class FeatureFlagsTest < ActionDispatch::IntegrationTest
 
     assert_select "a.app-nav-link[href=?]", app_root_path
     assert_select "a.app-nav-link[href=?]", ranking_path
+    assert_select "a.app-nav-link[href=?]", my_tasks_path
     assert_select "a.app-nav-link[href=?]", inbox_index_path, count: 0
     assert_select "a.app-nav-link[href=?]", checklists_deliveries_path, count: 0
+    assert_select "a.app-sidebar__compose", count: 0
+    assert_select "a.app-nav-link[href=?]", playbooks_path, count: 0
+    assert_select "a.app-nav-link[href=?]", billing_path, count: 0
+    assert_select "a.app-nav-link[href=?]", communications_path, count: 0
   end
 
   test "briefs off hides compose and blocks brief routes for hq and stores" do

@@ -8,10 +8,16 @@
     <p class="meta"><%= t("morocco.playbooks.lede") %></p>
   </div>
   <div class="radar-head__actions">
-    <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+    <%= link_to campaigns_playbooks_path, class: "btn btn--ghost" do %>
       <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
     <% end %>
-    <%= link_to new_playbook_path, class: "btn btn--quiet" do %>
+    <%= link_to closing_reports_playbooks_path, class: "btn btn--ghost" do %>
+      <%= icon("trophy", css_class: "icon") %> <%= t("morocco.playbooks.closing.nav") %>
+    <% end %>
+    <% if tenant_feature?(:send_approval) %>
+      <%= link_to t("approval.deploy_requests.nav"), playbook_deploy_requests_path, class: "btn btn--ghost" %>
+    <% end %>
+    <%= link_to new_playbook_path, class: "btn btn--primary" do %>
       <%= icon("plus", css_class: "icon") %> <%= t("morocco.playbooks.new") %>
     <% end %>
   </div>
@@ -91,10 +97,27 @@
                 empty_text: t("morocco.playbooks.targets.empty")
               }
             } do %>
-        <label class="pb-deploy__date">
-          <span><%= t("morocco.playbooks.date") %></span>
-          <input type="date" name="campaign_on" value="<%= (Date.current + 14).iso8601 %>" required class="billing-input">
-        </label>
+        <div class="pb-deploy__dates">
+          <label class="pb-deploy__date">
+            <span><%= t("morocco.playbooks.starts_on") %></span>
+            <input type="date" name="starts_on" value="<%= Date.current.iso8601 %>" required class="billing-input">
+          </label>
+          <label class="pb-deploy__date">
+            <span><%= t("morocco.playbooks.date") %></span>
+            <input type="date" name="campaign_on" value="<%= (Date.current + 14).iso8601 %>" required class="billing-input">
+          </label>
+        </div>
+
+        <div class="pb-deploy__brief">
+          <label class="pb-deploy__date pb-deploy__date--wide">
+            <span><%= t("morocco.playbooks.brief_fr") %></span>
+            <textarea name="brief_fr" rows="3" required class="billing-input"><%= playbook.description_fr %></textarea>
+          </label>
+          <label class="pb-deploy__date pb-deploy__date--wide">
+            <span><%= t("morocco.playbooks.brief_ar") %></span>
+            <textarea name="brief_ar" rows="3" class="billing-input" dir="rtl" lang="ar"><%= playbook.description_ar %></textarea>
+          </label>
+        </div>
 
         <div class="pb-deploy__stores pb-targets">
           <p class="section-title"><%= t("morocco.playbooks.targets.title") %></p>
@@ -129,7 +152,7 @@
         <div class="sticky-action">
           <button type="submit" class="btn btn--primary btn--block" :disabled="count === 0">
             <%= icon("send", css_class: "icon") %>
-            <%= t("morocco.playbooks.deploy") %>
+            <%= tenant_feature?(:send_approval) ? t("approval.submit") : t("morocco.playbooks.deploy") %>
           </button>
         </div>
       <% end %>

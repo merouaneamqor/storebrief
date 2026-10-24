@@ -7,6 +7,7 @@ class Playbook < ApplicationRecord
   belongs_to :tenant
   has_many :communications, dependent: :nullify
   has_many :checklists, dependent: :nullify
+  has_many :playbook_deploy_requests, dependent: :destroy
 
   validates :key, presence: true, format: { with: KEY_FORMAT }, uniqueness: { scope: :tenant_id }
   validates :title_fr, :description_fr, presence: true

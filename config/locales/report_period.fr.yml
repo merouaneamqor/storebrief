@@ -1,0 +1,21 @@
+{
+  "fr": {
+    "report_period": {
+      "from": "Du",
+      "to": "Au",
+      "interval": "Période",
+      "group_by": "Regrouper par",
+      "week": "Par semaine",
+      "month": "Par mois",
+      "region": "Région",
+      "area": "Zone",
+      "store": "Magasin",
+      "apply": "Appliquer",
+      "trends": "Conformité dans le temps",
+      "definition": "Taux actuel de réalisation des briefs et checklists attribués à chaque période. Les interruptions indiquent une absence d’attributions.",
+      "campaigns": "Campagnes",
+      "ranking_definition": "Réalisation sur les dates sélectionnées, comparée à la période précédente de même durée.",
+      "campaign_definition": "Campagnes dont le calendrier recouvre les dates sélectionnées, y compris les campagnes terminées."
+    }
+  }
+}

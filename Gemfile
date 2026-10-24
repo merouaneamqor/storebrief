@@ -5,9 +5,11 @@ gem "rails", "~> 8.1.4"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.1"
+gem "pg", "~> 1.7"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
+# Database-backed Active Job backend + recurring schedule (config/recurring.yml)
+gem "solid_queue", "~> 1.2"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
@@ -22,6 +24,9 @@ gem "bcrypt", "~> 3.1.7"
 
 # SAML 2.0 Service Provider (per-tenant IdP SSO)
 gem "ruby-saml", "~> 1.18"
+
+# Spreadsheet download containers (also used by Selenium in tests).
+gem "rubyzip", "~> 3.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -67,6 +72,9 @@ group :test do
   gem "selenium-webdriver"
   # Minitest 6 ships Object#stub / Minitest::Mock as a separate gem
   gem "minitest-mock"
+  # Acceptance scenarios in features/ (run with: bundle exec cucumber)
+  gem "cucumber-rails", require: false
+  gem "database_cleaner-active_record"
 end
 
 gem "dartsass-rails", "~> 0.5.1"

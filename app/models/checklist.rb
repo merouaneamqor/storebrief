@@ -37,19 +37,37 @@ class Checklist < ApplicationRecord
       description_ar: template.description_ar,
       status: "draft"
     )
-    template.item_defs.each_with_index do |item, index|
+    template.question_defs.each_with_index do |item, index|
+      meta = { "question_type" => item[:question_type].presence || "short_text", "weight" => item[:weight].presence || 1 }
+      meta["key"] = item[:key].to_s if item[:key].present?
+      if item[:show_if].present?
+        show_if = item[:show_if].with_indifferent_access
+        meta["show_if"] = {
+          "question_key" => show_if[:question_key].to_s,
+          "equals" => show_if[:equals].to_s
+        }
+      end
+
       checklist.checklist_items.build(
         position: index,
         title_fr: item[:title_fr],
         title_ar: item[:title_ar],
-        requires_photo: ActiveModel::Type::Boolean.new.cast(item[:requires_photo])
+        requires_photo: !!ActiveModel::Type::Boolean.new.cast(item[:requires_photo]),
+        required: !!ActiveModel::Type::Boolean.new.cast(item[:required]),
+        metadata: meta
       )
     end
     checklist
   end
 
-  def send_to!(org_unit_ids)
-    store_ids = resolve_store_ids(org_unit_ids)
+  def send_to!(org_unit_ids, role: nil, store_format: nil, cluster: nil)
+    store_ids = Vazivo::Assignment.resolve_store_ids(
+      tenant,
+      org_unit_ids: org_unit_ids,
+      role: role,
+      store_format: store_format,
+      cluster: cluster
+    )
     raise ArgumentError, I18n.t("errors.select_targets") if store_ids.empty?
 
     due = scheduled_due
@@ -88,10 +106,5 @@ class Checklist < ApplicationRecord
     else
       Vazivo::Schedule.default_due(tenant, nil)
     end
-  end
-
-  def resolve_store_ids(org_unit_ids)
-    units = tenant.org_units.where(id: org_unit_ids)
-    units.flat_map { |unit| unit.descendant_stores.pluck(:id) }
   end
 end

@@ -1,0 +1,16 @@
+fr:
+  task_proof:
+    title: Photos et fichiers de preuve
+    choose_files: Ajouter des photos ou des fichiers
+    limits: 10 fichiers maximum, 10 Mo chacun. JPG, PNG, WebP, PDF, texte, CSV, DOCX ou XLSX. Les photos sont compressées
+      avant l’envoi.
+    required_hint: Ajoutez des fichiers de preuve ou les deux photos avant et après.
+    queued: Tâche et preuves enregistrées sur cet appareil. Synchronisation au retour de la connexion.
+    sync_error: Les preuves n’ont pas pu être synchronisées. Ouvrez la tâche pour vérifier ou remplacer l’envoi
+      en attente.
+    too_many: Ajoutez au maximum %{count} fichiers de preuve.
+    invalid_type: Ce type de fichier de preuve n’est pas pris en charge.
+    too_large: Chaque fichier de preuve doit faire %{size} Mo maximum.
+    file_count:
+      one: 1 fichier de preuve joint
+      other: '%{count} fichiers de preuve joints'

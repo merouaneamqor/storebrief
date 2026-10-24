@@ -1,0 +1,10 @@
+<% if type == "yes_no_na" || type == "rating" %>
+  <select name="<%= name %>" <%= "required" if required %>>
+    <option value=""><%= t("communications.choose_option") %></option>
+    <% (type == "rating" ? %w[1 2 3 4 5] : TypedFormValue::YES_NO_NA).each do |option| %>
+      <option value="<%= option %>" <%= "selected" if value.to_s == option %>><%= type == "rating" ? option : t("typed_forms.answers.#{option}") %></option>
+    <% end %>
+  </select>
+<% else %>
+  <input type="<%= type %>" name="<%= name %>" value="<%= value %>" <%= 'step=any' if type == 'number' %> <%= "required" if required %>>
+<% end %>

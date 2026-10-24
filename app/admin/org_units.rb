@@ -3,7 +3,7 @@
 ActiveAdmin.register OrgUnit do
   menu priority: 2, label: "Org units"
 
-  permit_params :name, :unit_type, :parent_id
+  permit_params :name, :unit_type, :parent_id, :store_format, :cluster_key
 
   controller do
     def scoped_collection
@@ -21,6 +21,8 @@ ActiveAdmin.register OrgUnit do
     column :name
     column :unit_type
     column :parent
+    column :store_format
+    column :cluster_key
     column :created_at
     actions
   end
@@ -28,6 +30,8 @@ ActiveAdmin.register OrgUnit do
   filter :name
   filter :unit_type, as: :select, collection: OrgUnit::UNIT_TYPES
   filter :parent
+  filter :store_format
+  filter :cluster_key
 
   form do |f|
     f.inputs do
@@ -37,6 +41,8 @@ ActiveAdmin.register OrgUnit do
               as: :select,
               collection: acting_tenant.org_units.where.not(unit_type: "store").order(:name),
               include_blank: true
+      f.input :store_format, hint: "Stores only (e.g. express, flagship)"
+      f.input :cluster_key, hint: "Stores only (e.g. casa-center)"
     end
     f.actions
   end
@@ -47,6 +53,8 @@ ActiveAdmin.register OrgUnit do
       row :name
       row :unit_type
       row :parent
+      row :store_format
+      row :cluster_key
       row :created_at
       row :updated_at
     end

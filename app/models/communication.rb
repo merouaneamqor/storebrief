@@ -1,23 +1,43 @@
 class Communication < ApplicationRecord
   include Bilingual
+  include Reviewable
 
-  FORMATS = %w[news task].freeze
+  FORMATS = %w[news task announcement].freeze
   STATUSES = %w[draft sent].freeze
-  SOURCES = %w[compose playbook].freeze
+  SOURCES = %w[compose playbook corrective].freeze
   # Ordered most to least pressing; the index is the sort rank.
   PRIORITIES = %w[urgent important routine].freeze
   DEFAULT_PRIORITY = "routine".freeze
+  ATTACHMENT_TYPES = %w[
+    application/pdf
+    image/png
+    image/jpeg
+    image/jpg
+    image/webp
+  ].freeze
+  ATTACHMENT_MAX_BYTES = 10.megabytes
+  ATTACHMENT_MAX_COUNT = 10
 
   belongs_to :tenant
   belongs_to :author, class_name: "User"
   belongs_to :playbook, optional: true
+  belongs_to :communication_template, optional: true
+  belongs_to :visit, optional: true
+  belongs_to :source_delivery, class_name: "Delivery", optional: true
+  belongs_to :source_checklist_item_response, class_name: "ChecklistItemResponse", optional: true
   belongs_to :recurrence_parent, class_name: "Communication", optional: true, inverse_of: :occurrences
+  belongs_to :depends_on_communication, class_name: "Communication", optional: true,
+             inverse_of: :dependent_communications
   has_many :occurrences, class_name: "Communication", foreign_key: :recurrence_parent_id,
                          inverse_of: :recurrence_parent, dependent: :nullify
+  has_many :dependent_communications, class_name: "Communication",
+                                      foreign_key: :depends_on_communication_id,
+                                      inverse_of: :depends_on_communication, dependent: :nullify
   has_many :deliveries, dependent: :destroy
   has_many :org_units, through: :deliveries
   has_many :notification_logs, as: :notifiable, dependent: :destroy
   has_many :communication_questions, -> { ordered }, dependent: :destroy, inverse_of: :communication
+  has_many_attached :attachments
 
   accepts_nested_attributes_for :communication_questions, allow_destroy: true, reject_if: :reject_blank_question?
 
@@ -28,11 +48,14 @@ class Communication < ApplicationRecord
   validates :source, inclusion: { in: SOURCES }
   validates :priority, inclusion: { in: PRIORITIES }
   validate :recurrence_rule_valid
+  validate :depends_on_communication_valid
+  validate :acceptable_attachments
 
   bilingual_fields :title, :body
 
   scope :sent, -> { where(status: "sent") }
   scope :drafts, -> { where(status: "draft") }
+  scope :announcements, -> { where(format: "announcement") }
   scope :recurrence_due, ->(today) { sent.where("recurrence_next_on <= ?", today) }
   # The series source plus every occurrence cloned from it.
   scope :in_series, ->(source_id) { where(id: source_id).or(where(recurrence_parent_id: source_id)) }
@@ -49,8 +72,13 @@ class Communication < ApplicationRecord
   end
 
   before_validation :apply_source_default
+  before_validation :normalize_broadcast
   before_validation :apply_priority_default
   before_validation :clear_recurrence_unless_task
+  before_validation :clear_dependency_unless_task
+  before_validation :clear_approval_unless_task
+  before_validation :clear_attachments_unless_allowed
+  before_update :reset_review_after_edit
 
   def news?
     format == "news"
@@ -58,6 +86,18 @@ class Communication < ApplicationRecord
 
   def task?
     format == "task"
+  end
+
+  def announcement?
+    format == "announcement"
+  end
+
+  def acknowledgement_required?
+    critical_broadcast? && requires_acknowledgement?
+  end
+
+  def attachments?
+    attachments.attached?
   end
 
   def sent?
@@ -84,6 +124,18 @@ class Communication < ApplicationRecord
     recurrence_parent_id.present?
   end
 
+  def corrective?
+    source == "corrective"
+  end
+
+  def depends_on_another?
+    depends_on_communication_id.present?
+  end
+
+  def clear_dependency!
+    update!(depends_on_communication_id: nil)
+  end
+
   def recurrence_active?
     recurring? && recurrence_next_on.present?
   end
@@ -97,8 +149,51 @@ class Communication < ApplicationRecord
     self.recurrence_rule = Vazivo::Recurrence.normalize(attrs)
   end
 
-  def send_to!(org_unit_ids)
-    store_ids = resolve_store_ids(org_unit_ids)
+  def self.build_from_template(template, author:)
+    communication = template.tenant.communications.new(
+      author: author,
+      communication_template: template,
+      title_fr: template.title_fr,
+      title_ar: template.title_ar,
+      body_fr: template.body_fr.to_s,
+      body_ar: template.body_ar,
+      format: template.format,
+      requires_proof: template.requires_proof,
+      requires_approval: template.requires_approval,
+      priority: template.priority,
+      status: "draft",
+      source: "compose"
+    )
+    template.question_defs.each_with_index do |question, index|
+      communication.communication_questions.build(
+        position: question[:position].presence || index,
+        question_type: question[:question_type].presence || "short_text",
+        weight: question[:weight].presence || 1,
+        title_fr: question[:title_fr],
+        title_ar: question[:title_ar],
+        required: !!ActiveModel::Type::Boolean.new.cast(question[:required]),
+        options: Array(question[:options])
+      )
+    end
+    communication
+  end
+
+  # An approved (or pending) review only covers the content that was reviewed.
+  def reset_review!
+    return if review_status.blank? || sent?
+
+    update_columns(review_status: nil, reviewed_by_id: nil, reviewed_at: nil, review_note: nil)
+  end
+
+  def send_to!(org_unit_ids, role: nil, store_format: nil, cluster: nil)
+    Vazivo::Approval.ensure_sendable!(self)
+    store_ids = Vazivo::Assignment.resolve_store_ids(
+      tenant,
+      org_unit_ids: org_unit_ids,
+      role: role,
+      store_format: store_format,
+      cluster: cluster
+    )
     raise ArgumentError, I18n.t("errors.select_targets") if store_ids.empty?
 
     due = Vazivo::Schedule.default_due(tenant, due_at)
@@ -124,21 +219,120 @@ class Communication < ApplicationRecord
     { total: total, done: done, pending: pending, percent: percent_of(done, total) }
   end
 
+  # Aggregate per-user read receipts across all stores on this brief.
+  def read_receipt_stats
+    store_ids = deliveries.pluck(:org_unit_id)
+    readers = User.joins(:memberships)
+                  .where(tenant_id: tenant_id, memberships: { org_unit_id: store_ids, role: "store" })
+                  .distinct
+    total = readers.count
+    read = DeliveryRead.where(tenant_id: tenant_id, delivery_id: deliveries.select(:id), user_id: readers.select(:id))
+                       .count
+    { total: total, read: read, unread: [ total - read, 0 ].max }
+  end
+
   private
 
-  # Only tasks carry a priority; notes are always routine.
+  def reset_review_after_edit
+    return if review_status.blank? || status_changed?
+
+    content_changed = (changed - Reviewable::REVIEW_COLUMNS - %w[updated_at]).any? ||
+                      communication_questions.any?(&:changed_for_autosave?)
+    return unless content_changed
+
+    self.review_status = nil
+    self.reviewed_by_id = nil
+    self.reviewed_at = nil
+    self.review_note = nil
+  end
+
+  def normalize_broadcast
+    self.critical_broadcast = false unless announcement? && tenant&.feature?(:morocco_ops)
+    unless critical_broadcast?
+      self.requires_acknowledgement = false
+      self.broadcast_email = false
+      self.broadcast_whatsapp = false
+    end
+  end
+
+  # Critical announcements are always urgent; other notes remain routine.
   def apply_priority_default
-    self.priority = DEFAULT_PRIORITY if priority.blank? || !task?
+    if critical_broadcast?
+      self.priority = "urgent"
+    elsif priority.blank? || !task?
+      self.priority = DEFAULT_PRIORITY
+    end
   end
 
   def clear_recurrence_unless_task
     self.recurrence_rule = {} unless task?
   end
 
+  def clear_dependency_unless_task
+    self.depends_on_communication_id = nil unless task?
+  end
+
+  def clear_approval_unless_task
+    self.requires_approval = false unless task?
+  end
+
+  def attachments_allowed?
+    announcement? || task?
+  end
+
+  def clear_attachments_unless_allowed
+    return if attachments_allowed?
+    return unless attachments.attached?
+
+    attachments.purge
+  end
+
+  def acceptable_attachments
+    return unless attachments.attached?
+
+    unless attachments_allowed?
+      errors.add(:attachments, I18n.t("communications.attachments_announcement_only"))
+      return
+    end
+
+    if attachments.count > ATTACHMENT_MAX_COUNT
+      errors.add(:attachments, I18n.t("communications.attachments_too_many", count: ATTACHMENT_MAX_COUNT))
+    end
+
+    attachments.each do |file|
+      next unless file.blob
+
+      unless ATTACHMENT_TYPES.include?(file.content_type)
+        errors.add(:attachments, I18n.t("communications.attachments_invalid"))
+        break
+      end
+
+      if file.byte_size.to_i > ATTACHMENT_MAX_BYTES
+        errors.add(:attachments, I18n.t("communications.attachments_too_large"))
+        break
+      end
+    end
+  end
+
   def recurrence_rule_valid
     return if recurrence_rule.blank?
 
     errors.add(:recurrence_rule, :invalid) if occurrence? || Vazivo::Recurrence.errors_for(recurrence_rule).any?
+  end
+
+  def depends_on_communication_valid
+    return if depends_on_communication_id.blank?
+
+    parent = depends_on_communication
+    if parent.nil? || parent.tenant_id != tenant_id
+      errors.add(:depends_on_communication_id, :invalid)
+      return
+    end
+    if parent.id == id
+      errors.add(:depends_on_communication_id, :invalid)
+      return
+    end
+    errors.add(:depends_on_communication_id, :invalid) unless parent.task?
   end
 
   def apply_source_default
@@ -157,10 +351,5 @@ class Communication < ApplicationRecord
     return 0 if total.zero?
 
     ((done.to_f / total) * 100).round
-  end
-
-  def resolve_store_ids(org_unit_ids)
-    units = tenant.org_units.where(id: org_unit_ids)
-    units.flat_map { |unit| unit.descendant_stores.pluck(:id) }
   end
 end

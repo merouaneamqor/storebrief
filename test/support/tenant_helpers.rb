@@ -16,6 +16,10 @@ module TenantHelpers
   end
 
   def create_user(tenant, org_unit:, role:, email: nil, locale: "en", **attrs)
+    attrs[:privacy_notice_accepted_at] ||= Time.current
+    if attrs[:whatsapp_phone].present? && !attrs.key?(:whatsapp_alerts_consent_at)
+      attrs[:whatsapp_alerts_consent_at] = Time.current
+    end
     user = tenant.users.create!(
       name: role.to_s.upcase,
       email: email || "#{role}@#{tenant.slug}.test",

@@ -1,0 +1,38 @@
+<% content_for :title, "#{t('pricing.title')} · #{t('landing.hero.brand')}" %>
+<% content_for :description, t("pricing.meta_description") %>
+<% ctas = { "starter" => "cta_demo", "business" => "cta_demo", "enterprise" => "cta_offer", "grand_compte" => "cta_contact" } %>
+
+<section class="m-section m-plans">
+  <header class="m-plans__head">
+    <p class="m-kicker"><%= t("pricing.kicker") %></p>
+    <h1><%= t("pricing.title") %></h1>
+    <p class="m-lede"><%= t("pricing.lede") %></p>
+  </header>
+
+  <div class="m-plans__grid">
+    <% @plan_keys.each do |key| %>
+      <% featured = key == @recommended %>
+      <article class="m-plan<%= ' is-featured' if featured %>" aria-labelledby="plan-<%= key %>">
+        <% if featured %><p class="m-plan__flag"><%= t("pricing.recommended") %></p><% end %>
+        <p class="m-plan__segment"><%= t("pricing.plans.#{key}.segment") %></p>
+        <h2 id="plan-<%= key %>"><%= t("pricing.plans.#{key}.name") %></h2>
+        <p class="m-plan__tagline"><%= t("pricing.plans.#{key}.tagline") %></p>
+        <ul class="m-plan__features">
+          <% t("pricing.plans.#{key}.features").each do |feature| %>
+            <li><%= icon "check-circle" %><span><%= feature %></span></li>
+          <% end %>
+        </ul>
+        <%= link_to t("pricing.#{ctas[key]}"), root_path(plan: key, anchor: "demo"),
+                    class: "m-btn m-btn--block#{' m-btn--ghost' unless featured}" %>
+      </article>
+    <% end %>
+  </div>
+
+  <aside class="m-plans__help">
+    <div>
+      <h2><%= t("pricing.help_title") %></h2>
+      <p><%= t("pricing.help_body") %></p>
+    </div>
+    <%= link_to t("pricing.cta_contact"), root_path(anchor: "demo"), class: "m-btn" %>
+  </aside>
+</section>

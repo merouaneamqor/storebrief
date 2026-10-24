@@ -88,6 +88,35 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", notify_push_communication_path(@brand.tenant.communications.sent.last)
   end
 
+  test "head office exception drill-down shows campaign age assignee and area filter" do
+    area = @brand.tenant.org_units.create!(name: "Maarif Area", unit_type: "area", parent: @brand.region)
+    @brand.store.update!(parent: area)
+    brief = task_for(@brand, proof: false)
+    delivery = brief.deliveries.first
+    delivery.update!(due_at: 3.hours.ago, awareness: "pending", assignee: @brand.store_user)
+
+    sign_in(@brand.hq)
+    get app_root_path
+    assert_response :success
+    assert_select ".hq-exceptions__filters"
+    assert_select "select[name=area_id]"
+    assert_match I18n.t("morocco.hq.exception_fields.campaign", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.exception_fields.assignee", locale: :en), response.body
+    assert_match brief.title, response.body
+    assert_match @brand.store_user.name, response.body
+    assert_select "a[href=?]", communication_path(brief, anchor: "store-#{@brand.store.id}")
+
+    get app_root_path(area_id: area.id)
+    assert_response :success
+    assert_select ".hq-exceptions .exception-row__store", text: @brand.store.name
+    assert_select "select[name=area_id] option[selected][value=?]", area.id.to_s
+
+    other = @brand.tenant.org_units.create!(name: "Other Area", unit_type: "area", parent: @brand.region)
+    get app_root_path(area_id: other.id)
+    assert_response :success
+    assert_select ".hq-exceptions .exception-row__store", count: 0
+  end
+
   test "head office today shows store status buckets linking to the store list" do
     brief = task_for(@brand, proof: false)
     brief.deliveries.first.update!(due_at: 1.hour.ago)
@@ -108,12 +137,55 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select ".empty"
   end
 
+  test "head office today shows module compliance rollups with dash for empty modules" do
+    brief = task_for(@brand, proof: false)
+    brief.deliveries.first.update!(status: "completed", completed_at: Time.current, awareness: "done")
+    sign_in(@brand.hq)
+
+    get app_root_path
+    assert_response :success
+    assert_select ".hq-compliance__tile", 5
+    assert_match I18n.t("morocco.hq.compliance.title", locale: :en), response.body
+    assert_select ".hq-compliance__tile--tasks strong", text: "100%"
+    assert_select ".hq-compliance__tile--audits strong", text: "-"
+    assert_select ".hq-compliance__tile--campaigns strong", text: "-"
+    assert_select ".hq-compliance__tile--training strong", text: "-"
+    assert_select ".hq-compliance__tile--vm strong", text: "-"
+    assert_select "a.hq-compliance__tile--tasks[href=?]", app_root_path
+    assert_select "a.hq-compliance__tile--audits[href=?]", audit_history_path
+  end
+
+  test "head office today shows task monitoring completion with store drill-down" do
+    second = @brand.tenant.org_units.create!(name: "Gauthier", unit_type: "store", parent: @brand.region)
+    create_user(@brand.tenant, org_unit: second, role: :store, email: "gauthier@vazivo-ma.test")
+    brief = task_for(@brand, proof: false)
+    brief.send_to!([ @brand.store.id, second.id ])
+    done, late = brief.deliveries.order(:id).to_a
+    done.update!(status: "completed", completed_at: Time.current, awareness: "done")
+    late.update!(due_at: 1.hour.ago)
+
+    sign_in(@brand.hq)
+    get app_root_path
+    assert_response :success
+    assert_select ".hq-monitor"
+    assert_match I18n.t("morocco.hq.monitoring.title", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.monitoring.by_campaign", locale: :en), response.body
+    assert_match I18n.t("morocco.hq.monitoring.by_region", locale: :en), response.body
+    assert_select ".hq-monitor .hq-campaign__ring strong", text: /50/
+    assert_select ".hq-monitor__row .hq-monitor__pct", text: "50%"
+    assert_select "a[href=?]", communication_path(brief, anchor: "store-#{late.org_unit_id}")
+
+    get communication_path(brief)
+    assert_select "li#store-#{late.org_unit_id}"
+  end
+
   test "store status strip is hidden and ignored without morocco_ops" do
     brand = build_brand("status-off", features: { morocco_ops: false })
     sign_in(brand.hq)
 
     get app_root_path
     assert_select ".hq-status-strip", 0
+    assert_select ".hq-compliance", 0
 
     get org_units_path(status: "critical")
     assert_response :success
@@ -132,10 +204,15 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     Playbook.ensure_defaults!(@brand.tenant)
     playbook = @brand.tenant.playbooks.find_by!(key: "aid")
     sign_in(@brand.hq)
+    campaign_on = Date.new(2026, 6, 16)
+    starts_on = Date.new(2026, 6, 2)
 
     assert_difference -> { @brand.tenant.checklists.count }, 1 do
       post deploy_playbook_path(playbook), params: {
-        campaign_on: Date.new(2026, 6, 16).iso8601,
+        starts_on: starts_on.iso8601,
+        campaign_on: campaign_on.iso8601,
+        brief_fr: "Brief AID maison",
+        brief_ar: "موجز العيد",
         org_unit_ids: [ @brand.store.id ]
       }
     end
@@ -144,11 +221,35 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     checklist = @brand.tenant.checklists.order(:id).last
     assert_equal playbook, checklist.playbook
     assert_equal "sent", checklist.status
+    assert_equal starts_on, checklist.starts_on
+    assert_equal campaign_on, checklist.campaign_on
     assert_equal 7, checklist.checklist_items.count
+    assert_equal "Brief AID maison", checklist.description_fr
     assert_equal @brand.store_user, checklist.checklist_deliveries.first.assignee
 
     confirmation = @brand.tenant.communications.where(source: "playbook").order(:id).last
+    assert_equal "Brief AID maison", confirmation.body_fr
+    assert_equal "موجز العيد", confirmation.body_ar
     assert_equal "pending", confirmation.deliveries.first.awareness
+  end
+
+  test "deploy rejects an inverted campaign date range" do
+    Playbook.ensure_defaults!(@brand.tenant)
+    playbook = @brand.tenant.playbooks.find_by!(key: "aid")
+    sign_in(@brand.hq)
+
+    assert_no_difference -> { @brand.tenant.checklists.count } do
+      post deploy_playbook_path(playbook), params: {
+        starts_on: Date.new(2026, 6, 20).iso8601,
+        campaign_on: Date.new(2026, 6, 16).iso8601,
+        brief_fr: "Brief",
+        org_unit_ids: [ @brand.store.id ]
+      }
+    end
+
+    assert_redirected_to playbooks_path(key: playbook.key)
+    follow_redirect!
+    assert_match I18n.t("morocco.playbooks.invalid_range", locale: :en), response.body
   end
 
   test "playbook targets preview resolves stores under a region within the tenant" do
@@ -175,12 +276,18 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     sign_in(@brand.hq)
 
     assert_no_difference -> { @brand.tenant.checklists.count } do
-      post deploy_playbook_path(playbook), params: { campaign_on: Date.new(2026, 6, 16).iso8601 }
+      post deploy_playbook_path(playbook), params: {
+        starts_on: Date.new(2026, 6, 2).iso8601,
+        campaign_on: Date.new(2026, 6, 16).iso8601,
+        brief_fr: playbook.description_fr
+      }
     end
     assert_redirected_to playbooks_path(key: playbook.key)
 
     post deploy_playbook_path(playbook), params: {
+      starts_on: Date.new(2026, 6, 2).iso8601,
       campaign_on: Date.new(2026, 6, 16).iso8601,
+      brief_fr: playbook.description_fr,
       org_unit_ids: [ @brand.region.id ]
     }
 
@@ -200,6 +307,10 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
     assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.region.id}']"
     assert_select "input[type=checkbox][name='org_unit_ids[]'][value='#{@brand.store.id}']"
     assert_select "form.pb-deploy[x-data=campaignTargets]"
+    assert_select "input[type=date][name=starts_on]"
+    assert_select "input[type=date][name=campaign_on]"
+    assert_select "textarea[name=brief_fr]"
+    assert_select "textarea[name=brief_ar]"
   end
 
   test "hq can customize and create playbooks" do
@@ -252,16 +363,19 @@ class VazivoMoroccoTest < ActionDispatch::IntegrationTest
   end
 
   test "the store morning screen is the radar" do
-    task_for(@brand, proof: false)
-    sign_in(@brand.store_user)
+    travel_to Vazivo::Schedule::ZONE.local(2026, 10, 7, 11, 0) do
+      task_for(@brand, proof: false)
+      sign_in(@brand.store_user)
 
-    get app_root_path
-    assert_response :success
-    assert_match I18n.t("morocco.radar.place_store", locale: :en), response.body
-    assert_match I18n.t("morocco.radar.now", locale: :en), response.body
-    assert_match "Contrôle vitrine", response.body
-    assert_select "article.work-card.work-card--hero"
-    assert_select ".work-card--hero .btn", minimum: 1
+      get app_root_path
+      assert_response :success
+      assert_match I18n.t("morocco.radar.place_store", locale: :en), response.body
+      assert_match I18n.t("morocco.radar.now", locale: :en), response.body
+      assert_match I18n.t("morocco.radar.today_by_priority", locale: :en), response.body
+      assert_match "Contrôle vitrine", response.body
+      assert_select "article.work-card.work-card--hero"
+      assert_select ".work-card--hero .btn", minimum: 1
+    end
   end
 
   test "the store later section stays collapsed" do

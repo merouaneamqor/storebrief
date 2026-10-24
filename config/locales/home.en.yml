@@ -1,0 +1,21 @@
+en:
+  home:
+    kicker:
+      problems: "The problem"
+      how: "How it works"
+      benefits: "What changes"
+      roles: "For every role"
+      fit: "For your network"
+      plans: "Plans"
+      faq: "Frequently asked"
+    plans:
+      title: "A plan for every network size"
+      lede: "From your first store to large retailers. Terms are tailored to each customer."
+      cta: "Explore plans"
+    how:
+      lede: "Four steps from head office to the store phone, and back to head office with proof."
+      who:
+        w1: "Head office"
+        w2: "Head office and region"
+        w3: "Store team"
+        w4: "Head office and region"

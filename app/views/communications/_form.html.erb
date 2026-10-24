@@ -3,13 +3,15 @@
     {
       id: question.id,
       question_type: question.question_type,
+      weight: question.weight,
       title_fr: question.title_fr,
       title_ar: question.title_ar,
       required: question.required,
       options: question.options
     }
   end
-  type_labels = CommunicationQuestion::TYPES.index_with { |type| t("communications.question_types.#{type}") }
+  send_label = Vazivo::Approval.gate?(@communication) && !@communication.review_approved? ? t("approval.submit") : t("communications.send")
+  type_labels = CommunicationQuestion::TYPES.reject { |type| type == "signature" && !tenant_feature?(:morocco_ops) }.index_with { |type| t("communications.question_types.#{type}") }
 %>
 
 <div class="brief-form"
@@ -21,11 +23,12 @@
      data-format="<%= @communication.format %>"
      data-news-label="<%= t('common.news') %>"
      data-task-label="<%= t('common.task') %>"
-     data-untitled="<%= t('communications.untitled') %>"
+     data-announcement-label="<%= t('common.announcement') %>"
+     data-untitled="<%= t('communications.untitled_brief') %>"
      data-type-labels="<%= h(type_labels.to_json) %>"
      data-questions="<%= h(questions_payload.to_json) %>">
 
-  <%= form_with model: @communication, local: true, html: { class: "brief-editor-form" } do |f| %>
+  <%= form_with model: @communication, local: true, multipart: true, html: { class: "brief-editor-form" } do |f| %>
     <header class="brief-topbar" x-show="!preview">
       <div class="brief-topbar__start">
         <%= link_to t("communications.back"), communications_path, class: "brief-topbar__back" %>
@@ -35,7 +38,7 @@
         <button type="button" class="btn btn--ghost" @click="preview = true"><%= t("communications.preview") %></button>
         <button type="button" class="btn btn--ghost" @click="openSettings()"><%= t("communications.settings") %></button>
         <button type="submit" class="btn btn--ghost" name="commit" value="draft"><%= t("communications.save_draft") %></button>
-        <button type="button" class="btn" @click="openSettings()"><%= t("communications.send") %></button>
+        <button type="button" class="btn" @click="openSettings()"><%= send_label %></button>
       </div>
     </header>
 
@@ -112,10 +115,14 @@
               <label class="brief-question__type">
                 <span class="visually-hidden"><%= t("communications.question_type") %></span>
                 <select :name="`communication[communication_questions_attributes][${index}][question_type]`" x-model="question.question_type">
-                  <% CommunicationQuestion::TYPES.each do |type| %>
+                  <% CommunicationQuestion::TYPES.reject { |type| type == "signature" && !tenant_feature?(:morocco_ops) }.each do |type| %>
                     <option value="<%= type %>"><%= t("communications.question_types.#{type}") %></option>
                   <% end %>
                 </select>
+              </label>
+              <label>
+                <span><%= t("typed_forms.weight") %></span>
+                <input type="number" min="0.01" max="999999.99" step="0.01" required :name="`communication[communication_questions_attributes][${index}][weight]`" x-model="question.weight">
               </label>
               <label class="brief-required">
                 <input type="hidden" :name="`communication[communication_questions_attributes][${index}][required]`" value="0">
@@ -133,7 +140,7 @@
         </template>
       </div>
 
-      <aside class="brief-toolbar" aria-label="<%= t('communications.toolbar') %>">
+      <aside class="brief-toolbar" x-show="format !== 'announcement'" aria-label="<%= t('communications.toolbar') %>">
         <button type="button" class="brief-toolbar__btn" @click="addQuestion()" title="<%= t('communications.add_question') %>">+</button>
         <button type="button" class="brief-toolbar__btn" @click="duplicateActive()" :disabled="!activeQuestion" title="<%= t('communications.duplicate_question') %>">⧉</button>
         <button type="button" class="brief-toolbar__btn" @click="deleteActive()" :disabled="!activeQuestion" title="<%= t('communications.delete_question') %>">×</button>
@@ -159,7 +166,58 @@
               <input type="radio" name="communication_format_ui" value="task" x-model="format">
               <span><%= t("common.task") %></span>
             </label>
+            <label class="brief-choice" :class="{ 'is-selected': format === 'announcement' }">
+              <input type="radio" name="communication_format_ui" value="announcement" x-model="format">
+              <span><%= t("common.announcement") %></span>
+            </label>
           </div>
+        </section>
+
+        <% if tenant_feature?(:morocco_ops) %>
+          <section class="brief-settings__block" x-show="format === 'announcement'" x-cloak>
+            <h3><%= t("broadcasts.title") %></h3>
+            <p class="meta"><%= t("broadcasts.help") %></p>
+            <% { critical_broadcast: "enable", requires_acknowledgement: "require_ack", broadcast_email: "email", broadcast_whatsapp: "whatsapp" }.each do |field, label| %>
+              <label class="brief-choice">
+                <%= f.check_box field, "x-bind:disabled": "format !== 'announcement'" %>
+                <span><%= t("broadcasts.#{label}") %></span>
+              </label>
+            <% end %>
+          </section>
+        <% end %>
+
+        <section class="brief-settings__block" x-show="format === 'announcement' || format === 'task'" x-cloak>
+          <h3><%= t("communications.attachments") %></h3>
+          <p class="meta"><%= t("communications.attachments_help") %></p>
+          <% if @communication.attachments.attached? %>
+            <ul class="list brief-attachments">
+              <% @communication.attachments.each do |file| %>
+                <li>
+                  <span><%= file.filename %></span>
+                  <label>
+                <span><%= t("typed_forms.weight") %></span>
+                <input type="number" min="0.01" max="999999.99" step="0.01" required :name="`communication[communication_questions_attributes][${index}][weight]`" x-model="question.weight">
+              </label>
+              <label class="brief-required">
+                    <input type="checkbox" name="communication[remove_attachment_ids][]" value="<%= file.id %>">
+                    <span><%= t("communications.attachments_remove") %></span>
+                  </label>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+          <%= f.file_field :attachments, multiple: true,
+                accept: "application/pdf,image/png,image/jpeg,image/jpg,image/webp",
+                "aria-label": t("communications.attachments") %>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("communications.due_at") %></h3>
+          <p class="meta"><%= t("communications.due_at_help") %></p>
+          <%= f.datetime_local_field :due_at,
+                value: @communication.due_at&.in_time_zone(Vazivo::Schedule::ZONE)&.strftime("%Y-%m-%dT%H:%M"),
+                "aria-label": t("communications.due_at"),
+                ":disabled": "format !== 'task'" %>
         </section>
 
         <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
@@ -179,13 +237,36 @@
           <%= render "recurrence", communication: @communication %>
         </section>
 
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("morocco.approval.title") %></h3>
+          <p class="meta"><%= t("morocco.approval.help") %></p>
+          <label class="brief-required">
+            <%= f.check_box :requires_approval, disabled: false, "x-bind:disabled": "format !== 'task'" %>
+            <span><%= t("morocco.approval.requires") %></span>
+          </label>
+        </section>
+
+        <section class="brief-settings__block" x-show="format === 'task'" x-cloak>
+          <h3><%= t("morocco.dependency.title") %></h3>
+          <p class="meta"><%= t("morocco.dependency.help") %></p>
+          <label class="meta" for="depends_on_communication_id"><%= t("morocco.dependency.waits_for") %></label>
+          <select id="depends_on_communication_id" name="communication[depends_on_communication_id]" :disabled="format !== 'task'">
+            <option value=""><%= t("morocco.dependency.none_option") %></option>
+            <% Array(@dependency_candidates).each do |candidate| %>
+              <option value="<%= candidate.id %>" <%= "selected" if @communication.depends_on_communication_id == candidate.id %>>
+                <%= candidate.title %>
+              </option>
+            <% end %>
+          </select>
+        </section>
+
         <section class="brief-settings__block">
           <%= render "targets", units: @target_units, selected_ids: Array(params[:org_unit_ids]), embedded: true %>
         </section>
 
         <div class="brief-settings__actions">
           <button type="submit" class="btn btn--ghost" name="commit" value="draft"><%= t("communications.save_draft") %></button>
-          <button type="submit" class="btn" name="commit" value="send"><%= t("communications.send") %></button>
+          <button type="submit" class="btn" name="commit" value="send"><%= send_label %></button>
         </div>
       </div>
     </div>
@@ -197,7 +278,7 @@
       <div class="brief-preview__card">
         <p class="meta"><%= t("communications.preview_lede") %></p>
         <h1 x-text="titleFr || '<%= j(t('communications.title_placeholder')) %>'"></h1>
-        <p class="lede"><span class="badge" :class="format === 'task' ? 'badge--task' : 'badge--news'" x-text="formatLabel"></span></p>
+        <p class="lede"><span class="badge" :class="formatBadgeClass" x-text="formatLabel"></span></p>
         <div class="prose" x-show="bodyFr.trim() !== ''" x-cloak x-text="bodyFr"></div>
 
         <div class="brief-preview__questions">
@@ -216,6 +297,11 @@
               <template x-if="question.question_type === 'short_text'">
                 <input type="text" disabled placeholder="<%= t('communications.answer_hint_short') %>">
               </template>
+              <% TypedFormValue::TYPES.each do |type| %>
+                <template x-if="question.question_type === '<%= type %>'">
+                  <div><%= render "shared/typed_form_field", type: type, name: "", value: nil, required: false %></div>
+                </template>
+              <% end %>
               <template x-if="question.question_type === 'long_text'">
                 <textarea disabled rows="3" placeholder="<%= t('communications.answer_hint_long') %>"></textarea>
               </template>

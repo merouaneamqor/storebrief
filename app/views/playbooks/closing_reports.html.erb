@@ -1,0 +1,59 @@
+<% content_for :title, "#{t('morocco.playbooks.closing.title')} · Vazivo" %>
+<% snapshot = @snapshot %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.playbooks.campaigns.nav"), campaigns_playbooks_path %> · <%= link_to t("morocco.playbooks.back"), playbooks_path %></p>
+    <h1><%= t("morocco.playbooks.closing.title") %></h1>
+    <p class="meta"><%= t("morocco.playbooks.closing.lede") %></p>
+  </div>
+</header>
+
+<% if snapshot.reports.any? %>
+  <section class="cmp-board clos-list">
+    <div class="cmp-summary">
+      <div class="cmp-summary__tile">
+        <strong><%= snapshot.total %></strong>
+        <span><%= t("morocco.playbooks.closing.closed_count") %></span>
+      </div>
+    </div>
+
+    <div class="cmp-campaigns">
+      <% snapshot.reports.each do |report| %>
+        <article class="cmp-card">
+          <div class="cmp-card__head">
+            <div>
+              <h2><%= link_to report.title, report.path %></h2>
+              <p class="meta">
+                <% if report.starts_on.present? && report.campaign_on.present? %>
+                  <%= t("morocco.playbooks.campaigns.date_range",
+                        start: l(report.starts_on, format: "%d/%m/%Y"),
+                        end: l(report.campaign_on, format: "%d/%m/%Y")) %>
+                <% else %>
+                  <%= t("morocco.playbooks.campaigns.campaign_day") %>:
+                  <%= report.campaign_on ? l(report.campaign_on, format: "%d/%m/%Y") : "-" %>
+                <% end %>
+                · <%= t("morocco.playbooks.campaigns.stores_done", done: report.done, total: report.total) %>
+              </p>
+            </div>
+            <div class="cmp-card__percent" role="img" aria-label="<%= report.percent %>%">
+              <strong><%= report.percent %><span>%</span></strong>
+              <em><%= t("morocco.playbooks.campaigns.compliance") %></em>
+            </div>
+          </div>
+          <%= render "shared/progress", stats: { done: report.done, total: report.total, percent: report.percent } %>
+          <div class="clos-card__actions">
+            <%= link_to t("morocco.playbooks.closing.open"), report.path, class: "btn btn--quiet" %>
+            <%= link_to t("morocco.playbooks.closing.export_html"), report.export_path, class: "btn btn--ghost", target: "_blank", rel: "noopener" %>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </section>
+<% else %>
+  <div class="empty empty--alive">
+    <%= icon("trophy", css_class: "icon empty__icon") %>
+    <p class="empty__text"><%= t("morocco.playbooks.closing.empty") %></p>
+    <%= link_to t("morocco.playbooks.campaigns.nav"), campaigns_playbooks_path, class: "btn btn--quiet" %>
+  </div>
+<% end %>

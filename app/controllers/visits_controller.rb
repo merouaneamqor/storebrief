@@ -1,6 +1,7 @@
 class VisitsController < ApplicationController
   before_action -> { require_feature!(:morocco_ops) }
-  before_action :require_visit_manager
+  before_action -> { require_hq_or_area(:visits) }, except: :calendar
+  before_action :require_calendar_viewer!, only: :calendar
   around_action :use_store_time_zone
   before_action :set_visit, only: %i[show edit update cancel]
   before_action :load_form_options, only: %i[new create edit update]
@@ -15,15 +16,37 @@ class VisitsController < ApplicationController
     @auditors = Visit.auditor_candidates(tenant_scope).where(id: visit_scope.select(:auditor_id))
     @units = calendar_units
     @unit = @units.find { |unit| unit.id.to_s == params[:unit_id].to_s }
+    @stores = store_scope.order(:name)
+    @store = @stores.find_by(id: params[:store_id])
+    @type = params[:type].to_s.presence_in(Vazivo::RetailCalendar::TYPES)
     @auditor = @auditors.find_by(id: params[:auditor_id])
 
     visits = visit_scope.includes(:org_unit, :auditor)
-    visits = visits.where(org_unit_id: @unit.descendant_stores.select(:id)) if @unit
+    stores = store_scope
+    stores = stores.where(id: @unit.descendant_stores.select(:id)) if @unit
+    stores = stores.where(id: @store.id) if @store
+    visits = visits.where(org_unit_id: stores.select(:id))
     visits = visits.where(auditor_id: @auditor.id) if @auditor
-    @calendar = Vazivo::VisitCalendar.new(visits: visits, view: params[:view], date: params[:date])
+    tasks = Delivery.joins(:communication).where(org_unit_id: stores.select(:id))
+                    .where(communications: { tenant_id: tenant_scope.id, status: "sent", format: "task" })
+                    .includes(:communication, :org_unit)
+    campaigns = ChecklistDelivery.joins(:checklist).where(org_unit_id: stores.select(:id))
+                                 .where(checklists: { tenant_id: tenant_scope.id, status: "sent" })
+                                 .where.not(checklists: { playbook_id: nil })
+                                 .includes(:checklist, :org_unit)
+    tasks = tasks.none unless tenant_feature?(:briefs)
+    campaigns = campaigns.none unless tenant_feature?(:checklists)
+    @calendar = Vazivo::RetailCalendar.new(
+      visits: visits, task_deliveries: tasks, campaign_deliveries: campaigns,
+      type: @type, view: params[:view], date: params[:date]
+    )
   end
 
-  def show; end
+  def show
+    @corrective_communications = @visit.corrective_communications
+                                       .includes(:author, :deliveries)
+                                       .order(created_at: :desc)
+  end
 
   def new
     @visit = tenant_scope.visits.new(planned_at: Time.zone.now.change(hour: 10, min: 0) + 1.day, auditor: current_user_auditor)
@@ -67,10 +90,10 @@ class VisitsController < ApplicationController
 
   private
 
-  def require_visit_manager
-    return if hq_user? || current_user.area?
+  def require_calendar_viewer!
+    return if store_user?
 
-    redirect_to app_root_path, alert: t("morocco.visits.access_required")
+    require_hq_or_area(:visits)
   end
 
   def use_store_time_zone(&)
@@ -81,24 +104,35 @@ class VisitsController < ApplicationController
     @visit = visit_scope.find(params[:id])
   end
 
+  # HQ sees tenant visits; area sees descendant stores; store sees only its own.
   def visit_scope
     scope = tenant_scope.visits
-    hq_user? ? scope : scope.where(org_unit_id: store_scope.select(:id))
+    return scope if hq_user?
+
+    store_ids = store_scope.select(:id)
+    return scope.none if store_ids.empty?
+
+    scope.where(org_unit_id: store_ids)
   end
 
   # HQ plans for every store; area users only for stores under their area.
   def store_scope
-    stores = tenant_scope.org_units.stores
-    return stores if hq_user?
-
-    store_ids = current_user.memberships.where(role: "area").includes(:org_unit)
-                            .flat_map { |m| m.org_unit.descendant_stores.pluck(:id) }
-    stores.where(id: store_ids)
+    if hq_user?
+      tenant_scope.org_units.stores
+    elsif area_user?
+      tenant_scope.org_units.stores.where(id: current_user.permitted_store_ids(:visits))
+    elsif store_user? && (store = current_user.store_org_unit)
+      tenant_scope.org_units.stores.where(id: store.id)
+    else
+      OrgUnit.none
+    end
   end
 
   # Regions and areas that contain at least one store the user can see.
   def calendar_units
     visible_ids = store_scope.pluck(:id)
+    return [] if visible_ids.empty?
+
     tenant_scope.org_units.where(unit_type: %w[region area]).order(:name).select do |unit|
       unit.descendant_stores.where(id: visible_ids).exists?
     end

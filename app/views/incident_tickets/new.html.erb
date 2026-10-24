@@ -1,0 +1,18 @@
+<% content_for :title, t("tickets.new") %>
+<header class="radar-head"><h1><%= t("tickets.new") %></h1></header>
+<section class="panel">
+  <% if @ticket.errors.any? %><p role="alert"><%= @ticket.errors.full_messages.to_sentence %></p><% end %>
+  <% if @categories.empty? %><p><%= t("tickets.no_categories") %></p><% end %>
+  <%= form_with model: @ticket do |form| %>
+    <% if @ticket.source %>
+      <%= hidden_field_tag :source_type, @ticket.source_type %><%= hidden_field_tag :source_id, @ticket.source_id %>
+      <p class="meta"><%= t("tickets.source") %> #<%= @ticket.source_id %></p>
+    <% end %>
+    <%= form.label :title, t("tickets.subject") %><%= form.text_field :title, required: true, maxlength: 160 %>
+    <%= form.label :description, t("tickets.description") %><%= form.text_area :description, required: true, maxlength: 5000 %>
+    <%= form.label :org_unit_id, t("tickets.store") %><%= form.collection_select :org_unit_id, @stores, :id, :name %>
+    <%= form.label :ticket_category_id, t("tickets.category") %><%= form.collection_select :ticket_category_id, @categories, :id, :name %>
+    <%= form.label :priority, t("tickets.priority") %><%= form.select :priority, IncidentTicket::PRIORITIES.map { |priority| [t("tickets.priorities.#{priority}"), priority] } %>
+    <%= form.submit t("tickets.save"), class: "btn btn--primary", disabled: @categories.empty? %>
+  <% end %>
+</section>

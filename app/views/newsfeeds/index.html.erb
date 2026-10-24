@@ -1,0 +1,79 @@
+<% content_for :title, "#{t('morocco.newsfeed.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
+    <h1><%= t("morocco.newsfeed.title") %></h1>
+    <p class="meta"><%= t("morocco.newsfeed.lede", store: @store.name) %></p>
+  </div>
+</header>
+
+<section class="panel">
+  <h2><%= t("feed_engagement.store_post") %></h2>
+  <p class="meta"><%= t("feed_engagement.moderation_note") %></p>
+  <%= form_with url: feed_posts_path do |form| %>
+    <%= form.label :body, t("feed_engagement.message") %>
+    <%= form.text_area :body, required: true, maxlength: 2000 %>
+    <%= form.submit t("feed_engagement.submit"), class: "btn" %>
+  <% end %>
+</section>
+<% @posts.each do |post| %>
+  <article class="panel">
+    <p class="meta"><%= post.user.name %> · <%= t("feed_engagement.#{post.status}") %></p>
+    <%= simple_format(post.body) %>
+    <%= render "newsfeeds/discussion", subject: post if post.status == "published" %>
+  </article>
+<% end %>
+
+<section class="panel newsfeed" data-testid="newsfeed">
+  <% if @deliveries.any? %>
+    <ul class="list newsfeed__list">
+      <% @deliveries.each do |delivery| %>
+        <% communication = delivery.communication %>
+        <li class="newsfeed__item" id="<%= dom_id(delivery) %>">
+          <div>
+            <%= link_to communication.title, inbox_path(delivery), class: "newsfeed__title" %>
+            <div class="meta">
+              <%= localized_badge(communication.format) %>
+              <span><%= communication.created_at.in_time_zone(Vazivo::Schedule::ZONE).strftime("%d/%m/%Y %H:%M") %></span>
+              <% if delivery.read_by?(current_user) %>
+                <span class="badge"><%= t("morocco.read_receipts.read_badge") %></span>
+              <% else %>
+                <span class="badge"><%= t("morocco.read_receipts.unread_badge") %></span>
+              <% end %>
+              <% if communication.attachments? %>
+                <span class="badge"><%= t("morocco.newsfeed.has_attachments") %></span>
+              <% end %>
+            </div>
+            <% if communication.body.present? %>
+              <p class="newsfeed__excerpt"><%= truncate(communication.body.to_s, length: 160) %></p>
+            <% end %>
+          </div>
+          <%= render "newsfeeds/discussion", subject: delivery %>
+        </li>
+      <% end %>
+    </ul>
+
+    <% if @total_pages > 1 %>
+      <nav class="newsfeed-pager" aria-label="<%= t('morocco.newsfeed.pagination') %>">
+        <% if @page > 1 %>
+          <%= link_to t("morocco.newsfeed.prev"), newsfeeds_path(page: @page - 1), class: "newsfeed-pager__link" %>
+        <% else %>
+          <span class="newsfeed-pager__link is-disabled"><%= t("morocco.newsfeed.prev") %></span>
+        <% end %>
+
+        <span class="newsfeed-pager__status">
+          <%= t("morocco.newsfeed.page_status", page: @page, total: @total_pages) %>
+        </span>
+
+        <% if @page < @total_pages %>
+          <%= link_to t("morocco.newsfeed.next"), newsfeeds_path(page: @page + 1), class: "newsfeed-pager__link" %>
+        <% else %>
+          <span class="newsfeed-pager__link is-disabled"><%= t("morocco.newsfeed.next") %></span>
+        <% end %>
+      </nav>
+    <% end %>
+  <% else %>
+    <%= render "shared/empty_state", icon: "message-circle", text: t("morocco.newsfeed.empty") %>
+  <% end %>
+</section>

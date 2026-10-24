@@ -10,6 +10,7 @@ document.addEventListener("alpine:init", () => {
     format: "news",
     newsLabel: "",
     taskLabel: "",
+    announcementLabel: "",
     questions: [],
     activeQuestion: null,
     typeLabels: {},
@@ -23,12 +24,21 @@ document.addEventListener("alpine:init", () => {
       this.format = this.$el.dataset.format || "news"
       this.newsLabel = this.$el.dataset.newsLabel || ""
       this.taskLabel = this.$el.dataset.taskLabel || ""
+      this.announcementLabel = this.$el.dataset.announcementLabel || ""
       this.typeLabels = JSON.parse(this.$el.dataset.typeLabels || "{}")
       this.questions = JSON.parse(this.$el.dataset.questions || "[]").map((question) => this.normalizeQuestion(question))
     },
 
     get formatLabel() {
-      return this.format === "task" ? this.taskLabel : this.newsLabel
+      if (this.format === "task") return this.taskLabel
+      if (this.format === "announcement") return this.announcementLabel
+      return this.newsLabel
+    },
+
+    get formatBadgeClass() {
+      if (this.format === "task") return "badge badge--task"
+      if (this.format === "announcement") return "badge badge--announcement"
+      return "badge badge--news"
     },
 
     get visibleQuestions() {
@@ -36,13 +46,14 @@ document.addEventListener("alpine:init", () => {
     },
 
     get headerTitle() {
-      return this.titleFr.trim() || this.$el.dataset.untitled || "Untitled"
+      return this.titleFr.trim() || this.$root.dataset.untitled || ""
     },
 
     normalizeQuestion(question = {}) {
       const type = question.question_type || question.questionType || "short_text"
       const options = Array.isArray(question.options) && question.options.length
         ? question.options.map((option) => ({
+          correct: option.correct === true,
           label_fr: option.label_fr || option.labelFr || "",
           label_ar: option.label_ar || option.labelAr || ""
         }))
@@ -52,6 +63,7 @@ document.addEventListener("alpine:init", () => {
         id: question.id || null,
         clientId: question.clientId || question.client_id || `q-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         question_type: type,
+        weight: question.weight ?? 1,
         title_fr: question.title_fr || question.titleFr || "",
         title_ar: question.title_ar || question.titleAr || "",
         required: Boolean(question.required),
@@ -193,7 +205,15 @@ document.addEventListener("alpine:init", () => {
     selected: [],
     filter: "",
     type: "all",
+    role: "",
+    storeFormat: "",
+    cluster: "",
     countTemplate: "",
+    previewUrl: "",
+    previewEmpty: "",
+    previewSummary: "",
+    previewStores: [],
+    previewSeq: 0,
     focused: false,
 
     init() {
@@ -203,6 +223,14 @@ document.addEventListener("alpine:init", () => {
       }))
       this.selected = JSON.parse(this.$el.dataset.selected || "[]").map(String)
       this.countTemplate = this.$el.dataset.countLabel || "%{count}"
+      this.previewUrl = this.$el.dataset.previewUrl || ""
+      this.previewEmpty = this.$el.dataset.previewEmpty || ""
+      this.previewSummary = this.previewEmpty
+      this.$watch("selected", () => this.refreshPreview())
+      this.$watch("role", () => this.refreshPreview())
+      this.$watch("storeFormat", () => this.refreshPreview())
+      this.$watch("cluster", () => this.refreshPreview())
+      this.refreshPreview()
     },
 
     get visible() {
@@ -239,6 +267,32 @@ document.addEventListener("alpine:init", () => {
 
     clear() {
       this.selected = []
+    },
+
+    async refreshPreview() {
+      const seq = ++this.previewSeq
+      if (!this.previewUrl || this.selected.length === 0) {
+        this.previewStores = []
+        this.previewSummary = this.previewEmpty
+        return
+      }
+
+      const params = new URLSearchParams()
+      this.selected.forEach((id) => params.append("org_unit_ids[]", id))
+      if (this.role) params.set("assignment_role", this.role)
+      if (this.storeFormat) params.set("store_format", this.storeFormat)
+      if (this.cluster) params.set("cluster", this.cluster)
+
+      const response = await fetch(`${this.previewUrl}?${params}`, {
+        headers: { Accept: "application/json" },
+        credentials: "same-origin"
+      })
+      if (!response.ok || seq !== this.previewSeq) return
+
+      const data = await response.json()
+      if (seq !== this.previewSeq) return
+      this.previewStores = data.stores || []
+      this.previewSummary = data.summary || this.previewEmpty
     }
   }))
 })

@@ -1,0 +1,11 @@
+<% content_for :title, "#{t('morocco.kb.categories.edit')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("morocco.kb.categories.back"), kb_categories_path %></p>
+    <h1><%= t("morocco.kb.categories.edit") %></h1>
+    <p class="meta"><%= @category.title %></p>
+  </div>
+</header>
+
+<%= render "form" %>
