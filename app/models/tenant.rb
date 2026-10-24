@@ -128,6 +128,7 @@ class Tenant < ApplicationRecord
   has_many :notification_logs, dependent: :destroy
   has_many :export_logs, dependent: :destroy
   has_many :communities, dependent: :destroy
+  has_many :report_subscriptions, dependent: :destroy
   has_many :users, dependent: :destroy
   has_many :tenant_roles, dependent: :destroy
   has_many :org_units, dependent: :destroy
