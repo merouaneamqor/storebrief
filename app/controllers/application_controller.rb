@@ -172,7 +172,27 @@ class ApplicationController < ActionController::Base
   def require_login
     return if current_user
 
+    remember_login_destination
     redirect_to login_path, alert: I18n.t("auth.please_sign_in", locale: session[:locale].presence || :fr)
+  end
+
+  def remember_login_destination(path = request.fullpath)
+    return unless request.get? && request.format.html? && safe_login_destination?(path)
+
+    session[:login_destination] = { "path" => path, "host" => request.host }
+  end
+
+  def take_login_destination
+    destination = session.delete(:login_destination)
+    return unless destination.is_a?(Hash) && destination["host"] == request.host
+
+    path = destination["path"]
+    path if safe_login_destination?(path)
+  end
+
+  def safe_login_destination?(path)
+    path.is_a?(String) && path.bytesize <= 2048 && path.start_with?("/") &&
+      !path.start_with?("//") && !path.match?(/[\\\x00-\x1f\x7f]/)
   end
 
   def bind_session_tenant
