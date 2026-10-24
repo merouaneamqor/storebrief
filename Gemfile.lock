@@ -224,9 +224,7 @@ GEM
       activesupport (>= 7.0)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    image_processing (1.14.0)
-      mini_magick (>= 4.9.5, < 6)
-      ruby-vips (>= 2.0.17, < 3)
+    image_processing (2.2.0)
     importmap-rails (2.2.3)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -277,8 +275,6 @@ GEM
     marcel (1.2.1)
     matrix (0.4.3)
     memoist3 (1.0.0)
-    mini_magick (5.4.0)
-      logger
     mini_mime (1.1.5)
     minitest (6.0.6)
       drb (~> 2.0)
@@ -526,7 +522,7 @@ DEPENDENCIES
   dartsass-rails (~> 0.5.1)
   database_cleaner-active_record
   debug
-  image_processing (~> 1.2)
+  image_processing (~> 2.2)
   importmap-rails
   jwt (~> 3.3)
   minitest-mock
@@ -536,6 +532,7 @@ DEPENDENCIES
   rails (~> 8.1.4)
   rubocop-rails-omakase
   ruby-saml (~> 1.18)
+  ruby-vips (~> 2.3)
   rubyzip (~> 3.7)
   selenium-webdriver
   solid_queue (~> 1.2)
