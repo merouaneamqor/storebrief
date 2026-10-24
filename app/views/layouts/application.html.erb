@@ -74,9 +74,11 @@
               <%= link_to t("nav.demo_requests"), demo_requests_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/demo_requests')}" %>
             <% end %>
             <% if tenant_feature?(:morocco_ops) && (hq_user? || store_user? || (area_user? && user_allows?(:visits))) %>
-              <%= link_to calendar_visits_path, class: "app-nav-link #{'is-active' if current_page?(calendar_visits_path)}" do %>
-                <span class="app-nav-link__icon"><%= icon("calendar") %></span>
-                <span><%= t("morocco.retail_calendar.title") %></span>
+              <% if workflow_navigation_allowed?(store_user? ? :inbox : :visits) %>
+                <%= link_to calendar_visits_path, class: "app-nav-link #{'is-active' if current_page?(calendar_visits_path)}" do %>
+                  <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                  <span><%= t("morocco.retail_calendar.title") %></span>
+                <% end %>
               <% end %>
             <% end %>
             <% if tenant_feature?(:morocco_ops) && user_allows?(store_user? ? :execute : :monitor) %>
@@ -84,44 +86,62 @@
             <% end %>
             <% if hq_user? %>
               <% if tenant_feature?(:briefs) %>
-                <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications') && !request.path.end_with?('/new')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("inbox") %></span>
-                  <span><%= t("nav.briefs") %></span>
+                <% if workflow_navigation_allowed?(:monitor) %>
+                  <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications') && !request.path.end_with?('/new')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                    <span><%= t("nav.briefs") %></span>
+                  <% end %>
                 <% end %>
               <% end %>
               <% if tenant_feature?(:morocco_ops) %>
-                <%= link_to playbooks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/playbooks')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("book") %></span>
-                  <span><%= t("nav.playbooks") %></span>
-                <% end %>
-                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
-                  <span class="app-nav-link__icon"><%= icon("calendar") %></span>
-                  <span><%= t("nav.visits") %></span>
-                <% end %>
-                <%= link_to vm_missions_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/vm_missions')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("camera") %></span>
-                  <span><%= t("nav.vm_missions") %></span>
-                <% end %>
-                <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("activity") %></span>
-                  <span><%= t("nav.audit_history") %></span>
-                <% end %>
-                <% if tenant_feature?(:knowledge_base) %>
-                  <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                <% if tenant_feature?(:checklists) && workflow_navigation_allowed?(:playbooks) %>
+                  <%= link_to playbooks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/playbooks')}" do %>
                     <span class="app-nav-link__icon"><%= icon("book") %></span>
-                    <span><%= t("nav.knowledge_base") %></span>
+                    <span><%= t("nav.playbooks") %></span>
                   <% end %>
                 <% end %>
-                <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("trophy") %></span>
-                  <span><%= t("nav.ranking") %></span>
+                <% if workflow_navigation_allowed?(:visits) %>
+                  <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
+                    <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                    <span><%= t("nav.visits") %></span>
+                  <% end %>
+                <% end %>
+                <% if workflow_navigation_allowed?(store_user? ? :execute : :verdicts) %>
+                  <%= link_to vm_missions_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/vm_missions')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("camera") %></span>
+                    <span><%= t("nav.vm_missions") %></span>
+                  <% end %>
+                <% end %>
+                <% if workflow_navigation_allowed?(:visits) %>
+                  <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("activity") %></span>
+                    <span><%= t("nav.audit_history") %></span>
+                  <% end %>
+                <% end %>
+                <% if tenant_feature?(:knowledge_base) %>
+                  <% if workflow_navigation_allowed?(store_user? ? :inbox : :monitor) %>
+                    <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                      <span class="app-nav-link__icon"><%= icon("book") %></span>
+                      <span><%= t("nav.knowledge_base") %></span>
+                    <% end %>
+                  <% end %>
+                <% end %>
+                <% if workflow_navigation_allowed?(store_user? ? :inbox : :reports) %>
+                  <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("trophy") %></span>
+                    <span><%= t("nav.ranking") %></span>
+                  <% end %>
                 <% end %>
               <% elsif tenant_feature?(:reports) %>
-                <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+                <% if workflow_navigation_allowed?(:reports) %>
+                  <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+                <% end %>
               <% end %>
-              <%= link_to billing_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/billing')}" do %>
-                <span class="app-nav-link__icon"><%= icon("credit-card") %></span>
-                <span><%= t("nav.billing") %></span>
+              <% if workflow_navigation_allowed?(:billing) %>
+                <%= link_to billing_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/billing')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("credit-card") %></span>
+                  <span><%= t("nav.billing") %></span>
+                <% end %>
               <% end %>
               <details class="app-nav-more" <%= "open" if request.path.start_with?("/org_units", "/templates", "/checklists", "/reports", "/admin", "/kb_") %>>
                 <summary class="app-nav-link">
@@ -135,54 +155,78 @@
                   <% if super_admin? || current_user.built_in_hq? %>
                     <%= link_to t("oidc.title"), oidc_settings_path, class: "app-nav-link" %>
                   <% end %>
-                  <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
+                  <% if workflow_navigation_allowed?(:manage_org) %>
+                    <%= link_to t("nav.org_units"), org_units_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/org_units')}" %>
+                  <% end %>
                   <% if tenant_feature?(:checklists) %>
-                    <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
+                    <% if workflow_navigation_allowed?(:compose) %>
+                      <%= link_to t("nav.checklists"), checklists_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/checklists') && !request.path.include?('/deliveries')}" %>
+                    <% end %>
                     <% if tenant_feature?(:morocco_ops) && user_allows?(:monitor) %><%= link_to t("checklist_reviews.title"), checklist_reviews_path, class: "app-nav-link" %><% end %>
-                    <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
+                    <% if workflow_navigation_allowed?(:compose) %>
+                      <%= link_to t("nav.templates"), templates_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/templates')}" %>
+                    <% end %>
                   <% end %>
                   <% if tenant_feature?(:reports) %>
-                    <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+                    <% if workflow_navigation_allowed?(:reports) %>
+                      <%= link_to t("nav.reports"), reports_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/reports')}" %>
+                    <% end %>
                   <% end %>
                   <% if tenant_feature?(:briefs) && tenant_feature?(:morocco_ops) %>
-                    <%= link_to t("feed_engagement.moderation"), feed_moderation_path, class: "app-nav-link" %>
+                    <% if workflow_navigation_allowed?(:compose) %>
+                      <%= link_to t("feed_engagement.moderation"), feed_moderation_path, class: "app-nav-link" %>
+                    <% end %>
                   <% end %>
-                  <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
+                  <% if super_admin? || current_user.built_in_hq? %>
+                    <%= link_to t("nav.admin"), admin_root_path, class: "app-nav-link", target: "_top" %>
+                  <% end %>
                   <%= link_to t("nav.privacy"), privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" %>
                 </div>
               </details>
             <% elsif area_user? && tenant_feature?(:morocco_ops) %>
               <% if tenant_feature?(:checklists) && user_allows?(:monitor) %><%= link_to t("checklist_reviews.title"), checklist_reviews_path, class: "app-nav-link" %><% end %>
               <% if tenant_feature?(:briefs) %>
-                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
-                  <span><%= t("nav.my_tasks") %></span>
+                <% if workflow_navigation_allowed?(store_user? ? :execute : :monitor) %>
+                  <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                    <span><%= t("nav.my_tasks") %></span>
+                  <% end %>
                 <% end %>
                 <% if user_allows?(:monitor) %>
-                  <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" do %>
-                    <span class="app-nav-link__icon"><%= icon("inbox") %></span>
-                    <span><%= t("nav.briefs") %></span>
+                  <% if workflow_navigation_allowed?(:monitor) %>
+                    <%= link_to communications_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/communications')}" do %>
+                      <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                      <span><%= t("nav.briefs") %></span>
+                    <% end %>
                   <% end %>
                 <% end %>
               <% end %>
               <% if user_allows?(:visits) %>
-                <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
-                  <span class="app-nav-link__icon"><%= icon("calendar") %></span>
-                  <span><%= t("nav.visits") %></span>
+                <% if workflow_navigation_allowed?(:visits) %>
+                  <%= link_to visits_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
+                    <span class="app-nav-link__icon"><%= icon("calendar") %></span>
+                    <span><%= t("nav.visits") %></span>
+                  <% end %>
                 <% end %>
-                <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("activity") %></span>
-                  <span><%= t("nav.audit_history") %></span>
+                <% if workflow_navigation_allowed?(:visits) %>
+                  <%= link_to audit_history_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/audit_history')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("activity") %></span>
+                    <span><%= t("nav.audit_history") %></span>
+                  <% end %>
                 <% end %>
               <% end %>
-              <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
-                <span class="app-nav-link__icon"><%= icon("trophy") %></span>
-                <span><%= t("nav.ranking") %></span>
+              <% if workflow_navigation_allowed?(store_user? ? :inbox : :reports) %>
+                <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("trophy") %></span>
+                  <span><%= t("nav.ranking") %></span>
+                <% end %>
               <% end %>
               <% if tenant_feature?(:knowledge_base) %>
-                <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("book") %></span>
-                  <span><%= t("nav.knowledge_base") %></span>
+                <% if workflow_navigation_allowed?(store_user? ? :inbox : :monitor) %>
+                  <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("book") %></span>
+                    <span><%= t("nav.knowledge_base") %></span>
+                  <% end %>
                 <% end %>
               <% end %>
               <%= link_to privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" do %>
@@ -191,27 +235,37 @@
               <% end %>
             <% elsif store_user? && tenant_feature?(:morocco_ops) %>
               <% if tenant_feature?(:briefs) %>
-                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
-                  <span><%= t("nav.my_tasks") %></span>
+                <% if workflow_navigation_allowed?(store_user? ? :execute : :monitor) %>
+                  <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                    <span><%= t("nav.my_tasks") %></span>
+                  <% end %>
                 <% end %>
-                <%= link_to newsfeeds_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/newsfeed')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("inbox") %></span>
-                  <span><%= t("nav.newsfeed") %></span>
+                <% if workflow_navigation_allowed?(store_user? ? :inbox : :monitor) %>
+                  <%= link_to newsfeeds_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/newsfeed')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("inbox") %></span>
+                    <span><%= t("nav.newsfeed") %></span>
+                  <% end %>
                 <% end %>
               <% end %>
-              <%= link_to vm_missions_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/vm_missions')}" do %>
-                <span class="app-nav-link__icon"><%= icon("camera") %></span>
-                <span><%= t("nav.vm_missions") %></span>
+              <% if workflow_navigation_allowed?(store_user? ? :execute : :verdicts) %>
+                <%= link_to vm_missions_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/vm_missions')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("camera") %></span>
+                  <span><%= t("nav.vm_missions") %></span>
+                <% end %>
               <% end %>
-              <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
-                <span class="app-nav-link__icon"><%= icon("trophy") %></span>
-                <span><%= t("nav.ranking") %></span>
+              <% if workflow_navigation_allowed?(store_user? ? :inbox : :reports) %>
+                <%= link_to ranking_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/classement')}" do %>
+                  <span class="app-nav-link__icon"><%= icon("trophy") %></span>
+                  <span><%= t("nav.ranking") %></span>
+                <% end %>
               <% end %>
               <% if tenant_feature?(:knowledge_base) %>
-                <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("book") %></span>
-                  <span><%= t("nav.knowledge_base") %></span>
+                <% if workflow_navigation_allowed?(store_user? ? :inbox : :monitor) %>
+                  <%= link_to kb_articles_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/kb_')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("book") %></span>
+                    <span><%= t("nav.knowledge_base") %></span>
+                  <% end %>
                 <% end %>
               <% end %>
               <%= link_to privacy_preferences_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/privacy_preferences')}" do %>
@@ -220,9 +274,11 @@
               <% end %>
             <% else %>
               <% if tenant_feature?(:briefs) %>
-                <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
-                  <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
-                  <span><%= t("nav.my_tasks") %></span>
+                <% if workflow_navigation_allowed?(store_user? ? :execute : :monitor) %>
+                  <%= link_to my_tasks_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/my_tasks')}" do %>
+                    <span class="app-nav-link__icon"><%= icon("check-circle") %></span>
+                    <span><%= t("nav.my_tasks") %></span>
+                  <% end %>
                 <% end %>
                 <%= link_to inbox_index_path, class: "app-nav-link #{'is-active' if request.path.start_with?('/inbox')}" do %>
                   <span class="app-nav-link__icon"><%= icon("inbox") %></span>
@@ -243,9 +299,11 @@
 
           <div class="app-sidebar__dock">
             <% if hq_user? && tenant_feature?(:briefs) %>
-              <%= link_to new_communication_path, class: "app-sidebar__compose" do %>
-                <%= icon("plus") %>
-                <span><%= t("nav.compose") %></span>
+              <% if tenant_feature?(:briefs) && workflow_navigation_allowed?(:compose) %>
+                <%= link_to new_communication_path, class: "app-sidebar__compose" do %>
+                  <%= icon("plus") %>
+                  <span><%= t("nav.compose") %></span>
+                <% end %>
               <% end %>
             <% end %>
             <p class="task-proof-sync meta" role="status" hidden
@@ -310,20 +368,26 @@
               <span><%= t("nav.today") %></span>
             <% end %>
             <% if tenant_feature?(:briefs) %>
-              <%= link_to my_tasks_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/my_tasks', '/inbox')}" do %>
-                <%= icon("check-circle") %>
-                <span><%= t("nav.my_tasks") %></span>
+              <% if workflow_navigation_allowed?(store_user? ? :execute : :monitor) %>
+                <%= link_to my_tasks_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/my_tasks', '/inbox')}" do %>
+                  <%= icon("check-circle") %>
+                  <span><%= t("nav.my_tasks") %></span>
+                <% end %>
               <% end %>
             <% end %>
             <% if user_allows?(:visits) %>
-              <%= link_to visits_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
-                <%= icon("calendar") %>
-                <span><%= t("nav.visits") %></span>
+              <% if workflow_navigation_allowed?(:visits) %>
+                <%= link_to visits_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/visits') && !current_page?(calendar_visits_path)}" do %>
+                  <%= icon("calendar") %>
+                  <span><%= t("nav.visits") %></span>
+                <% end %>
               <% end %>
             <% end %>
-            <%= link_to ranking_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/classement')}" do %>
-              <%= icon("trophy") %>
-              <span><%= t("nav.ranking") %></span>
+            <% if workflow_navigation_allowed?(store_user? ? :inbox : :reports) %>
+              <%= link_to ranking_path, class: "app-bottom-nav__link #{'is-active' if request.path.start_with?('/classement')}" do %>
+                <%= icon("trophy") %>
+                <span><%= t("nav.ranking") %></span>
+              <% end %>
             <% end %>
           </nav>
         <% end %>

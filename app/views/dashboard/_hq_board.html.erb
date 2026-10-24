@@ -24,9 +24,11 @@
     <% end %>
   </div>
   <div class="hq-hero__actions">
-    <%= link_to new_communication_path, class: "btn btn--primary" do %>
-      <%= icon("plus", css_class: "icon") %>
-      <%= t("nav.compose") %>
+    <% if tenant_feature?(:briefs) && workflow_navigation_allowed?(:compose) %>
+      <%= link_to new_communication_path, class: "btn btn--primary" do %>
+        <%= icon("plus", css_class: "icon") %>
+        <%= t("nav.compose") %>
+      <% end %>
     <% end %>
     <details class="hq-overflow">
       <summary aria-label="<%= t('morocco.hq.more') %>">
@@ -34,22 +36,30 @@
         <span class="meta"><%= t("morocco.hq.more") %></span>
       </summary>
       <div class="hq-overflow__menu">
-        <%= link_to playbooks_path, class: "btn btn--quiet" do %>
-          <%= icon("book", css_class: "icon") %> <%= t("nav.playbooks") %>
+        <% if tenant_feature?(:checklists) && workflow_navigation_allowed?(:playbooks) %>
+          <%= link_to playbooks_path, class: "btn btn--quiet" do %>
+            <%= icon("book", css_class: "icon") %> <%= t("nav.playbooks") %>
+          <% end %>
         <% end %>
         <% if current_tenant.feature?(:morocco_ops) %>
-          <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
-            <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+          <% if tenant_feature?(:checklists) && workflow_navigation_allowed?(:playbooks) %>
+            <%= link_to campaigns_playbooks_path, class: "btn btn--quiet" do %>
+              <%= icon("activity", css_class: "icon") %> <%= t("morocco.playbooks.campaigns.nav") %>
+            <% end %>
           <% end %>
         <% end %>
         <%= link_to hq_widgets_path, class: "btn btn--quiet" do %>
           <%= icon("activity", css_class: "icon") %> <%= t("nav.hq_widgets") %>
         <% end %>
-        <%= link_to billing_path, class: "btn btn--quiet" do %>
-          <%= icon("credit-card", css_class: "icon") %> <%= t("nav.billing") %>
+        <% if workflow_navigation_allowed?(:billing) %>
+          <%= link_to billing_path, class: "btn btn--quiet" do %>
+            <%= icon("credit-card", css_class: "icon") %> <%= t("nav.billing") %>
+          <% end %>
         <% end %>
-        <%= button_to (current_tenant.ramadan_mode? ? t("morocco.ramadan.disable") : t("morocco.ramadan.enable")),
+        <% if workflow_navigation_allowed?(:manage_org) %>
+          <%= button_to (current_tenant.ramadan_mode? ? t("morocco.ramadan.disable") : t("morocco.ramadan.enable")),
               ramadan_path, method: :patch, class: "btn btn--quiet" %>
+        <% end %>
       </div>
     </details>
   </div>
@@ -75,7 +85,7 @@
     <div class="hq-campaign__track">
       <%= render "shared/awareness_progress", rollup: rollup %>
       <% pending_push = board.awareness_brief.deliveries.count(&:pending?) %>
-      <% if pending_push.positive? && current_tenant.feature?(:push_alerts) %>
+      <% if pending_push.positive? && current_tenant.feature?(:push_alerts) && workflow_navigation_allowed?(:compose) %>
         <div class="hq-push-remind">
           <%= button_to notify_push_communication_path(board.awareness_brief),
                 method: :post,
@@ -97,7 +107,10 @@
     <p class="section-title"><%= t("morocco.hq.store_status.title") %></p>
     <div class="hq-status-strip__tiles">
       <% %w[on_track attention critical].each do |bucket| %>
-        <%= link_to org_units_path(status: bucket), class: "hq-status-strip__tile hq-status-strip__tile--#{bucket}" do %>
+        <% can_manage = workflow_navigation_allowed?(:manage_org) %>
+        <%= content_tag(can_manage ? :a : :div,
+              href: (org_units_path(status: bucket) if can_manage),
+              class: "hq-status-strip__tile hq-status-strip__tile--#{bucket}") do %>
           <strong><%= status.count(bucket) %></strong>
           <span><%= t("morocco.hq.store_status.#{bucket}") %></span>
         <% end %>
@@ -116,7 +129,13 @@
     <div class="hq-compliance__tiles">
       <% rollups.each do |mod| %>
         <% card_class = "hq-compliance__tile hq-compliance__tile--#{mod.key}#{" is-empty" unless mod.present?}" %>
-        <% if mod.path %>
+        <% can_open = case mod.key
+           when "audits" then workflow_navigation_allowed?(:visits)
+           when "campaigns" then tenant_feature?(:checklists) && workflow_navigation_allowed?(:playbooks)
+           when "vm" then workflow_navigation_allowed?(:reports)
+           else workflow_navigation_allowed?(:monitor)
+           end %>
+        <% if mod.path && can_open %>
           <%= link_to mod.path, class: card_class do %>
             <strong><%= mod.display_percent %></strong>
             <span><%= t("morocco.hq.compliance.modules.#{mod.key}") %></span>
@@ -314,7 +333,9 @@
   <section class="hq-podium">
     <div class="hq-podium__head">
       <p class="section-title"><%= icon("trophy", css_class: "icon icon--sm") %> <%= t("morocco.ranking.podium") %></p>
-      <%= link_to t("nav.ranking"), ranking_path, class: "meta" %>
+      <% if workflow_navigation_allowed?(store_user? ? :inbox : :reports) %>
+        <%= link_to t("nav.ranking"), ranking_path, class: "meta" %>
+      <% end %>
     </div>
     <ol class="podium podium--race">
       <% board.podium.each_with_index do |row, index| %>
