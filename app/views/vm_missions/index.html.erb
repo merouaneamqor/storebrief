@@ -1,0 +1,82 @@
+<% content_for :title, "#{t('morocco.vm_missions.title')} · Vazivo" %>
+
+<header class="radar-head">
+  <div>
+    <p class="meta"><%= link_to t("communications.back_today"), app_root_path %></p>
+    <h1><%= t("morocco.vm_missions.title") %></h1>
+    <p class="meta"><%= hq_user? ? t("morocco.vm_missions.lede") : t("morocco.vm_missions.store_lede") %></p>
+  </div>
+  <% if hq_user? %>
+    <div class="radar-head__actions">
+      <%= link_to new_vm_mission_path, class: "btn btn--primary" do %>
+        <%= icon("plus", css_class: "icon") %> <%= t("morocco.vm_missions.new") %>
+      <% end %>
+    </div>
+  <% end %>
+</header>
+
+<nav class="report-chips" aria-label="<%= t('morocco.vm_missions.filter') %>">
+  <%= link_to t("morocco.vm_missions.all"), vm_missions_path, class: "report-chip #{'is-active' if @status.nil?}" %>
+  <% VmMission::STATUSES.each do |status| %>
+    <%= link_to t("morocco.vm_missions.statuses.#{status}"), vm_missions_path(status: status), class: "report-chip #{'is-active' if @status == status}" %>
+  <% end %>
+</nav>
+
+<section class="panel">
+  <% if @missions.any? %>
+    <table class="report-table visits-table">
+      <thead>
+        <tr>
+          <th><%= t("morocco.vm_missions.fields.title") %></th>
+          <th><%= t("morocco.vm_missions.fields.version_label") %></th>
+          <th><%= t("morocco.vm_missions.fields.deadline") %></th>
+          <% if hq_user? %>
+            <th><%= t("morocco.vm_missions.fields.stores") %></th>
+          <% end %>
+          <th><%= t("morocco.vm_missions.fields.status") %></th>
+          <% if hq_user? %>
+            <th><span class="visually-hidden"><%= t("morocco.vm_missions.actions") %></span></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @missions.each do |mission| %>
+          <tr id="<%= dom_id(mission) %>" class="<%= 'is-stale' if mission.closed? %>">
+            <td><%= link_to mission.title, vm_mission_path(mission) %></td>
+            <td>
+              <% if mission.versioned? %>
+                <%= t("morocco.vm_missions.version_badge", version: mission.version_label) %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <td>
+              <%= l(mission.deadline_on, format: :long) %>
+              <% if mission.overdue? %>
+                <span class="meta"><%= t("morocco.vm_missions.overdue") %></span>
+              <% end %>
+            </td>
+            <% if hq_user? %>
+              <td><%= t("morocco.vm_missions.stores_count", count: mission.org_units.size) %></td>
+            <% end %>
+            <td><%= t("morocco.vm_missions.statuses.#{mission.status}") %></td>
+            <% if hq_user? %>
+              <td class="visits-table__tools">
+                <%= link_to t("morocco.vm_missions.edit"), edit_vm_mission_path(mission), class: "btn btn--quiet" %>
+                <%= button_to t("morocco.vm_missions.delete"),
+                      vm_mission_path(mission),
+                      method: :delete,
+                      class: "btn btn--ghost",
+                      form: { data: { turbo_confirm: t("morocco.vm_missions.delete_confirm") } } %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <%= render "shared/empty_state", icon: "camera", text: t("morocco.vm_missions.empty"),
+                 action_label: (hq_user? ? t("morocco.vm_missions.new") : nil),
+                 action_path: (hq_user? ? new_vm_mission_path : nil) %>
+  <% end %>
+</section>

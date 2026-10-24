@@ -1,0 +1,15 @@
+es:
+  task_proof:
+    title: Fotos y archivos de prueba
+    choose_files: Añadir fotos o archivos
+    limits: Hasta 10 archivos de 10 MB cada uno. JPG, PNG, WebP, PDF, texto, CSV, DOCX o XLSX. Las fotos se comprimen
+      antes del envío.
+    required_hint: Añada archivos de prueba o ambas fotos de antes y después.
+    queued: Tarea y pruebas guardadas en este dispositivo. Se sincronizarán al recuperar la conexión.
+    sync_error: No se pudieron sincronizar las pruebas. Abra la tarea para revisar o reemplazar el envío pendiente.
+    too_many: Añada como máximo %{count} archivos de prueba.
+    invalid_type: Este tipo de archivo de prueba no está permitido.
+    too_large: Cada archivo de prueba debe tener %{size} MB o menos.
+    file_count:
+      one: 1 archivo de prueba adjunto
+      other: '%{count} archivos de prueba adjuntos'

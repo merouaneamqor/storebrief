@@ -1,0 +1,38 @@
+{
+  "fr": {
+    "spreadsheet_exports": {
+      "download": "Télécharger",
+      "csv": "Télécharger CSV",
+      "xlsx": "Télécharger XLSX",
+      "yes": "Oui",
+      "no": "Non",
+      "columns": {
+        "store": "Magasin",
+        "region": "Région",
+        "open_briefs": "Briefs ouverts",
+        "open_checklists": "Checklists ouvertes",
+        "pending": "En attente",
+        "oldest": "Attribution la plus ancienne",
+        "percent": "Réalisation %",
+        "done": "Terminés",
+        "total": "Total",
+        "on_time_percent": "À temps %",
+        "conforme": "conforme",
+        "previous_percent": "Période précédente %",
+        "delta": "Évolution",
+        "vm_percent": "Merchandising %",
+        "owner": "Responsable",
+        "on_time": "À temps",
+        "overdue": "En retard",
+        "steps_done": "Étapes terminées",
+        "steps_total": "Total des étapes",
+        "title": "Titre",
+        "status": "Statut",
+        "due_at": "Échéance",
+        "completed_at": "Terminé le",
+        "score": "Score",
+        "verdict": "Verdict"
+      }
+    }
+  }
+}

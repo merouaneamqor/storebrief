@@ -1,0 +1,46 @@
+# Render Blueprint for the background worker only. The `storebrief` web service,
+# the `vazivodb` Postgres and the push-reminders cron job were created in the
+# dashboard and are intentionally not declared here.
+#
+# The worker runs Solid Queue (`bin/jobs`), which fires config/recurring.yml:
+# RecurringTaskJob (hourly) and EscalationJob (every 30 minutes).
+# Copy the secret values below from the storebrief web service (sync: false).
+services:
+  - type: worker
+    name: storebrief-worker
+    runtime: docker
+    dockerCommand: ./bin/jobs
+    autoDeploy: true
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_LOG_LEVEL
+        value: info
+      - key: RAILS_MAX_THREADS
+        value: "8"
+      - key: DATABASE_URL
+        sync: false # internal connection string of vazivodb
+      - key: SECRET_KEY_BASE
+        sync: false
+      - key: APP_HOST
+        sync: false
+      - key: ACTIVE_STORAGE_SERVICE
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: AWS_S3_ENDPOINT
+        sync: false
+      - key: SMTP_ADDRESS
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false

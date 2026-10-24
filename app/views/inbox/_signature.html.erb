@@ -1,0 +1,10 @@
+<div data-signature-pad>
+  <% if answer&.image&.attached? %><%= image_tag answer.image, class: "thumb", alt: question.title %><% end %>
+  <p class="meta"><%= t("task_media.sign_hint") %></p>
+  <canvas width="600" height="200" data-signature-canvas aria-label="<%= question.title %>" class="task-signature-canvas"></canvas>
+  <button type="button" class="btn btn--sm" data-signature-clear><%= t("task_media.clear") %></button>
+  <div>
+    <span><%= t("task_media.upload_signature") %></span>
+    <input type="file" data-signature-file name="answers[<%= question.id %>][image]" accept="image/png" <%= "required" if question.required? && !answer&.image&.attached? %>>
+  </div>
+</div>

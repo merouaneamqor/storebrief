@@ -1,0 +1,21 @@
+<div lang="<%= I18n.locale %>" dir="<%= I18n.locale == :ar ? 'rtl' : 'ltr' %>">
+  <h1><%= t("report_digest.title") %></h1>
+  <p><%= @tenant.name %> · <%= l(@date_range.from, format: :short) %> · <%= l(@date_range.to, format: :short) %></p>
+  <p><%= t("report_digest.compliance", percent: @digest.compliance) %></p>
+  <p><%= t("report_digest.overdue", count: @digest.overdue) %></p>
+  <p><%= t("report_digest.behind", count: @digest.snapshot.summary[:behind]) %></p>
+  <% { top: @digest.top_stores, bottom: @digest.bottom_stores }.each do |key, rows| %>
+    <h2><%= t("report_digest.#{key}") %></h2>
+    <% if rows.empty? %>
+      <p><%= t("report_digest.empty") %></p>
+    <% else %>
+      <ul>
+        <% rows.each do |row| %>
+          <li><%= row.store.name %>: <%= row.percent %>% (<%= row.done %>/<%= row.total %>)</li>
+        <% end %>
+      </ul>
+    <% end %>
+  <% end %>
+  <p><%= t("report_digest.definition") %></p>
+  <p><%= t("report_digest.preferences") %> <%= link_to t("report_subscriptions.title"), @preferences_url %></p>
+</div>

@@ -1,0 +1,42 @@
+<%# locals: subject, approve_path, reject_path %>
+<% if subject.review_status.present? %>
+  <% dom = "approval-#{subject.class.name.underscore}-#{subject.id}" %>
+  <% tone = { "approved" => "conforme", "rejected" => "non_conforme" }.fetch(subject.review_status, "improve") %>
+  <section class="approval-panel brief-card" aria-labelledby="<%= dom %>">
+    <h3 id="<%= dom %>"><%= t("approval.title") %></h3>
+    <p>
+      <span class="badge badge--<%= tone %>"><%= t("approval.statuses.#{subject.review_status}") %></span>
+      <% if subject.reviewed_by %>
+        <span class="meta"><%= t("approval.reviewed_by", name: subject.reviewed_by.name) %></span>
+      <% end %>
+    </p>
+    <% if subject.review_note.present? %>
+      <p class="meta"><%= t("approval.note_label") %> <%= subject.review_note %></p>
+    <% end %>
+
+    <% if subject.review_pending? %>
+      <% if subject.author_id == current_user.id %>
+        <p class="meta"><%= t("approval.waiting_for_other") %></p>
+      <% elsif user_allows?(:approve) %>
+        <%= form_with url: approve_path, method: :post, class: "approval-panel__form" do %>
+          <label class="meta" for="review_note_<%= subject.id %>"><%= t("approval.note") %></label>
+          <%= text_area_tag :review_note, nil, id: "review_note_#{subject.id}", rows: 2 %>
+          <div class="template-card__actions">
+            <%= button_tag t("approval.approve_action"), type: "submit", class: "btn btn--primary" %>
+            <%= button_tag t("approval.reject_action"), type: "submit", class: "btn btn--ghost", formaction: reject_path %>
+          </div>
+        <% end %>
+      <% end %>
+    <% elsif subject.review_approved? && subject.is_a?(Communication) %>
+      <p class="meta"><%= t("approval.approved_send_hint") %></p>
+    <% end %>
+
+    <% if subject.approval_events.any? %>
+      <ul class="meta approval-panel__history">
+        <% subject.approval_events.order(:id).each do |event| %>
+          <li><%= l(event.created_at, format: :short) %> · <%= t("approval.events.#{event.kind}") %> · <%= event.actor&.name || "-" %><% if event.note.present? %> · <%= event.note %><% end %></li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+<% end %>

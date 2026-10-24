@@ -1,0 +1,36 @@
+<%
+  form_url = @category.persisted? ? kb_category_path(@category) : kb_categories_path
+%>
+
+<%= form_with model: @category, url: form_url, class: "panel stack" do |f| %>
+  <% if @category.errors.any? %>
+    <div class="flash flash--alert">
+      <%= @category.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <div class="stack">
+    <%= f.label :parent_id, t("morocco.kb.categories.fields.parent") %>
+    <%= f.select :parent_id, @parent_options, { include_blank: t("morocco.kb.categories.fields.parent_root") } %>
+
+    <%= f.label :title_fr, t("morocco.kb.categories.fields.title_fr") %>
+    <%= f.text_field :title_fr, required: true %>
+
+    <%= f.label :title_ar, t("morocco.kb.categories.fields.title_ar") %>
+    <%= f.text_field :title_ar, dir: "rtl", lang: "ar" %>
+
+    <%= f.label :description_fr, t("morocco.kb.categories.fields.description_fr") %>
+    <%= f.text_area :description_fr, rows: 3 %>
+
+    <%= f.label :description_ar, t("morocco.kb.categories.fields.description_ar") %>
+    <%= f.text_area :description_ar, rows: 3, dir: "rtl", lang: "ar" %>
+
+    <%= f.label :position, t("morocco.kb.categories.fields.position") %>
+    <%= f.number_field :position, min: 0, step: 1 %>
+  </div>
+
+  <div class="cluster">
+    <%= f.submit t("morocco.kb.categories.save"), class: "btn btn--primary" %>
+    <%= link_to t("morocco.kb.categories.cancel"), kb_categories_path, class: "btn btn--ghost" %>
+  </div>
+<% end %>

@@ -136,9 +136,22 @@ class VisitsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match dom_id_for(own), response.body
     assert_no_match(/#{dom_id_for(elsewhere)}/, response.body)
+    assert_select "a.app-nav-link[href='#{visits_path}']"
+    assert_select "a.app-bottom-nav__link[href='#{visits_path}']"
+
+    get new_visit_path
+    assert_response :success
+    assert_select "select#visit_org_unit_id option[value='#{@north_store.id}']"
+    assert_select "select#visit_org_unit_id option[value='#{@brand.store.id}']", count: 0
 
     get edit_visit_path(elsewhere)
     assert_response :not_found
+    patch visit_path(elsewhere), params: { visit: { notes: "Leak" } }
+    assert_response :not_found
+    assert_nil elsewhere.reload.notes
+    patch cancel_visit_path(elsewhere), params: { cancel_reason: "Nope" }
+    assert_response :not_found
+    assert_not elsewhere.reload.cancelled?
 
     assert_no_difference -> { Visit.count } do
       post visits_path, params: { visit: { org_unit_id: @brand.store.id, auditor_id: @area_user.id, planned_at: "2026-11-02T10:30" } }
@@ -148,6 +161,50 @@ class VisitsTest < ActionDispatch::IntegrationTest
     assert_difference -> { Visit.count }, 1 do
       post visits_path, params: { visit: { org_unit_id: @north_store.id, auditor_id: @area_user.id, planned_at: "2026-11-02T10:30" } }
     end
+    created = @brand.tenant.visits.order(:id).last
+    assert_equal @north_store, created.org_unit
+    assert_equal @area_user, created.created_by
+  end
+
+  test "area users can edit and cancel visits at descendant stores" do
+    visit = planned_visit(store: @north_store, auditor: @area_user)
+    sign_in(@area_user)
+
+    get edit_visit_path(visit)
+    assert_response :success
+
+    patch visit_path(visit), params: { visit: { notes: "Area follow-up", auditor_id: @area_user.id } }
+    assert_redirected_to visits_path
+    assert_equal "Area follow-up", visit.reload.notes
+
+    patch cancel_visit_path(visit), params: { cancel_reason: "Store closed" }
+    assert_redirected_to visits_path
+    assert visit.reload.cancelled?
+    assert_equal "Store closed", visit.cancel_reason
+  end
+
+  test "area users cannot manage visits in a neighbouring area" do
+    other_area = @brand.tenant.org_units.create!(name: "Sud", unit_type: "area", parent: @brand.region)
+    other_store = @brand.tenant.org_units.create!(name: "Agadir", unit_type: "store", parent: other_area)
+    foreign = planned_visit(store: other_store)
+    sign_in(@area_user)
+
+    get visits_path
+    assert_no_match(/#{dom_id_for(foreign)}/, response.body)
+    assert_no_match(/Agadir/, response.body)
+
+    get visit_path(foreign)
+    assert_response :not_found
+    get edit_visit_path(foreign)
+    assert_response :not_found
+    patch cancel_visit_path(foreign)
+    assert_response :not_found
+    assert_not foreign.reload.cancelled?
+
+    assert_no_difference -> { Visit.count } do
+      post visits_path, params: { visit: { org_unit_id: other_store.id, auditor_id: @area_user.id, planned_at: "2026-11-02T10:30" } }
+    end
+    assert_response :unprocessable_entity
   end
 
   test "visit locales exist in every language" do

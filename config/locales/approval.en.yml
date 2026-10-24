@@ -1,0 +1,40 @@
+en:
+  approval:
+    title: "Approval before send"
+    submit: "Submit for approval"
+    submitted: "Submitted for approval. It will be sent once another approver validates it."
+    approved: "Approved. The author can now send it."
+    rejected: "Rejected. The author was notified."
+    approve_action: "Approve"
+    reject_action: "Reject"
+    note: "Note for the author (required to reject)"
+    note_label: "Note:"
+    reviewed_by: "Reviewed by %{name}"
+    waiting_for_other: "Waiting for another approver. You cannot approve your own work."
+    approved_send_hint: "Approved. Any edit will require a new approval."
+    statuses:
+      pending_review: "Pending review"
+      approved: "Approved"
+      rejected: "Rejected"
+    events:
+      submitted: "Submitted"
+      approved: "Approved"
+      rejected: "Rejected"
+      deployed: "Deployed"
+    push:
+      approved: "Approved"
+      rejected: "Rejected"
+    errors:
+      required: "This needs approval before it can be sent."
+      not_allowed: "You are not allowed to approve this."
+      self_approval: "You cannot approve your own work."
+      not_pending: "This is not waiting for review."
+      note_required: "Add a note to reject."
+      invalid_decision: "Unknown decision."
+    deploy_requests:
+      nav: "Deploy approvals"
+      title: "Playbook deploy approvals"
+      lede: "Deploys wait here until another approver validates them."
+      campaign_on: "Campaign on %{date}"
+      stores: "Stores: %{count}"
+      deployed: "Deployed"

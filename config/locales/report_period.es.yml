@@ -1,0 +1,21 @@
+{
+  "es": {
+    "report_period": {
+      "from": "Desde",
+      "to": "Hasta",
+      "interval": "Período",
+      "group_by": "Agrupar por",
+      "week": "Semanal",
+      "month": "Mensual",
+      "region": "Región",
+      "area": "Zona",
+      "store": "Tienda",
+      "apply": "Aplicar",
+      "trends": "Cumplimiento en el tiempo",
+      "definition": "Tasa actual de finalización de briefs y listas asignados en cada período. Los huecos indican que no hubo asignaciones.",
+      "campaigns": "Campañas",
+      "ranking_definition": "Finalización en las fechas seleccionadas, comparada con el período anterior de igual duración.",
+      "campaign_definition": "Campañas cuyo calendario coincide con las fechas seleccionadas, incluidas las completadas."
+    }
+  }
+}

@@ -8,16 +8,30 @@ module Vazivo
     )
     Snapshot = Struct.new(
       :lens, :greeting_key, :name, :place_name, :ramadan, :opens_at,
-      :urgent_count, :late_count, :done_count, :now_items, :later_items,
-      :attention_count, :attention_names, :campaign_title, :area,
+      :urgent_count, :late_count, :done_count, :completion_percent,
+      :now_items, :later_items, :today_by_priority, :priority_counts,
+      :timed_checklist, :broadcasts, :attention_count, :attention_names, :campaign_title, :area,
       keyword_init: true
     )
     # Monitoring summary for an area or region manager (read only).
+    StoreRow = Struct.new(:store, :score, :status, keyword_init: true)
     AreaSummary = Struct.new(
       :stores_count, :compliance_percent, :tasks_done, :tasks_total, :tasks_open, :tasks_late,
-      :audits, :campaign, :attention_stores,
+      :audits, :campaign, :attention_stores, :store_rows,
       keyword_init: true
-    )
+    ) do
+      def sorted_store_rows(sort)
+        rows = Array(store_rows)
+        case sort.to_s
+        when "score_asc"
+          rows.sort_by { |row| [ row.score.nil? ? 1 : 0, row.score.to_i, row.store.name ] }
+        when "name"
+          rows.sort_by { |row| row.store.name }
+        else
+          rows.sort_by { |row| [ row.score.nil? ? 1 : 0, -(row.score || 0), row.store.name ] }
+        end
+      end
+    end
     Campaign = Struct.new(:title, :received, :total, :percent, keyword_init: true)
     AttentionStore = Struct.new(:name, :reasons, :late_count, :redo_count, :unconfirmed, keyword_init: true) do
       def count_for(reason)
@@ -30,16 +44,24 @@ module Vazivo
       new(user, tenant).snapshot
     end
 
+    def self.for_store(user:, tenant:, store:)
+      new(user, tenant).store_snapshot(store)
+    end
+
     def initialize(user, tenant)
       @user = user
       @tenant = tenant
+    end
+
+    def store_snapshot(store)
+      build(lens: "store", place: store.name, stores: [ store ], attention_stores: siblings_of(store))
     end
 
     def snapshot
       if (store = @user.store_org_unit)
         build(lens: "store", place: store.name, stores: [ store ], attention_stores: siblings_of(store))
       elsif (area = @user.area_org_unit)
-        stores = area.descendant_stores.to_a
+        stores = @tenant.org_units.stores.where(id: @user.permitted_store_ids(:monitor)).to_a
         build(lens: "area", place: area.name, stores: stores, attention_stores: stores, area_summary: true)
       else
         empty("store")
@@ -51,6 +73,10 @@ module Vazivo
     def build(lens:, place:, stores:, attention_stores:, area_summary: false)
       open_items = open_records(stores)
       now_records, later_records = open_items.partition(&:now?)
+      now_items = now_records.first(12).map { |record| to_item(record) }
+      done = done_today(stores)
+      open_today = open_items.count { |record| record.now? || record.due_today? }
+      today_total = done + open_today
       campaign_title, names = unconfirmed(attention_stores)
       Snapshot.new(
         lens: lens,
@@ -61,9 +87,14 @@ module Vazivo
         opens_at: @tenant.effective_open,
         urgent_count: open_items.count(&:urgent?),
         late_count: open_items.count(&:late?),
-        done_count: done_today(stores),
-        now_items: now_records.first(8).map { |record| to_item(record) },
+        done_count: done,
+        completion_percent: today_total.zero? ? nil : ((done.to_f / today_total) * 100).round,
+        now_items: now_items,
         later_items: later_records.first(8).map { |record| to_item(record) },
+        today_by_priority: group_by_priority(now_items),
+        priority_counts: count_by_priority(now_records),
+        timed_checklist: timed_checklist_for(lens, stores),
+        broadcasts: pinned_broadcasts(stores),
         attention_count: names.size,
         attention_names: names,
         campaign_title: campaign_title,
@@ -82,13 +113,60 @@ module Vazivo
         urgent_count: 0,
         late_count: 0,
         done_count: 0,
+        completion_percent: nil,
         now_items: [],
         later_items: [],
+        today_by_priority: Communication::PRIORITIES.index_with { [] },
+        priority_counts: Communication::PRIORITIES.index_with { 0 },
+        timed_checklist: [],
+        broadcasts: [],
         attention_count: 0,
         attention_names: [],
         campaign_title: nil,
         area: nil
       )
+    end
+
+    # Required acknowledgement stays pinned even after a normal read action.
+    def pinned_broadcasts(stores)
+      return [] unless @tenant.feature?(:morocco_ops)
+
+      Delivery.joins(:communication)
+              .where(org_unit_id: stores.map(&:id), communications: { tenant_id: @tenant.id, status: "sent", critical_broadcast: true })
+              .where("(communications.requires_acknowledgement = TRUE AND deliveries.acknowledged_at IS NULL) OR (communications.requires_acknowledgement = FALSE AND deliveries.status NOT IN ('completed', 'read'))")
+              .includes(:communication, :org_unit)
+              .order("communications.created_at DESC", id: :desc).to_a
+    end
+
+    # Store surface only: time-ordered checklist deliveries for today.
+    def timed_checklist_for(lens, stores)
+      return [] unless lens == "store" && stores.size == 1
+      return [] unless @tenant.feature?(:checklists)
+
+      TimedChecklist.for(
+        store: stores.first,
+        tenant: @tenant,
+        user: @user,
+        offline: @tenant.feature?(:offline_checklists)
+      )
+    end
+
+    def group_by_priority(items)
+      Communication::PRIORITIES.index_with do |priority|
+        items.select { |item| item.priority == priority }
+      end
+    end
+
+    # Communication priority counts for the morning strip (not Execution#urgent?).
+    # Checklists have no priority column and count as routine.
+    def count_by_priority(records)
+      Communication::PRIORITIES.index_with do |priority|
+        records.count { |record| priority_key_for(record) == priority }
+      end
+    end
+
+    def priority_key_for(record)
+      record.is_a?(Delivery) ? record.communication.priority : Communication::DEFAULT_PRIORITY
     end
 
     def open_records(stores)
@@ -98,6 +176,7 @@ module Vazivo
       deliveries = Delivery.joins(:communication)
                            .where(org_unit_id: ids, communications: { tenant_id: @tenant.id, status: "sent" })
                            .where.not(status: %w[completed read])
+                           .where(communications: { critical_broadcast: false })
                            .includes(:communication, :org_unit)
       checks = ChecklistDelivery.joins(:checklist)
                                 .where(org_unit_id: ids, checklists: { tenant_id: @tenant.id, status: "sent" })
@@ -156,8 +235,28 @@ module Vazivo
         tasks_late: open_items.count(&:late?),
         audits: audit_counts(ids),
         campaign: campaign_progress(ids),
-        attention_stores: attention_rows(stores, open_items)
+        attention_stores: attention_rows(stores, open_items),
+        store_rows: store_rows_for(stores)
       )
+    end
+
+    def store_rows_for(stores)
+      scores = Ranking.for(@tenant).rows.index_by { |row| row.store.id }
+      status_for = store_status_index
+      stores.map do |store|
+        StoreRow.new(
+          store: store,
+          score: scores[store.id]&.percent,
+          status: status_for.fetch(store.id, "on_track")
+        )
+      end
+    end
+
+    def store_status_index
+      result = StoreStatus.for(@tenant)
+      StoreStatus::BUCKETS.each_with_object({}) do |bucket, index|
+        result.stores(bucket).each { |store| index[store.id] = bucket }
+      end
     end
 
     def compliance_totals(ids)
@@ -229,23 +328,32 @@ module Vazivo
       parent = store.parent
       return [] if parent.blank?
 
-      parent.descendant_stores.where.not(id: store.id).to_a
+      scope = parent.descendant_stores.where.not(id: store.id)
+      scope = scope.where(id: @user.permitted_store_ids(:inbox)) if @user.permission_memberships.any?(&:tenant_role_id)
+      scope.to_a
+    end
+
+    # Inbox and checklist completion belong to the store user. Area and HQ
+    # viewers still see the work, without a path they cannot open.
+    def viewer_owns?(record)
+      @user.store_org_unit&.id == record.org_unit_id
     end
 
     def to_item(record)
       routes = Rails.application.routes.url_helpers
+      owned = viewer_owns?(record)
       if record.is_a?(Delivery)
-        step = record.next_awareness_step
+        step = owned ? record.next_awareness_step : nil
         Item.new(
           kind: "brief",
           title: record.communication.title,
           due_at: record.due_at,
           tone: record.tone,
-          path: routes.inbox_path(record),
+          path: (routes.inbox_path(record) if owned),
           store_name: record.org_unit.name,
           escalation_level: record.escalation_level.to_i,
           next_step: step,
-          next_label: step ? I18n.t("morocco.awareness.actions.#{step}") : nil,
+          next_label: (I18n.t("morocco.awareness.actions.#{step}") if step),
           record_id: record.id,
           priority: record.communication.priority
         )
@@ -255,11 +363,11 @@ module Vazivo
           title: record.checklist.title,
           due_at: record.due_at,
           tone: record.tone,
-          path: routes.checklists_delivery_path(record),
+          path: (routes.checklists_delivery_path(record) if owned),
           store_name: record.org_unit.name,
           escalation_level: record.escalation_level.to_i,
           next_step: nil,
-          next_label: I18n.t("morocco.radar.open_routine"),
+          next_label: (I18n.t("morocco.radar.open_routine") if owned),
           record_id: record.id,
           priority: Communication::DEFAULT_PRIORITY
         )

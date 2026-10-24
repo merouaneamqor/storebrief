@@ -29,6 +29,7 @@ class PushSubscriptionsController < ApplicationController
       user_agent: request.user_agent.to_s.truncate(255)
     )
     subscription.save!
+    current_user.update!(push_alerts_consent_at: Time.current)
 
     render json: { ok: true }, status: :created
   end
@@ -41,6 +42,7 @@ class PushSubscriptionsController < ApplicationController
     else
       scope.destroy_all
     end
+    current_user.update!(push_alerts_consent_at: nil) if current_user.push_subscriptions.none?
 
     head :no_content
   end
